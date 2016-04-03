@@ -1,0 +1,22 @@
+\h1{ Theorem Peak. Finding the area of a lattice polygon }
+A polygon without self-intersections is called a lattice if all its vertices are points with integer coordinates (Cartesian coordinate system).
+\h2{ Theorem Peak }
+\h3{ Formula }
+Given a certain lattice polygon with a non-zero square.
+Then just the ratio, called \bf{formula Maximum}:
+$$ S = I \frac{B}{2} - 1. $$
+In particular, if the known values of I and B for a given polygon, then its area can be computed in $O (1)$, not even knowing the coordinates of its vertices.
+This ratio is opened and proved Austrian mathematician Georg Alexander Peak (Georg Alexander Pick) in 1899
+\h3{ Proof }
+The proof is done in several stages: from the simplest shapes to arbitrary polygons:
+\ul{
+\li Arbitrary nondegenerate rectangle with sides parallel to the coordinate axes. To prove the formula, we denote by $a$ and $b$ are the lengths of the sides of the rectangle. Then we find: $S = ab$, $I = (a-1)(b-1)$, $B = 2(a b)$. Direct substitution, we see that the formula of the Peak is correct.
+\li an Arbitrary triangle. Note that any such triangle can be transformed into a rectangle sticking to the sides of right-angled triangles with legs parallel to the coordinate axes (you will need no more than 3 triangles). From here you can get the correct formula Maximum for any triangle.
+}
+\h2{ Generalization to higher dimensions }
+Unfortunately, this is so simple and beautiful formula Peak poorly generalized to higher dimensions.
+Demonstrated this Reeve (Reeve), suggesting that in 1957 to consider the tetrahedron (now called \bf{tetrahedron Riva}) with the following vertices:
+$$ A = (0,0,0), $$
+$$ B = (1,0,0), $$
+$$ C = (0,1,0), $$
+$$ D = (1,1,k), $$

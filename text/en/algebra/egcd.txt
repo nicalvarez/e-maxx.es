@@ -1,0 +1,33 @@
+\h1{ Extended Euclidean algorithm }
+While \algohref=euclid_algorithm{"ordinary" Euclidean algorithm} simply finds the greatest common divisor of two numbers $a$ and $b$, the extended Euclidean algorithm finds the addition of NOD also the coefficients of $x$ and $y$ such that:
+$$a \cdot x b \cdot y = {\rm gcd} (a, b).$$
+I.e. it finds the coefficients by which the GCD of two numbers expressed through these numbers.
+\h2{Algorithm}
+So, suppose we have found a solution $(x_1,y_1)$ tasks for a new pair $(b\%a,a)$:
+$$ (b \% a) \cdot x_1 a \cdot y_1 = g, $$
+and I want to get the solution $(x,y)$ for our pair $(a,b)$:
+$$ a \cdot x b \cdot y = g. $$
+To do this, convert the value of $b \% a$:
+$$ b \% a = b \left\lfloor \frac{b}{a} \right\rfloor \cdot a. $$
+We substitute this in the above expression with $x_1$ and $y_1$ and get:
+$$ g = (b \% a) \cdot x_1 a \cdot y_1 = \left( b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a \right) \cdot x_1 a \cdot y_1, $$
+and, by regrouping terms, we get:
+Comparing it with the original expression over unknown $x$ and $y$, we obtain the desired expression:
+$$ \cases{
+x = y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1, \cr
+y = x_1.
+} $$
+\h2{Implementation}
+\code
+int gcd (int a, int b, int 
+if (a == 0) {
+x = 0
+return b
+}
+int x1, y1
+int d = gcd (b%a, a, x1, y1)
+x = y1 - (b / a) * x1
+y = x1
+return d
+}
+\endcode

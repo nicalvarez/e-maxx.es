@@ -1,0 +1,10 @@
+<h1>Task of covering segments points</h1>
+<p>Given N line segments in the line. You want to cover the least number of points, i.e., to find the smallest set of points such that each segment belongs to at least one point.</p>
+<p>Also consider a more complicated variant of this problem is when further specified "restricted" set of line segments, i.e., no point of the response must not belong to any prohibited segment.</p>
+<p>Below will be described a greedy algorithm that solves both problems for <b>O (N log N)</b>.</p>
+<h2>the first task</h2>
+<p>note first that it is possible to consider only those solutions in which each point is located on the right end of any segment. Indeed, it is easy to see that any solution if it does not satisfy this property, you can lead people to him, shifting his point to the right as possible.</p>
+<p>However, a naive implementation of this method will work in O (N<sup>2</sup>). Describe the <b>efficient implementation</b> this method.</p>
+<p>Thus, the entire algorithm runs in O (N), not counting sort points, and the overall complexity of the algorithm is precisely equal to <b>O (N log N)</b>.</p>
+<h2>the second problem</h2>
+<p>Here already have Smoking sections, therefore, first, a solution may not exist, and secondly, it is impossible to say that the answer can be only from the right ends of the segments. However, the algorithm described above can appropriately be modified.</p>

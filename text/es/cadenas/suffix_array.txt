@@ -1,0 +1,165 @@
+\h1{ Суффиксный la matriz }
+Dada una cadena $s[0 \ldots, n-1]$ longitud de $n$.
+$i$concurrido \bf{sufijo} cadena como la subcadena $s[i \ldots, n-1]$, $i=0, \ldots, n-1$.
+Entonces \bf{суффиксным un array} de $s$ se llama una permutación de los índices de sufijos $p[0 \ldots, n-1]$, $p[i] \in [0
+Por ejemplo, para la cadena $s=abaab$ суффиксный la matriz será:
+$$ (2,3,0,4,1) $$
+\h2{ Generar $O (n \log n)$ }
+Estrictamente hablando, descrito a continuación, el algoritmo va a realizar la clasificación no sufijos y \bf{cíclicas de los desplazamientos} de la cadena. Sin embargo, este algoritmo es fácil de conseguir y de un algoritmo de ordenación de sufijos: basta con atribuir al final de la línea un símbolo personalizado, que a sabiendas de que es menor que el de cualquier carácter, de que puede contener una cadena (por ejemplo, esto puede ser de un dólar o sharp
+Inmediatamente note que ya clasificamos a circular de cambios, y la subcadena vamos a considerar \bf{circulares}: bajo la subcadena $s[i \ldots j]$ cuando $i > j$, se entiende la subcadena $s[i \ldots, n-1] s[0 \ldots j]$. Además, previamente, todos los índices se obtienen de módulo longitud de la cadena (para simplificar fórmulas voy a omitir expresa de la toma de índices de módulo).
+En cuestión de nosotros, el algoritmo se compone de aproximadamente $\log n$ fases. $K$-fase ($k = 0 \ldots \lceil \log n \rceil$) están cíclicas de la longitud de la subcadena $2^k$. En la última, $\lceil \log n \rceil$fase, se clasificarán de la longitud de la subcadena $2^{\lceil \log n \rceil} > n$, lo que equivale a ordenar los cambios cíclicos.
+En cada fase del algoritmo, además de permutación $p[0 \ldots, n-1]$ índices cíclicas de subcadenas apoyar para cada uno de los ciclos de la subcadena que comienza en la posición $i$, con una longitud de $2^k$, \bf{número de $c[i]$ la clase de equivalencia}, que esta cadena pertenece. En realidad, entre las subcadenas pueden ser los mismos, y el algoritmo necesita más información acerca de este. Además, las habitaciones $c[i]$ clases de equivalencia vamos a dar por lo tanto, para que guarden y la información sobre el procedimiento: si un sufijo más pequeño que el otro, y el número de la clase debe recibir menos. Clases vamos a para la comodidad de numerar a partir de cero. El número de clases de equivalencia vamos a almacenar en la variable $\rm classes$.
+Llevaremos \bf{ejemplo}. Considere la cadena $s=aaba$. Los valores de las matrices $p[]$ y $c[]$ en cada etapa, con el cero en la segunda son los siguientes:
+$$ \matrix{
+0: 
+1: 
+2: 
+} $$
+Vale la pena mencionar que en la matriz $p[]$ puede haber ambigüedad. Por ejemplo, en la fase cero de la matriz podría ser: $p=(3,1,0,2)$. Entonces, qué va a funcionar, depende de la implementación del algoritmo, pero todas las opciones son igualmente correctos. Al mismo tiempo, en la matriz $c[]$ no hay ambigüedades, no podía ser.
+Pasemos ahora a la construcción de la \bf{algoritmo}. Datos de entrada:
+\code
+char *s
+int n
+// constantes
+const int maxlen = ...
+const int alphabet = 256
+\endcode
+En \bf{fase cero} tenemos que ordenar las circulares de la longitud de la subcadena $1$, es decir, los caracteres individuales de la cadena, y dividirlos en clases de equivalencia (sólo los símbolos deben ser asignados a la misma clase de equivalencia). Esto se puede hacer es trivial, por ejemplo, de ordenación y conteo. Para cada carácter calcular el número de veces que se reunió. Luego de esta información, restableceremos la matriz $p[]$. Después de eso, el paso de la matriz $p[]$ y una comparación de caracteres, se construye la matriz $c[]$.
+\code
+int p[maxlen], la cnt[maxlen], c[maxlen]
+memset (cnt, 0, alphabet * sizeof(int))
+for (int i=0
+ cnt[s[i]]
+for (int i=1
+cnt[i] = cnt[i-1]
+for (int i=0
+p[--cnt[s[i]]] = i
+c[p[0]] = 0
+int classes = 1
+for (int i=1
+if (s[p[i]] != s[p[i-1]]) classes
+c[p[i]] = classes-1
+}
+\endcode
+A continuación, dejar que hemos cumplido $k-1$-yu fase (es decir, se han calculado los valores de las matrices $p[]$ y $c[]$ para ella), ahora aprenderemos a $O(n)$ ejecutar \bf{siguiente, $k$-yu, la fase}. Debido a que las fases de sólo $O(\log n)$, esto nos dará necesario el algoritmo con el tiempo, $O(n \log n)$.
+Para ello, tenga en cuenta que el ciclo de la longitud de la subcadena $2^k$ se compone de dos subcadenas de longitud $2^{k-1}$, que podemos comparar entre sí por $O(1)$, usando la información de la anterior fase-de-la - habitaciones $c[]$ clases de equivalencia. Por lo tanto, para una subcadena de longitud $2^k$, que empieza en la posición $i$, toda la información se contiene en un par de números $(c[i], c[i 2^{k-1}])$ (una vez más, utilizamos la matriz $c[]$ con la anterior fase).
+Esto nos da una muy simple decisión: \bf{ordenar} de la longitud de la subcadena $2^k$ simplemente \bf{de} de este \bf{parejas de números}, y nos dará el orden, es decir, la matriz $p[]$. Pero la ordenación que se ejecuta por hora $O(n \log n)$, nos equivocamos --- esto le dará el algoritmo de construcción de суффиксного de la matriz con el tiempo, $O(n \log^2 n)$ (pero este algoritmo es un poco más fácil de escribir, que se describe a continuación).
+Rápidamente cómo realizar este tipo de ordenación de los pares? Dado que los pares no excedan de $n$, entonces se puede ordenar el conteo. Sin embargo, para lograr una mejor oculta en la asíntota de la función constantes en lugar de ordenar los pares de llegar a la clasificación, simplemente números.
+Aprovechamos aquí para recibir, en la que se basa la denominada \bf{digital ordenar}: para ordenar la pareja, ordenará primero por el segundo de los elementos y, a continuación, - - - por el primer elemento (pero ya necesariamente estable de ordenación, es decir, no viola el orden relativo de los elementos en caso de empate). Sin embargo, por separado, el segundo de los elementos ya ordenados --- el orden definido en el array $p[]$ de la anterior fase. Entonces, para organizar las parejas segundo de los elementos, es necesario simplemente de cada elemento de la matriz $p[]$ quitarle a $2^{k-1}$ --- esto nos dará el orden de los pares por segundo elemento (ya que $p[]$ da la racionalización de las subcadenas de longitud $2^{k-1}$, y al cambiar a la línea a la mitad, de mayor longitud de estas subcadenas se convierten en sus segundas mitades, por lo tanto, de la posición de la segunda mitad de distancia de la longitud de la primera mitad).
+Por lo tanto, con sólo вычитаний de los elementos de la matriz $p[]$ producimos la clasificación por el segundo de los elementos de los pares. Ahora hay que hacer estable la ordenación de los primeros elementos de los pares, ya se pueden realizar en $O(n). la ordenación de conteo.
+Solo queda contar los números de $c[]$ clases de equivalencia, pero ya es fácil de obtener, simplemente pasando la información recibida de la nueva intercambiar $p[]$ y comparando los elementos vecinos (de nuevo, comparando pares de los dos números).
+Llevaremos \bf{aplicación} la ejecución de todas las fases del algoritmo, además de cero. Se introducen adicionalmente temporales de las matrices $pn$ y $cn$ ($pn$ --- contiene una permutación en el orden de los elementos de la segunda pares, $cn$ --- nuevos números de las clases de equivalencia).
+\code
+int pn[maxlen] cn[maxlen]
+for (int h=0
+for (int i=0
+pn[i] = p[i] - (1<<h)
+if (pn[i] < 0) pn[i] = n
+}
+memset (cnt, 0, classes * sizeof(int))
+for (int i=0
+ cnt[c[pn[i]]]
+for (int i=1
+cnt[i] = cnt[i-1]
+for (int i=n-1
+p[--cnt[c[pn[i]]]] = pn[i]
+cn[p[0]] = 0
+classes = 1
+for (int i=1
+int mid1 = (p[i] (1<<(h)) % n, mid2 = (p[i-1] (1<<(h)) % n
+if (c[p[i]] != c[p[i-1]] || c[mid1] != c[mid2])
+ classes
+cn[p[i]] = classes-1
+}
+memcpy (c, cn, n * sizeof(int))
+}
+\endcode
+Este algoritmo requiere $O(n \log n)$ tiempo $O(n)$ memoria. Sin embargo, si se tiene en cuenta aún el tamaño de $k$ alfabeto, mientras que el tiempo de trabajo se convierte en $O((n k) \log n). el tamaño de la memoria --- $O(n k)$.
+\h2{ Aplicación }
+\h3{ el Hallazgo de la menor rotativa de la cadena }
+Descrito en el algoritmo clasifica cíclicos cambios (si a la línea de no atribuir el dólar), sino porque $p[0]$ dará que busca una posición de menor rotativa. El tiempo de trabajo --- $O(n \log n)$.
+\h3{ Búsqueda de una subcadena en la cadena }
+Supongamos que desea en el texto $t$ para buscar una cadena $s$ en el modo en línea (es decir, de antemano cadena $s$ es necesario contar desconocida). Construiremos суффиксный la matriz de texto $t$ $O (|t| \log |t|)$. Ahora la subcadena $s$ vamos a buscar de la siguiente manera: tenga en cuenta que la búsqueda de aparición debe ser el prefijo de algún sufijo $t$. Ya que los sufijos tenemos ordenados (esto nos da суффиксный matriz), la subcadena $s$, puede buscar binarios de búsqueda de sufijos específicos a aparecen de la cadena. Comparación del sufijo y de la subcadena $s$ dentro de un binario de búsqueda, puede producir trivial, $O(|p|)$. Entonces asíntotas de la búsqueda de una subcadena en el texto se convierte en $O(|p| \log |t|)$.
+\h3{ Comparación de dos subcadenas de la cadena }
+Se requiere de una determinada línea de $s$, haciendo un poco de su препроцессинг, aprender $O(1)$ de responder de la comparación de dos arbitrarias de subcadenas (es decir, la comprobación de que la primera subcadena es igual/menor/mayor que el segundo).
+Construiremos суффиксный la matriz por $O (|s| \log |s|)$, con este vamos a guardar los resultados intermedios: necesitamos matrices de $c[]$ de cada fase. Por lo tanto, la memoria deberá también $O (|s| \log |s|)$.
+Con esta información, podemos por $O(1)$ comparar las dos subcadenas de longitud, igualmente doses para ello, basta con comparar los números de las clases de equivalencia de cada fase. Ahora hay que generalizar este método en subcadenas de longitud arbitraria.
+$$ \ldots \overbrace{ \underbrace{ s_i \ldots s_{i l-2^k} \ldots s_{i 2^k-1} }_{2^k} \ldots s_{i, l-1} }^{\rm first} \ldots \overbrace{ \underbrace{ s_j \ldots s_{j l-2^k} \ldots s_{j 2^k-1} }_{2^k} \ldots s_{j l-1} }^{\rm second} \ldots $$
+$$ \ldots \overbrace{ s_i \ldots \underbrace{ s_{i l-2^k} \ldots s_{i 2^k-1} \ldots s_{i, l-1} }_{2^k} }^{\rm first} \ldots \overbrace{ s_j \ldots \underbrace{ s_{j l-2^k} \ldots s_{j 2^k-1} \ldots s_{j l-1} }_{2^k} }^{\rm second} \ldots $$
+Por lo tanto, la aplicación resulta aproximadamente un (aquí se considera que causa el procedimiento en sí, calcula $k$, ya que hacer esto por la constante de tiempo no es tan fácil (aparentemente, es más rápido --- предпосчетом), pero en cualquier caso, esto no tiene relación con la aplicación de суффиксного de la matriz):
+\code
+int compare (int i, int j, int l, int k) {
+pair<int,int> a = make_pair (c[k][i], c[k][i l-(1<<k)])
+pair<int,int> b = make_pair (c[k][j], c[k][j l-(1<<k)])
+retorno a == b ? 0 : a < b ? -1 : 1
+}
+\endcode
+\h3{ el máximo común el prefijo de dos subcadenas: el método con memoria adicional }
+Se requiere de una determinada línea de $s$, haciendo un poco de su препроцессинг, aprender $O(\log |s|)$ responder mayor general del prefijo (longest common prefix, lcp) para dos arbitrarias de sufijos con posiciones $i$ y $j$.
+El método descrito aquí, requiere $O (|s| \log |s|)$ memoria adicional
+Construiremos суффиксный la matriz por $O (|s| \log |s|)$, con este vamos a guardar los resultados intermedios: necesitamos matrices de $c[]$ de cada fase. Por lo tanto, la memoria deberá también $O (|s| \log |s|)$.
+Que ahora se ingresó una nueva consulta: un par de índices de $i$ y $j$. Usaremos el hecho de que podemos por $O(1)$ comparar las dos subcadenas de longitud, que es el grado de doses. Para ello vamos a escoger una potencia de dos (de mayor a menor), y para el actual grado de comprobar: si la subcadena de una longitud tal que coinciden, entonces la respuesta sume a esta potencia de dos y el máximo común el prefijo continuaremos a buscar a la derecha de la misma parte, es decir, a $i$ y $j$ hay que añadir la actual potencia de dos.
+Realización:
+\code
+int lcp (int i, int j) {
+int ans = 0
+for (int k=log_n
+if (c[k][i] == c[k][j]) {
+ans = 1<<k
+i = 1<<k
+j = 1<<k
+}
+return ans
+}
+\endcode
+Aquí, a través de la $\rm log\_n$ marcada con un valor constante, igual al logaritmo de $n$ base 2, округленному abajo.
+\h3{ el máximo común el prefijo de dos subcadenas: el método sin memoria adicional. El mayor es el prefijo común de los dos países vecinos sufijos }
+Se requiere de una determinada línea de $s$, haciendo un poco de su препроцессинг, aprender a responder el mayor general del prefijo (longest common prefix, lcp) para dos arbitrarias de sufijos con posiciones $i$ y $j$.
+A diferencia de la anterior por el método descrito aquí es realizar препроцессинг de la cadena por $O(n \log n)$ tiempo $O(n)$ memoria. El resultado de este препроцессинга será una matriz (que de por sí es una importante fuente de información sobre la cadena, y porque utilizar para resolver otros problemas). Las respuestas en la solicitud se efectuará como resultado de la ejecución de la consulta RMQ (al menos en el tramo, range minimum query) en la matriz, por lo tanto, a diferentes implementaciones se puede obtener como una escala logarítmica, y la constante de tiempos de trabajo.
+La base de este algoritmo es la siguiente idea: vamos a encontrar de alguna manera la mayor prefijos comunes para cada \bf{vecina en el orden de los pares de sufijos}. En otras palabras, construimos la matriz ${\rm lcp}[0 \ldots, n-2]$, donde ${\rm lcp}[i]$ es igual a mayor general prefijo sufijo $p[i]$ y $p[i, 1]$. Esta matriz nos dará la respuesta para cualquiera de los dos países vecinos de sufijos de la cadena. Entonces la respuesta para cualquiera de los dos sufijos, no necesariamente adyacentes, se puede obtener de la matriz. De hecho, el que hizo la solicitud con algunos números de sufijos $i$ y $j$. Encontraremos estos índices en суффиксном la matriz, es decir que $k_1$ y $k_2$ --- su posición en la matriz $p[]$ (pedimos, es decir que $k_1 < k_2$). Entonces la respuesta a esta solicitud, será por lo menos en el array $\rm lcp$ tomado en el intervalo $[k_1
+Por lo tanto, si tenemos una matriz $\rm lcp$, entonces la respuesta a cualquier petición de mayor general del prefijo se reduce a solicitar \bf{mínimo en el tramo} $\rm lcp$. Este clásico de la tarea mínimo en el intervalo (range minimum query, RMQ) tiene un montón de soluciones con diferentes асимптотиками descritos \algohref=rmq{aquí}.
+Después de cero de la matriz de iteración $\rm lcp$, obviamente, debe ser igual a cero.
+Supongamos ahora que han cumplido $k-1$-yu iteración, recibieron la matriz $\rm lcp^\prime$, y se debe a la actual $k$-ésima iteración calcular esta matriz, al recibir el nuevo su valor es de $\rm lcp$. Como recordamos, en el algoritmo de generación de суффиксного de la matriz circular de la longitud de la subcadena $2^k$ se separaban por la mitad en dos subcadenas de longitud $2^{k-1}$
+Así, que en la iteración actual del algoritmo de cálculo de суффиксного de la matriz ha realizado su trabajo, ha encontrado un nuevo valor de permutación $p[]$ subcadenas. Ahora vamos a ir por ese conjunto y ver un par de vecinos de subcadenas: $p[i]$ y $p[i, 1]$, $i=0, \ldots, n-2$. Rompiendo cada una subcadena por la mitad, tenemos dos situaciones diferentes: 1) las primeras mitades de las subcadenas en las posiciones $p[i]$ y $p[i, 1]$ varían, y 2) la primera mitad de la misma (recordemos, es la comparación sencilla, simplemente comparando los números de las clases $c[]$ de la iteración anterior). Consideremos cada uno de estos casos por separado.
+1) las Primeras mitades de las subcadenas diferentes. Tenga en cuenta que mientras en el paso anterior estas primeras mitades debe eran vecinos. En realidad, las clases de equivalencia no podían desaparecer (y sólo pueden aparecer), por lo tanto, todos diferentes de la longitud de la subcadena $2^{k-1}$ darán como los primeros mitades) en la iteración actual y diferentes de la longitud de la subcadena $2^k$, y en el mismo orden. Por lo tanto, para la definición de ${\rm lcp}[i]$ en este caso, simplemente hay que tomar el valor correspondiente de la matriz $\rm lcp^\prime$.
+2) las Primeras mitades más o menos iguales. Entonces las segundas mitades podamos coincidir y variar
+Ponemos \bf{асимптотику} este algoritmo. Como hemos visto al analizar estos dos casos, sólo el segundo caso se da un aumento en el número de clases de equivalencia. En otras palabras, se puede decir que cada nueva clase de equivalencia aparece junto con una petición RMQ. Dado que sólo las clases de equivalencia puede ser de hasta $n$ es lo que buscan al menos debemos асимптотику $O(\log n)$. Y para ello es necesario utilizar algún tipo de estructura de datos para un mínimo en el tramo de la
+\bf{Realización:}
+\code
+int lcp[maxlen], lcpn[maxlen], lpos[maxlen], rpos[maxlen]
+memset (lcp, 0, sizeof lcp)
+for (int h=0
+for (int i=0
+rpos[c[p[i]]] = i
+for (int i=n-1
+lpos[c[p[i]]] = i
+... todas las acciones de construcción de la суфф. de la matriz, además de la última fila (memcpy) ...
+rmq_build (lcp, n-1)
+for (int i=0
+int a = p[i], b = p[i 1]
+if (c[a] != c[b])
+lcpn[i] = lcp[rpos[c[a]]]
+else {
+int aa = (a (1<<(h)) % n, bb = (b (1<<(h)) % n
+lcpn[i] = (1<<h) rmq (lpos[c[aa]], rpos[c[bb]]-1)
+lcpn[i] = min (n, lcpn[i])
+}
+}
+memcpy (lcp, lcpn, (n-1) * sizeof(int))
+memcpy (c, cn, n * sizeof(int))
+}
+\endcode
+Aquí, además de la matriz $\rm lcp[]$ se introduce el conjunto $\rm lcpn[]$ con su nuevo valor. También se admite la matriz $\rm pos[]$, que para cada subcadena mantiene su posición en el intercambio de $p[]$. La función $\rm rmq\_build$ --- alguna función, construye una estructura de datos para un mínimo de una matriz-al primer argumento, el tamaño de la misma se pasa el segundo argumento. La función $\rm rmq$ devuelve el mínimo en el tramo: desde el primer argumento de la segunda, ambos inclusive.
+Desde el propio algoritmo de generación de суффиксного de la matriz sólo tuvo que soportar la copia de la matriz $c[]$, ya que en el momento de calcular $\rm lcp$ necesitaremos los antiguos valores de la matriz.
+Vale la pena señalar que nuestra implementación busca la longitud de un prefijo común para \bf{cíclicas de la subcadena}, mientras que, en la práctica, a menudo es necesaria la longitud de un prefijo común para los sufijos en sus habituales. En este caso, simplemente hay que limitar el valor de $\rm lcp$ al final de su trabajo de algoritmo:
+\code
+for (int i=0
+lcp[i] = min (lcp[i], min (n-p[i], n-p[i, 1]))
+\endcode
+Para \bf{todas} dos sufijos de la longitud de su mayor general del prefijo ahora se puede encontrar, como mínimo, en el tramo de la matriz $\rm lcp$:
+\code
+for (int i=0
+pos[p[i]] = i
+rmq_build (lcp, n-1)
+... ha llegado la solicitud (i,j) en la búsqueda de LCP ...
+int result = rmq (min(i,j), max(i,j)-1)

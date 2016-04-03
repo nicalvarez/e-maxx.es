@@ -1,0 +1,47 @@
+\h1{ Function Euler }
+\h2{ Definition }
+\bf{the Euler Function} $\phi (n)$ (sometimes denoted $\varphi(n)$ or ${\it phi}(n)$) --- this is the number of integers from $1$ to $n$ coprime to $n$. In other words, it is the number of numbers in the interval $[1
+The first few values of this function (\href=http://oeis.org/A000010{A000010 encyclopedia OEIS}):
+$$ \phi (1)=1, $$
+$$ \phi (2)=1, $$
+$$ \phi (3)=2, $$
+$$ \phi (4)=2, $$
+$$ \phi (5)=4. $$
+\h2{ Properties }
+\ul{
+\li If $p$ --- Prime number, then $\phi (p)=p-1$.
+(This is obvious, because any number, except for the $p$, mutually just with him.)
+\li If $p$ --- simple $a$ --- positive integer, then $\phi (p^a)=p^a-p^{a-1}$.
+(Since the number of $p^a$ are not relatively Prime only numbers of the form $pk$ $(k \in \mathcal{N})$, where $p^a / p = p^{a-1}$ pieces.)
+\li If $a$ and $b$ are relatively Prime, then $\phi(ab) = \phi(a) \phi(b)$ ("multiplicatively" of the Euler function).
+}
+From here you can get the Euler function for any $\it n$ through his \bf{factorization} (decomposition of $n$ on simple factors):
+if
+$$ n = p_1^{a_1} \cdot p_2^{a_2} \cdot \ldots \cdot p_k^{a_k} $$
+(where $p_i$ --- simple), 
+$$ \phi(n) = \phi(p_1^{a_1}) \cdot \phi(p_2^{a_2}) \cdot \ldots \cdot \phi(p_k^{a_k}) = $$
+$$ = (p_1^{a_1} - p_1^{a_1-1}) \cdot (p_2^{a_2} - p_2^{a_2-1}) \cdot \ldots \cdot (p_k^{a_k} - p_k^{a_k-1}) = $$
+$$ = n \cdot \left( 1-{1\over p_1} \right) \cdot \left( 1-{1\over p_2} \right) \cdot \ldots \cdot \left( 1-{1\over p_k} \right). $$
+\h2{ Implementation }
+\code
+int phi (int n) {
+int result = n
+for (int i=2
+if (n % i == 0) {
+while (n % i == 0)
+n /= i
+result -= result / i
+}
+if (n > 1)
+result -= result / n
+return result
+}
+\endcode
+The key place for the calculation of the Euler function --- finding \bf{factorization} the number $n$. It can be implemented at the time, much less $O(\sqrt{n})$; see \algohref=factorization{Efficient algorithms factorization}.
+\h2{ App Euler }
+The most famous and important property of the Euler function is expressed in \bf{theorem Euler}:
+where $\it a$ and $\it m$ are coprime.
+In the particular case when $\it m$ is simple, Euler's theorem turns into the so-called \bf{small Fermat's theorem}:
+$$ a^{m-1} \equiv 1 \pmod m $$
+Theorem Euler quite often in practical applications, for example, see \algohref=reverse_element{return item in the module}.
+\h2{ Tasks in online judges }

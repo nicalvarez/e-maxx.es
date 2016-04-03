@@ -1,0 +1,20 @@
+\h1{ Modular linear equation of first order }
+\h2{ problem Statement }
+This equation is of the form:
+$$a \cdot x = b \pmod n$$
+where $a, b, n$ --- specified integers $x$ --- unknown integer.
+\h2{ Solution by finding the Inverse of an element }
+Consider first the simpler case is when $a$ and $n$ \bf{coprime}. Then you can find \algohref=reverse_element{return element} the number $a$, and, by multiplying by him both parts of the equation to get the solution (and it will be \bf{only}):
+$$x = b \cdot a^{-1} \pmod n$$
+Now consider the case when $a$ and $n$ \bf{not coprime}. Then, obviously, the decision will not always exist (for example, $2 \cdot x = 1 \pmod 4$).
+Then, if $b$ is not divisible by $g$, then there is no solution. In fact, for any $x$ left part of the equation, i.e., $(a \cdot x) \pmod n$ is always divisible by $g$, while the right part for him is not divisible, whence it follows that the solutions are not.
+If $b$ is divisible by $g$, then by dividing both parts of the equation $g$ (i.e., dividing $a$, $b$ and $n$ in $g$), we come to the new equation:
+$$a^\prime \cdot x = b^\prime \pmod {n^\prime}$$
+It is clear that $x^\prime$ will also be a solution to the original equation. However, if $g > 1$, then it will be \bf{only} the solution. It can be shown that the original equation will have exactly $g$ of solutions, and they will be:
+$$x_i = (x^\prime i \cdot n^\prime) \pmod n$$
+$$i = 0 \ldots (g-1).$$
+Summarizing, we can say that \bf{the number of solutions} of linear modular equations equal to either $g = {\rm gcd(a,n)}$, or zero.
+\h2{ Solution using the Extended Euclid's algorithm }
+$$a \cdot x n \cdot k = b,$$
+where $x$ and $k$ --- unknown integers.
+The solution of this equation is described in a related article \algohref=diofant_2_equation{Linear Diophantine equations of second order}, and it consists in the application \algohref=extended_euclid_algorithm{Extended Euclid's algorithm}.

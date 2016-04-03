@@ -1,0 +1,42 @@
+\h1{la Descomposición de Lyndon. El Algoritmo De Дюваля. El hallazgo de la menor rotativa}
+\h2{el Concepto de la descomposición de Lyndon}
+Definir el concepto de \bf{descomposición de Lyndon} (Lyndon de la descomposición).
+La cadena se llama \bf{simple}, si es estrictamente \bf{menor} cualquiera de su propio \bf{sufijo}. Ejemplos simples de filas: $a$, $b$, $ab$, $aab$, $abb$, $ababb$, $abcd$. Se puede ver que la línea es simple entonces, y sólo entonces, cuando está estrictamente \bf{menor} todos sus sofisticados \bf{cíclicas de los desplazamientos}.
+A continuación, dejar que dada una cadena $s$. Entonces \bf{декомпозицией Lyndon} de $s$ se llama su descomposición $s = w_1 w_2 \ldots w_k$, donde las cadenas de $w_i$ simples, y $w_1 \ge w_2 \ge \ldots \ge w_k$.
+Se puede demostrar que para cualquier fila de $s$ es la descomposición existe y es única.
+\h2{Algoritmo Дюваля}
+\bf{Algoritmo Дюваля} (Duval's algorithm) encuentra para esta línea de longitud $n$ descomposición de Lyndon por hora $O (n)$ utilizando $O (1)$ de memoria adicional.
+Trabajar con líneas vamos a 0-indexación.
+Introduciremos el concepto auxiliar de la предпростой de la cadena. La cadena $t$ se llama \bf{предпростой}, si se tiene una vista $t = w w w \ldots w \overline{w}$, donde $w$ --- algo de cadena simple, y $\overline{w}$ --- algún prefijo de la cadena $w$.
+El algoritmo de Дюваля es codicioso. En cualquier momento de su trabajo de la cadena S en realidad se divide en tres filas $s = s_1 s_2 s_3$, donde en la barra de $s_1$ descomposición de Lyndon ya se ha encontrado y $s_1$ ya no se utiliza el algoritmo de
+Describiremos ahora el algoritmo \bf{formalmente}. En primer lugar, se mantendrá índice $i$ al comienzo de la línea $s_2$. El bucle externo algoritmo se ejecutará hasta $i < n$, es decir, hasta que toda la cadena $s$, no entrará en la cadena $s_1$. Dentro de este ciclo se crean dos índices: el índice $j$ al comienzo de la línea $s_3$ (de hecho, el puntero al siguiente carácter del candidato) y el índice $k$ en el carácter actual en la barra de $s_2$, con el que se realizará la comparación. A continuación, vamos a en el ciclo de tratar de añadir el símbolo $s[j]$ a la barra de $s_2$, para el cual se debe comparar con el símbolo $s[k]$. Aquí hay tres tipos de casos:
+\ul{
+\li Si $s[j] = s[k]$, entonces podemos escribir el símbolo $s[j]$ a la barra de $s_2$, sin excederse en su "предпростоты". Por lo tanto, en este caso, simplemente aumentamos punteros $j$ y $k$ por unidad.
+\li Si $s[j] > s[k]$, entonces, obviamente, la cadena $s_2 s[j]$ será fácil. Entonces aumentamos $j$ por unidad y $k$ передвигаем de vuelta al $i$, para el siguiente símbolo fue comparada recientemente con el primer carácter de $s_2$.
+\li Si $s[j] < s[k]$, entonces $s_2 s[j]$ no puede ser предпростой. Por lo tanto, partimos de предпростую la cadena $s_2$ en una simple línea más "resto" (prefijo de una simple línea, posiblemente vacío)
+}
+\h3{Aplicación}
+Llevaremos la implementación de un algoritmo de Дюваля, que mostrará lo que busca la descomposición de Lyndon fila $s$:
+\code
+string s
+int n = (int) s.length()
+int i=0
+while (i < n) {
+int j=i 1, k=i
+while (j < n 
+if (s[k] < s[j])
+k = i
+else
+ k
+ j
+}
+while (i <= k) {
+cout << s.substr (i, j, k) << ' '
+i = j - k
+}
+}
+\endcode
+\h3{Asíntotas}
+Inmediatamente tenga en cuenta que para el algoritmo Дюваля desea \bf{$O (1)$ de la memoria}, es decir, los tres del puntero del $i$, $j$, $k$.
+Ponemos ahora \bf{trabajo} algoritmo.
+\bf{Externo bucle while} hace no más de $n$ de iteraciones, ya que al final de cada iteración se muestra, como mínimo, de un carácter (sólo caracteres se muestra, obviamente, exactamente $n$).

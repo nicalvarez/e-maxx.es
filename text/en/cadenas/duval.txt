@@ -1,0 +1,56 @@
+\h1{Decomposition Lyndon. The Algorithm Of Duval. Finding the smallest cyclic shift}
+\h2{the Concept of decomposition Lyndon}
+We define the term \bf{decomposition Lyndon} (Lyndon decomposition).
+The line is called \bf{simple} if it is strictly \bf{less} any of his own \bf{suffix}. Examples of simple strings: $a$, $b$, $ab$, $aab$, $abb$, $ababb$, $abcd$. It is possible to show that the line is simple if and only if it is strictly \bf{less} of all its non-trivial \bf{cyclic shifts}.
+It can be shown that for any string $s$ is a decomposition exists and is unique.
+\h2{Algorithm Duval}
+\bf{Algorithm Duval} (Duval''s algorithm) finds the given string of length $n$ the Lyndon decomposition for time $O (n)$ using $O (1)$ for more memory.
+To work with rows will be 0-indexed.
+\ul{
+\li If $s[j] = s[k]$, then we can add the $symbol s[j]$ to the line $s_2$, without violating its "preprostatic". Therefore, in this case, we simply increment the pointers $j$ and $k$ per unit.
+\li If $s[j] > s[k]$, then, obviously, string $s_2 s[j]$ will be simple. Then we increase $j$ per unit, and $k$ move back to $i$, so that the next character is compared with the first character of $s_2$.
+}
+\h3{Implementation}
+We will present an implementation of the algorithm Duval, which will output the desired decomposition Lyndon string $s$:
+\code
+string s
+int n = (int) s.length()
+int i=0
+while (i < n) {
+int j=i 1, k=i
+while (j < n 
+if (s[k] < s[j])
+k = i
+else
+ k
+ j
+}
+while (i <= k) {
+cout << s.substr (i, j-k) << ' '
+i = j - k
+}
+}
+\endcode
+\h3{Asymptotic}
+We note that for the algorithm Duval required \bf{$O (1)$ memory}, namely three index $i$, $j$, $k$.
+\bf{Outer loop} makes no more than $n$ iterations, because at the end of each iteration is displayed as at least one character (and all characters are displayed, obviously, exactly $n$).
+Therefore, \bf{algorithm Duval runs in $O (n)$}.
+It is easy to estimate the number of comparisons characters performed by the algorithm of Duval. Since each iteration of the first nested while loop produces two character comparison, and a comparison is made after the last iteration of the loop (to understand that the cycle has to stop), then shared \bf{the number of comparisons characters} does not exceed $4 n - 3$.
+\h2{Finding the smallest cyclic shift}
+Beginning predprostora block to find the just-- it is enough to note that the index $i$ at the beginning of each iteration of the outer while loop indicates the start of the current predprostora block.
+In total we received this \bf{implementation} (for simplicity of the code it uses $O (n)$ memory, explicitly writing the string to itself):
+\code
+string min_cyclic_shift (string s) {
+s = s
+int n = (int) s.length()
+int i=0, ans=0
+while (i < n/2) {
+ans = i
+int j=i 1, k=i
+while (j < n 
+if (s[k] < s[j])
+k = i
+else
+ k
+ j
+}

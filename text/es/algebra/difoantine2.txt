@@ -1,0 +1,63 @@
+\h1{ diofantovy las ecuaciones Lineales con dos variables }
+Диофантово una ecuación con dos incógnitas es:
+$$ a \cdot x b \cdot y = c, $$
+donde $a, b, c$ --- especificada enteros, $x$ y $y$ --- desconocidos enteros.
+A continuación se analizan algunos de los clásicos de tareas en estas ecuaciones: encontrar cualquier decisión, la obtención de todas las decisiones, la búsqueda de un número de decisiones y las soluciones en un determinado tramo de encontrar una solución con la menor suma de desconocidos.
+\h2{ un caso de degeneración }
+Uno de un caso de degeneración de inmediato nos excluiremos a partir de la revisión: cuando $a = b = 0$. En este caso, claro, la ecuación tiene una o un número infinito de decisiones arbitrarias, o que no tiene soluciones en absoluto (dependiendo de $c = 0$ o no).
+\h2{ Encontrar una solución }
+Encontrar una solución диофантова ecuaciones con dos incógnitas mediante el \algohref=extended_euclid_algorithm{del algoritmo Extendido de Euclides}. Supongamos, primero, que el número de $a$ y $b$ неотрицательны.
+Un avanzado algoritmo de Euclides a partir de un valor no negativo números de $a$ y $b$ encuentra el máximo común divisor de $g$, así como los factores de $x_g$ y $y_g$, que:
+$$ a \cdot x_g b \cdot y_g = g. $$
+Se afirma que si $c$ divide a $g = {\rm mcd} (a,b)$, entonces диофантово la ecuación $a \cdot x b \cdot y = c$ tiene la solución
+Supongamos que $c$ divide a $g$, entonces, obviamente, se cumple:
+$$ a \cdot x_g \cdot (c/g) b \cdot y_g \cdot (c/g) = c, $$
+es decir, una de las decisiones диофантова de la ecuación son los números:
+$$ \cases{
+x_0 = x_g \cdot (c / g) \cr
+y_0 = y_g \cdot (c / g).
+} $$
+Hemos descrito la decisión en el caso, cuando el número de $a$ y $b$ неотрицательны. Si uno de ellos o ambos son negativos, entonces se puede proceder de esta manera: tomar por el módulo y aplicar el algoritmo de Euclides, como se ha descrito anteriormente y, a continuación, cambiar el signo de los encontrados $x_0$ y $y_0$ de conformidad con el presente el signo de los números de $a$ y $b$, respectivamente.
+La implementación (recordaremos aquí creemos que los datos de entrada $a=b=0$ no son válidos):
+\code
+int mcd (int a, int b, int 
+if (a == 0) {
+x = 0
+return b
+}
+int x1, y1
+int d = mcd (b,% a, a, x1, y1)
+x = y1 - (b / a) * x1
+y = x1
+return d
+}
+bool find_any_solution (int a, int b, int c, int 
+g = gcd (abs(a), abs(b), (x0, y0)
+if (c % g != 0)
+return false
+x0 *= c / g
+y0 *= c / g
+if (a < 0) x0 *= -1
+if (b < 0) y0 *= -1
+return true
+}
+\endcode
+\h2{ Obtención de todas las decisiones }
+Te mostraremos cómo obtener todos los demás de la decisión (un número infinito) диофантова de la ecuación, sabiendo que una de las soluciones de $(x_0,y_0)$.
+Así, que $g = {\rm mcd}(a,b)$, y la cantidad de $x_0, y_0$ cumplen con la condición de:
+$$ a \cdot x_0 b \cdot y_0 = c. $$
+Entonces, tenga en cuenta que, añadiendo a $x_0$ número $b/g$ y al mismo tiempo destruyendo $a/g$ de $y_0$, no nos violaremos de la igualdad:
+$$ a \cdot (x_0 b/g) b \cdot (y_0 - a/g) = a \cdot x_0 b \cdot y_0 a \cdot b/g, - b \cdot a/g = c. $$
+Es evidente que este proceso puede repetirse tanto como se quiera, es decir, todos los números de la especie:
+$$ \cases{
+x = x_0 k \cdot b/g, \cr
+y = y_0 - k \cdot a/g,
+}~~~~ k \in Z $$
+son soluciones de диофантова de la ecuación.
+Además, sólo el número de este tipo y son las decisiones, es decir, describimos el conjunto de todas las soluciones диофантова de la ecuación (que ha resultado infinito, si no se imponen condiciones adicionales).
+\h2{ Encontrar el número de decisiones y las soluciones en un determinado tramo }
+Que dados dos segmentos de $[min_x
+Tenga en cuenta que si uno de los números de $a,$ b es igual a cero, significa que la tarea no tiene más de una solución, por lo tanto, estos casos nosotros, en esta sección excluye de la consideración.
+Primero encontraremos la solución con un mínimo adecuado de $x$, es decir, $x \ge min_x$. Para ello, primero encontraremos cualquier decisión диофантова de la ecuación (ver punto 1). A continuación, la recibiremos de él la solución con la menor $x \ge min_x$ --- para eso utilizaremos el procedimiento descrito en el párrafo anterior, y vamos a reducir/aumentar de $x$, mientras que no sea $\ge min_x$, y el mínimo. Esto se puede hacer por $O(1)$, considerando con qué factor es necesario aplicar esta conversión, para obtener el número mínimo mayor o igual a $min_x$. Se denota encontrado $x$ $lx1$.
+De manera similar se puede encontrar y la decisión con la máxima adecuado de $x=rx1$, es decir, $x \le max_x$.
+A continuación, desplácese a la satisfacción de las restricciones a $y$, es decir, a la revisión del corte de $[min_y

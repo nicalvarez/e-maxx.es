@@ -1,0 +1,76 @@
+\h1{Centros de gravedad de los polígonos y poliedros}
+\bf{Centro de gravedad} (o \bf{centro de gravedad}) un cuerpo se denomina punto, que posee la propiedad de que si colgar el cuerpo de este punto, se va a mantener su posición.
+A continuación se bidimensionales y tridimensionales de las tareas relacionadas con la búsqueda de los diferentes centros de masas --- principalmente desde el punto de vista de la geometría computacional.
+En los siguientes soluciones se pueden distinguir dos grandes \bf{hecho}. El primer --- que el centro de masas de un sistema de puntos materiales es igual al promedio de sus coordenadas, tomadas con los factores proporcionales a sus masas. El segundo hecho --- que si sabemos, los centros de masa de los dos disjuntos de las figuras, el centro de masas de la combinación de ellos se encuentran en el tramo que conecta estos dos centros, de los cuales se comparte en el mismo sentido, el peso en la segunda forma se refiere a la masa de la primera.
+\h2{Bidimensional caso: polígonos}
+En realidad, al hablar sobre el centro de masa bidimensional de la figura, se puede tener en cuenta una de las siguientes tres \bf{tareas}:
+\ul{
+\li Centro de masas de un sistema de puntos --- es decir, que toda la masa se concentra sólo en los vértices de un polígono.
+\li Centro de masas de un esqueleto --- es decir, la masa de un polígono, se centra en su perímetro.
+\li Centro de masas de un sólido de la figura --- es decir, la masa de un polígono está distribuida por toda su superficie.
+}
+Cada una de estas tareas tiene una solución independiente, y se considerará por separado a continuación.
+\h3{Centro de masas de un sistema de puntos}
+Es la más sencilla de las tres tareas, y su solución --- conocida de la física, la fórmula de centro de masas de un sistema de puntos materiales:
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i} ~ m_i }{ \sum\limits_i m_i }, $$
+donde $m_i$ --- la masa de puntos, $\vec{r_i}$ --- radio-vectores (definen su posición con respecto al origen de coordenadas), y $\vec{r_c}$ --- el radio-vector del centro de masas.
+En particular, si todos los puntos tienen la misma masa, entonces las coordenadas del centro de masas es \bf{media aritmética} coordenadas de los puntos. Para \bf{triángulo} este punto se llama \bf{центроидом} y coincide con el punto de intersección de las medianas:
+$$ \vec{r_c} = \frac{ \vec{r_1} \vec{r_2} \vec{r_3} }{ 3 }. $$
+Para \bf{prueba} estas fórmulas, basta con recordar que el equilibrio se alcanza en un punto $r_c$, en el que la suma de los momentos de todas las fuerzas es igual a cero. En este caso, se convierte en la condición de que la suma de radio-vectores de todos los puntos de alrededor de un punto $r_c$, домноженных en masa de los puntos, fue de cero:
+$$ \sum\limits_i \left( \vec{r_i} - \vec{r_c} \right) m_i = \vec{0}, $$
+y, expresando aquí $\vec{r_c}$, tenemos la fórmula deseada.
+\h3{el Centro de masas de un esqueleto}
+Vamos a suponer por simplicidad, que el armazón es uniforme, es decir, su densidad en todas partes es la misma.
+Pero entonces, a cada lado de un polígono se puede reemplazar un punto --- de mediados de este segmento (ya que el centro de masas homogénea del corte hay mediados de este segmento), con una masa igual a la longitud de este segmento.
+Ahora tenemos la tarea sobre el sistema de puntos materiales, y aplicándole una solución en el punto anterior, nos encontramos con:
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i^\prime} ~ l_i }{ P }, $$
+donde $\vec{r_i^\prime}$ --- de punto-a-mediados de $i$-oh de los lados del polígono, $l_i$ --- la longitud del $i$-oh lado, $P$ --- perímetro, es decir, la suma de las longitudes de las partes.
+Para \bf{triángulo} se puede mostrar la siguiente afirmación: este punto es \bf{el punto de intersección биссектрис} de un triángulo formado por los medios de las partes del triángulo original. (para ver esto, es necesario utilizar la fórmula anterior, y luego de observar que la bisectriz divide la parte resultante de un triángulo en la misma proporción que los centros de masa de las partes).
+\h3{Centro de masas de un sólido de figuras}
+Creemos que el peso se distribuye de una forma homogénea, es decir, la densidad en cada punto de la figura es igual al mismo número.
+\h4{Caso del triángulo}
+Sostiene que para el triángulo de la respuesta es la misma \bf{центроид}, es decir, el punto que se formó la media aritmética de las coordenadas de los vértices:
+$$ \vec{r_c} = \frac{ \vec{r_1} \vec{r_2} \vec{r_3} }{ 3 }. $$
+\h4{Caso del triángulo: prueba}
+Aquí elemental de la prueba, no se utiliza la teoría de las integrales.
+El primer similar, puramente geométrica, la prueba de que ha llevado Arquímedes, pero era muy difícil, con un gran número de construcciones geométricas. La siguiente prueba se ha tomado del artículo Apostol, Mnatsakanian "Finding Centroids the Easy Way".
+La prueba consiste en demostrar que el centro de gravedad del triángulo está a la misma de las medianas
+\img{centroids_1.jpg}
+Cuatro resultantes de un triángulo son como el triángulo $T$ con una tasa de $1/2$.
+Triángulos nº 1 y nº 2 juntos forman un paralelogramo, el centro de masas de la cual $c_{12}$ está en el punto de intersección de sus diagonales (ya que es la figura simétrica respecto a dos de las diagonales, y, por lo tanto, su centro de gravedad debe estar en cada una de las dos diagonales). El punto $c_{12}$ se encuentra en el centro común de parte de los triángulos nº 1 y nº 2, y también se encuentra en la mediana del triángulo $T$:
+\img{centroids_2.jpg}
+Supongamos ahora el vector $\vec{r}$ --- vector, realizado desde la cima de $A$ a el centro de masas de $c_1$ triángulo nº 1, y que el vector de $\vec{m}$ --- vector, realizada de $A$ a punto de $c_{12}$ (que, recordemos, es la mitad de la parte en la que se encuentra):
+\img{centroids_3.jpg}
+Nuestro objetivo es demostrar que el vector $\vec{r}$ y $\vec{m}$ son colineales.
+Se denota por $c_3$ y $c_4$ el punto de que son centros de masas de los triángulos nº 3 y nº 4. Entonces, obviamente, el centro de masas de la combinación de estas dos triángulos será el punto $c_{34}$, que es la mitad del segmento $c_3 c_4$. Además, el vector de puntos de $c_{12}$ a punto de $c_{34}$ coincide con el vector $\vec{r}$.
+El centro de masas de $c$ del triángulo $T$ yace en medio del segmento que une los puntos de $c_{12}$ y $c_{34}$ (ya rompimos el triángulo $T$ en dos partes iguales de la superficie: nº 1, nº 2 y nº 3-nº 4):
+\img{centroids_4.jpg}
+Por lo tanto, el vector de la cima de $A$ a центроиду $c$ es $\vec{l} \vec{r}/2$. Por otro lado, ya que el triángulo nº 1 es semejante al triángulo $T$ con una tasa de $1/2$, el mismo vector es igual a $2 \vec{r}$. De aquí obtenemos la ecuación:
+$$ \vec{l} \vec{r}/2 = 2 \vec{r}, $$
+donde encontramos:
+$$ \vec{r} = \frac{2}{3} \vec{m}. $$
+Por lo tanto, hemos demostrado que el vector $\vec{r}$ y $\vec{m}$ son colineales, que significa, que el центроид $c$ recae en la mediana, en el saliente de la parte superior de $A$.
+Además, en el camino, hemos demostrado que центроид divide a cada mediana en relación con la $2:1$, a contar desde la cima.
+\h4{Caso del polígono}
+Pasemos ahora a un total de ocasión --- es decir, a la ocasión \bf{мноугоугольника}. Para él, tal es el razonamiento ya no son aplicables, por lo que сведем la tarea a triangular: es decir, dividimos el polígono en triángulos (es decir, триангулируем), encontraremos el centro de masas de cada triángulo y, a continuación, encontraremos el centro de masas resultantes de los centros de masas de los triángulos.
+La fórmula final se obtiene de la siguiente forma:
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i^\circ} ~ S_i }{ S }, $$
+donde $\vec{r_i^\circ}$ --- центроид $i$del triángulo en la triangulación de determinado polígono, $S_i$ --- tamaño de la $i$del triángulo de la triangulación, $S$ --- superficie total del polígono.
+La triangulación de un polígono convexo --- trivial: para ello, por ejemplo, puede tomar los triángulos $(r_1,r_{i-1},r_i)$, donde $i = 3 \ldots, n$.
+\h4{el Caso de un polígono: una forma alternativa}
+Por otra parte, la aplicación de la fórmula no es muy conveniente para \bf{невыпуклых polígonos}, ya que триангуляцию --- de por sí no es tarea fácil. Pero para estos polígonos se puede llegar a un enfoque más sencillo. Es decir, podemos trazar una analogía con el hecho de cómo se puede buscar un tamaño arbitrario de un polígono: se selecciona el punto $z$ y, a continuación, se suman emblemática plaza de los triángulos formados de esta partida y los puntos de un polígono: $S = |\sum_{i=1}^n S_{z,p_i,p_{i, 1}}|$. Un instrumento similar se puede aplicar para la búsqueda de centro de masas: sólo ahora, vamos a resumir los centros de masa de los triángulos $(z,p_i,p_{i, 1})$ contraídos con los factores proporcionales de sus plazas, es decir, el total de la fórmula para el centro de masa es:
+$$ \vec{r_c} = \frac{ \sum\limits_i {\vec r}_{z,p_i,p_{i, 1}}^\circ ~ S_{z,p_i,p_{i, 1}} }{ S }, $$
+donde $z$ --- punto, $p_i$ --- los puntos de un polígono, ${\vec r}_{z,p_i,p_{i, 1}}^\circ$ --- центроид del triángulo $(z,p_i,p_{i, 1})$, $S_{z,p_i,p_{i, 1}}$ --- emblemática plaza del triángulo, $S$ --- la presencia emblemática de la superficie total del polígono (es decir $S = \sum_{i=1}^{n} S_{z,p_i,p_{i, 1}}$).
+\h2{Tridimensional caso: los poliedros}
+De manera similar двумерному ocasión, en 3D se puede hablar inmediatamente sobre cuatro posibles producciones de la tarea:
+\ul{
+\li Centro de masas de un sistema de puntos --- los vértices de un poliedro.
+\li Centro de masas de un esqueleto --- aristas de un poliedro.
+\li Centro de masa de la superficie --- es decir, el peso se distribuye sobre la superficie de un poliedro.
+\li Centro de masas de un sólido de un poliedro --- es decir, la masa está distribuida por todo el многограннику.
+}
+\h3{Centro de masas de un sistema de puntos}
+Como en el caso bidimensional, podemos aplicar la física de la fórmula y obtener el mismo resultado:
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i} ~ m_i }{ \sum\limits_i m_i }, $$
+que en el caso de la igualdad de las masas se convierte en la media aritmética de las coordenadas de todos los puntos.
+\h3{el Centro de masas de un esqueleto de un poliedro}

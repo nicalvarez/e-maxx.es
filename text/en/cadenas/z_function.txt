@@ -1,0 +1,119 @@
+\h1{ Z-row function and its computation }
+Let given a string $s$ of length $n$. Then \bf{Z-function} ("Zeta-function") from this line --- is an array of length $n$, $i$-th element which is equal to the greatest number of characters, starting at position $i$, which coincides with the first characters of the string $s$.
+In other words, $z[i]$ --- is the greatest common prefix of the string $s$ and $i$-th suffix.
+The first element of Z-functions, $z[0]$, is usually considered uncertain. In this article, we will assume that it is equal to zero (although neither algorithm nor in the implementation of it changes nothing).
+This article provides an algorithm for computing the Z-function for time $O (n)$, as well as various applications of this algorithm.
+\h2{ Examples }
+Here for example it is estimated Z-function for multiple rows:
+\ul{
+\li $"aaaaa"$:
+$$ z[0] = 0, $$
+$$ z[1] = 4, $$
+$$ z[2] = 3, $$
+$$ z[3] = 2, $$
+$$ z[4] = 1. $$
+$$ z[0] = 0, $$
+$$ z[1] = 2, $$
+$$ z[2] = 1, $$
+$$ z[3] = 0, $$
+$$ z[4] = 2, $$
+$$ z[5] = 1, $$
+$$ z[6] = 0. $$
+\li $"abacaba"$:
+$$ z[0] = 0, $$
+$$ z[1] = 0, $$
+$$ z[2] = 1, $$
+$$ z[3] = 0, $$
+$$ z[4] = 3, $$
+$$ z[5] = 0, $$
+$$ z[6] = 1. $$
+}
+\h2{ Trivial algorithm }
+A formal definition can be illustrated by the following simple implementation for $O (n^2)$:
+\code
+vector<int> z_function_trivial (string s) {
+int n = (int) s.length()
+vector<int> z (n)
+for (int i=1
+while (i z[i] < n 
+ z[i]
+return z
+}
+\endcode
+Of course, this implementation is too inefficient, now let's build an effective algorithm.
+\h2{ an Efficient algorithm for computing the Z -}
+To obtain an efficient algorithm that will calculate the value $z[i]$ queue - - - $i=1$ to $n-1$, and thus we will try when calculating the next value of $z[i]$ maximum use of already computed values.
+This will support \bf{coordinates $[l
+Then if the current index for which we want to calculate the next value of the Z-function, --- is $i$, we have one of two options:
+\ul{
+Then we will search for $z[i]$ \bf{a trivial algorithm}, i.e., just trying values $z[i]=0$, $z[i]=1$, and so on, note that in the end, if $z[i]$ will be $>0$, then we will be obliged to update the coordinates of the rightmost segment $[l
+\li $i \le r$ --- i.e., the current position is inside the segment matches $[l
+To this end, note that substring $s[l \ldots, r]$ and $s[0 \ldots, r-l]$ \bf{match}. This means that as the initial approximation for $z[i]$, you can take the corresponding value from the segment $s[0 \ldots, r-l]$, namely, $z[i-l]$.
+However, the value $z[i-l]$ could be too big, so that when it is used to position $i$ it "come out" beyond the boundary of $r$. This is unacceptable, because about the characters to the right $r$ we know nothing, and they may differ from those required.
+$$ "aaaabaa" $$
+When we get to the last item ($i=6$), the current the right cut will be $[5
+$$ z_0[i] = \min (r-i 1, z[i-l]). $$
+Preinitializing $z[i]$ the value $z_0[i]$, we again further act \bf{trivial algorithm} --- because after the boundary of $r$, generally speaking, could be detected continuation of the cut match to predict which only the previous values of the Z-function, we could not.
+}
+The algorithm was very simple. Despite the fact that for each $i$ in it one way or another is trivial algorithm --- we have made significant progress, having an algorithm that runs in linear time. Why this is so, consider the following, after we will present an implementation of the algorithm.
+\h2{ Implementation }
+The implementation is quite concise:
+\code
+vector<int> z_function (string s) {
+int n = (int) s.length()
+vector<int> z (n)
+for (int i=1, l=0, r=0
+if (i <= r)
+z[i] = min (r-i 1, z[i-l])
+ z[i]
+if (i z[i]-1 > r)
+l = i, r = i z[i]-1
+}
+return z
+}
+\endcode
+Comment on this implementation.
+The entire solution is designed in the form of a function, which returns an array of length $n$ --- calculated Z-function.
+Array $z[]$ initially filled with zeros. The current right-most line segment matching is assumed to equal $[0
+After this, there is a trivial algorithm that tries to increase the value $z[i]$ as possible.
+In the end you are upgrading the current rightmost segment matches $[l
+\h2{ Asymptotics of the algorithm }
+Let us prove that the above algorithm is linear with respect to the length of the line time, i.e. $O (n)$.
+The proof is very simple.
+Let us show that \bf{each iteration} this cycle $\rm while$ will increase the right margin $r$ per unit.
+To do this, consider the two branches of the algorithm:
+\ul{
+\li $i > r$
+In this case, either the cycle $\rm while$ 't do a single iteration (if $s[0] \ne s[i]$), or make several iterations, moving each time one character to the right, starting at position $i$, and then --- the right border of the $r$ will be updated.
+\li $i \le r$
+In this case we are using the above formula we initialize the value of $z[i]$ for some number $z_0$. Compare this initial value of $z_0$ with value $r-1$, we get three options:
+\ul{
+\li $z_0 < r-i 1$
+Let us prove that in this case, a single iteration of the loop $\rm while$ 't do it.
+Thus, in this embodiment of the correctness of the values of $z[i-l]$ and that it is less than $r-1$, it follows that this value coincides with the target value $z[i]$.
+\li $z_0 = r-i 1$
+In this case, the cycle $\rm while$ may take several iterations, but each of them will lead to an increase in new value $r$ per unit: because the first of the compared characters will be $s[r 1]$, which climbs the outside of the segment $[l
+\li $z_0 > r-i 1$
+}
+}
+Thus, we have shown that each iteration of the inner loop causes the promotion of index $r$ to the right. Since $r$ could not be larger than $n-1$, this means that only this cycle will make no more than $n-1$ iterations.
+Because all the rest of the algorithm clearly works for $O (n)$, then we have proved that the entire algorithm for computing the Z-function runs in linear time.
+\h2{ Application }
+We consider several applications of the Z-function at the solution of specific tasks.
+\h3{ Search substring in string }
+To avoid confusion, we will call one line \bf{text} $t$ other --- \bf{sample} $p$. Thus, the task is to find all occurrences of the pattern $p$ a text $t$.
+To solve this problem formed by the string $s = p \
+Thus, the asymptotics of the solution turned out to be $O (length(t) length(p))$. Memory consumption has the same asymptotics.
+\h3{ the Number of distinct substrings in the string }
+Given a string $s$ of length $n$. You want to count the number of different substrings.
+We will solve the problem iteratively. Namely, learn, knowing the current number of different substrings, to calculate this quantity when adding to the end of one character.
+Take the line $t=s c$ and invert it (write the characters in reverse order). Our task-is to count how many rows $t$ such prefixes that are not encountered it anywhere else. But if we consider for the line $t$ Z-function and find its maximum value of $z_{\rm max}$, then, obviously, in the line $t$ is found (not in the beginning) its prefix of length $z_{\rm max}$, but not longer. Clearly, prefixes smaller length already found it.
+Therefore, the asymptotic behavior of solutions for a string of length $n$ is $O (n^2)$.
+It is worth noting that quite a similar way we can calculate in $O (n)$ the number of distinct substrings and when appending character in the beginning, and deleting a character from the end or from the beginning.
+\h3{ row Compression }
+To resolve calculate the Z-function string $s$, and find the first position $i$ such that $i z[i] = n$, and $n$ is divisible by $i$. Then the string $s$ can be compressed to a string of length $i$.
+The proof of this solution is virtually identical to the proof of the solution using \algohref=prefix_function{prefix}.
+\h2{ Tasks in online judges }
+The list of tasks that can be solved using the Z-function:
+\ul{
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge

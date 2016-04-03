@@ -1,0 +1,25 @@
+<h1>el Algoritmo de Rabin-la Carpa de la búsqueda de una subcadena en una cadena de O (N)</h1>
+<p>Este algoritmo se basa en el hash de cadenas, y aquellos que no están familiarizados con el tema, отсылаю a <algohref=string_hashes>"Algoritmos de hash en las tareas de la cadena"</algohref>.</p>
+<p>
+<p>los Autores del algoritmo - Rabin (Rabin) y la Carpa (Karp), 1987.</p>
+<p>Dada una cadena S y el texto de la T, consistente en pequeñas letras del alfabeto latino. Es necesario encontrar todas las apariciones de la cadena S en el texto de la T por el tiempo O (|S| |T|).</p>
+<h2>la Implementación</h2>
+<code>string s, t
+// contamos todos los grados de la p
+const int p = 31
+vector
+p_pow[0] = 1
+for (size_t i=1
+p_pow[i] = p_pow[i-1] * p
+// contamos el hash de todos los prefijos de la cadena de T
+vector
+for (size_t i=0
+{
+h[i] = (t[i] - \'a\' 1) * p_pow[i]
+if (i) h[i] = h[i-1]
+}
+// contamos el hash de la cadena S
+long long h_s = 0
+for (size_t i=0
+h_s = (s[i] - \'a\' 1) * p_pow[i]
+// перебираем todas las subcadenas T la longitud de la |S| y los comparamos

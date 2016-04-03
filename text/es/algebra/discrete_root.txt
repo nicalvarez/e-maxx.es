@@ -1,0 +1,21 @@
+\h1{Discreta de extracción de la raíz}
+La tarea de la elección de la extracción de la raíz (por analogía con \algohref=discrete_log{tarea del logaritmo discreto}) suena de la siguiente manera. Según los datos de $n$ ($n$ --- simple), $a$, $k$ es necesario encontrar todo $x$, que cumplen la condición:
+$$ x^k \equiv a \pmod{n} $$
+\h2{Algoritmo para resolver}
+Vamos a abordar la tarea de reducir a la tarea del logaritmo discreto.
+Para ello, se aplica el concepto de \algohref=primitive_root{Первообразного de la raíz por módulo $n$}. Supongamos que $g$ --- первообразный raíz de un módulo $n$ (ya que $n$ --- simple, existe). Encontrar podemos, como se describe en el artículo correspondiente, por $O( {\rm Ans} \cdot \log \phi(n) \cdot \log n) = O( {\rm Ans} \cdot \log^2 n)$ más el tiempo факторизации número $\phi(n)$.
+Descartar de inmediato el caso, cuando $a=0$ --- en este caso, en seguida encontramos la respuesta a $x=0$.
+Porque, en este caso ($n$ --- simple) cualquier número entre $1 a$ a $n-1$ representable en la forma de un grado de первообразного de la raíz, es la tarea de la elección de la raíz podemos presentar en forma de:
+$$ {\left( g^y \right)}^k \equiv a \pmod{n} $$
+donde
+$$ x \equiv g^y \pmod{n} $$
+Trivial de la conversión obtenemos:
+$$ {\left( g^k \right)}^y \equiv a \pmod{n} $$
+Aquí la referencia es $y$, por lo tanto, hemos llegado a la tarea discreta логарифмирования en su forma más pura. Esta tarea se puede solucionar \algohref=discrete_log{algoritmo de baby-paso-gigante-step Шэнкса} $O( \sqrt{n} \log n )$, es decir, de encontrar una solución a $y_0$ de esta ecuación (o a descubrir que es la ecuación de decisiones no tiene).
+Supongamos que nos encontramos un poco de la decisión de $y_0$ de esta ecuación, entonces una de las soluciones de la tarea discreta de la raíz será de $x_0 = g^{y_0} \pmod{n}$.
+\h2{Encontrar todas las soluciones, sabiendo que uno de ellos}
+Para resolver totalmente la tarea, es necesario aprender una ubicación $x_0 = g^{y_0} \pmod{n}$ a encontrar el resto de la solución.
+Para ello, recordemos el hecho de que первообразный la raíz siempre es el orden de los $\phi(n)$ (véase \algohref=primitive_root{artículo sobre первообразном la raíz}), es decir, el menor grado de $g$, que la unidad es $\phi(n)$. Por lo tanto, la adición en el indicador de la gravedad de término con $\phi(n)$ no cambia nada:
+$$ x^k \equiv g^{ y_0 \cdot k l \cdot \phi(n) } \equiv a \pmod{n}\ \ \ \ forall\ l \in {\cal Z} $$
+De aquí todas las decisiones tienen la forma:
+$$ x = g^{ y_0 \frac{ l \cdot \phi(n) }{ k } } \pmod{n}\ \ \ \ forall\ l \in {\cal Z} $$

@@ -1,0 +1,92 @@
+\h1{ Prefijo de la función. El Algoritmo De Palo-Morris-Pratt }
+\h2{ Prefijo de la función. Definición }
+Dada una cadena $s[0 \ldots, n-1]$. Se desea calcular para ella el prefijo de la función, es decir, una matriz de números $\pi[0 \ldots, n-1]$, donde $\pi[i]$ se define de la siguiente manera: una mayor longitud mayor de su propio sufijo de la subcadena $s[0 \ldots i]$, coincidente con su prefijo (propio sufijo --- significa que no coincide con toda la línea). En particular, el valor de $\pi[0]$ confía en cero.
+Matemáticamente la definición de prefijo de la función se puede escribir de la siguiente manera:
+$$ \pi[i] = \max_{k=0 \ldots i} ~ \{ ~ k ~ : ~ s[0 \ldots k-1] = s[i-1 k \ldots i] ~ \}. $$
+Por ejemplo, para la cadena "abcabcd" prefijo de la función es igual a la: $[0, 0, 0, 1, 2, 3, 0]$, lo que significa:
+\ul{
+\li cerca de la línea "a" no no trivial de un prefijo que coincide con el sufijo
+\li cerca de la línea "ab" no no trivial de un prefijo que coincide con el sufijo
+\li la cadena "abc" no no trivial de un prefijo que coincide con el sufijo
+\li la cadena "abca" el prefijo de longitud $1$ coincide con el sufijo
+\li la cadena "abcab" el prefijo de longitud $2 de$ coincide con el sufijo
+\li la cadena "abcabc" el prefijo de longitud $3$ coincide con el sufijo
+\li la cadena "abcabcd" no no trivial de un prefijo que coincide con el sufijo.
+}
+Otro ejemplo: - - para la cadena "aabaaab" ella es igual a: $[0, 1, 0, 1, 2, 2, 3]$.
+\h2{ Trivial algoritmo }
+Directamente según la definición, se puede escribir un algoritmo para calcular el prefijo-funciones:
+\code
+vector<int> prefix_function (string s) {
+int n = (int) s.length()
+vector<int> pi (n)
+for (int i=0
+for (int k=0
+if (s.substr(0,k) == s.substr(i-k 1,k))
+pi[i] = k
+return pi
+}
+\endcode
+Como puedes ver, trabajar l $O(n^3)$, que es demasiado lento.
+\h2{ algoritmo }
+Este algoritmo fue desarrollado por el Látigo (Knuth) y Pratt (Pratt) independientemente Morris (Morris) en 1977 (como el elemento principal para el algoritmo de búsqueda de una subcadena en una cadena).
+\h3{ la Primera optimización }
+La primera nota importante-es - que el valor de $\pi[i, 1]$ a no más de una unidad excede el valor de $\pi[i]$ para cualquier $i$.
+Realmente, en caso contrario, si $\pi[i, 1] > \pi[i] 1$, entonces veamos este sufijo, terminado en la posición $i 1$ y que tiene una longitud de $\pi[i, 1]$ --- elimina el último carácter, tendremos un sufijo que termina en la posición $i$ y que tiene una longitud de $\pi[i, 1]-1$, que es mejor $\pi[i]$, es decir, han llegado a una contradicción. La ilustración de este conflicto (en este ejemplo, $\pi[i-1]$ debe ser igual a 3):
+$$ \underbrace{ \overbrace{s_0 \ s_1}^{\pi[i-1]=2} \ s_2 \ s_3}_{\pi[i]=4} \ \ldots\ \underbrace{ s_{i-3}\ \overbrace{s_{i-2}\ s_{i-1}}^{\pi[i-1]=2} \ s_i}_{\pi[i]=4} $$
+(en este esquema, los superiores, los corchetes indican dos de las mismas de una subcadena de longitud 2, las llaves --- dos de las mismas de una subcadena de longitud 4)
+Por lo tanto, cuando se mueve a la siguiente posición del siguiente elemento de prefijo-función podría o aumentar en una unidad, o no cambiar, o disminuir en alguna medida. Ya este hecho nos permite reducir асимптотику hasta $O(n^2)$ --- ya que por cada paso de su valor podría aumentar hasta en la unidad, entonces el total de toda la cadena podría ocurrir un máximo de $n$ de los aumentos en la unidad, y como consecuencia de ello (ya que el valor nunca puede ser menor que cero), hasta un máximo de $n$ reducciones. El resultado final es $O(n)$ comparaciones de cadenas, es decir, ya hemos alcanzado el асимптотики $O(n^2)$.
+\h3{ la Segunda optimización }
+Vamos a ir más allá --- \bf{libraremos de garantías explícitas en las comparaciones de subcadenas}. Para ello, trataremos de maximizar el uso de la información, basada en los pasos anteriores.
+Así, que calculamos el valor de prefijo de la función $\pi[i]$, para un $i$. Ahora, si $s[i, 1] = s[\pi[i]]$, entonces podemos decir con certeza que $\pi[i, 1] = \pi[i] 1$, esto ilustra el esquema:
+$$ \underbrace{ \overbrace{s_0 \ s_1 \ s_2}^{\pi[i]} \ \overbrace{s_3}^{s_3=s_{i, 1}}}_{\pi[i, 1]=\pi[i] 1} \ \ldots\ \underbrace{ \overbrace{s_{i-2}\ s_{i-1}\ s_i}^{\pi[i]} \ \overbrace{s_{i, 1}}^{s_3=s_{i, 1}}}_{\pi[i, 1]=\pi[i] 1} $$
+(en este esquema, de nuevo las mismas llaves indican el mismo de la subcadena)
+Supongamos ahora, por el contrario, resultó que el $s[i, 1] \ne s[\pi[i]]$. Entonces tenemos que tratar de probar la subcadena de menor longitud. Con el fin de optimizar quisiera ir directamente a esa (más) longitud $j < \pi[i]$, que todavía se está ejecutando el prefijo de la propiedad en la posición $i$, es decir $s[0 \ldots j-1] = s[i-j 1 \ldots i]$:
+$$ \overbrace{\underbrace{s_0 \ s_1}_{j} \ s_2 \ s_3}^{\pi[i]} \ \ldots\ \overbrace{ s_{i-3}\ s_{i-2} \underbrace{s_{i-1}\ s_{i}}_{j}}^{\pi[i]} \ s_{i, 1} $$
+De hecho, cuando nos encontramos con dicha longitud $j$, entonces nos será de nuevo, basta con comparar los caracteres $s[i, 1]$ y $s[j]$ --- en caso de que coincidan, se puede afirmar que $\pi[i, 1] = j 1$. De lo contrario, nos será necesario volver a encontrar el menor (mayor) valor $j$, para el que se realiza el prefijo de la propiedad, y así sucesivamente. Puede suceder que estos valores $j$ acabarán --- esto ocurre cuando el $j=0$. En este caso, si $s[i, 1]=s[0]$, entonces $\pi[i, 1]=1$, de lo contrario $\pi[i, 1]=0$.
+$$ \overbrace{\underbrace{s_0 \ s_1}_{k} \ s_2 \ s_3}^{j} \ \ldots\ \overbrace{ s_{i-3}\ s_{i-2} \underbrace{s_{i-1}\ s_{i}}_{k}}^{j} \ s_{i, 1} $$
+Después de tan descripción detallada ya casi se sugiere que este valor es $k$ es no que otro, como el valor de prefijo de la función $\pi[j-1]$, que ya se ha calculado por nosotros anteriormente (la resta de unidades, recibirá por 0-indexación de filas). Por lo tanto, encontrar estas longitudes de $k$ podemos por $O(1)$ de cada una.
+\h3{ Final del algoritmo }
+Así que, finalmente hemos construido un algoritmo que no contiene garantías explícitas de las comparaciones de cadenas y ejecuta $O(n)$ de acción.
+Aquí un resumen de esquema del algoritmo:
+\ul{
+\li Considerar los valores de prefijo de la función $\pi[i]$ vamos a por la cola: desde $i=1$ a $i=n-1$ (un valor de $\pi[0]$ simplemente asignamos a cero).
+\li Para calcular el valor actual de $\pi[i]$ nos activamos la variable $j$, representa a la longitud actual de la cuestión de la muestra. Originalmente $j = \pi[i-1]$.
+\li Probando la muestra de longitud $j$, para lo cual comparamos los caracteres $s[j]$ y $s[i]$. Si coinciden --- lo creemos $\pi[i] = j 1$ y pasamos a la siguiente índice $i 1$. Si los caracteres son diferentes, entonces reducimos la longitud de los $j$, la creencia de la igualdad de $\pi[j-1]$, y repetimos este paso del algoritmo desde el principio.
+\li Si hemos llegado a la longitud de $j=0$ y nunca se ha encontrado una coincidencia, entonces dejemos el proceso de fuerza bruta de las muestras y creemos $\pi[i] = 0$ y pasamos a la siguiente índice $i 1$.
+}
+\h3{ Aplicación }
+El algoritmo finalmente ha resultado sorprendentemente simple y conciso:
+\code
+vector<int> prefix_function (string s) {
+int n = (int) s.length()
+vector<int> pi (n)
+for (int i=1
+int j = pi[i-1]
+while (j > 0 
+j = pi[j-1]
+if (s[i] == s[j]) j
+pi[i] = j
+}
+return pi
+}
+\endcode
+Como es fácil observar, este algoritmo es \bf{en línea} el algoritmo, es decir, se procesa la información por la marcha de los ingresos --- se puede, por ejemplo, leer una cadena de un carácter y de inmediato procesar este símbolo, la búsqueda de la respuesta a la siguiente posición. El algoritmo requiere el almacenamiento de la propia cadena y los valores calculados con el prefijo-función, sin embargo, como es fácil ver, si nos conoce de antemano el valor máximo que puede tomar el prefijo-función en toda la cadena, basta con mantener sólo la unidad de la mayor cantidad de primeros caracteres de la cadena y los valores de prefijo-funciones.
+\h2{ Aplicación }
+\h3{ Búsqueda de una subcadena en una cadena. El Algoritmo De Palo-Morris-Pratt }
+Esta tarea es un clásico de la aplicación de un prefijo de función (y, en realidad, ella y fue inaugurada en relación con esto).
+Dan el texto $t$ y $s$, es necesario encontrar y mostrar la posición de todas las apariciones de la cadena $s$ texto $t$.
+Designaremos para instalaciones a través de $n$ longitud de la cadena $s$, y por $m$ --- la longitud de texto $t$.
+Formamos una cadena $s \
+\code
+vector<int> ans (n-1)
+for (int i=0
+ ans[pi[i]]
+for (int i=n-1
+ans[pi[i-1]] = ans[i]
+\endcode
+Aquí estamos para cada valor de prefijo-las funciones del primero se consideró la cantidad de veces que se reunió en el array $\pi []$ y, a continuación, sugerida en cierto modo la dinámica: si sabemos que el prefijo de longitud $i$ encontraba exactamente ${\rm ans}[i]$ más, ese es el número debe agregarse al número de apariciones de su длиннейшего propio sufijo que coincide con su prefijo
+Consideremos ahora la segunda tarea. Se aplica una técnica estándar: припишем a la barra de $s$ fila $t$ a través de un separador, es decir, obtenemos una cadena $s \
+$$ s_4=s_3,\ \ s_5=s_4,\ \ s_6=s_5,\ \ s_7=s_6\ \ \ \ \Longrightarrow\ \ \ \ s_0=s_1=s_2=s_3 $$
+\h3{ la Construcción de las máquinas expendedoras de prefijo de la función }
+Volvamos a veces usado recibir concatenación de dos cadenas a través de un separador, es decir, para las filas de datos $s$ y $t$ el cálculo de prefijo-funciones para la línea $s \

@@ -1,0 +1,22 @@
+\h1{ finding the equation of the line segment }
+Task --- according to the set coordinates of the end of the segment to construct the line passing through it.
+We believe that the segment is non-degenerate, i.e. has a length greater than zero (otherwise, clear it passes through infinitely many different direct).
+\h2{ two-Dimensional case }
+Given a line segment $PQ$, i.e., the known coordinates of its ends $P_x$ and $P_y$, $Q_x$, $Q_y$.
+$$ A x B y C = 0. $$
+Note that the desired triples $(A,B,C)$ passing through a given segment, \bf{infinitely many}: you can multiply all three coefficients in an arbitrary nonzero number and get the same line. Therefore, our task is to find one of these triples.
+It is easy to see (by substitution of these expressions and coordinates of points $P$ and $Q$ in the equation of a straight line) that fits the following set of factors:
+$$ A = P_y - Q_y, $$
+$$ B = Q_x - P_x, $$
+$$ C = - A P_x - B P_y. $$
+An important advantage of this method of building direct is that if the coordinates of the ends are integers, and the resulting coefficients will also be \bf{integer}. In some cases, it is possible to perform geometric operations, no recourse to real numbers.
+\h3{ Veselinsky case }
+When working with real numbers, you should always be aware of the errors.
+The coefficients $A$ and $B$ we get the order of the source coordinates, the coefficient $C$ --- is the order of the square from them. This may already be sufficiently large numbers and, for example, if \algohref=lines_intersection{intersection} they will become even more, which can lead to large rounding errors already at the initial coordinates of order $10^3$.
+$$ Z = \sqrt{ A^2 B^2 }, $$
+and divide all three coefficients $A$, $B$, $C$ on it.
+Thus, the order of the coefficients $A$ and $B$ will not depend on the order of the input coordinates, and the coefficient $C$ will be of the same order as the input coordinates. In practice, this leads to a significant improvement of the accuracy of calculations.
+\h2{ three-Dimensional and multidimensional case }
+Already in the three-dimensional case \bf{no simple equation} describing direct (it can be set as the intersection of two planes, i.e. a system of two equations, but this is an awkward way).
+Therefore, three-dimensional and multidimensional cases, we must use \bf{a parametric way of direct job}, i.e., in the form of a point $p$ and a vector $v$:
+$$ p v t, ~~~ t \in \cal{R}. $$

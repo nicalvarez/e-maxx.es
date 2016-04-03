@@ -1,0 +1,4 @@
+<h1>la Longitud de la combinación de regiones en directo por O (N log N)</h1>
+<p>Dado N de segmentos de línea directa, es decir, cada trozo es dada a un par de coordenadas (X1, X2). Considere la combinación de estas regiones y de la encontraremos longitud.</p>
+<p>el Algoritmo fue propuesto Cus (Klee) en 1977. Funciona el algoritmo de O (N log N). Se ha demostrado que este algoritmo es быстрейшим (asintóticamente).</p>
+<h2>Descripción</h2>

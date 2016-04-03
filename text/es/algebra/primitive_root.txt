@@ -1,0 +1,13 @@
+\h1{Первообразные raíces}
+\h2{Definición}
+Первообразным la raíz por módulo $n$ (primitive root modulo $n$) es un número de $g$, que todos sus grados por módulo $n$ recorren de todos los números, mutuamente simple con $n$. Matemáticamente esto se formula de esta manera: si $g$ es первообразным la raíz por módulo $n$, para cualquier entero $a$ tal que ${\rm mcd}(a,n)=1$, hay qué es un entero $k$ que $g^k \equiv a \pmod{n}$.
+En particular, para el caso simple de $n$ un grado первообразного recorren la raíz de todos los números desde $1 a$ a $n-1$.
+\h2{Existencia}
+Первообразный raíz de un módulo $n$, existe entonces, y sólo entonces, cuando el $n$ es de grado impar de simple o de doble grado de simple, y también en los casos en $n=1$, $n=2$, $n=4$.
+Este teorema (que fue totalmente demostrado Гауссом, en 1801) figura aquí sin pruebas.
+\h2{Relación con \algohref=euler_function{la función de Euler}}
+Supongamos que $g$ - первообразный raíz de un módulo de $n$. Entonces se puede mostrar que el número mínimo de $k$ y que $g^k \equiv 1 \pmod{n}$ (es decir, $k$ --- tasa de $g$ (multiplicative order)), es igual a $\phi(n)$. Además, lo contrario también es cierto, y este hecho será utilizado por nosotros más adelante en el algoritmo de encontrar первообразного de la raíz.
+Además, si por módulo $n$ es, al menos, un первообразный la raíz, por lo que todo su $\phi( \phi(n) )$ (ya que el ciclo de grupo con $k$ elementos tiene $\phi(k)$ generadores).
+\h2{Algoritmo de encontrar первообразного raíz}
+Ingenuo el algoritmo requerirá para cada somete a la prueba un valor de $g$ $O(n)$ tiempo para calcular todos sus grados y comprobar que todos ellos son diferentes. Es demasiado lento, el algoritmo, por debajo de nosotros con la ayuda de varios famosos teoremas de la teoría de los números obtenemos un algoritmo más rápido.
+Anteriormente se describió un teorema que, si el número mínimo de $k$ y que $g^k \equiv 1 \pmod{n}$ (es decir, $k$ --- tasa de $g$), valor $\phi(n)$ de $g$ --- первообразный la raíz. Así como para cualquier cantidad de $a$, mutuamente simple con $n$, se \algohref=http://e-maxx.es/algo/euler_function

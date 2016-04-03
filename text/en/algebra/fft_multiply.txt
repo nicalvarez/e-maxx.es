@@ -1,0 +1,293 @@
+\h1{ Fast Fourier transform in O (N log N). Application to the multiplication of two polynomials or long numbers }
+Here we consider an algorithm to multiply two polynomials of length $n$ in time $O(n \log n)$, which is significantly better time $O(n^2)$, achieved a trivial multiplication algorithm. It is obvious that the multiplication of two long numbers can be reduced to multiplication of polynomials, so the two long numbers can also be multiplied over time $O(n \log n)$.
+\h2{ Discrete Fourier transform (DFT) }
+Suppose we have a polynomial $n$-th degree:
+$$ A(x) = a_0 x^0, a_1 x^1 \ldots a_{n-1} x^{n-1}. $$
+Without losing generality, we can assume that $n$ is a power of 2. If in fact $n$ is not a power of 2, then we simply add the missing coefficients, putting them equal to zero.
+Then \bf{discrete Fourier transform (DFT)} (discrete Fourier transform, DFT) of the polynomial $A(x)$ (or, equivalently, DFT vector of its coefficients $(a_0, a_1, \dots, a_{n-1})$) is called the value of this polynomial at the points $x = w_{n,k}$, i.e. it is a vector:
+$$ {\rm DFT}(a_0, a_1, \ldots, a_{n-1}) = (y_0, y_1, \ldots, y_{n-1}) = (A(w_{n,0}), A(w_{n,1}), \ldots, A(w_{n,n-1})) = $$
+$$ = (A(w_n^0), A(w_n^1), \ldots, A(w_n^{n-1})). $$
+$$ {\rm InverseDFT}(y_0, y_1, \ldots, y_{n-1}) = (a_0, a_1, \ldots, a_{n-1}). $$
+Thus, if a direct DFT passes from the coefficients of a polynomial to its values in the complex roots of $n$-th degree of the unit, then the inverse DFT --- on the contrary, the values of the polynomial restores the coefficients of the polynomial.
+\h2{ Application of DFT for fast multiplication of polynomials }
+Let we have two polynomials $A$ and $B$. Calculate the DFT for each of them: ${\rm DFT}(A)$ and ${\rm DFT}(B)$ --- two vector values of polynomials.
+$$ (A \times B)(x) = A(x) \times B(x). $$
+But this means that if we multiply the vector ${\rm DFT}(A)$ and ${\rm DFT}(B)$, simply by multiplying each element of one vector by the corresponding element of another vector, we get nothing like the DFT from the polynomial $A \times B$:
+$$ {\rm DFT} (A \times B) = {\rm DFT} (A) \times {\rm DFT} (B). $$
+Finally, using the inverse DFT, we get:
+$$ A \times B = {\rm InverseDFT}( {\rm DFT} (A) \times {\rm DFT} (B) ), $$
+It should be noted that, firstly, two of the polynomial should be brought to the same extent (just adding the coefficients of one of them with zeros). Secondly, the product of two polynomials of degree $n$, the result is a polynomial of degree $2n-1$, so the result is correct, you must double the degree of each polynomial (again, adding to their zero coefficients).
+\h2{ Fast Fourier transform }
+The basic idea of the FFT is the separation vector of coefficients on the two vectors, the recursive computation of the DFT for them, and combine the results into a single FFT.
+Now, suppose we have a polynomial $A(x)$ of degree $n$, where $n$ --- the power of two, and $n>1$:
+$$ A(x) = a_0 x^0, a_1 x^1 \ldots a_{n-1} x^{n-1}. $$
+Divide it into two polynomials, one with the even and the other with odd coefficients:
+$$ A_0(x) = a_0 x^0 a_2 x^1 \ldots a_{n-2} x^{n/2-1}, $$
+$$ A_1(x) = a_1 x^0 a_3 x^1 \ldots a_{n-1} x^{n/2-1}. $$
+It is easy to verify that:
+The polynomials $A_0$ and $A_1$ are twice less than the polynomial of $A$. If we can in linear time calculated on ${\rm DFT}(A_0)$ and ${\rm DFT}(A_1)$ to compute ${\rm DFT}(A)$, then we get the desired algorithm fast Fourier transform (because this is the standard diagram of the algorithm divide-and-conquer, and it is known asymptotic estimate of $O(n \log n)$).
+So, suppose we have computed the vector $\{ y_k^0 \}_{k=0}^{n/2-1} = {\rm DFT}(A_0)$ and $\{ y_k^1 \}_{k=0}^{n/2-1} = {\rm DFT}(A_1)$. Find an expression for $\{ y_k \}_{k=0}^{n-1} = {\rm DFT}(A)$.
+$$ y_k = y_k^0 w_n^k y_k^1,~~~~ k = 0 \ldots n/2-1. $$
+For the second half of the coefficients after transformation also derived a simple formula:
+$$ y_{k n/2} = A(w_n^{k n/2}) = A_0(w_n^{2k n}) w_n^{k n/2} A_1(w_n^{2k n}) = A_0(w_n^{2k} w_n^n) w_n^k w_n^{n/2} A_1(w_n^{2k} w_n^n) = $$
+$$ = A_0(w_n^{2k}) - w_n^k A_1(w_n^{2k}) = y_k^0 - w_n^k y_k^1. $$
+(Here we have used (1) as well as the identities $w_n^n = 1$, $w_n^{n/2} = -1$.)
+So, we got the formula to compute all vectors $\{ y_k \}$:
+$$ y_k = y_k^0 w_n^k y_k^1,\ \ \ \ k = 0 \ldots n/2-1, $$
+$$ y_{k n/2} = y_k^0 - w_n^k y_k^1,\ \ \ \ k = 0 \ldots n/2-1. $$
+Thus, we finally built the FFT algorithm.
+\h2{ Inverse FFT }
+So, given a vector $(y_0, y_1, \ldots, y_{n-1})$ --- the values of the polynomial $A$ of degree $n$ points in $x = w_n^k$. You want to restore the coefficients $(a_0, a_1, \ldots, a_{n-1})$ of the polynomial. This well-known problem called \bf{interpolation}, for this task there are General algorithms for the solution, but in this case there will be obtained a very simple algorithm (simple fact that he practically does not differ from the direct FFT).
+$$ \pmatrix{ w_n^0 
+Then the vector $(a_0, a_1, \ldots, a_{n-1})$ can be found by multiplying the vector $(y_0, y_1, \ldots, y_{n-1})$ by the inverse matrix to the matrix, standing on the left (which, incidentally, is called the matrix of Vandermonde):
+By a direct calculation one can verify that this inverse matrix is:
+$$ \frac{1}{n} \pmatrix{ w_n^0 
+Thus, we obtain the formula:
+$$ a_k = \frac{1}{n} \sum_{j=0}^{n-1} y_j w_n^{-kj}. $$
+Comparing it with the formula for $y_k$:
+$$ y_k = \sum_{j=0}^{n-1} a_j w_n^{kj}, $$
+Thus, calculation of the inverse DFT is almost the calculation of direct DFT, and it also can be done in time $O(n \log n)$.
+\h2{ Implementation }
+Consider a simple recursive \bf{implementation of FFT} and inverse FFT, implement them in the form of a single function, because the differences between the direct and the inverse FFT is minimal. To store complex numbers we will use the standard C STL type complex (defined in the header file <complex>).
+\code
+typedef complex<double> base
+int n = (int) a.size()
+if (n == 1) return
+vector<base> a0 (n/2), a1 (n/2)
+for (int i=0, j=0
+a0[j] = a[i]
+a1[j] = a[i 1]
+}
+fft (a0, invert)
+fft (a1, invert)
+double ang = 2*PI/n * (invert ? -1 : 1)
+base w (1), wn (cos(ang), sin(ang))
+for (int i=0
+a[i] = a0[i] w * a1[i]
+a[i n/2] = a0[i] - w * a1[i]
+if (invert)
+a[i] /= 2, a[i n/2] /= 2
+w *= wn
+}
+}
+\endcode
+If the flag $\rm invert = true$, $w_n$ is replaced by $w_n^{-1}$, and each element of the result is divided by 2 (considering that these dividing by 2 will occur at each level of recursion, the result will turn out that all the items will be divided into $n$).
+Then the function for \bf{multiply two polynomials} will look like this:
+\code
+void multiply (const vector<int> 
+vector<base> fa (a.begin(), a.end()), fb (b.begin(), b.end())
+size_t n = 1
+while (n < max (a.size(), b.size())) n <<= 1
+n <<= 1
+fft (fa, false), fft (fb, false)
+for (size_t i=0
+fa[i] *= fb[i]
+fft (fa, true)
+res.resize (n)
+for (size_t i=0
+res[i] = int (fa[i].real() 0.5)
+}
+\endcode
+Finally, the function for \bf{multiplication of two long integers} is virtually no different from the function for multiplication of polynomials. The only special feature --- that after multiplication of numbers as polynomials should be normalized, i.e., to complete all the foldings of digits:
+\code
+int carry = 0
+for (size_t i=0
+res[i] = carry
+carry = res[i] / 10
+res[i] %= 10
+}
+\endcode
+\h2{ Improved implementation: compute "on the spot" without additional memory }
+For example, for $n=8$, this procedure has the form:
+$$ a = \biggl\{ \Bigl[ (a_0,a_4), (a_2, a_6) \Bigr] , \Bigl[ (a_1, a_5), (a_3, a_7) \Bigr] \biggr\}. $$
+$$ a = \biggl\{ \Bigl[ y_0^0,\ y_1^0,\ y_2^0,\ y_3^0 \Bigr], \Bigl[ y_0^1,\ y_1^1,\ y_2^1,\ y_3^1 \Bigr] \biggr\}. $$
+Now we need to merge the two DFT in one for the entire vector. But the elements stood up so well, and that Association can be performed directly in the array. Indeed, consider the elements of $y_0^0$ and $y_0^1$, apply to them the transformation of butterflies, and the result put in their place-and this place and will be thereby that had to happen:
+Similarly, the applied transformation butterflies to $y_1^0$ and $y_1^1$ and the result put in their place, and so on, so the result is:
+$$ a = \biggl\{ \Bigl[ y_0^0 w_n^0y_0^1,\ y_1^0 w_n^1y_1^1,\ y_2^0 w_n^2y_2^1,\ y_3^0 w_n^3y_3^1 \Bigr], $$
+$$ ~~~~~~~~ \Bigl[ y_0^0-w_n^0y_0^1,\ y_1^0-w_n^1y_1^1,\ y_2^0-w_n^2y_2^1,\ y_3^0-w_n^3y_3^1 \Bigr] \biggr\}. $$
+I.e., we got exactly the desired DFT of the vector $a$.
+So, the implementation of:
+\code
+typedef complex<double> base
+int rev (int num, int lg_n) {
+int res = 0
+for (int i=0
+if (num 
+res |= 1<<(lg_n-1-i)
+return res
+}
+void fft (vector<base> 
+int n = (int) a.size()
+int lg_n = 0
+while ((1 << lg_n) < n) lg_n
+for (int i=0
+if (i < rev(i,lg_n))
+swap (a[i], a[rev(i,lg_n)])
+for (int len=2
+double ang = 2*PI/len * (invert ? -1 : 1)
+base wlen (cos(ang), sin(ang))
+for (int i=0
+base w (1)
+for (int j=0
+base u = a[i j], v = a[i j len/2] * w
+a[i, j] = u v
+a[i, j len/2] = u - v
+w *= wlen
+}
+}
+}
+if (invert)
+for (int i=0
+a[i] /= n
+\endcode
+You then $\lg n - 1$ steps of the algorithm for $k$-th of which ($k=2 \ldots \lg n$) DFT calculated for blocks of length $2^k$. For all of these blocks will have the same value of the integral root $w_{2^k}$, which is stored in the variable $\rm wlen$. The loop $i$ iteritems on blocks, and nested in a loop on $j$ applies the transformation butterflies to all block elements.
+So, we have this implementation:
+\code
+typedef complex<double> base
+void fft (vector<base> 
+int n = (int) a.size()
+for (int i=1, j=0
+int bit = n >> 1
+for (
+j -= bit
+j = bit
+if (i < j)
+swap (a[i], a[j])
+}
+for (int len=2
+double ang = 2*PI/len * (invert ? -1 : 1)
+base wlen (cos(ang), sin(ang))
+for (int i=0
+base w (1)
+for (int j=0
+base u = a[i j], v = a[i j len/2] * w
+a[i, j] = u v
+a[i, j len/2] = u - v
+w *= wlen
+}
+}
+}
+if (invert)
+for (int i=0
+a[i] /= n
+}
+\endcode
+\h2{ Additional optimization }
+\ul{
+\li \bf{Predpochitat reverse bits} for all integers in some global table. Particularly easy it is, when $n$ when all calls are the same.
+This optimization becomes noticeable when a large number of calls $fft()$. However, the effect of it, you can see even with three calls, three calls --- the most common situation, i.e. when once needed to multiply two polynomials).
+\li to Refuse the use of $\rm vector$ (\bf{go to regular arrays}).
+\li to Predpochitat \bf{degree} $wlen$. In fact, in this cycle of the algorithm over and over again is pass on all powers of $wlen$ from $0$ to $len/2-1$:
+\code
+for (int i=0
+base w (1)
+for (int j=0
+[...]
+w *= wlen
+}
+}
+\endcode
+Accordingly, before this cycle we can predpochitat some array of all of the required degree, and to get the most from unnecessary multiplications in the nested loop.
+The estimated acceleration --- 5-10%.
+At first glance, optimizing compilers should be able to cope with this, but in practice it turns out that the replacement of references to arrays $a[i, j]$ and $a[i, j len/2]$ indexes speeds up the program in popular compilers. Winning is 5-10%.
+\li \bf{to Abandon the standard type of complex numbers} $\rm complex$, rewriting it in your own implementation.
+\li Another useful optimization is \bf{trim length}: when the length of the working block is small (say, 4), to calculate the DFT for it "manually". If you paint these cases in the form of explicit formulas at length, equal to $4/2$, the values of sine-cosine functions take integer values, which you can get a speed boost for a few tens of percent.
+}
+\code
+int rev[SEATS]
+base wlen_pw[SEATS]
+void fft (base a[], int n, bool invert) {
+for (int i=0
+if (i < rev[i])
+swap (a[i], a[rev[i]])
+for (int len=2
+double ang = 2*PI/len * (invert?-1: 1)
+int len2 = len>>1
+base wlen (cos(ang), sin(ang))
+wlen_pw[0] = base (1, 0)
+for (int i=1
+wlen_pw[i] = wlen_pw[i-1] * wlen
+for (int i=0
+base t,
+*pu = a i,
+*pv = a i len2,
+*pu_end = a i len2,
+*pw = wlen_pw
+for (
+t = *pv * *pw
+*pv = *pu - t
+*pu = t
+}
+}
+}
+if (invert)
+for (int i=0
+a[i] /= n
+}
+void calc_rev (int n, int log_n) {
+for (int i=0
+rev[i] = 0
+for (int j=0
+rev[i] |= 1<<(log_n-1-j)
+}
+}
+\endcode
+On the common compilers this implementation is faster than the previous "improved" version in 2-3 times.
+\h2{ Discrete Fourier transform in modular arithmetic }
+But the same is true of the roots of $n$-th degree of the units in modular arithmetic. I mean, not for any module $p$ there are $n$ different roots of unity, however, these modules do exist. Still it is important for us to find a primitive root, i.e.:
+$$ (w_n)^n = 1 \pmod p, $$
+$$ (w_n)^k \ne 1 {\pmod p},~~~~~ 1 \le k < n. $$
+All of the remaining $n-1$ roots of $n$-th degree of the units modulo $p$ can be obtained as the degree of the primitive root of $w_n$ (as in the complex case).
+$$ (w_n^2)^m = (w_n)^n = 1 \pmod p, $$
+$$ (w_n^2)^k = w_n^{2k} \ne 1 {\pmod p},~~~~~ 1 \le k < m. $$
+Thus, if $w_n$ --- primitive root of $n=2^k$-th degree of unity, then $w_n^2$ --- primitive root of $2^{k-1}$-th degree of the unit. Therefore, for all powers of two, smaller $n$, primitive roots need a degree also exist and can be computed as the corresponding extent of $w_n$.
+Thus, all the required properties are observed in the case of modular arithmetic, provided that we have chosen some rather large module $p$ and found in it a primitive root of $n$-th degree of the unit.
+\code
+const int mod = 7340033
+const int root = 5
+const int root_1 = 4404020
+const int root_pw = 1<<20
+void fft (vector<int> 
+int n = (int) a.size()
+for (int i=1, j=0
+int bit = n >> 1
+for (
+j -= bit
+j = bit
+if (i < j)
+swap (a[i], a[j])
+}
+for (int len=2
+int wlen = invert ? root_1 : root
+for (int i=len
+wlen = int (wlen * 1ll * wlen % mod)
+for (int i=0
+int w = 1
+for (int j=0
+int u = a[i j], v = int (a[i j len/2] * 1ll * w % mod)
+a[i, j] = u v < mod ? u v : u v-mod
+a[i, j len/2] = u-v >= 0 ? u-v : u-v mod
+w = int (w * 1ll * wlen % mod)
+}
+}
+}
+if (invert) {
+for (int i=0
+a[i] = int (a[i] * 1ll * nrev % mod)
+}
+}
+\endcode
+Here the function $\rm reverse$ finds the opposite of the $n$ element modulo $\rm mod$ (see \algohref=reverse_element{return item in the module}). Constants $\rm mod$, $\rm root$ $\rm root\_pw$ define module and a primitive root, and $\rm root\_1$ --- inverse to $\rm root$ element modulo $\rm mod$.
+\h2{ Some applications }
+In addition to direct applications for multiplying polynomials or long numbers, we describe here some other applications of the discrete Fourier transform.
+\h3{ Various amounts }
+Task: given two arrays $a[]$ and $b[]$. You want to find all numbers of the form $a[i] b[j]$, and for each such number display the number of ways to get it.
+Build the array of $a$ and $b$ two polynomials $A$ and $B$. As degrees in the polynomial will be the actual number, i.e., the value of $a[i]$ ($b[i]$), and the ratios are --- how many times this number is in the array of $a$ ($b$).
+Then, multiplying these two polynomials $O(n \log n)$, we get the polynomial $C$, where the degrees are all numbers of the form $a[i] b[j]$, and the coefficients of them are just desired quantities
+\h3{ Various scalar product }
+Invert the array of $a$ and let us assign to it at the end of $n$ zeros, and to the array $b$ --- just let us assign himself. Then multiply them as polynomials. Now consider the coefficients of the product of $c[n \ldots, 2n-1]$ (as always, all indexes in the 0-indexing). Have:
+$$ c[k] = \sum_{j=k} a[i] b[j]. $$
+Since all elements $a[i]=0,\ i=n \ldots, 2n-1$, then we get:
+$$ c[k] = \sum_{i=0}^{n-1} a[i] b[k-i]. $$
+The solution turned out to complexity $O (n \log n)$.
+\h3{ Two strips }

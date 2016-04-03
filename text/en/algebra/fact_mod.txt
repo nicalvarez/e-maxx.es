@@ -1,0 +1,11 @@
+\h1{factorial function modulo}
+Thus, formally, \bf{task} such. You want to calculate $n!$ simple module $p$, but without considering all multiples of $p$ factors included in the factorial. Learning how to efficiently compute such a factorial, we can quickly calculate the value of various combinatorial formulas (for example, \algohref=binomial_coeff{Binomial coefficients}).
+\h2{Algorithm}
+Let us write this "modified" factorial explicitly:
+$$ n!_{\%p} = $$
+$$ \cdot (p^2-1) \cdot \underbrace{1}_{p^2} \cdot (p^2 1) \cdot \ldots \cdot n = $$
+$$ = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot (p-2) \cdot (p-1) \cdot \cdot \underbrace{1}_{p} \cdot 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot \underbrace{2}_{2p} \cdot 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot \underbrace{1}_{p^2} \cdot $$
+$$ \cdot 1 \cdot 2 \cdot \ldots \cdot (n\%p) \pmod p. $$
+In this account we see that the "modified" factorial divided into several blocks of length $p$ (the last block may, in short), which are all identical except for the last item:
+$$ \cdot \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (n\%p)}_{tail} \pmod p. $$
+$$ n!_{\%p} = \underbrace{ \ldots \cdot 1 } \cdot \underbrace{ \ldots \cdot 2 } \cdot \underbrace{ \ldots \cdot 3 } \cdot \ldots \cdot \underbrace{ \ldots \cdot (p-1) } \cdot \underbrace{ \ldots \cdot 1 } \cdot \underbrace{ \ldots \cdot 1 } \cdot \underbrace{ \ldots \cdot 2 } \ldots $$

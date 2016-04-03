@@ -4,7 +4,7 @@ Tareas
 - Agarrar todas las URL (DONE Walter)
 - Agregar prefijo src_( DONE Nico)
 - Scrapear todas las páginas en cirílico ()
-- Mandar a la API de Yandex Translate
+- Mandar a la API de Yandex Translate (usar POST porque si no las URLS se hacen muy largas)
 - Subir a una wiki (Waliki?)
 - Averiguar software que uso e-maxx para renderizar el Tex-like a html
 

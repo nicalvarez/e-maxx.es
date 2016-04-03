@@ -1,0 +1,36 @@
+\h1{ los Números de Fibonacci }
+\h2{ Definición }
+La secuencia de Fibonacci se define de la siguiente manera:
+$$ F_0 = 0, $$
+$$ F_1 = 1, $$
+$$ F_n = F_{n-1} F_{n-2}. $$
+Los primeros de sus miembros:
+$$ 0, ~ 1, ~ 1, ~ 2, ~ 3, ~ 5, ~ 8, ~ 13, ~ 21, ~ 34, ~ , ~ 55, ~ 89, ~ \ldots $$
+\h2{ Historia }
+Estos números se introdujo en 1202, Leonardo Fibonacci) (también conocido como Leonardo Pisana (Leonardo Pisano)). Sin embargo, gracias a la matemática del siglo 19 la Escotilla (Lucas) el nombre de "números de Fibonacci" se ha convertido en algo común.
+Sin embargo, los indios de las matemáticas mencionado en el número de esta secuencia de antes: el gopala (Gopala) antes de 1135,, Hemachandra (Hemachandra) --- en el año 1150
+\h2{ los Números de Fibonacci en la naturaleza }
+El Fibonacci mencionado estos números en relación con esta tarea: "un Hombre plantó un par de conejos en el corral, rodeado por todos lados de la pared. ¿Cuántos pares de conejos al año se puede hacer a la luz de esta pareja, si sabe que cada mes, a partir del segundo, cada pareja de conejos produce en la luz de una pareja?". Una solución a este reto y se el número de secuencia, denominada de ahora en su honor. Sin embargo, se describe la situación de Fibonacci --- más un juego de la mente, que la verdadera naturaleza.
+Indios de matemáticas Gopāla y Hemachandra mencionado en el número de esta secuencia en relación con la cantidad de dibujos rítmicos producidos como consecuencia de la alternancia de largos y breves sílabas en los versos o los puntos fuertes y débiles de las fracciones en la música. El número de dichas imágenes, con un total de $n$ de la cuota es de $F_n$.
+Los números de Fibonacci aparecen en la obra de Kepler del año 1611, que reflexionaba sobre los números que aparecen en la naturaleza (el trabajo "Acerca de la hexagonal снежинках").
+Es interesante el ejemplo de las plantas --- la milenrama, el cual el número de tallos (y por lo tanto de las flores) siempre hay un número de Fibonacci. La razón es simple: inicialmente con un único tallo, el tallo, luego la divide en dos, y luego desde el tallo principal se encuentra en otro y, a continuación, los dos primeros del tallo de nuevo se ramifican formando y, a continuación, todos los tallos, además de los dos últimos, se ramifican formando, y así sucesivamente. Por lo tanto, cada tallo después de su aparición "salta" a una bifurcación, a continuación, comienza a compartir en cada nivel de la bifurcación, que es el que da como resultado el número de Fibonacci.
+En general, a muchos de los colores (por ejemplo, lirios), el número de pétalos es de un modo u otro número de Fibonacci.
+También en botánica se conoce el fenómeno de la "филлотаксиса". A modo de ejemplo, la ubicación de las semillas de girasol: si mirar de arriba en su ubicación, se puede ver simultáneamente las dos series de espirales (superpuestos): unos apretados en sentido de las agujas del reloj, otros --- en contra. Resulta que el número de estas espirales coincide aproximadamente con dos números consecutivos de Fibonacci: 34 y 55, 89 y 144. Similares hechos fieles y algunos otros colores, así como de piñas, brócoli, piña, etc.
+Para muchos de las plantas (según algunos, para el 90% de ellos) es un hecho interesante. Veamos alguna hoja, y vamos a bajar de él hacia abajo hasta que no lleguemos a una hoja de cálculo, se encuentra en el tallo de la misma manera (es decir, dirigida exactamente en la misma dirección). De paso vamos a contar todas las hojas que había visitado a nosotros (es decir, situadas a una altura entre la hoja inicial y final), pero se encuentran con el otro. Numeran de ellos, vamos a hacer las espiras alrededor del tallo (ya que las hojas se encuentran en el tallo en espiral). Dependiendo de hacer giros en sentido de las agujas del reloj o en contra de que salga con distinto número de espiras. Pero resulta que el número de vueltas que realizamos en sentido de las agujas del reloj, el número de vueltas, cometidos en contra de la agujas del reloj, y el número de las hojas forman 3 números consecutivos de Fibonacci.
+Sin embargo, debe tenerse en cuenta que hay y las plantas, para que figuran por encima de los cálculos darán un número de muy otras secuencias, por lo tanto, no se puede decir que el fenómeno de la филлотаксиса es la ley-es más entretenido tendencia.
+\h2{ Propiedades }
+Los números de Fibonacci poseen muchas de las propiedades matemáticas interesantes.
+He aquí sólo algunos de ellos:
+\ul{
+\li Relación de la Cassini:
+$$ F_{n-1} F_{n-1} - F_n^2 = (-1)^n. $$
+\li, la Regla de "suma":
+$$ F_{n, k} = F_k F_{n-1} F_{k-1} F_n. $$
+\li, De la anterior igualdad con $k = n$ sale:
+$$ F_{2n} = F_n (F_{n-1} F_{n-1}). $$
+\li, De la anterior равенста por inducción se puede conseguir que la
+$F_{nk}$ es siempre un múltiplo de $F_n$.
+\li es todo lo contrario a la anterior afirmación:
+si $F_m$ es múltiplo de $F_n$, entonces $m$ es múltiplo de $n$.
+\li NOD-igualdad:
+$$ {\rm mcd} (F_m, F_n) = F_{{\rm mcd} (m, n)}. $$

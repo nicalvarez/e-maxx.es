@@ -1,0 +1,36 @@
+\h1{el Punto de intersección de rectas}
+Que nos son dadas dos rectas definidas sus cuotas de $A_1, B_1, C_1$ y $A_2, B_2, C_2$. Es necesario encontrar el punto de intersección, o averiguar lo que las rectas son paralelas.
+\h2{Solución}
+Si dos rectas no son paralelas, se cruzan. Para encontrar el punto de intersección, basta con tomar de dos ecuaciones de rectas de un sistema y resolver:
+$$ \cases{ A_1 x B_1 y C_1 = 0, \cr
+A_2 x B_2 y C_2 = 0. } $$
+$$ x = - \frac{ \left|\matrix{C_1
+$$ y = - \frac{ \left|\matrix{A_1
+Si el denominador es cero, es decir,
+$$ \left|\matrix{A_1
+$$ \left|\matrix{ A_1 
+\h2{Aplicación}
+\code
+struct pt {
+double x, y
+}
+struct line {
+double a, b, c
+}
+const double EPS = 1e-9
+double det (double a, double b, double c, double d) {
+return a * d - b * c
+}
+bool intersect (line m, line n, pt 
+double zn = det (m.a, m,.b, n.a, n.b)
+if (abs (zn) < EPS)
+return false
+res.x = - det (m.c, m.b, n.c, n.b) / zn
+res.y = - det (m.a, m,.c, n.a, n.c) / zn
+return true
+}
+bool parallel line m, line n) {
+return abs (det (m.a, m,.b, n.a, n.b)) < EPS
+}
+bool equivalent (line m, line n) {
+return abs (det (m.a, m,.b, n.a, n.b)) < EPS

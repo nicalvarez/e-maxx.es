@@ -1,0 +1,99 @@
+\h1{ Binario exponenciación }
+Binario (binary) exponenciación --- es una técnica que permite construir cualquier número $n$-ésimo grado por $O(\log n)$ умножений (en lugar de $n$ умножений durante el uso normal de enfoque).
+Además, se describe aquí la recepción se aplica a cualquier \bf{asociativo} de la operación, y no sólo a la multiplicación de números. Recordemos que la operación se denomina asociativo, si cualquiera de $a, b, c$ se realiza:
+$ $ a \cdot b) \cdot c = a \cdot b \cdot c) $$
+El más obvio síntesis --- en los restos de un módulo (obviamente, la asociatividad de la guarda). La siguiente de la "popularidad" es una síntesis de la obra de matrices (su asociatividad conocido en general).
+\h2{ Algoritmo }
+Tenga en cuenta que para cualquier número de $a$ y \bf{par} número $n$ es factible la aparente identidad (el siguiente de la asociatividad de la multiplicación):
+$$ a^n = a^{n/2})^2 = a^{n/2} \cdot a^{n/2} $$
+Y esta es la principal en el método binario de exponenciación. De hecho, para el par $n$, hemos mostrado cómo, después de una operación de multiplicación, se puede reducir el problema a la mitad, menos.
+Queda entender que hacer, si el grado de $n$ \bf{нечетна}. Aquí lo hacemos muy simple: vamos a la medida $n-1$, que será ya la par:
+$$ a^n = a^{n-1} \cdot a $$
+Así que, en realidad, hemos encontrado рекуррентную la fórmula: grado de $n$ pasamos, si se четна, a $n/a 2$, y de otro modo - - - $n-1$. Está claro que todo no será más de $2 \log n$ de navegación, antes de que lleguemos a $n = 0$ (base recurrente de la fórmula). Por lo tanto, tenemos un algoritmo que trabaja en $O (\log n)$ умножений.
+\h2{ Aplicación }
+Sencillo recursiva de realización:
+\code
+int binpow (int a, int n) {
+if (n == 0)
+return 1
+if (n % 2 == 1)
+return binpow (a, n-1) * a
+else {
+int b = binpow (a, n/2)
+return b * b
+}
+}
+\endcode
+Нерекурсивная la implementación, también optimizado (división en 2 reemplazados por los campos de bits de operaciones):
+\code
+int binpow (int a, int n) {
+int res = 1
+while (n)
+if (n 
+res *= a
+--n
+}
+else {
+a *= a
+n > > a= 1
+}
+return res
+}
+\endcode
+Esta aplicación puede simplificar aún más, al darse cuenta de que la edificación de $a$ en el cuadrado que se realiza siempre, independientemente de si funcionó la condición de impar de memoria $n$ o no:
+\code
+int binpow (int a, int n) {
+int res = 1
+while (n) {
+if (n 
+res *= a
+a *= a
+n > > a= 1
+}
+return res
+}
+\endcode
+Finalmente, vale la pena señalar que el binario exponenciación ya se ha implementado en el lenguaje Java, pero sólo para la clase de larga aritmética BigInteger (función pow esta clase funciona es por el algoritmo binario de la edificación).
+\h2{ Ejemplos de soluciones de tareas }
+\h3{ Eficaz de cálculo de los números de Fibonacci }
+\bf{Condición}. Dado el número $n$. Se desea calcular $F_n$, donde $F_i$ --- \algohref=fibonacci_numbers{secuencia de números de Fibonacci}.
+\bf{Solución}. Más en detalle esta solución se describe en \algohref=fibonacci_numbers{artículo sobre la secuencia de Fibonacci}. Aquí estamos, sólo una breve pondremos la esencia de esta decisión.
+La idea básica es la siguiente. El cálculo de la ordinaria de los números de Fibonacci se basa en el conocimiento de los dos anteriores números de Fibonacci, es decir, cada número de Fibonacci se obtiene como la suma de las dos anteriores. Esto significa que podemos construir la matriz $2 \times 2$, que se ajuste a esta transformación: como por dos números de Fibonacci $F_i$ y $F_{i, 1}$ calcular el siguiente número, es decir, ir a la par de $F_{i, 1}$, $F_{i 2}$. Por ejemplo, la aplicación de esta conversión de $n$ vez a un par de $F_0$ y $F_1$, obtenemos un par de $F_n$ y $F_{n-1}$. Por lo tanto, alzando la matriz de esta conversión en $n$-ésimo grado, por lo tanto, encontramos la búsqueda de $F_n$ por hora $O (\log n)$, que nosotros y era necesario.
+\h3{ Construcción de permutación en $k$-ésimo grado }
+\bf{Condición}. Dada una permutación de $p$ longitud de $n$. Es necesario construir en $k$-ésimo grado, es decir, de encontrar qué pasa si a тождественной intercambiar $k$ en vez de aplicar una permutación de $p$.
+\bf{Solución}. Sólo se aplica a cambiar de lugar de $p$ descrito anteriormente, el algoritmo binario de exponenciación. No hay diferencia en comparación con la construcción de los números en el grado - - - - no. La solución se obtiene con la асимптотикой $O (n \log k)$.
+(Nota. Esta tarea se puede resolver de manera más eficaz, \bf{por lineal del tiempo}. Para ello, basta con seleccionar en el intercambio de todos los ciclos, después de considerar por separado cada ciclo y, tomando a $k$ por el módulo de la longitud de ciclo actual, encontrar la respuesta para este ciclo.)
+\h3{ Rápida aplicación de un conjunto de operaciones geométricas a los puntos }
+Se desea calcular el resultado de la aplicación de las operaciones a todos los puntos (de manera eficiente, es decir, por el tiempo menor que $O(n \cdot length)$, donde $length$ --- el número total de operaciones que hay que hacer).
+\bf{Solución}. Veamos los diferentes tipos de transformaciones desde el punto de vista de cómo cambian las coordenadas:
+\ul{
+\li Operación de desplazamiento --- sólo se añade a todas las coordenadas de la unidad, домноженную en algunas constantes.
+\li, la Operación de zoom --- se multiplica cada coordenada en cierta constante.
+\li Operación de rotación alrededor de un eje --- también se puede presentar de la siguiente manera: nuevos derivados de coordenadas, se puede escribir como combinación lineal de los viejos.
+(No vamos aquí a especificar, la forma de hacerlo. Por ejemplo, para la facilidad de presentar, en la forma de combinación de cinco bidimensionales de vueltas: primero en los planos de $OXY$ y $OXZ$ de manera que el eje de rotación coincide con la dirección positiva del eje de $OX$ y, a continuación, necesario girar alrededor de un eje en el plano de $YZ$ y, a continuación, las devoluciones de los giros en los planos de $OXZ$ y $OXY$ de manera que el eje de rotación ha vuelto a su posición inicial.)
+}
+Como es fácil de ver, cada una de estas transformaciones --- es el cálculo de coordenadas lineal de las ecuaciones. Por lo tanto, toda esta transformación se puede escribir en forma de matriz $4 \times 4$:
+$$ \begin{pmatrix}
+a_11 
+a_21 
+a_31 
+a_41 
+\end{pmatrix}, $$
+que al multiplicar (a la izquierda) en la línea de las antiguas coordenadas constantes y unidades da la línea de las nuevas coordenadas de constantes y unidades:
+$$ \begin{pmatrix} x 
+a_{11} 
+a_{21} 
+a_{31} 
+a_{41} 
+\end{pmatrix} = \begin{pmatrix} x' 
+(¿Por qué necesitó introducir ficticia a la cuarta coordenada, siempre igual a la unidad? Sin ello, no sería implementar la operación de desplazamiento: ya que el desplazamiento es-es justamente la suma de las coordenadas de unidades, домноженной en algunos factores. Sin ficticia de unidades podríamos sólo realizar combinaciones lineales de las propias coordenadas, y sumar a ellos especificadas constantes --- no podríamos hacer.)
+Ahora la tarea se hace casi trivial. Una vez cada una elemental operación se describe en la matriz, secuencia de operaciones, se describe una obra de estas matrices, y la operación para el ciclo --- la construcción de esta matriz en el grado. Por lo tanto, estamos a tiempo $O (m \cdot \log repetition)$ podemos предпосчитать la matriz $4 \times 4$, describe la conversión de todo, y luego simplemente multiplicar cada punto $p_i$ en esta matriz --- por tanto, respondemos todas las consultas por hora $O (n)$.
+\h3{ Número de caminos de longitud fija en la columna }
+\bf{Condición}. Dan неориентированный el conde de G $$ $n$ vértices, y dado el número de $k$. Requiere para cada par de vértices $i$ y $j$ buscar el número de rutas entre ellos, contienen exactamente $k$ de las costillas.
+\bf{Solución}. Más detalles de esta tarea se aborda en \algohref=fixed_length_paths{otro artículo}. Aquí sólo recordaremos la esencia de esta solución: simplemente estamos construyendo en $k$-ésimo grado de la matriz de adyacencia de este conde, y los elementos de esta matriz y serán las soluciones. Resumen de la asíntotas --- $O (n^3 \log k)$.
+(Nota. En \algohref=fixed_length_paths{artículo} y la otra variación de esta tarea: cuando el conde de asma, y es necesario encontrar un camino de peso mínimo, contiene exactamente $k$ de las costillas. Como se muestra en este artículo, esta tarea también se resuelve mediante el binario de exponenciación de la matriz de adyacencia de un conde, sin embargo, en lugar de una operación normal перемножения de las dos matrices se debe utilizar modificada: en lugar de умножений es la cantidad, sino que en lugar de sumar --- toma como mínimo.)
+\h3{ Variación binario de exponenciación: multiplicar dos números de módulo }
+Aquí una interesante variación de un binario de exponenciación.
+Que ante nosotros tenemos a un tal \bf{meta}: multiplicar dos números de $a$ y $b$ por módulo $m$:
+$$ a \cdot b \pmod m $$
+Supongamos que los números pueden ser lo suficientemente grandes: tanto, que los números se colocan en los tipos de datos integrados, y aquí directamente de la obra $a \cdot b$ --- ya no (tenga en cuenta que también necesitaremos para la suma de los números se situaba en el tipo de datos). En consecuencia, el reto consiste en contar lo que busca el valor de $a \cdot b) \pmod m$, sin tener que recurrir a \algohref=big_integer{larga de la aritmética}.

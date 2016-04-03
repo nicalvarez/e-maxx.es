@@ -1,0 +1,50 @@
+\h1{ Tamiz Eratosfena con un tiempo de trabajo }
+Dado el número $n$. Es necesario encontrar \bf{todas las cosas simples} en el tramo de $[2
+La manera clásica de hacer frente a esta tarea --- \bf{\algohref=eratosthenes_sieve{tamiz Eratosfena}}. Este algoritmo es muy simple, pero funciona por hora $O (n \log \log n)$.
+Aunque en la actualidad sabemos bastante de los algoritmos que trabajan en el сублинейное tiempo (es decir, $o(n)$), descrito a continuación, el algoritmo es interesante su \bf{sencillez} --- él casi no es más difícil de lo clásico tamiz Eratosfena.
+Además, el aquí, el algoritmo como un "efecto secundario" de hecho calcula \bf{factorización de todos los números} en el tramo de $[2
+La desventaja del algoritmo es que se utiliza \bf{más memoria} que el clásico tamiz Eratosfena: es necesario tener, en conjunto, $n$ de números, mientras que el clásico de la решету Eratosfena sólo $n$ bits de memoria (lo que resulta en $32$ veces menos).
+Por lo tanto, se describe el algoritmo tiene sentido aplicar sólo a los números en el orden de $10^7$, no más.
+La autoría del algoritmo, al parecer, pertenece a la Грайсу y Misra (Gries, Misra, 1978 --- consulte la lista de referencias al final). (Y, de hecho, decir que el algoritmo "решетом Eratosfena" es demasiado la diferencia entre estas dos algoritmos.)
+\h2{ Descripción del algoritmo }
+Nuestro objetivo --- calcular para cada número $i$ del en el tramo de $[2
+Además, necesitamos almacenar una lista de todos los números primos --- digamos que es un array $pr[]$.
+Inicialmente, todas las cantidades de $lp[i]$ completar con ceros, lo que significa que aún estamos asumiendo todos los números simples. Durante el funcionamiento del algoritmo de esta matriz se llenarse poco a poco.
+Ahora vamos a pasar por la actual número $i$ a $2 de$ a $n$. Tenemos dos casos:
+\ul{
+\li $lp[i] = 0$ --- esto significa que el número $i$ --- simple, porque para él, y no se han descubierto otros делителей.
+Por lo tanto, es necesario asignar $lp[i] = i$ y agregar $i$ al final de la lista $pr[]$.
+\li $lp[i] \ne 0$ --- esto significa que el número actual de $i$ --- compuesto, y un mínimo de un simple divisor es de $lp[i]$.
+}
+En ambos casos, luego comienza el proceso de \bf{colocación de valores} en el array $lp[]$: vamos a tomar un número, \bf{múltiplos} $i$, y actualizar el valor de $lp[]$. Sin embargo, nuestro objetivo --- aprender a hacerlo de esta manera, para llegar a cada número un valor de $lp[]$ sería instalado más de una vez.
+Se afirma que, para ello, se puede proceder de esta manera. Considere el número de la especie:
+$$ x_j = i \cdot p_j, $$
+donde la secuencia de $p_j$ --- todo esto es simple, no superiores a $lp[i],$ (para eso necesitamos mantener la lista de todos los números primos).
+Todos los números de este tipo de проставим el nuevo valor de $lp[x_j]$ --- obviamente, será igual a $p_j$.
+¿Por qué este algoritmo es válido, y por qué funciona lineal tiempo-véase más abajo, hasta entonces, llevaremos la realización de la misma.
+\h2{ Aplicación }
+El tamiz se realiza antes de la fecha especificada en la constante del número $N$.
+\code
+const int N = 10000000
+int lp[N 1]
+vector<int> pr
+for (int i=2
+if (lp[i] == 0) {
+lp[i] = i
+pr.push_back (i)
+}
+for (int j=0
+lp[i * pr[j]] = pr[j]
+}
+\endcode
+Esta aplicación poco se puede acelerar mediante la eliminación del vector $pr$ (reemplazando a su normal en una matriz con el contador), así como deshacerse de duplicado de la multiplicación en una subconsulta ciclo $para$ (para lo cual el resultado de la obra es necesario simplemente recordar en alguna variable).
+\h2{ Prueba de la exactitud }
+Demostremos \bf{corrección} el algoritmo, es decir, que se pone correctamente todos los valores de $lp[]$, y cada uno de ellos se determina exactamente una vez. De aquí se seguiría que funciona el algoritmo de tiempo lineal --- ya que todo el resto de los pasos del algoritmo, obviamente, trabajan por $O (n)$.
+Para ello, tenga en cuenta que cualquier número $i$ \bf{la única representación} de esta forma:
+$$ i = lp[i] \cdot x, $$
+donde $lp[i]$ --- (como antes) un mínimo de un simple divisor de un número $i$, y la cifra de $x$, no tiene делителей menor de $lp[i]$, es decir:
+$$ lp[i] \le lp[x]. $$
+Ahora compare esto con lo que hace nuestro algoritmo --- efecto, para cada $x$ recorre todas las cosas simples, en que se puede домножить, es decir, simples hasta $lp[x]$, ambos inclusive, para obtener un número anterior de la vista.
+Por lo tanto, el algoritmo lugar realmente para cada compuesto de un número exactamente una vez, colocando tiene el valor correcto es de $lp[]$.
+Esto significa la corrección de un algoritmo y lo que funciona lineal del tiempo.
+\h2{ Tiempo de trabajo y la memoria requerida }

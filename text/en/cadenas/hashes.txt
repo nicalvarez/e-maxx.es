@@ -1,0 +1,100 @@
+<h1>hashing Algorithms in tasks on-line</h1>
+<p>the hashing Algorithms rows help to solve a lot of problems. But they have one major disadvantage: more often than not, they are not 100%, however, because there are many strings, hashes are identical. Another thing is that in most of the tasks that can not be ignored, because the probability of matching hashes still very small.</p>
+<p>
+<h2>Definition of hash and its calculation</h2>
+<formula>h(S) = S[0] S[1] * P S[2] * P^2 S[3] * P^3 ... S[N] * P^N</formula>
+<p>where P is some number.</p>
+<p>it is Reasonable to choose for P a Prime number, approximately equal to the number of symbols in the input alphabet. For example, if line predpolagaetsya consisting only of lowercase Latin letters, then a good choice would be P = 31. If the letters can be uppercase, and small, then, for example, P = 53.</p>
+<p>all the pieces of code in this article, we will use P = 31.</p>
+<p>an Example of calculating the hash, if valid only small Latin letters:</p>
+<code>const int p = 31
+long long hash = 0, p_pow = 1
+for (size_t i=0
+{
+// it is desirable to subtract 'a' from the code letters
+// unit to be added to the string of the form 'aaaaa' hash was non-zero
+hash = (s[i] - 'a' 1) * p_pow
+p_pow *= p
+}</code>
+<p>In most tasks it makes sense to first calculate all the desired degree P in any array.</p>
+<p>
+<h2>Example of the problem. Find duplicate rows</h2>
+<p>the Usual sort rows, we would have an algorithm with complexity O (N M log N), while using hashes, we get O (N M N log N).</p>
+<p>the Algorithm. Calculate the hash of each row, and sort the words on this hash.</p>
+<code>vector
+// ... read lines ...
+// count all degree p, for example, up to 10,000 - the maximum string length
+const int p = 31
+vector
+p_pow[0] = 1
+for (size_t i=1
+p_pow[i] = p_pow[i-1] * p
+// count hashes from all rows
+vector 
+for (int i=0
+{
+long long hash = 0
+for (size_t j=0
+hash = (s[i][j] - 'a' 1) * p_pow[j]
+hashes[i] = make_pair (hash, i)
+}
+// sort the hashes
+sort (hashes.begin(), hashes.end())
+// print the answer
+for (int i=0, group=0
+{
+if (i == 0 || hashes[i].first != hashes[i-1].first)
+cout 
+cout 
+}</code>
+<p>
+<h2>the Hash of the substring and its fast calculation</h2>
+<p>However, there is a simpler way. In most cases, <b>instead of sharing the hashes on the degree P, it is possible, conversely, to multiply them by these degrees</b>.</p>
+<p>for example, given two hash: one multiplied by P[I] and the other at P[J]. If I 
+<p>for Example, the code that computes the hashes of all prefixes, and then O (1) compares two strings:</p>
+// count all degrees p
+const int p = 31
+vector
+p_pow[0] = 1
+for (size_t i=1
+p_pow[i] = p_pow[i-1] * p
+// count hashes from all prefixes
+vector
+for (size_t i=0
+{
+h[i] = (s[i] - 'a' 1) * p_pow[i]
+if (i) h[i] = h[i-1]
+}
+// get the hashes of the two substrings
+long long h1 = h[i1 len-1]
+if (i1) h1= h[i1-1]
+long long h2 = h[i2 len-1]
+if (i2) h2= h[i2-1]
+// compare them
+if (i1 
+i1 > i2 
+cout 
+else
+cout 
+<p>Here are some typical applications of the hash:</p>
+<ul>
+<li><algohref=rabin_karp>Algorithm Rabin-Karp substring search in the string in O (N)</algohref></li>
+<li>determine the number of different substrings in O (N^2 log N) (see below)</li>
+<li>determining the number of palindromes within a string</li>
+</ul>
+<h2>determining the number of different substrings</h2>
+<p>Suppose there is a string S of length N, consisting only of lowercase Latin letters. You want to find the number of distinct substrings in this string.</p>
+<p>For each L, we construct an array of hashes of substrings of length L, and here are the hashes to the same extent, and let's sort this array. The number of different elements in this array to be added to the response.</p>
+<p>Implementation:</p>
+<code>string s
+int n = (int) s.length()
+// count all degrees p
+const int p = 31
+vector
+p_pow[0] = 1
+for (size_t i=1
+p_pow[i] = p_pow[i-1] * p
+// count hashes from all prefixes
+vector
+for (size_t i=0
+{

@@ -1,0 +1,17 @@
+\h1{ Encontrar la ecuación de la recta para el segmento }
+La tarea --- a partir de las coordenadas del punto final de la línea de construir la recta que pasa a través de él.
+Creemos que el segmento de невырожден, es decir, tiene una longitud mayor que cero (de lo contrario, es comprensible, a través de él pasa un número infinito de diferentes directos).
+\h2{ Bidimensional caso }
+Que dan el trozo de $PQ$, es decir, se conocen las coordenadas de sus extremos de $P_x$, $P_y$, $Q_x$, $Q_y$.
+Es necesario construir \bf{la ecuación de la recta en el plano}, se extiende a través de este segmento, es decir, de encontrar los factores de $A$, $B$, $C$ en la ecuación de la recta:
+$$ A x B y C = 0. $$
+Tenga en cuenta que los triples $(A,B,C)$, pasando de un tramo, \bf{infinitos}: se puede multiplicar todos los tres factores de la arbitraria de un número distinto de cero y conseguir la misma recta. Por lo tanto, nuestra tarea es encontrar a uno de esos triples.
+Es fácil ver (sustituyendo estas expresiones y las coordenadas de los puntos $P$ y $Q$ en la ecuación de la recta), que adapta el siguiente conjunto de factores:
+$$ A = P_y - Q_y, $$
+$$ B = Q_x - P_x, $$
+$$ C = - A P_x - B P_y. $$
+\h3{ Entero de un caso }
+Una ventaja importante de este método de generación directa es que si las coordenadas de los extremos se enteros, y los factores también se \bf{enteros}. En algunos casos, esto le permite realizar operaciones geométricas, en general sin recurrir a bajo los números.
+Sin embargo, hay un pequeño inconveniente: para una misma recta, pueden obtenerse diferentes de la troika de los factores. Para evitar esto, pero no alejarse de enteros de los factores, se puede aplicar la siguiente técnica, a menudo llamado \bf{reglamientos}. Encontraremos \algohref=euclid_algorithm{el máximo común divisor} de números de $A$, $B$, $C$, dividiremos en él, los tres factores y, a continuación, haremos una нормировку de la marca: si $A<0$ o $A=0, B<0$, entonces se multiplica todos los tres factores de $-1$. Finalmente llegamos a lo que para la misma directos se van a recuperar los mismos de la troika de los factores, lo que fácilmente puede comprobar directos a la igualdad.
+\h3{ Вещественнозначный caso }
+Cuando se trabaja con números reales, siempre debe recordar acerca de la exactitud.

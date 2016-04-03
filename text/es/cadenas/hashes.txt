@@ -1,0 +1,27 @@
+<h1>los Algoritmos de hash en las tareas en línea</h1>
+<p>los Algoritmos de hash de cadenas ayudan a resolver mucho de tareas. Pero tienen una gran desventaja: que la mayoría de ellos no 100%-a, ya que hay muchas líneas, los valores hash de las mismas. Otra cosa es que en la mayoría de las tareas se puede ignorar, ya que la probabilidad de coincidencia de hash de todos modos es muy pequeño.</p>
+<p>
+<h2>la Definición de hash y de evaluarla</h2>
+<p>Una de las mejores formas de definir una función hash de la cadena S es la siguiente:</p>
+<formula>h(S) = S[0] S[1] * P S[2] * P^2 S[3] * P^3 ... S[N], * P^N</formula>
+<p>donde P es un número.</p>
+<p>es Razonable elegir para P un número primo, aproximadamente igual al número de caracteres en el alfabeto de entrada. Por ejemplo, si la cadena предполаются que sólo contienen pequeñas letras, es una buena opción será P = 31. Si las letras pueden ser mayúsculas, y las pequeñas, por ejemplo, se puede P = 53.</p>
+<p>En todos los trozos de código en este artículo se utilizará P = 31.</p>
+<p>el valor de hash, conviene mantener en la más grande numérico tipo - int64, él mismo long long. Es evidente que cuando la longitud de la cadena de la orden de 20 caracteres ya va a ocurrir un desbordamiento de valor. La clave es que no prestamos atención a estos desbordamientos, como tomando el hash módulo 2^64.</p>
+<p>Ejemplo de cálculo de hash, si sólo se permiten pequeñas letras:</p>
+<code>const int p = 31
+long long hash = 0, p_pow = 1
+for (size_t i=0
+{
+// es deseable tomar la 'a' de código de letras
+// unidad de sumar, para las cadenas de tipo 'aaaaa hash era distinta de cero
+hash = (s[i] - 'a' 1) * p_pow
+p_pow *= p
+}</code>
+<p>En la mayoría de tareas tiene sentido, primero, calcular todos los de grado P en cualquier matriz.</p>
+<p>
+<h2>Ejemplo de un problema. Búsqueda de duplicados</h2>
+<p>ahora Ya estamos en condiciones de resolver con eficacia esta tarea. Dada una lista de cadenas S[1..N], cada una longitud de no más de M símbolos. Por ejemplo, se puede encontrar todas las filas duplicadas y dividirlos en grupos, en cada grupo fueron sólo la misma cadena.</p>
+<p>Normal de ordenación de filas tendríamos un algoritmo con una complejidad de O (N M log N), mientras que usando el hash, obtenemos O (N M N log N).</p>
+<p>el Algoritmo. Calcular el hash de cada fila, y ordenará la cadena de ese hash.</p>
+<code>vector

@@ -1,0 +1,471 @@
+<h1>BPSW test for primality of numbers</h1>
+<hr>
+<h2>Introduction</h2>
+<p>the Algorithm BPSW is the test number for primality. This algorithm is named according to the names of its inventors: Robert Bailey (Ballie), Karl Pomerans (Pomerance), John Selfridge (Selfridge), Samuel Wagstaff (Wagstaff). The algorithm was proposed in 1980. To date, the algorithm has not been found a single counterexample, as no evidence was found.</p>
+<p>the complexity of the algorithm BPSW is O (log<sup>3</sup>(N)) bit operations. If you compare the algorithm BPSW with other tests, for example, test the Miller-Rabin, the algorithm BPSW is usually in 3-7 times slower.</p>
+<p>the Algorithm is often used in practice. Apparently, many commercial mathematical packages, fully or partially, rely on the algorithm BPSW to check for Prime numbers.</p>
+<hr>
+<h2>Brief description</h2>
+<p>1. To test the Miller-Rabin base 2.</p>
+<p>2. To perform a strong test of the Lucas-Selfridge, using the Lucas sequence with parameters of Selfridge.</p>
+<p>3. Return "simple" only in the case when both the test returned "easy".</p>
+<p> 0. In addition, at the beginning of the algorithm, you can add a check for trivial divisors, say, 1000. This will increase the speed of the composite numbers, however, slightly slowing down the algorithm on a simple.</p>
+<p>1. (fact) test Miller-Rabin test Lucas-Selfridge if mistaken, only one way: some composite numbers these algorithms enumerated as simple. In the opposite direction, these algorithms are not mistaken.</p>
+<p>2. (assumption) test Miller-Rabin test Lucas-Selfridge and if wrong, never wrong on one number at a time.</p>
+<hr>
+<h2>Implementation of the algorithms in this article</h2>
+<p>All the algorithms in this paper will be implemented on C . All programs were tested only on Microsoft C compiler 8.0 SP1 (2005), should also compile on g .</p>
+<p>the Algorithms are implemented using templates, which allows to use them as a built-in numeric types, and their own classes that implement long arithmetic. [ while long arithmetic in the article does not include - TODO ]</p>
+<code>//! Module 64-bit number
+long long <b>abs</b> (long long n)
+unsigned long long abs (unsigned long long n)
+//! Returns true if n is even
+template 
+bool <b>even</b> (const T 
+//! Divides the number by 2
+template 
+void <b>bisect</b> (T 
+//! Multiplies the number by 2
+template 
+void <b>redouble</b> (T 
+//! Returns true if n is an exact square of a Prime number
+template 
+bool <b>perfect_square</b> (const T 
+//! Computes the root of a number, rounding it down
+template 
+T <b>sq_root</b> (const T 
+template 
+unsigned <b>bits_in_number</b> (T n)
+//! Returns the value of the k-th bit number (bits are numbered from zero)
+template 
+bool <b>test_bit</b> (const T 
+//! Multiplies a *= b (mod n)
+template 
+void <b>mulmod</b> (T 
+//! Computes a^k (mod n)
+template 
+T <b>powmod</b> (T a, T2 k, const T 
+//! Converts a number n in the form q*2^p
+template 
+void <b>transform_num</b> (T n, T 
+//! Euclidean Algorithm
+template 
+T <b>gcd</b> (const T 
+//! Computes jacobi(a,b) is the Jacobi symbol
+template 
+//! Calculates pi(b) of the first primes. Returns a vector with simple and pi - pi(b)
+template 
+const std::vector<T> 
+//! Trivial test n for primality, move all divisors to m.
+//! Result: 1 - if n is just a simple p - it found the divisor, 0 if unknown
+template 
+T2 <b>prime_div_trivial</b> (const T 
+<hr>
+<h2>Test Miller-Rabin</h2>
+<p>you can say is that its performance is O (log<sup>3</sup>(N)) bit operations and will finish the implementation of this algorithm:</p>
+the <code>template 
+bool miller_rabin (n T, T2 b)
+{
+// first check in trivial cases
+if (n == 2)
+return true
+if (n 
+return false
+// check that n and b are coprime (otherwise it will fail)
+// if they are not relatively Prime, then either n is not simple, either you need to increase b
+if (b 
+b = 2
+for (T g
+if (n > g)
+return false
+T n_1 = n
+--n_1
+T p, q
+transform_num (n_1, p, q)
+// calculated b^q mod n, if it is equal to 1 or n-1, then n is Prime (or pseudoproline)
+T rem = powmod (T(b), q, n)
+if (rem == 1 || rem == n_1)
+return true
+// now calculated b^2q, b^4q, ... , b^((n-1)/2)
+// if any of them is equal to n-1, then n is Prime (or pseudoproline)
+for (T i=1
+{
+mulmod (rem, rem, n)
+if (rem == n_1)
+return true
+}
+return false
+}</code>
+<hr>
+<h2>Strong test of the Lucas-Selfridge</h2>
+<h3>Algorithm Selfridge</h3>
+<p>Among the sequence 5, -7, 9, -11, 13, ... to find the first number D for which J (D, N) = -1 and gcd (D, N) = 1, where J(x,y) is the Jacobi symbol.</p>
+<p><b>Parameters Selfridge</b> will be P = 1 and Q = (1 - D) / 4.</p>
+<p>note that the parameter Selfridge does not exist for the numbers that are exact squares. Indeed, if the number is a perfect square, then search D get to sqrt(N), which will prove that gcd (D, N) > 1, i.e., it is found that the composite number N.</p>
+<p>Thus, <b>before the beginning of the algorithm</b> you should check that the number N is odd, 2 large, and is not a perfect square, otherwise (if one) you need to immediately exit the algorithm with the "compound".</p>
+<h3>Strong algorithm of Lucas</h3>
+<p><b>Parameters algorithm</b> Lucas are numbers of <b>D, P and Q</b> such that D = P<sup>2</sup> - 4*Q ? 0, and P > 0.</p>
+<p>it is easy to see that the parameters calculated by the algorithm Selfridge, satisfy these conditions)</p>
+<p><b>the Sequence of Lucas</b> is a sequence U<sub>k</sub> and V<sub>k</sub>, defined as follows:</p>
+<formula>U<sub>0</sub> = 0
+U<sub>1</sub> = 1
+<b>U<sub>k</sub> = P U<sub>k-1</sub> Q U<sub>k-2</sub></b>
+V<sub>0</sub> = 2
+V<sub>1</sub> = P
+<p>Next, let M = N - J (D, N).</p>
+<p>If N is Prime, and gcd (N, Q) = 1, we have:</p>
+<formula><b>U<sub>M</sub> = 0 (mod N)</b></formula>
+<p>In particular, when the parameters D, P, Q calculated by the algorithm of Selfridge have:</p>
+<formula>U<sub>N-1</sub> = 0 (mod N)</b></formula>
+<p>the Opposite, generally speaking, wrong. However, pseudoplastic numbers when this algorithm is not very much, on what, in fact, is based algorithm of Lucas.</p>
+<p>so, <b>the algorithm of Lucas is to calculate U<sub>M</sub> and compare it with zero</b>.</p>
+<p>Are:</p>
+<formula>U<sub>k</sub> = (a<sup>k</sup> b<sup>k</sup>) / (a - b),
+V<sub>k</sub> = a<sup>k</sup> b<sup>k</sup>,</formula>
+<p>where a and b are the roots of the quadratic equation x<sup>2</sup> - P x Q = 0.</p>
+<p>Now, the following equality can be proved simply:</p>
+<formula>U<sub>2k</sub> = U<sub>k</sub> V<sub>k</sub> (mod N)
+V<sub>2k</sub> = V<sub>k</sub><sup>2</sup> - 2 Q<sup>k</sup> (mod N)</formula>
+<p>Now if M = E 2<sup>T</sup>, where E is an odd number, it is easy to get:</p>
+<p>and at least one of the multipliers is equal to zero modulo N.</p>
+<p>it is Clear that <b>it is enough to compute U<sub>E</sub> and V<sub>E</sub></b> and all subsequent multiplier V<sub>2A</sub> V<sub>4E</sub> ... V<sub>2<sup>T-2</sup>E</sub> V<sub>2<sup>T-1</sup>E</sub> can <b>get them</b>.</p>
+<p>Thus, it remains to learn how to quickly calculate U<sub>E</sub> and V<sub>E</sub> for odd E.</p>
+<p>First, consider the following formula for the addition of members of the Lucas sequences:</p>
+<formula>U<sub>j</sub> = (U<sub>i</sub> V<sub>j</sub> U<sub>j</sub> V<sub>i</sub>) / 2 (mod N)
+<p>you Should note that the division is performed in the field (mod N).</p>
+<p>these Formulas are proved in a very simple, and here is their proof is omitted.</p>
+<p>Now, having the formulas for addition and doubling of the members of the Lucas sequences, and understandable way to accelerate the calculation of U<sub>E</sub> and V<sub>E</sub>.</p>
+<p>If U<sub>E</sub> V<sub>E</sub> is equal to zero (mod N), then the number N is Prime (or pseudoproline). If they are both different from zero, the computed V<sub>2A</sub>, V<sub>4E</sub>, ... V<sub>2<sup>T-2</sup>E</sub>, V<sub>2<sup>T-1</sup>E</sub>. If at least one of them is comparable to zero modulo N, the number N is Prime (or pseudoproline). Otherwise, the composite number N.</p>
+<h3>discussion of the algorithm Selfridge</h3>
+<p>Recall the basic parameters:</p>
+<formula><b>P > 0</b>
+<b>D = P<sup>2</sup> - 4*Q ? 0</b>.</formula>
+<p>Now we will continue the study of these parameters.</p>
+<p><b>D must not be a perfect square (mod N)</b>.</p>
+<p>Really, otherwise you will get:</p>
+<p>D = b<sup>2</sup>, hence J(D,N) = 1, P = b 2, Q = b 1, hence U<sub>n-1</sub> = (Q<sup>n-1</sup> - 1) / (Q - 1).</p>
+<p>I.e., if D is an exact square, the algorithm of Lucas becomes almost normal probability test.</p>
+<p>for Example, you can choose the first number D from sequence 5, -7, 9, -11, 13, ..., for which J(D,N) = -1. Also let P = 1. Then Q = (1 - D) / 4. This method was proposed by Selfridge.</p>
+<p>However, there are other ways of choosing d Can be selected from a sequence 5, 9, 13, 17, 21, ... Also let P be the smallest odd, prevoshodyaschie sqrt(D). Then Q = (P<sup>2</sup> - D) / 4.</p>
+<h3>strong Implementation of the algorithm of Lucas-Selfridge</h3>
+<p>Now you only have to implement the algorithm:</p>
+the <code>template 
+bool lucas_selfridge (const T 
+{
+// first check in trivial cases
+if (n == 2)
+return true
+if (n 
+return false
+// check that n is not a perfect square, otherwise the algorithm will give an error
+if (perfect_square (n))
+return false
+// the algorithm Selfridge: find the first number d such that:
+// jacobi(d,n)=-1, and it belongs to the range { 5,vs.-7.9bn,-11,13,... }
+T2 dd
+{
+dd = d_abs * d_sign
+T g = gcd (n, d_abs)
+if (1 
+// find the divisor - d_abs
+return false
+if (jacobi (T(dd), n) == -1)
+break
+}
+// parameters Selfridge
+T2
+p = 1,
+q = (p*p - dd) / 4
+// degradable n 1 = d*2^s
+T n_1 = n
+ n_1
+T s, d
+transform_num (n_1, s, d)
+// the algorithm of Lucas
+T
+u = 1,
+v = p,
+u2m = 1,
+v2m = p,
+qm = q,
+qm2 = q*2,
+qkd = q
+for (unsigned bit = 1, bits = bits_in_number(d)
+{
+mulmod (u2m, v2m, n)
+mulmod (v2m, v2m, n)
+while (v2m < qm2)
+v2m = n
+v2m -= qm2
+mulmod (qm, qm, n)
+qm2 = qm
+redouble (qm2)
+if (test_bit (d, bit))
+{
+T t1, t2
+t1 = u2m
+t2 = v2m
+mulmod (t2, u, n)
+T t3, t4
+t3 = v2m
+mulmod (t3, v, n)
+t4 = u2m
+mulmod (t4, u, n)
+mulmod (t4, (T)dd, n)
+u = t1 t2
+if (!even (u))
+u = n
+bisect (u)
+u %= n
+v = t3 t4
+if (!even (v))
+v = n
+bisect (v)
+v %= n
+mulmod (qkd, qm, n)
+}
+}
+// just a simple (or pseudo-simple)
+if (u == 0 || v == 0)
+return true
+// deviceset the remaining members of the
+T qkd2 = qkd
+redouble (qkd2)
+for (T2 r = 1
+{
+mulmod (v, v, n)
+v -= qkd2
+if (v 
+if (v 
+if (v >= n) v= n
+if (v >= n) v= n
+if (v == 0)
+return true
+if (r 
+{
+mulmod (qkd, qkd, n)
+redouble (qkd2)
+}
+}
+return false
+}</code>
+<hr>
+<h2>Code BPSW</h2>
+<p>Now you need to simply combine the results of all 3 tests: test on a small trivial divisors, test Miller-Rabin strong test of the Lucas-Selfridge.</p>
+the <code>template 
+bool baillie_pomerance_selfridge_wagstaff (T n)
+{
+// first check for trivial factors - for example, to 29
+int div = prime_div_trivial (n, 29)
+if (div == 1)
+return true
+if (div > 1)
+return false
+// test the Miller-Rabin base 2
+if (!miller_rabin (n, 2))
+return false
+return lucas_selfridge (n, 0)
+}</code>
+<p><a href=BPSW_main.zip>Here</a> you can download the program (source code exe) that contains the complete implementation of the BPSW test. [77 KB]</p>
+<hr>
+<h2>quick implementation</h2>
+<p>the Length of the code can be greatly reduced at the expense of universality, refusing templates and various support functions.</p>
+<code>const int trivial_limit = 50
+int p[1000]
+int gcd (int a, int b) {
+return a ? gcd (b%a, a) : b
+}
+int powmod (int a, int b, int m) {
+int res = 1
+while (b)
+if (b 
+res = (res * 1ll * a) % m, --b
+else
+a = (a * 1ll * a) % m, b >>= 1
+}
+bool miller_rabin (int n) {
+int b = 2
+for (int g
+if (n > g)
+return false
+int p=0, q=n-1
+while ((q 
+ p, q >>= 1
+int rem = powmod (b, q, n)
+if (rem == 1 || rem == n-1)
+return true
+for (int i=1
+rem = (rem * 1ll * rem) % n
+if (rem == n-1) return true
+}
+return false
+}
+int jacobi (int a, int b)
+{
+if (a == 0) return 0
+if (a == 1) return 1
+if (a 
+if ((b 
+return jacobi (a, b)
+else
+return - jacobi (a, b)
+int a1=a, e=0
+while ((a1 
+a1 >>= 1, e
+int s
+if ((e 
+s = 1
+else
+s = -1
+if ((b 
+s = -s
+if (a1 == 1)
+return s * jacobi (b % a1, a1)
+}
+bool bpsw (int n) {
+if ((int)sqrt(0.0) * (int)sqrt(0.0) == n) return false
+int dd=5
+for (
+int g = gcd (n, abs(dd))
+if (1
+if (jacobi (dd, n) == -1) break
+dd = dd
+}
+int p=1, q=(p*p-dd)/4
+int d=n 1, s=0
+while ((d 
+ s, d>>=1
+long long u=1, v=p, u2m=1, v2m=p, qm=q, qm2=q*2, qkd=q
+for (int mask=2
+u2m = (u2m * v2m) % n
+v2m = (v2m * v2m) % n
+while (v2m < qm2) v2m = n
+v2m -= qm2
+qm = (qm * qm) % n
+qm2 = qm * 2
+if (d 
+long long t1 = (u2m * v) % n, t2 = (v2m * u) % n,
+t3 = (v2m * v) % n, t4 = (((u2m * u) % n) * dd) % n
+u = t1 t2
+if (u 
+v = t3 t4
+if (v 
+v = (v >> 1) % n
+qkd = (qkd * qm) % n
+}
+}
+if (u==0 || v==0) return true
+long long qkd2 = qkd*2
+for (int r=1
+v = (v * v) % n - qkd2
+if (v 
+if (v 
+if (v >= n) v= n
+if (v >= n) v= n
+if (v == 0) return true
+if (r 
+qkd = (qkd * 1ll * qkd) % n
+qkd2 = qkd * 2
+}
+}
+return false
+}
+bool prime (int n) { // this function should be called to check on simplicity
+for (int i=0
+if (n % p[i] == 0)
+return false
+if (p[trivial_limit-1]*p[trivial_limit-1] >= n)
+return true
+if (!miller_rabin (n))
+return false
+return bpsw (n)
+}
+for (int i=2, j=0
+bool pr = true
+for (int k=2
+if (i % k == 0)
+pr = false
+if (pr)
+p[j ] = i
+}
+}</code>
+<hr>
+<h2>Heuristic proof-refutation of Pomerania</h2>
+<p>Pomerans in 1984 proposed the following heuristic proof.</p>
+<p>Statement: <b>Number BPSW-pseudoplastic from 1 to X is greater than X<sup>1</sup> for any a > 0</b>.</p>
+<p>Proof.</p>
+<p>Let k > 4 be arbitrary but fixed number. Let T be a large number.</p>
+<p>(1) p = 3 (mod 8), J(5,p) = -1</p>
+<p>(2) the number (p-1)/2 is not a perfect square</p>
+<p>(3) number (p-1)/2 is composed entirely of simple q < T
+<p>(4) number (p-1)/2 is composed exclusively of such simple q that q = 1 (mod 4)</p>
+<p>(5) number (p 1)/4 is not a perfect square</p>
+<p>(6) number (p 1)/4 is composed entirely of simple d < T</p>
+<p>(7) number (p 1)/4 is composed exclusively of such simple d that q = 3 (mod 4)</p>
+<p><img src=BPSW_formula1.jpg></p>
+<p>where c is some positive constant depending on the choice of k.</p>
+<p>Now we <b>can build n</b>, which is not a perfect square, composed of l simple from P<sub>k</sub>(T), where l is odd and less than T<sup>2</sup> / log(T<sup>k</sup>). The number of ways to choose such a number n is approximately</p>
+<p><img src=BPSW_formula2.jpg></p>
+<p>for large T and xed k. In addition, each such number n less e<sup>T<sup>2</sup></sup>.</p>
+<formula>n = 1 (mod Q<sub>1</sub>), n = -1 (mod Q<sub>3</sub>)</formula>
+<p>must be heuristically, at least</p>
+<formula>e<sup>T<sup> 2</sup> (1 - 3 / k)</sup> e<sup> 2T</sup> > <b>e<sup>T<sup> 2</sup> (1 - 4 / k)</sup></b></formula>
+<p>for large T.</p>
+<p>Thus, we have shown that for any xed k and all large T, is at least e<sup>T<sup> 2</sup> (1 - 4 / k)</sup> counterexamples to the test BPSW among numbers, smaller e<sup>T<sup> 2</sup></sup>. Now, if we put x = e<sup>T<sup> 2</sup></sup>, will be at least x<sup>1 - 4 / k</sup> counterexamples smaller than x. Since k is a random number, then our proof means that the <b>number of counterexamples, the smaller x is a number greater than x<sup>1</sup> for any a > 0</b>.</p>
+<hr>
+<h2>Practical tests BPSW test</h2>
+<p>the Test was conducted on a computer with a Celeron 1.3 GHz.</p>
+<p>All times are given in <b>microseconds</b> (10<sup> -6</sup> s).</p>
+<h3>Average time on interval numbers depending on the limit of the trivial brute-force</h3>
+<p>refers to the parameter passed to the function prime_div_trivial(), which in the above code is equal to 29.</p>
+<p><a href="BPSW_test_1.zip">Download</a> test program (source code and exe file. [83 KB]</p>
+<table class=table2 cellspacing=0>
+<tr><th>start<br>cut</th><th>end<br>cut</th><th>limit ><br>Robin ></th><th width=13%>0</th><th width=13%>10<sup>2</sup></th><th width=13%>10<sup>3</sup></th><th width=13%>10<sup>4</sup></th><th width=13%>10<sup>5</sup></th></tr>
+<tr><td>1</td><td>10<sup>5</sup></td><td></td><td>8.1</td><td>4.5</td><td>0.7</td><td>0.7</td><td>0.9</td></tr>
+<tr><td>10<sup>6</sup></td><td>10<sup>6</sup> to 10<sup>5</sup></td><td></td><td>12.8</td><td>6.8</td><td>7.0</td><td>1.6</td><td>1.6</td>
+<tr><td>10<sup>9</sup></td><td>10<sup>9</sup> to 10<sup>5</sup></td><td></td><td>28.4</td><td>12.6</td><td>12.1</td><td>17.0</td><td>17.1</td></tr>
+<tr><td>10<sup>15</sup></td><td>10<sup>15</sup> to 10<sup>5</sup></td><td></td><td>66.7</td><td>24.4</td><td>21.1</td><td>24.8</td><td>58.9</td></tr>
+</table>
+<p>If you run the test <b>only on simple numbers</b> of the segment, the speed of operation is as follows:</p>
+<table class=table2 cellspacing=0>
+<tr><th>start<br>cut</th><th>end<br>cut</th><th>limit ><br>Robin ></th><th width=13%>0</th><th width=13%>10<sup>2</sup></th><th width=13%>10<sup>3</sup></th><th width=13%>10<sup>4</sup></th><th width=13%>10<sup>5</sup></th></tr>
+<tr><td>1</td><td>10<sup>5</sup></td><td></td><td>42.9</td><td>40.8</td><td>3.1</td><td>4.2</td><td>4.2</td></tr>
+<tr><td>10<sup>9</sup></td><td>10<sup>9</sup> to 10<sup>5</sup></td><td></td><td>186.5</td><td>188.5</td><td>201.0</td><td>294.3</td><td>283.9</td></tr>
+<tr><td>10<sup>12</sup></td><td>10<sup>12</sup> to 10<sup>5</sup></td><td></td><td>288.3</td><td>288.3</td><td>302.2</td><td>387.9</td><td>1069.5</td></tr>
+<tr><td>10<sup>15</sup></td><td>10<sup>15</sup> to 10<sup>5</sup></td><td></td><td>485.6</td><td>489.1</td><td>496.3</td><td>585.4</td><td>1267.4</td></tr>
+</table>
+<p>Thus, it is optimal to choose <b>limit trivial brute-force is equal to 100 or 1000</b>.</p>
+<p>For all the following tests, I chose a limit of 1000.</p>
+<h3>Average time on interval numbers</h3>
+<p><a href=BPSW_test2.zip>Download</a> test program (source code and exe file. [83 KB]</p>
+<table class=table1 cellspacing=0>
+<tr><th width=100>beginning<br>cut</th><th width=100>end<br>cut</th><th width=200>time<br>on odd numbers</th><th width=200>time<br>Prime number</th></tr>
+<tr><td>1</td><td>10<sup>5</sup></td><td>1.2</td><td>4.2</td></tr>
+<tr><td>10<sup>6</sup></td><td>10<sup>6</sup> to 10<sup>5</sup></td><td>13.8</td><td>88.8</td></tr>
+<tr><td>10<sup>7</sup></td><td>10<sup>7</sup> to 10<sup>5</sup></td><td>16.8</td><td>115.5</td></tr>
+<tr><td>10<sup>8</sup></td><td>10<sup>8</sup> to 10<sup>5</sup></td><td>21.2</td><td>164.8</td></tr>
+<tr><td>10<sup>10</sup></td><td>10<sup>10</sup> to 10<sup>5</sup></td><td>25.2</td><td>225.5</td></tr>
+<tr><td>10<sup>11</sup></td><td>10<sup>11</sup> to 10<sup>5</sup></td><td>28.4</td><td>266.5</td></tr>
+<tr><td>10<sup>12</sup></td><td>10<sup>12</sup> to 10<sup>5</sup></td><td>30.4</td><td>302.2</td></tr>
+<tr><td>10<sup>13</sup></td><td>10<sup>13</sup> to 10<sup>5</sup></td><td>33.0</td><td>352.2</td></tr>
+<tr><td>10<sup>14</sup></td><td>10<sup>14</sup> to 10<sup>5</sup></td><td>37.5</td><td>424.3</td></tr>
+<tr><td>10<sup>15</sup></td><td>10<sup>15</sup> to 10<sup>5</sup></td><td>42.3</td><td>499.8</td></tr>
+<tr><td>10<sup>16</sup></td><td>10<sup>15</sup> to 10<sup>5</sup></td><td>46.5</td><td>553.6</td></tr>
+<tr><td>10<sup>17</sup></td><td>10<sup>15</sup> to 10<sup>5</sup></td><td>48.9</td><td>621.1</td></tr>
+</table>
+<p><img src=BPSW_graph1.gif></p>
+<p>so we got that in practice, for small numbers (up to 10<sup>17</sup>), <b>the algorithm works in O (log N)</b>. This is because for a built-in type int64 the division operation is performed in O(1), i.e. the complexity of the division is not zavisit from the number of bits in the number.</p>
+<p>If you apply the BPSW test for long arithmetic, it is anticipated that it will work just O (log<sup>3</sup>(N)). [ TODO ]</p>
+<hr>
+<h2>Application. All programs</h2>
+<hr>
+<h2>Literature</h2>
+<p>I Used the literature, fully available online:</p>
+<ol>
+<li>Robert Baillie
+<li>Daniel J. Bernstein<br><b>Distinguishing prime numbers from composite numbers: the state of the art in 2004</b><br>Math. Comp. (2004)<br><a href="http://cr.yp.to/primetests/prime2004-20041223.pdf>cr.yp.to/primetests/prime2004-20041223.pdf</a><br>
+<li>Carl Pomerance<br><b>Are there counter-examples to the Baillie-PSW primality test?</b><br>Math. Comp. (1984)<br><a href="http://www.pseudoprime.com/dopo.pdf">www.pseudoprime.com/dopo.pdf</a><br>
+<li>Eric W. Weisstein<br><b>Baillie-PSW primality test</b><br>MathWorld (2005)<br><a href="http://mathworld.wolfram.com/Baillie-PSWPrimalityTest.html">mathworld.wolfram.com/Baillie-PSWPrimalityTest.html</a><br>
+<li>Eric W. Weisstein<br><b>Strong Lucas pseudoprime</b><br>MathWorld (2005)<br><a href="http://mathworld.wolfram.com/StrongLucasPseudoprime.html">mathworld.wolfram.com/StrongLucasPseudoprime.html</a><br>
+<li>Paulo Ribenboim<br><b>The Book of Prime Number Records</b><br>Springer-Verlag (1989)<br>[ no links ]<br>
+</ol>

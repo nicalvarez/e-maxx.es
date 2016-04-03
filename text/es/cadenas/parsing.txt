@@ -1,0 +1,75 @@
+\h1{Analizar expresiones. La inversa de la notación polaca}
+Dada una cadena que representa la expresión matemática que contenga números, variables, operaciones diversas. Se desea calcular su valor por $O (n)$, donde $n$ --- la longitud de la cadena.
+Aquí se describe el algoritmo que traduce esta expresión en la llamada \bf{inversa de la notación polaca} (explícita o implícitamente), y ya en ella se evalúa la expresión.
+\h2{Inversa notación polaca}
+La inversa de la notación polaca --- es una forma de escritura de expresiones matemáticas, en la que los operadores se encuentran después de sus operandos.
+Por ejemplo, la siguiente expresión:
+$$ a b * c * d (e - f) * (g * h * i) $$
+en la notación polaca inversa se escribe de la siguiente manera:
+$$ a b c * d * e f - g h * i * $$
+La inversa de la notación polaca ha desarrollado de australia, filósofo y especialista en el campo de la teoría de la aprobacion de Charles Хэмблином a mediados de la década de 1950 sobre la base de la notación polaca, que fue propuesta en la década de 1920, el matemático polaco Jan Лукасевичем.
+La conveniencia de notación polaca inversa es que la expresión, presentados de una forma muy \bf{es fácil de calcular}, y por el tiempo lineal. Podamos establecer una pila, inicialmente está vacía. Vamos a mover de izquierda a derecha, por la expresión en notación polaca inversa
+Obviamente, este sencillo algoritmo se ejecuta por $O (n)$, es decir, del orden de la longitud de una expresión.
+\h2{Análisis de simples expresiones}
+Mientras consideramos solamente la más simple de caso: todas las operaciones \bf{бинарны} (es decir, de dos argumentos), y todos \bf{левоассоциативны} (es decir, en igualdad de prioridades se realizan de izquierda a derecha). Entre paréntesis están permitidos.
+Podamos establecer una dos fichas: una para los números y otro para las operaciones y los paréntesis (es decir, la pila de caracteres). Inicialmente, ambos de la pila están vacíos. Para la segunda pila vamos a mantener la condición previa de que todas las operaciones están ordenadas en él por estricto orden descendente de prioridad, si uno se aleja de la cima de la pila. Si en la pila hay un paréntesis, se organiza cada unidad de operaciones está entre paréntesis, y toda la pila en este caso, no necesariamente está ordenado.
+Vamos a ir en fila de izquierda a derecha. Si el elemento actual-de-la - cifra o variable, lo ponemos en la pila el valor de este número/variable. Si el elemento actual --- el paréntesis de apertura, lo ponemos en la pila. Si el elemento actual --- corchete de cierre, lo vamos a expulsar de la pila y de realizar todas las operaciones hasta que nosotros no aprendemos de la llave de apertura (es decir, en otras palabras, encontrando un paréntesis de cierre, llevamos a cabo todas las operaciones que se encuentran dentro de este paréntesis). Por último, si el elemento actual --- la operación, hasta que en la cima de la pila se encuentra la operación con el mismo o mayor prioridad, vamos a expulsar, y aplicarla.
+Después nos encargaremos de toda la cadena en la pila de operaciones aún pueden quedar algunas operaciones que aún no se han calculado, y se necesita realizar en su totalidad (es decir, actuamos como sucede cuando encontramos un paréntesis de cierre).
+He aquí la implementación de este método en el ejemplo de las operaciones ordinarias de $ -*/\%$:
+\code
+bool delim (char c) {
+return c == ' '
+}
+bool is_op (char c) {
+return c==' ' || c=='-' || c=='*' || c=='/' || c=='%'
+}
+int priority (char op) {
+return
+op == ' ' || op == '-' ? 1 :
+op == '*' || op == '/' || op == '%' ? 2 :
+-1
+}
+void process_op (vector<int> 
+int r = st.back()
+int l = st.back()
+switch (op) {
+case ' ': st.push_back (l r)
+case '-': st.push_back (l - r)
+case '*': st.push_back (l * r)
+case '/': st.push_back (l / r)
+case '%': st.push_back (l % r)
+}
+}
+int calc (string 
+vector<int> st
+vector<char> op
+for (size_t i=0
+if (!delim (s[i]))
+if (s[i] == '(')
+op.push_back ('(')
+else if (s[i] == ')') {
+while (op.back() != '(')
+process_op (st, op.back()), op.pop_back()
+op.pop_back()
+}
+else if (is_op (s[i])) {
+char curop = s[i]
+while (!op.empty() 
+process_op (st, op.back()), op.pop_back()
+op.push_back (curop)
+}
+else {
+string operand
+while (i < s.length() 
+operand = s[i ]
+--i
+if (isdigit (operand[0]))
+st.push_back (atoi (operand.c_str()))
+else
+st.push_back (get_variable_val (operand))
+}
+while (!op.empty())
+process_op (st, op.back()), op.pop_back()
+return st.back()
+}
+\endcode

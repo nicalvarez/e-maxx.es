@@ -1,0 +1,67 @@
+\h1{ Discreta логарифмирование }
+La tarea discreta логарифмирования radica en el hecho de que por la totalidad de $a$, $b$, $m$ resolver la ecuación:
+$$ a^x = b \pmod m, $$
+donde $a$ y $m$ --- \bf{mutuamente fáciles} (nota: si no son mutuamente simples, es el siguiente algoritmo es incorrecto
+Aquí se describe el algoritmo, conocido como \bf{"baby-paso-gigante-step algorithm"}, propuesto por \bf{Шэнксом (Shanks)} en el año 1971, que trabaja en el tiempo por $O (\sqrt{m} \log m)$. A menudo, este algoritmo se refiere simplemente como el algoritmo \bf{"meet-in-the-middle"} (porque es uno de los clásicos de los usos de la técnica de "meet-in-the-middle": "división de tareas por la mitad").
+\h2{ Algoritmo }
+Así pues, tenemos la ecuación:
+$$ a^x = b \pmod m, $$
+donde $a$ y $m$ mutuamente simples.
+Transformamos la ecuación. Pondremos la
+$$ x = np - q $$
+donde $n$ --- pre-seleccionada constante (como se elegirá en función del $m$, veremos un poco más adelante). A veces $p$ llaman "giant step" (ya que el aumento de su unidad aumenta de $x$ en seguida a $n$), y en cambio $q$ --- "baby step".
+Es evidente que todo $x$ (intervalo $[0
+$$ p \in \left[ 1
+Entonces, la ecuación toma la forma:
+$$ a^{np-q} = b \pmod m, $$
+de donde, aprovechando el hecho de que $a$ y $m$ mutuamente simples, obtenemos:
+$$ a^{np} = b a^q \pmod m. $$
+Para resolver la ecuación original, es necesario encontrar los valores adecuados de $p$ y $q$, para que los valores de la izquierda y la derecha de las piezas concuerden. En otras palabras, es necesario resolver la ecuación:
+$$ f_1(p) = f_2(q). $$
+Esta tarea se resuelve mediante el método de meet-in-the-middle " de la siguiente manera. La primera fase del algoritmo que calcula los valores de la función $f_1$ para todos los valores de los argumentos de $p$, y ordenará a estos valores. La segunda fase del algoritmo: vamos a iterar el valor de la segunda variable $q$, calcular la segunda función $f_2$, y buscar ese valor entre предвычисленных de los valores de la primera función con la ayuda de un binario de búsqueda.
+\h2{ Asíntotas }
+Primero ponemos el tiempo de cálculo para cada una de las funciones $f_1(p)$ y $f_2(q)$. Aquella, y la otra contiene los exponentes, que se puede realizar con la ayuda de \algohref=binary_pow{algoritmo de exponenciación binaria}. Entonces, estas dos funciones podemos calcular por hora $O(\log m)$.
+El algoritmo mismo en la primera fase incluye el cálculo de la función $f_1(p)$ para cada posible valor de $p$ y la clasificación de valores, lo que nos da la асимптотику:
+$$ O\left( \left\lceil \frac{m}{n} \right\rceil \left( \log m \log \left\lceil \frac{m}{n} \right\rceil \right) \right) = O\left( \left\lceil \frac{m}{n} \right\rceil \log m \right). $$
+En la segunda fase del algoritmo, se produce el cálculo de la función $f_2(q)$ para cada posible valor de $q$ y binario de búsqueda de la matriz de valores de $f_1$, lo que nos da la асимптотику:
+$$ O\left( n \left( \log m \log \left\lceil \frac{m}{n} \right\rceil \right) \right) = O\left( n \log m \right). $$
+Ahora, cuando sumamos estos dos асимптотики podamos $\log m$, multiplicado por la suma de $n$ y $m/n$, y prácticamente es evidente que el mínimo se alcanza cuando $n \approx m/n$, es decir, para el óptimo funcionamiento del algoritmo de la constante de $n$ se debe elegir:
+$$ n \approx \sqrt{m}. $$
+Entonces asíntotas algoritmo toma la forma:
+$$ O\left( \sqrt{m} ~ \log m \right). $$
+Nota. Podríamos intercambiar los roles de $f_1$ y $f_2$ (es decir, en la primera fase de calcular el valor de la función $f_2$, mientras que la segunda --- $f_1$), sin embargo, es fácil entender que el resultado no cambiaba, y асимптотику este no hay manera mejoraremos.
+\h2{ Aplicación }
+\h3{ Simple implementación }
+La función $\rm powmod$ realiza la construcción binaria del número de $a$ en el grado $b$ por módulo $m$, consulte \algohref=binary_pow{Binario exponenciación}.
+La función $\rm solve$ produce en realidad la solución de la tarea. Esta función devuelve una respuesta (el número en el intervalo $[0
+\code
+int powmod (int a, int b, int m) {
+int res = 1
+while (b > 0)
+if (b 
+res = res * a) % m
+--b
+}
+else {
+a = (a * a) % m
+b > > a= 1
+}
+return res % m
+}
+int solve (int a, int b, int m) {
+int n = (int) sqrt (m .0) 1
+map<int,int> vals
+for (int i=n
+vals[ powmod (a, i * n, m) ] = i
+for (int i=0
+int cur = (powmod (a, i, m) * b) % m
+if (vals.count(cur)) {
+int ans = vals[cur] * n - i
+if (ans < m)
+return ans
+}
+}
+return -1
+}
+\endcode
+Aquí estamos para la conveniencia de la implementación de la primera fase del algoritmo se aprovecharon de la estructura de los datos "map" (rojo-negro de madera), que para cada valor de la función $f_1(i)$ almacena el parámetro $i$, mientras que este valor se ha logrado. Si el mismo valor se ha logrado varias veces, se registra el más pequeño de todos los argumentos. Esto es para prevenir, para posteriormente, en la segunda fase del algoritmo, se ha encontrado la respuesta en el intervalo $[0

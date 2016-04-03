@@ -1,0 +1,128 @@
+\h1{ Chinese theorem on residues }
+\h2{ Formulation }
+In its modern formulation, the theorem reads as follows:
+Let $p = p_1 \cdot p_2 \cdot \ldots \cdot p_k$, where $p_i$ --- pairwise relatively Prime numbers.
+Will deliver in accordance arbitrary number $a$ $(0 \le a < p)$ - tuple $(a_1, \ldots, a_k)$, where $a_i \equiv a \pmod {p_i}$:
+$$ a \Longleftrightarrow (a_1, \ldots, a_k). $$
+I.e., if
+$$ a \Longleftrightarrow \Big( a_1, \ldots, a_k \Big), $$
+$$ b \Longleftrightarrow \Big( b_1, \ldots, b_k \Big), $$
+it is true:
+$$ {(a b) \pmod p} \Longleftrightarrow \Big( {(a_1 b_1) \pmod {p_1}}, \ldots, {(a_k b_k) \pmod {p_k}} \Big), $$
+$$ {(a-b) \pmod p} \Longleftrightarrow \Big( {(a_1-b_1) \pmod {p_1}}, \ldots, {(a_k-b_k) \pmod {p_k}} \Big), $$
+$$ {(a \cdot b) \pmod p} \Longleftrightarrow \Big( {(a_1 \cdot b_1) \pmod {p_1}}, \ldots, {(a_k \cdot b_k) \pmod {p_k}} \Big). $$
+\h3{ Corollary 1 }
+The modular system of equations:
+$$ \cases{
+{x \equiv a_1 \pmod {p_1}}, \cr
+\ldots, \cr
+{x \equiv a_k \pmod {p_k}} \cr
+} $$
+has a unique solution modulo $p$.
+(as above, $p = p_1 \cdot \ldots \cdot p_k$, $p_i$ are pairwise coprime, and set $a_1, \ldots, a_k$ --- arbitrary set of integers)
+\h3{ Corollary 2 }
+The result is the relationship between the system of modular equations and one corresponding modular equation:
+Equation:
+$$ x \equiv a \pmod p $$
+equivalent to the system of equations:
+{x \equiv a \pmod {p_1}}, \cr
+\ldots, \cr
+{x \equiv a \pmod {p_k}} \cr
+} $$
+(as above, assume that $p = p_1 \cdot \ldots \cdot p_k$, $p_i$ are pairwise coprime, and $a$ --- arbitrary integer)
+\h2{Algorithm garner}
+From the Chinese theorems about the balance should be that you can replace operations with numbers operations on tuples. Recall that every number $a$ is mapped to a tuple $(a_1, \ldots, a_k)$, where:
+$$ { a_i \equiv a \pmod {p_i} } . $$
+We will seek the solution in the form:
+$$ a = x_1 x_2 \cdot p_1 x_3 \cdot p_1 \cdot p_2 \ldots x_k \cdot p_1 \cdot \ldots \cdot p_{k-1}, $$
+i.e. in the mixed decimal weights of the bits of $p_1, p_2, \ldots, p_k$.
+Denote by $r_{ij}$ ($i=1 \ldots k-1$, $j=1 \ldots k$) number, which is the inverse of $p_i$ modulo $p_j$ (the inverse of elements in the ring modulo described \algohref=reverse_element{here}:
+$$ r_{ij} = (p_i) ^ {-1} \pmod {p_j} . $$
+We substitute the expression $a$ in a mixed notation in the rst equation, we get:
+$$ a_1 \equiv x_1. $$
+$$ a_2 \equiv x_1 x_2 \cdot p_1 \pmod {p_2}. $$
+Transform this expression, taking away from both parts of $x_1$ and dividing by $p_1$:
+$$ a_2 - x_1 \equiv x_2 \cdot p_1 \pmod {p_2}
+$$ (a_2 - x_1) \cdot r_{12} \equiv x_2 \pmod {p_2}
+$$ x_2 \equiv (a_2 - x_1) \cdot r_{12} \pmod {p_2}. $$
+Substituting into the third equation, in a similar way we obtain:
+$$ a_3 \equiv { x_1 x_2 \cdot p_1 x_3 \cdot p_1 \cdot p_2 \pmod {p_3} }
+$$ (a_3 - x_1) \cdot r_{13} \equiv x_2 x_3 \cdot p_2 \pmod {p_3}
+$$ ((a_3 - x_1) \cdot r_{13} - x_2) \cdot r_{23} \equiv x_3 \pmod {p_3}
+$$ x_3 \equiv ((a_3 - x_1) \cdot r_{13} - x_2) \cdot r_{23} \pmod {p_3}. $$
+\code
+for (int i=0
+x[i] = a[i]
+for (int j=0
+x[i] = r[j][i] * (x[i] - x[j])
+x[i] = x[i] % p[i]
+if (x[i] < 0) x[i] = p[i]
+}
+}
+\endcode
+So, we learned how to calculate the coefficients of the $x_i$ for time $O (k^2)$, the answer is --- the number of $a$ --- you can restore by the formula:
+$$ a = x_1 x_2 \cdot p_1 x_3 \cdot p_1 \cdot p_2 \ldots x_k \cdot p_1 \cdot \ldots \cdot p_{k-1}. $$
+\h2{implementation of the algorithm garner}
+It's best to implement this algorithm in Java, because it contains the standard long arithmetic, and therefore there are no problems with the transfer number of the modular system in the usual number (use the standard BigInteger class).
+In this example, take $100$ easy after $10^9$, which allows you to work with numbers up to about $10^{900}$.
+\javacode
+final int SZ = 100
+int pr[] = new int[SZ]
+int r[][] = new int[SZ][SZ]
+void init() {
+for (int x=1000*1000*1000, i=0
+if (BigInteger.valueOf(x).isProbablePrime(100))
+pr[i ] = x
+for (int i=0
+for (int j=i 1
+r[i][j] = BigInteger.valueOf( pr[i] ).modInverse(
+BigInteger.valueOf( pr[j] ) ).intValue()
+}
+class Number {
+int a[] = new int[SZ]
+public Number() {
+}
+public Number (int n) {
+for (int i=0
+a[i] = n % pr[i]
+}
+public Number (BigInteger n) {
+for (int i=0
+}
+public Number add (Number n) {
+Number result = new Number()
+for (int i=0
+result.a[i] = (a[i] n.a[i]) % pr[i]
+return result
+}
+public Number subtract (Number n) {
+Number result = new Number()
+for (int i=0
+result.a[i] = (a[i] - n.a[i] pr[i]) % pr[i]
+return result
+}
+public Number multiply (Number n) {
+Number result = new Number()
+for (int i=0
+result.a[i] = (int)( (a[i] * 1l * n.a[i]) % pr[i] )
+return result
+}
+public BigInteger bigIntegerValue (boolean can_be_negative) {
+BigInteger result = BigInteger.ZERO,
+mult = BigInteger.ONE
+int x[] = new int[SZ]
+for (int i=0
+x[i] = a[i]
+for (int j=0
+long cur = (x[i] - x[j]) * 1l * r[j][i]
+}
+result = result.add( mult.multiply( BigInteger.valueOf( x[i] ) ) )
+mult = mult.multiply( BigInteger.valueOf( pr[i] ) )
+}
+if (can_be_negative)
+if (result.compareTo( mult.shiftRight(1) ) >= 0)
+result = result.subtract( mult )
+return result
+}
+}
+\endcode

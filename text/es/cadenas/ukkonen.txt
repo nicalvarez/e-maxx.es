@@ -1,0 +1,157 @@
+\h1{ Суффиксное árbol. El Algoritmo De Укконена }
+Este artículo --- temporal de la tapa, y no contiene ninguna de las descripciones.
+Descripción del algoritmo de Укконена se puede encontrar, por ejemplo, en el libro de Гасфилда "de la Cadena, los árboles y la secuencia en que los algoritmos".
+\h2{ la Implementación del algoritmo de Укконена }
+Este algoritmo construye суффиксное árbol para esta línea de longitud $n$ por hora $O (n \log k)$, donde $k$ --- tamaño de alfabeto (si contar una constante, asíntotas se obtiene $O (n)$).
+Datos de entrada para el algoritmo son la cadena $s$, y su longitud es de $n$, que se transmiten en forma de variables globales.
+La principal función de la --- $\rm build\_tree$, se construye суффиксное árbol. El árbol se almacena en forma de una matriz de estructuras de $\rm node$, donde ${\rm node}[0]$ --- la raíz de суффиксного árbol.
+En aras de la simplicidad de código de la aleta se almacenan en las mismas estructuras: para cada vértice en su estructura, $\rm node$ se registran datos sobre el borde de una de ella de un antepasado. Total, en cada una $\rm node$ almacenan: $(l,r)$ determinantes de la etiqueta $s[l..r-1]$ costillas en la antepasado, $\rm par$ --- cima antecesor, $\rm link$ --- суффиксная referencia, $\rm next$ --- la lista de llamadas salientes de las costillas.
+\code
+string s
+int n
+struct node {
+int l, r, par, link
+map<char,int> next
+node (int l=0, int r=0, int par=-1)
+: l(l), r(r), par(par), link(-1) {}
+int len() { return r - l
+int 
+if (!next (siguiente).count(c)) next[c] = -1
+return next[c]
+}
+}
+node t[MAXN]
+int sz
+struct state {
+int v, pos
+state (int v, int pos) : v(v), pos(pos) {}
+}
+state ptr (0, 0)
+state go (state st, int l, int r) {
+while (l < r)
+if (st.pos == t[st.v].len()) {
+st = state (t[st.v].get( s[l] ), 0)
+if (st.v == -1) return st
+}
+else {
+if (s[ t[st.v].l st.pos ] != s[l])
+return state (-1, -1)
+if (r-l < t[st.v].len() - st.pos)
+return state st.v, st.pos r-l)
+l = t[st.v].len() - st.pos
+st.pos = t[st.v].len()
+}
+return st
+}
+int split (state st) {
+if (st.pos == t[st.v].len())
+return st.v
+if (st.pos == 0)
+return t[st.v].par
+node v = t[st.v]
+int id = sz 
+t[id] = node (v.l, v.l st.pos, v.par)
+t[v.par].get( s[v.l] ) = id
+t[id].get( s[v.l st.pos] ) = st.v
+t[st.v].par = id
+t[st.v].l = st.pos
+return id
+}
+int get_link (int v) {
+if (t[v].link != -1) return t[v].link
+if (t[v].par == -1) return 0
+int to = get_link (t[v].par)
+return t[v].link = split (go (state(to,t[to].len()), t[v].l (t[v].par==0), t[v].r))
+}
+void tree_extend (int pos) {
+for(
+state nptr = go (ptr, pos, pos 1)
+if (nptr.v != -1) {
+ptr = nptr
+return
+}
+int mid = split (ptr)
+int leaf = sz 
+t[hoja] = node (pos, n, mid)
+t[mid].get( s[pos] ) = leaf
+ptr.v = get_link (mid)
+ptr.pos = t[ptr.v].len()
+if (!mid) break
+}
+}
+void build_tree() {
+sz = 1
+for (int i=0
+tree_extend (i)
+}
+\endcode
+\h2{ Comprimida implementación }
+Llevaremos también la siguiente forma compacta de la implementación de un algoritmo de Укконена propuesta \href=http://codeforces.es/profile/freopen{freopen}:
+\code
+const int N=1000000,INF=1000000000
+string a
+int t[N][26],l[N],r[N],p[N],s[N],tv,tp,ts,la
+void ukkadd (int c) {
+suff:
+if (r[tv]<tp) {
+if (t[tv][c]==-1) { t[tv][c]=ts
+p[ts ]=tv
+tv=t[tv][c]
+}
+if (tp==-1 || c==a[tp]-'a') tp 
+l[ts 1]=la
+l[ts]=l[tv]
+l[tv]=tp
+tv=s[p[ts-2]]
+while (tp<=r[ts-2]) { tv=t[tv][a[tp]-'a']
+if (tp==r[ts-2] 1) s[ts-2]=tv
+tp=r[tv] (tp-r[ts-2]) 2
+}
+}
+void build() {
+ts=2
+tv=0
+tp=0
+fill(r,r N,(int)a.size()-1)
+s[0]=1
+l[0]=-1
+r[0]=-1
+l[1]=-1
+r[1]=-1
+memset (t, -1, sizeof t)
+fill(t[1],t[1] 26,0)
+for (la=0
+ukkadd (a[la]-'a')
+}
+\endcode
+El mismo código, прокомментированный:
+\code
+const int N=1000000, // número máximo de vértices en el árbol de суффиксном
+INF=1000000000
+string a
+int t[N][26], // la matriz de transiciones (el estado, la letra)
+l[N], // la izquierda
+r[N], // y el de la derecha de la frontera de la subcadena de la a, que corresponden a una arista que se encuentra en la cima de la
+p[N], // el antepasado de la cima
+s[N], // суффиксная referencia
+tv // la cima de la actual sufijo (si estamos en medio de la costilla inferior la cima de las costillas)
+tp, // posición en la fila correspondiente el lugar de la costilla (de l[tv] y r[tv], ambos inclusive)
+ts, // número de vértices
+la
+void ukkadd(int c) { // añadir a un árbol, símbolo de la c
+suff:
+if (r[tv]<tp) { // comprobar que no han salido y si estamos fuera de la actual costillas
+// si han salido, nos encontramos con el siguiente canto. Si no existe - crearemos una hoja de cálculo y прицепим a un árbol
+if (t[tv][c]==-1) {t[tv][c]=ts
+tv=t[tv][c]
+}
+if (tp==-1 || c==a[tp]-'a') tp 
+// compartimos la arista en dos. En el medio - la cima de la ts
+l[ts]=l[tv]
+// ponemos la hoja 1 ts. Él es la transición de c.
+t[ts][c]=ts 1
+// actualizamos la configuración actual de la cima. No olvidarse de la transición de un antepasado de tv a la ts.
+l[tv]=tp
+// preparamos para la bajada: se han levantado al borde y pasaron por el суффиксной enlace.
+// tp celebrará, donde en la actual sufijo.
+tv=s[p[ts-2]]

@@ -1,0 +1,18 @@
+<h1>el Hallazgo de la plaza de la simple polígono</h1>
+<p>Que dan un simple polígono (es decir, sin self-intersections, pero no necesariamente bulbo), definido por las coordenadas de sus vértices en orden de rastreo de las manecillas del reloj. Desea encontrar a su tamaño.</p>
+<h2>opción 1</h2>
+<formula>S = (X2 - X1) * (Y1 Y2) / 2</formula>
+<p>Código:</p>
+<code>double sq (const vector
+{
+double res = 0
+for (unsigned i=0
+{
+point
+p1 = i ? fig[i-1] : fig.back(),
+p2 = fig. [i]
+res = (p1.x - p2.x) * (p1.y p2.y)
+}
+return fab (res) / 2
+}</code>
+<h2>opción 2</h2>

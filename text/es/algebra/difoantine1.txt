@@ -1,0 +1,23 @@
+\h1{ Modular de una ecuación lineal de primer orden }
+\h2{ problema }
+Es una ecuación del tipo:
+$$a \cdot x = b \pmod n,$$
+donde $a, b, n$ --- especificada enteros, $x$ --- desconocido entero.
+Es necesario encontrar el valor de $x$, subyacente en el tramo de $[0
+\h2{ la Solución con la ayuda de encontrar el Inverso de un elemento }
+Consideremos primero el caso más sencillo --- cuando $a$ y $n$ \bf{mutuamente fáciles}. Entonces se puede encontrar \algohref=reverse_element{elemento de vuelta} entre $a$, y, домножив en él las dos partes de la ecuación, para obtener una solución (y se \bf{único}):
+$$x = b \cdot a^{-1} \pmod n$$
+Ahora, considere el caso, cuando $a$ y $n$ \bf{no mutuamente fáciles}. Entonces, obviamente, la decisión va a existir, no siempre (por ejemplo, $2 \cdot x = 1 \pmod 4$).
+Supongamos que $g = {\rm mcd(a,n)}$, es decir, su \algohref=euclid_algorithm{el máximo común divisor} (que en este caso es mayor que la unidad).
+Entonces, si $b$ no se divide en $g$, entonces no hay una solución. En realidad, cualquiera que sea $x$ en la parte izquierda de la ecuación, es decir, $(a \cdot x) \pmod n$, siempre se divide en $g$, mientras que la parte derecha de él no comparte, de donde se desprende que no existen soluciones.
+Si $b$ divide a $g$, separando las dos partes de la ecuación de $g$ (es decir, dividiendo $a$, $b$ y $n$ de $g$), llegaremos a una nueva ecuación:
+$$a^\prime \cdot x = b^\prime \pmod {n^\prime}$$
+donde $a^\prime$ y $n^\prime$ ya se mutuamente fáciles, y es la ecuación ya hemos aprendido a resolver. Se denota la solución a través de $x^\prime$.
+Está claro que es de $x^\prime$ también será una y la solución de la ecuación original. Sin embargo, si $g > 1$, entonces se \bf{único} solución. Se puede demostrar que la ecuación original tendrá exactamente $g$ decisiones, y que tendrán apariencia:
+$$x_i = (x^\prime i \cdot n^\prime) \pmod n,$$
+$$i = 0 \ldots (g-1).$$
+En resumen, se puede decir que \bf{número de decisiones} lineal modular de la ecuación es igual o $g = {\rm mcd(a,n)}$, o cero.
+\h2{ la Solución mediante el uso del algoritmo Extendido de Euclides }
+Llevaremos nuestra модулярное la ecuación a диофантову la ecuación de la siguiente manera:
+$$a \cdot x n \cdot k = b,$$
+donde $x$ y $k$ --- desconocidos enteros.

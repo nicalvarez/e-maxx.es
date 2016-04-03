@@ -1,0 +1,171 @@
+\h1{Parse expression. Reverse Polish notation}
+Given a string representing a mathematical expression containing numbers, variables, various operations. You want to calculate the value for $O (n)$, where $n$ --- the length of the string.
+Here we describe the algorithm that translates the expression in the so-called \bf{reverse Polish notation} (explicitly or implicitly), and it evaluates the expression.
+\h2{Reverse Polish notation}
+For example, the following expression:
+$$ a b * c * d (e - f) * (g * h i) $$
+in reverse Polish notation is written as follows:
+$$ a b c * d * e f g h * i * $$
+Reverse Polish notation was developed by the Australian philosopher and specialist in the field of theory of computing machines Charles Hamblin in the mid-1950s on the basis of Polish notation, which was proposed in 1920 by the Polish mathematician Jan Lukasiewicz.
+Obviously, this simple algorithm runs in $O (n)$, i.e., the length of the expression.
+\h2{Parse simple expressions}
+As long as we consider only the simplest case: all operations \bf{binary} (i.e. two arguments), and all \bf{levastatin} (i.e., in case of equal priority are evaluated from left to right). Parentheses are allowed.
+After we process the entire string, stack operations can still be some operations that have not yet been calculated, and you have to run them all (i.e., act in the same way, when we meet a closing parenthesis).
+Here's the implementation of this method on the example of normal operations $ -*/\%$:
+\code
+bool delim (char c) {
+return c == ' '
+}
+bool is_op (char c) {
+return c==' ' || c=='-' || c=='*' || c=='/' || c=='%'
+}
+int priority (char op) {
+return
+op == ' ' || op == '-' ? 1 :
+op == '*' || op == '/' || op == '%' ? 2 :
+-1
+}
+int r = st.back()
+int l = st.back()
+switch (op) {
+case ' ': st.push_back (l r)
+case '-': st.push_back (l - r)
+case '*': st.push_back (l * r)
+case '/': st.push_back (l / r)
+case '%': st.push_back (l % r)
+}
+}
+int calc (string 
+vector<int> st
+vector<char> op
+for (size_t i=0
+if (!delim (s[i]))
+if (s[i] == '(')
+op.push_back ('(')
+else if (s[i] == ')') {
+while (op.back() != '(')
+process_op (st, op.back()), op.pop_back()
+op.pop_back()
+}
+else if (is_op (s[i])) {
+char curop = s[i]
+while (!op.empty() 
+process_op (st, op.back()), op.pop_back()
+op.push_back (curop)
+}
+string operand
+while (i < s.length() 
+operand = s[i ]
+--i
+if (isdigit (operand[0]))
+st.push_back (atoi (operand.with c_str()))
+else
+st.push_back (get_variable_val (operand))
+}
+while (!op.empty())
+process_op (st, op.back()), op.pop_back()
+return st.back()
+}
+\endcode
+\h2{Unary operations}
+Now suppose that the expression contains a unary operation (i.e. a single argument). For example, in particular, often unary plus and minus.
+One difference in this case is to determine whether the current operation is unary or binary.
+Clean implementation subtlety --- how to distinguish between unary and binary operations when removing from the stack and calculating. Here you can, for example, for unary operations instead of the $symbol s[i]$ to put on the stack $-s[i]$.
+Precedence for unary operations need to choose so that he was more of the priorities of all binary operations.
+Implementation for binary operations $ -*/$ and unary operations $ -$:
+\code
+bool delim (char c) {
+return c == ' '
+}
+bool is_op (char c) {
+return c==' ' || c=='-' || c=='*' || c=='/' || c=='%'
+}
+int priority (char op) {
+if (op < 0)
+return 4
+return
+op == ' ' || op == '-' ? 1 :
+op == '*' || op == '/' || op == '%' ? 2 :
+-1
+}
+void process_op (vector<int> 
+if (op < 0) {
+int l = st.back()
+switch (op) {
+case ' ': st.push_back (l)
+case '-': st.push_back (-l)
+}
+}
+else {
+int r = st.back()
+int l = st.back()
+switch (op) {
+case ' ': st.push_back (l r)
+case '*': st.push_back (l * r)
+case '/': st.push_back (l / r)
+case '%': st.push_back (l % r)
+}
+}
+}
+int calc (string 
+bool may_unary = true
+vector<int> st
+vector<char> op
+for (size_t i=0
+if (!delim (s[i]))
+if (s[i] == '(') {
+op.push_back ('(')
+may_unary = true
+}
+else if (s[i] == ')') {
+while (op.back() != '(')
+process_op (st, op.back()), op.pop_back()
+op.pop_back()
+may_unary = false
+}
+else if (is_op (s[i])) {
+char curop = s[i]
+if (may_unary 
+while (!op.empty() 
+curop >= 0 
+|| curop < 0 
+)
+op.push_back (curop)
+may_unary = true
+}
+else {
+string operand
+while (i < s.length() 
+operand = s[i ]
+--i
+if (isdigit (operand[0]))
+st.push_back (atoi (operand.with c_str()))
+else
+st.push_back (get_variable_val (operand))
+may_unary = false
+}
+while (!op.empty())
+process_op (st, op.back()), op.pop_back()
+return st.back()
+}
+\endcode
+\code
+while (!op.empty() 
+curop >= 0 
+|| curop < 0 
+)
+process_op (st, op.back()), op.pop_back()
+\endcode
+You can substitute:
+\code
+while (!op.empty() 
+process_op (st, op.back()), op.pop_back()
+\endcode
+\h2{Pravastatine}
+Pravastatine operator means that in case of equal priorities, the operators are evaluated from right to left (respectively, devastatingly - when left-to-right).
+What are the differences should be made to the algorithm to correctly handle pravastatine? Actually, modify the desired minimum. The only difference will be manifested only in case of equal priorities, and it consists in the fact that the operations with the same precedence, on top of the stack should not be performed before the current operation.
+Thus, the only differences should be in the function calc:
+\code
+int calc (string 
+...
+while (!op.empty() 

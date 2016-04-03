@@ -1,0 +1,18 @@
+<h1>finding the area of a simple polygon</h1>
+<p>given a simple polygon (i.e., without self-intersections, but not necessarily convex), specified by the coordinates of its vertices in order of traversal clockwise or counterclockwise. You want to find its area.</p>
+<h2>Method 1</h2>
+<formula>S = (X2 - X1) * (Y1-Y2) / 2</formula>
+<p>Code:</p>
+<code>double sq (const vector
+{
+double res = 0
+for (unsigned i=0
+{
+point
+p1 = i ? fig[i-1] : fig.back(),
+p2 = fig[i]
+res = (p1.x - p2.x) * (p1.y p2.y)
+}
+return fabs (res) / 2
+}</code>
+<h2>Method 2</h2>

@@ -1,0 +1,25 @@
+<h1>Algorithm Rabin-Karp substring search in the string in O (N)</h1>
+<p>This algorithm is based on the hashing of strings, and those who are not familiar with the subject, refer to <algohref=string_hashes>"hashing Algorithms in problems of on-line"</algohref>.</p>
+<p>
+<p>the Authors of the algorithm, Rabin (Rabin and Karp (Karp), 1987.</p>
+<p>Given a string S and a text T, consisting of lowercase Latin letters. You want to find all occurrences of the string S in the text T in O (|S| |T|).</p>
+<h2>Implementation</h2>
+<code>string s, t
+// count all degrees p
+const int p = 31
+vector
+p_pow[0] = 1
+for (size_t i=1
+p_pow[i] = p_pow[i-1] * p
+// count the hashes of all prefixes of the string T
+vector
+for (size_t i=0
+{
+h[i] = (t[i] - \'a\' 1) * p_pow[i]
+if (i) h[i] = h[i-1]
+}
+// count the hash from the string S
+long long h_s = 0
+for (size_t i=0
+h_s = (s[i] - \'a\' 1) * p_pow[i]
+// iterate over all substrings of T of length |S| and compare them

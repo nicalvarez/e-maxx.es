@@ -1,0 +1,28 @@
+\h1{ Repaso de todos los sub-patrones de este máscaras }
+\h2{ Exceso de sub-patrones de la función fija de máscaras }
+Dada la máscara de bits de $m$. Se requiere de manera eficiente para recorrer todos sus sub-patrón, es decir, una máscara de $s$, de los cuales sólo se pueden incluir los bits que se incluyeron en la máscara de $m$.
+En seguida examinaremos la implementación de este algoritmo, basado en trucos bit a bit de operaciones:
+\code
+int s = m
+while (s > 0) {
+... se puede utilizar el s ...
+s = (s-1) 
+}
+\endcode
+o, con más compacto, el operador $para$:
+\code
+for (int s=m
+... se puede utilizar el s ...
+\endcode
+La única excepción para ambas opciones código --- sub-patrón, igual a cero, el procesado no se. Su tratamiento tiene que madurar de un ciclo, o utilizar la menos atractiva de diseño, por ejemplo:
+\code
+for (int s=m
+... se puede utilizar el s ...
+if (s==0) break
+}
+\endcode
+Vamos a explicar por qué en el código anterior se encuentra realmente todo un sub-patrón de esta máscara, sin repeticiones, O (número), y en orden descendente.
+Supongamos que tenemos una actual patrón de captura de $s$, y queremos pasar a la siguiente sub-patrón. Quitaremos la máscara $s en$ por unidad, lo haremos más a la derecha de un solo bit, y todos los bits a la derecha de él поставятся en $1$. A continuación, eliminaremos todos los "sobrantes" de una sola unidad de los bits que no están en la máscara de $m$ y ya no pueden entrar en la máscara. La eliminación se realiza de bits de la operación $\
+Por lo tanto, este algoritmo genera todo un sub-patrón de esta máscara en estricto orden descendente, con cada transición de dos funciones básicas.
+Especialmente considere momento, cuando $s = 0$. Después de ejecutar $s-1$ recibamos la máscara, en la que todos los bits activados (la representación del número de bits de $-1$), y después de la eliminación de sobrantes de bits de operación $(s-1) \
+\h2{ Repaso de todas las máscaras con su подмасками. Puntuación de $3^n$ }

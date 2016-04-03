@@ -1,0 +1,63 @@
+\h1{Test two line segments crossing}
+Given two segment $AB$ and $CD$ (they can degenerate into a point). You want to check, they intersect or not.
+If additionally you want to find the point (point) intersection, see \algohref=segments_intersection{appropriate article}.
+\h2{First method: the oriented area of the triangle}
+The only thing you should pay attention --- boundary cases when some points are on the line. When this occurs the only special case, when the above checks have nothing to give --- case when both lines are \bf{on the same line}. This case should be considered separately. It is enough to check that the projection of these two segments on the axis $X$ and $Y$ intersect (often this test is called a ' bounding box").
+\bf{Implementation}:
+\code
+struct pt {
+int x, y
+}
+inline int area (pt a, pt b, pt c) {
+return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+}
+inline bool intersect_1 (int a, int b, int c, int d) {
+if (a > b) swap (a, b)
+if (c > d) swap (c, d)
+return max(a,c) <= min(b,d)
+}
+bool intersect (pt a, pt b, pt c, pt d) {
+return intersect_1 (a.x b.x, c.x d.x)
+
+
+
+}
+\endcode
+In order to optimize the test bounding box given at the beginning, to calculate the area --- as it is more "easy" test.
+\h2{the Second way: the intersection of two straight}
+Instead of crossing segments run \algohref=lines_intersection{the intersection of two straight}, the result, if not direct parallel, will get some point to check on the membership of both segments
+There is still a special case, when one or both of the segment \bf{degenerate} in point: in this case, direct incorrectly, and this method is not applicable (this case should be examined separately).
+\bf{Implementation} (excluding the case of degenerate segments):
+\code
+struct pt {
+int x, y
+}
+const double EPS = 1E-9
+inline int det (int a, int b, int c, int d) {
+return a * d - b * c
+}
+inline bool between (int a, int b, double c) {
+return min(a,b) <= EPS c 
+}
+inline bool intersect_1 (int a, int b, int c, int d) {
+if (a > b) swap (a, b)
+return max(a,c) <= min(b,d)
+}
+bool intersect (pt a, pt b, pt c, pt d) {
+int A1 = a.y-b.y, B1 = b.x-a.x, C1 = -A1*a.x - B1*a.y
+int A2 = c.y-d.y, B2 = d.x-c.x, C2 = -A2*c.x - B2*c.y
+int zn = det (A1, B1, A2, B2)
+if (zn != 0) {
+double x = - det (C1, B1, C2, B2) * 1. / zn
+double y = - det (A1, C1, A2, C2) * 1. / zn
+return between (a.x b.x, x) 
+
+}
+else
+return det (A1, C1, A2, C2) == 0 
+
+
+}
+\endcode
+$$ \left|\matrix{ A_1 
+If ${\rm zn} \ne 0$, then the lines cross, and by the formula Kramer find the intersection point $(x,y)$ and check that it belongs to both segments.

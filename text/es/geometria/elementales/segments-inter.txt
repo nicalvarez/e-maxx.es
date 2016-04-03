@@ -1,0 +1,69 @@
+\h1{Comprobación de las dos regiones en la intersección}
+Dados dos del segmento $AB$ y $CD$ (que puede degenerar en un punto). Es necesario comprobar que se cruzan o no.
+Si, además, desea encontrar el propio punto (puntos) de cruce, consulte \algohref=segments_intersection{artículo}.
+\h2{Primer método: orientada hacia el área del triángulo}
+Usaremos \algohref=oriented_area{Orientada hacia el área del triángulo y el predicado 'en sentido De las agujas del reloj'}. En efecto, para el tronzado de $AB$ y $CD$ se cruzan, es necesario y suficiente para el punto $A$ y $B$ bandos de la recta $CD$, y, análogamente, desde $C$ y $D$ --- en diferentes lados de la recta $AB$. Puede probar este cómputo orientado a la plaza de los respectivos triángulos y comparando sus marcas.
+Lo único que se debe prestar atención --- las restricciones de los casos en que el punto de caer en la misma recta. Cuando se produce este el único caso especial, cuando los mismos validación de nada darn --- ocasión, cuando ambos del corte de la mentira \bf{en línea}. Este caso es necesario considerar por separado. Para ello, basta con comprobar que la proyección de estos dos segmentos en el eje $X$ y $Y$ se cruzan (a menudo esta prueba se llama la "prueba de bounding box).
+En general, este método es más simple que el que se muestra a continuación (el punto de intersección de dos rectas), y tiene menos casos especiales, sin embargo, su principal desventaja --- en el sentido de que no busca el propio punto de intersección.
+\bf{Aplicación}:
+\code
+struct pt {
+int x, y
+}
+inline int area (pt a, pt b, pt c) {
+return (b.x - a.x) * (c.y - a.y) - b.y - a.y) * (c.x - a.x)
+}
+inline bool intersect_1 (int a, int b, int c, int d) {
+if (a > b) swap (a, b)
+if (c > d) swap (c, d)
+return max(a,c) <= min(b,d)
+}
+bool intersect (pt a, pt b, pt c, pt d) {
+return intersect_1 a.x, b.x, c.x, d.x)
+
+
+
+}
+\endcode
+Con el fin de optimizar la comprobación de la bounding box dividido en su inicio, hasta el cálculo de la superficie --- ya que es más "fácil" de verificación.
+Por supuesto, este código es aplicable para el caso de las coordenadas, simplemente, todas las comparaciones con el cero en el debe de producir эпсилону (y evitar перемножения dos вещественнозначных los valores de $\rm area()$, multiplicando en lugar de ello, sus marcas).
+\h2{Segundo método: la intersección de dos rectas}
+En lugar de intersección de segmentos de línea cumpliremos \algohref=lines_intersection{intersección de dos rectas}, en consecuencia, si las rectas no son paralelas, la recibiremos algún punto, que es necesario comprobar la pertenencia de ambos bloques
+Si directas fueron paralelas, entonces, si no coinciden, se cortes con precisión que no se cruzan. Si rectas coinciden, los trozos se encuentran en la misma recta, y para la comprobación de su intersección, basta con comprobar que se cruzan por su proyección en el eje $X$ y $Y$.
+Siendo un caso especial, cuando uno o ambos tronzado \bf{degeneran} en el punto: en este caso, hablar sobre directas correctamente, y que este método no es aplicable (en este caso será necesario desmontar por separado).
+\bf{Aplicación} (sin tener en cuenta el caso de degenerados trozos):
+\code
+struct pt {
+int x, y
+}
+const double EPS = 1E-9
+inline int det (int a, int b, int c, int d) {
+return a * d - b * c
+}
+inline bool between (int a, int b, double c) {
+return min(a,b) <= c EPS 
+}
+inline bool intersect_1 (int a, int b, int c, int d) {
+if (a > b) swap (a, b)
+if (c > d) swap (c, d)
+return max(a,c) <= min(b,d)
+}
+bool intersect (pt a, pt b, pt c, pt d) {
+int A1 = a.y-b.y, B1 = b.x-a.x, C1 = -A1*a.x - B1*a.y
+int A2 = c.y-d.y, B2 = d.x-c.x, C2 = -A2*c.x - B2*c.y
+int zn = det (A1, B1, A2, B2)
+if (zn != 0) {
+double x = - det (C1, B1, C2, B2) * 1. / zn
+double y = - det (A1, C1, A2, C2) * 1. / zn
+return entre (a.x, b.x, x) 
+
+}
+else
+return det (A1, C1, A2, C2) == 0 
+
+
+}
+\endcode
+Aquí primero se calcula el coeficiente de $\rm zn$ --- el denominador en la fórmula de Kramer. Si ${\rm zn} = 0$, entonces los factores de $A$ y $B$ rectas son proporcionales, y las rectas son paralelas o coincidentes. En este caso, es necesario comprobar que coinciden o no, para lo cual es necesario comprobar que los factores de $C$ rectas son proporcionales con el mismo coeficiente, para lo cual es suficiente calcular de dos huracanes, si ambos son iguales a cero, entonces rectas coinciden:
+$$ \left|\matrix{ A_1 
+Si ${\rm zn} \ne 0$, rectas se cruzan, y según la fórmula de Kramer encontramos con el punto de intersección de $(x,y)$ y comprobamos su pertenencia a ambas regiones.

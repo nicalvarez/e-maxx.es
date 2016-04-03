@@ -1,0 +1,85 @@
+\h1{ Binary exponentiation }
+Binary exponentiation --- this is a technique that allows you to build any number $n$-th degree $O(\log n)$ multiplications (instead of $n$ multiplications in the standard approach).
+Moreover, described this method is applicable to any \bf{associative} operations, not only to the multiplication of numbers. Recall that the operation is associative if for any $a, b, c$ is:
+$$ (a \cdot b) \cdot c = a \cdot (b \cdot c) $$
+\h2{ Algorithm }
+Note that for any integers $a$ and \bf{even} the number $n$ doable obvious identity (which follows from the associativity of multiplication):
+$$ a^n = (a^{n/2})^2 = a^{n/2} \cdot a^{n/2} $$
+It is the main method of the binary exponentiation. Indeed, for odd $n$, we showed how, by spending only one multiplication operation, it is possible to reduce the problem to twice as less.
+$$ a^n = a^{n-1} \cdot a $$
+So, we actually found the recurrent formula: degree $n$ we proceed, if it is even, $n/2$, and otherwise-is $n-1$. It is clear that there will be no more than $2 \log n$ transitions before we come to the $n = 0$ (the basis of the recurrence formula). Thus, we got the algorithm working for $O (\log n)$ multiplications.
+\h2{ Implementation }
+A simple recursive implementation:
+\code
+int binpow (int a, int n) {
+if (n == 0)
+return 1
+if (n % 2 == 1)
+return binpow (a, n-1) * a
+else {
+int b = binpow (a, n/2)
+return b * b
+}
+}
+Non-recursive implementation, optimized (division by 2 is replaced by bitwise operations):
+\code
+int binpow (int a, int n) {
+int res = 1
+while (n)
+if (n 
+res *= a
+--n
+}
+else {
+a *= a
+n >>= 1
+}
+return res
+}
+\endcode
+This implementation can be somewhat simplified by noting that the construction of the $a$ in the square is always, regardless of work condition for odd $n$ or not:
+\code
+int binpow (int a, int n) {
+int res = 1
+while (n) {
+if (n 
+res *= a
+a *= a
+n >>= 1
+}
+return res
+}
+Finally, it is worth noting that binary exponentiation has already been implemented in the Java language, but only for a class of long arithmetic BigInteger (function pow this class works according to the algorithm of the binary construction).
+\h2{ Examples of solving problems }
+\h3{ Efficient computation of Fibonacci numbers }
+\bf{Condition}. An integer $n$. You want to calculate $F_n$, where $F_i$ --- \algohref=fibonacci_numbers{the sequence of Fibonacci numbers}.
+\h3{ the Construction of a permutation in $k$-th degree }
+\bf{Condition}. Given a permutation $p$ of length $n$. You want to build it into $k$-th degree, i.e., to find what happens, if identical to the permutation $k$ times to apply the permutation $p$.
+\bf{Solution}. Simply apply to the permutation $p$ above the binary algorithm for exponentiation. Any differences compared with the construction of numbers in degree --- no. The solution obtained with the asymptotic behavior of $O (n \log k)$.
+\h3{ Quick application of a set of geometric operations to points }
+You want to calculate the result of applying these operations to all points (effectively, i.e. in a time less than $O(n \cdot length)$, where $length$ --- total number of operations that need to be done).
+\bf{Solution}. Look at the different types of transformations from the point of view of how they change the coordinates:
+\ul{
+\li shift Operation --- it just adds to all the coordinates of the unit, multiplied by some constants.
+\li the Operation of rotation around the axis --- it can be represented as follows: get new coordinates can be written as a linear combination of the old ones.
+}
+It is easy to see that each of these transformations is a translation of coordinates by linear formulas. Thus, any such transformation can be written in the form of a matrix $4 \times 4$:
+$$ \begin{pmatrix}
+a_11 
+a_21 
+a_31 
+a_41 
+\end{pmatrix}, $$
+which, after multiplying (on the left) on the line of the old coordinates and constants-unit gives the line of the new coordinates and constants-units:
+$$ \begin{pmatrix} x 
+a_{21} 
+a_{31} 
+a_{41} 
+\end{pmatrix} = \begin{pmatrix} x' 
+\h3{ the Number of paths of a fixed length in the graph }
+\bf{Condition}. Given a graph $G$ with $n$ vertices, and an integer $k$. Required for each pair of vertices $i$ and $j$ to find the number of paths between them containing exactly $k$ edges.
+\h3{ variation of the binary exponentiation: the multiplication of two numbers modulo }
+Here is an interesting variation of the binary exponentiation.
+Suppose we are faced with such \bf{task}: multiply two numbers $a$ and $b$ modulo $m$:
+$$ a \cdot b \pmod m $$
+\bf{Solution} this is. We simply apply the algorithm of the binary construction described above, only instead of a multiplication operation, we will make the addition. In other words, the multiplication of two numbers is reduced to $O (\log m)$ operations of addition and multiplication on two (that too, in fact, have add).

@@ -1,0 +1,40 @@
+\h1{ Sign area of a triangle and the predicate "clockwise" }
+\h2{ Definition }
+Let the given three points $p_1$, $p_2$, $p_3$. Find the value of \bf{landmark square} $S$ of the triangle $p_1 p_2 p_3$, i.e., the area of this triangle, taken with a plus sign or a minus depending on the type of rotation formed by the points $p_1$, $p_2$, $p_3$: counterclockwise or her accordingly.
+\h2{ Calculation }
+We will use the term \bf{oblique} (pseudoscalar) product of vectors. It just equals twice the iconic area of a triangle:
+$$ a \land b = |a| |b| \sin \angle (a, b) = 2 S, $$
+where the angle $\angle (a, b)$ is taken to be oriented, that is, a rotation angle between these vectors counterclockwise.
+(Module skew product of two vectors is equal to the module \bf{vector} works.)
+$$ 2 S = \left| \matrix{
+x_1 
+x_2 
+x_3 
+} \right| . $$
+Expanding the determinant, we can obtain the following formula:
+$$ 2 S = x_1 (y_2 - y_3) x_2 (y_3 - y_1) x_3 (y_1 - y_2). $$
+You can group the third item with the first two, getting rid of one multiplication:
+$$ 2 S = (x_2 - x_1) (y_3 - y_1) - (y_2 - y_1) (x_3 - x_1). $$
+The last formula it is convenient to record and remember in matrix form as the following determinant:
+$$ 2 S = \left| \matrix{
+x_2 - x_1 
+x_3 - x_1 
+} \right| . $$
+\h2{ Implementation }
+\code
+int triangle_area_2 (int x1, int y1, int x2, int y2, int x3, int y3) {
+return (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)
+}
+\endcode
+A function that returns the normal area of a triangle:
+\code
+double triangle_area (int x1, int y1, int x2, int y2, int x3, int y3) {
+return abs (triangle_area_2 (x1, y1, x2, y2, x3, y3)) / 2.0
+}
+\endcode
+Function that tests whether the specified forms the three points of rotation clockwise:
+\code
+bool clockwise (int x1, int y1, int x2, int y2, int x3, int y3) {
+return triangle_area_2 (x1, y1, x2, y2, x3, y3) < 0
+}
+\endcode

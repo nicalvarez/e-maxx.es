@@ -1,0 +1,6 @@
+\h1{ balanced Ternary number system }
+Ternary balanced radix - - is a non - standard positional numeral system. The base system is $3$, but it differs from the usual ternary system the fact that the figures are $-1, 0, 1$. Because you use $-1$ for a single digit is very uncomfortable, it usually takes some sort of special designation. Let's agree here to denote minus one letter $z$.
+\h2{ Algorithm }
+Learn how to translate the numbers in balanced ternary system.
+To do this, we must first convert the number in the ternary system.
+More gracefully above procedure can be described as follows. We take the number in the ternary number system, we add to it an infinite number of $\ldots 11111.11111 \ldots$, and then from each of the discharge of the subtract unit (without any breaks).

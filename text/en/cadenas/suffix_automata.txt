@@ -1,0 +1,333 @@
+\h1{ Suffix machine }
+\bf{machine Suffix} (or \bf{a directed acyclic graph words}) - - is a powerful data structure that allows to solve many string problems.
+For example, using the suffix of the machine, you can search for all occurrences of one string into another, or to count the number of different substrings of the given string-is - both tasks it can solve in linear time.
+\bf{Historically,}, for the first time, the linearity of the size of the suffix automaton was opened in 1983 Blumer and others, and in 1985-- 1986 he was presented the first algorithms build in linear time (Crochemore, Blumer and others). For more detail-see the list of references at the end of the article.
+In English the suffix machine called "suffix automaton" (plural --- "suffix automata"), and a directed acyclic graph of words --- "directed acyclic word graph (or simply "DAWG").
+\h2{ the Definition of the suffix automaton }
+We will explain this definition.
+\ul{
+\li Suffix automaton is a directed acyclic graph, in which vertices are called \bf{States} and arcs of the graph is-is \bf{transitions} between these States.
+\li One of the States $t_0$ is called \bf{initial state}, and it must be the origin of the graph (i.e. it achievable for all other States).
+\li One or more States are marked as \bf{terminal States}. If we go from the initial state $t_0$ in any way to any terminal state, and let us write this label all arcs traversed, you get a string, which must be one of the suffixes of a string $s$.
+}
+\h3{ Elementary properties of the suffix automaton }
+The simplest, and yet most important property of the suffix automaton is that it contains information about all the substrings of a string $s$. Namely, \bf{every path} from the initial state $t_0$, if we write out the labels of the arcs along this path, forms necessarily \bf{substring} string $s$. Conversely, any substring of $s$ corresponds to some path starting in the initial state $t_0$.
+In each state machine suffix is one or more paths from the initial state. We will say that the condition \bf{matches} the set of strings that match all of these ways.
+\h3{ Examples built suffix automata }
+Examples of suffix automata built for a few simple lines.
+The initial state we denote here by $t0$, and terminal States --- noted with an asterisk.
+For a string $s = ""$:
+For a string $s = "a"$:
+\img{suffix_automaton_sample_2.gif}
+For a string $s = "aa"$:
+\img{suffix_automaton_sample_3.gif}
+For a string $s = "ab"$:
+\img{suffix_automaton_sample_4.gif}
+For a string $s = "aba"$:
+\img{suffix_automaton_sample_5.gif}
+For a string $s = "abb"$:
+\img{suffix_automaton_sample_6.gif}
+For a string $s = "abbb"$:
+\img{suffix_automaton_sample_7.gif}
+\h2{ an Algorithm for constructing suffix automaton in linear time }
+\h3{ Position endings $endpos$, their properties and the relationship with the suffix automaton }
+Consider any non-empty substring of $t$ string $s$. Then call \bf{multiple endings} $endpos(t)$ the set of all positions in the string $s$, in which the ends of the occurrences of the string $t$.
+It turns out that the suffix in the machine \bf{$endpos$-equivalent to substring corresponds to the same state}. In other words, the number of States in the suffix of the machine is equal to the number of classes $endpos$-equivalence among all substrings, plus one initial state. Each state of the suffix automaton correspond to one or more substrings that have the same value of $endpos$.
+Here are a few simple, but important statements about values, $endpos$.
+\bf{Lemma 1}. Two nonempty substring $u$ and $w$ ($length(u) \le length(w)$ are $endpos$-equivalent if and only if the string $u$ is found in the string $s$ only in the form of the suffix string $w$.
+\bf{Lemma 2}. Consider two non-empty substring $u$ and $w$ ($length(u) \le length(w)$). Then the set $endpos$ either do not intersect or $endpos(w)$ is entirely contained in $endpos(u)$, and this depends on whether $u$ suffix $w$ or not:
+$$ \begin{cases}
+endpos(w) \subset endpos(u) 
+\\
+endpos(u) \cap endpos(w) = \emptyset 
+\end{cases} $$
+\bf{Lemma 3}. Consider some class $endpos$-equivalence. Let's sort all substrings included in this class, newslisting length. Then in the resulting sequence each substring will be one shorter than the previous one, and to be a suffix of the previous one. In other words, \bf{substring belonging to the same equivalence class, are actually suffixes each other, and take all sorts of different lengths in some interval $[x
+Proof.
+According to Lemma 1, two different $endpos$-equivalent strings are always such that one is a proper suffix of another. Thus, in one class, $endpos$-equivalence cannot be strings of the same length.
+\h3{ Suffix links }
+Consider a state machine $v \ne t_0$. As we now know, the condition $v$ corresponds to some class of rows with identical values $endpos$, and if we denote by $w$, the longest of these lines, the others are all suffixes of $w$.
+In other words, \bf{suffix link} $link(v)$ leads to this condition, which corresponds to \bf{longest suffix} string $w$, which is in another class, $endpos$-equivalence.
+Here we consider that the initial state $t_0$ corresponds to a single equivalence class (containing only the empty string), and suppose $endpos(t_0) = [-1 \ldots length(s)-1]$.
+\bf{Lemma 4}. Suffix links form \bf{tree}, whose root is the initial state of $t_0$.
+\bf{Lemma 5}. If we build from all the available sets $endpos$ \bf{tree} (on the principle of "many-parent contains as a subset of all his children"), it will be the same in structure to the tree of suffix links.
+Proof.
+That sets $endpos$ you can build a tree, it follows from Lemma 2 (stating that any two sets $endpos$ either do not intersect or one is contained in another).
+$$ endpos(v) \subset endpos(link(v)), $$
+which together with the previous Lemma and proves our claim: the tree of suffix links are essentially a tree nesting sets $endpos$.
+\bf{example} suffix tree suffix links in the machine, built for the line $"abcbc"$:
+\img{suffix_automaton_link.gif}
+\h3{ Subtotal }
+Before to proceed to the algorithm, systematize accumulated above knowledge, and introduce a couple of auxiliary symbols.
+\ul{
+\li Suffix machine consists of the initial state $t_0$, and one state for each class $endpos$-equivalence.
+\li for Each $v$ corresponds to one or more rows. Denote by $longest(v)$ the longest of these lines through $len(v)$ of its length. Denote by $shortest(v)$ the shortest of these lines, and its length through $an attempt to(v)$.
+\li For each state $v \ne t_0$ is defined suffix link leading to this condition, which corresponds to the suffix string $longest(v)$ of length $an attempt to(v)-1$. Suffix links form a tree rooted at $t_0$, and this tree is, in fact, is a tree of relations of inclusion between sets $endpos$.
+\li Thus, $an attempt to(v)$ for $v \ne t_0$ is expressed using suffix links as $link(v)$ as:
+$$ an attempt(v) = len(link(v)) 1. $$
+}
+\h3{ an Algorithm for constructing suffix automaton in linear time }
+Proceed to the description of the algorithm. The algorithm is \bf{online}, i.e., will add one character of a string $s$, reconstructing accordingly the current machine.
+\bf{Initially} machine consists of a single state $t_0$, we just agree to assume the zero state (the remaining States will get the numbers $1, 2, \ldots$). Give this status $len = 0$, and the value of $link$ assign for facilities $-1$ (which means a reference to a fictitious, non-existent state).
+Accordingly, all the task now is to implement the processing \bf{adding a single character} $c$ in the end of the current line. We describe this process:
+\ul{
+\li'll Create a new status $cur$, changed him $len(cur) = len(last) 1$. The value of $link(cur)$ are considered to be uncertain.
+\li If never happened, that transition by the letter $c$ already had, and we came to a fictitious state $-1$ (which we got on the suffix link from the initial state $t_0$, we can simply assign $link(cur) = 0$ and exit.
+\li Suppose now that we stopped for some $p$, from which there was a passage in the letter $c$. Denote by $q$ the state, where does this current transition.
+\li Now we have two cases depending on whether, $len(p) 1 = len(q)$ or not.
+\li otherwise, everything is more complicated. It is necessary to make \bf{"cloning"} state $q$: to create a new condition $clone$ by copying all data from the vertices of $q$ (suffix link, transitions), except for the value $len$: I need to assign $len(clone) = len(p) 1$.
+After cloning, we have the suffix link from $cur$ in this state $clone$, also forwarded the suffix link of $q$ in $clone$.
+\li In any case, whatever ended executing this procedure, we are at the end of the updated value $last$, giving him $cur$.
+}
+In the next section, we will examine each step of the algorithm and show its \bf{correctness}.
+Here we will just mention that from the algorithm can be seen that adding a single character adds one or two States in the machine. Thus, \bf{linearity of the number of States} obvious.
+The linearity of the number of transitions, and in General, a linear time algorithm is less clear, and they will be proved below, after proving the correctness of the algorithm.
+\ul{
+\li'll Call transition $(p,q)$ \bf{solid} if $len(p) 1 = len(q)$. Otherwise, i.e. when $len(p) 1 < len(q)$, the transition will be called \bf{cuts}.
+\li to avoid ambiguities, under the string $s$ we mean the line which was built suffix machine to add the current character $c$.
+\li the Algorithm begins with the fact that we create a new state $cur$, which will match the entire string $s c$. It is clear why we have to create a new state --- because together with the addition of a new symbol, a new equivalence class is a class of row, ending in added symbol $c$.
+\li The easiest case is if we have reached the fictitious state of $-1$, adding everywhere in the new transition along the symbol $c$. This means that the symbol $c$ in the string $s$ not previously met. We have successfully added all the transitions, the only thing left to put the suffix link from state $cur$ --- it should obviously be equal to $0$ as $cur$ in this case correspond to all the suffixes of a string $s c$.
+However, there is a difficulty, however, to keep the suffix link from the state $cur$. We need to spend a suffix link in such a state, in which the longest string will be just the $x c$, i.e. $len$ for this state must be equal to $len(p) 1$. However, this condition could not exist: in this case we need to make \bf{"splitting"} state.
+\li the Other, more complex option --- when the transition is discontinuous, i.e., $len(q) > len(p) 1$. This means that the condition $q$ corresponds not only do we need the substring $w c$ of length $len(p)$ 1, but also a substring of greater length. We have no choice but to make \bf{"splitting"} state $q$: split segment rows that match her two podotrutsa, so the first will end up as time length $len(p) 1$.
+After cloning, we have the suffix link from $cur$ $clone$ --- what we made cloning.
+}
+\h3{ Proof linear number of operations }
+So, we will consider the size of the alphabet is constant, i.e., each search operation transition for the symbol, add transition, searching for the next transition --- all these operations we believe working for $O(1)$.
+If we consider all parts of the algorithm, it contains three linear asymptotics are not obvious:
+\ul{
+\li the First place-is the passage of suffix links from state $last$ by adding edges by the symbol $c$.
+\li the Third place --- redirection transitions, leading in $q$, $clone$.
+}
+We will use the known fact that the size of the suffix automaton (as the number of States and number of transitions) \bf{linear}. (Proof of linearity in the number of States is the algorithm, and the proof is linear in the number of transitions we present below, after the implementation of the algorithm.).
+Thus, each iteration of this cycle leads to the fact that the position of the line $longest(link(link(last))$ as the suffix of the current line will monotonically increase. Therefore, only this cycle could not work out more than $n$ iterations \bf{what we wanted to prove}.
+(It is worth noting that similar arguments can be used to prove the linearity of the first place, instead of referring to the proof of the linearity of the number of States.)
+\h2{ algorithm }
+\code
+struct state {
+int len, link
+map<char,int> next
+}
+\endcode
+Himself suffix machine will be stored in an array of these structures $state$. As proved in the next section, if $SEATS$ --- it is possible to program the length of the string, it is enough to have a memory under $2 \cdot SEATS - $ 1 state. We also stored the variable $last$ --- the state of the entire row at the moment.
+\code
+const int MAXLEN = 100000
+state st[MAXLEN*2]
+int sz, last
+\endcode
+\code
+void sa_init() {
+sz = last = 0
+st[0].len = 0
+st[0].link = -1
+ sz
+/*
+// this code is needed only if the machine is built many times for different rows:
+for (int i=0
+st[i].next.clear()
+*/
+}
+\endcode
+Finally, we present the implementation of the main functions --- which adds another character to the end of the current line, rearranging appropriately machine:
+\code
+void sa_extend (char c) {
+int cur = sz 
+st[cur].len = st[last].len 1
+int p
+for (p=last
+st[p].next[c] = cur
+if (p == -1)
+else {
+int q = st[p].next[c]
+if (st[p].len 1 == st[q].len)
+st[cur].link = q
+else {
+int clone = sz 
+st[clone].len = st[p].len 1
+st[clone].next = st[q].next
+st[clone].link = st[q].link
+for (
+st[p].next[c] = clone
+st[q].link = st[cur].link = clone
+}
+}
+last = cur
+}
+\endcode
+\h2{ Additional properties suffix automaton }
+\h3{ state }
+The number of States in the suffix automaton built for the string $s$ of length $n$, \bf{does not exceed $2n-1$} ($n \ge 3$).
+Proof of this is the algorithm described above (because originally the machine consists of one initial state, the first and second steps is added to exactly one state, and each of the remaining $n-2$ steps could be added two peaks due to the splitting of the state).
+Thus, we have shown this assessment independently, without knowledge of the algorithm.
+It is interesting to note that this assessment neulussheim, i.e. there \bf{test on which it is achieved}. This test looks like this:
+$$ " abbbb \ldots " $$
+When processing this string on each iteration, starting with the third, will be cleaved state, and, thus, will be achieved assessment $2n-1$.
+\h3{ hops }
+\bf{Prove} it.
+Estimate the number of continuous transitions. Consider a spanning tree of the longest paths in the machine, starting at $t_0$. This frame will consist of continuous ribs, and, therefore, their number is one less than the number of States, i.e., does not exceed $2n-2$.
+Putting these two estimates, we obtain the estimate $3n-3$. However, remembering that the maximum number of States can only be achieved on the test type $"abbbb \ldots " $ and evaluation $3n-3$ is clearly not achieved, we obtain the final estimate of $3n-4$, which was to be proved.
+It is interesting to note that there is also \bf{test on which this assessment is achieved}:
+$$ "abbb \ldots bbbc" $$
+\h3{ Relationship with suffix tree. Building a suffix tree suffix on the machine and Vice versa }
+Outset that we believe that an input string such that each suffix has its own node in the suffix tree (since for an arbitrary strings, this is, generally speaking, is not true: for example, for the string $"aaa \ldots"$). Usually this is achieved by attaching to the end of the line some special character (usually represented by the dollar sign).
+We introduce the notion of \bf{extend links}: fix the top of the suffix tree $v$, the symbol $c$
+\bf{Theorem 2}. $DAWG(s)$ --- this graph extends links suffix tree $ST(\overline{s})$. In addition, solid edge $DAWG(s)$ --- this inverted suffix links in $ST(\overline{s})$.
+These two theorems allow one of the structures (the suffix tree or suffix to the machine) to build another in time $O(n)$ --- these two simple algorithm will be discussed below in theorems 3 and 4.
+$DAWG("abcbc")$ and its tree of suffix links (for clarity, we sign each state of its $longest$-string):
+\img{suffix_automaton_st_1.gif}
+$ST("cbcba")$:
+\img{suffix_automaton_st_2.gif}
+\bf{Lemma}. The following three statements are equivalent for any two substrings $u$ and $w$:
+\ul{
+\li $endpos(u) = endpos(w)$ in the string $s$
+\li $firstpos(\overline{u}) = firstpos(\overline{w})$ to the line $\overline{s}$
+\li $\overline{u}$ and $\overline{w}$ lie on the same path from the root to the suffix tree $ST(\overline{s})$.
+}
+\bf{Proof of theorem 1}.
+The state of the suffix automaton correspond to the vertices of the suffix tree.
+Consider an arbitrary suffix link, $y = link(x)$. According to the definition of suffix links, $longest(y)$ is $suffix longest(x)$, and among all such $y$ the chosen one, whose $len(y)$ is maximal.
+\bf{Proof of theorem 2}.
+The state of the suffix automaton correspond to the vertices of the suffix tree.
+This means that:
+$$ \overline{longest(y)} = ext[c, \overline{longest(x)}]. $$
+The theorem is completely proved.
+\bf{Theorem 3}. Having the suffix machine $DAWG(s)$ at time $O(n)$ to build a suffix tree $ST(\overline{s})$.
+\bf{Theorem 4}. Having the suffix tree $ST(\overline{s})$, time $O(n)$ to build a machine suffix $DAWG(s)$.
+\bf{Proof of theorem 3}.
+Suffix tree $ST(\overline{s})$ will contain the same number of vertices, the number of States in $DAWG(s)$, and the top of the tree, resulting from the state of $v$ of the machine corresponds to a string of length $len(v)$.
+Suffix links in the tree, we can build according to theorem 2: it is enough to see all continuous transitions in the machine, and for each such transition $(x,y)$ link $link(y) = x$.
+Thus, in time $O(n)$ we can construct a suffix tree with suffix links in it.
+(If we consider the $k$ alphabet is not constant, then for all rebuilding takes time $O (n \log k)$.)
+\bf{Proof of theorem 4}.
+According to theorem 2, in order to build all the transitions in the suffix of the machine, we need to find all extend links $ext[c,v]$.
+First, note that part of this expanding references obtained directly from the suffix links in the tree. In fact, if for any vertex $x$, we consider its suffix link, $y = link(x)$, then this means that you have to spend a widening reference of $y$ in $x$ on the first character of the string corresponding to the vertex $x$.
+$$ ext[c,v] = ext[c,w],~~~~ \text{if $ext[c,w] = nil$.} $$
+This process will work for the time $O (n)$, if we consider the alphabet size constant.
+Finally, it remains to construct the suffix links in the machine, however, according to theorem 1, these suffix links work just like the ribs of suffix tree $ST(\overline{s})$.
+Thus, the described algorithm for time $O(n)$ is building a machine suffix in the suffix tree for inverted rows.
+\h2{ Use when solving problems }
+Below we will look at what tasks can be solved with the help of the suffix automaton.
+For simplicity, we will assume the alphabet size $k$ is a constant, which will allow us to consider the complexity of constructing the suffix of the machine and pass it a const.
+\h3{ Check entry }
+\bf{Condition}. Dan text $T$, and requests in the form: given a string $P$, you want to check or not prompt $P$ a text $T$ as a substring.
+\bf{Solution}. Build machine suffix-text $T$ for time $O (length (T))$.
+It is clear that this will work for the time $O (length (P))$. Moreover, the algorithm actually looks for the length of the longest prefix of $P$ that appear in the text --- and if the input samples such that the lengths are small, then the algorithm will be much faster than processing the entire line.
+\h3{ the Number of distinct substrings }
+\bf{Condition}. Given a string $S$. You want to know the number of different substrings.
+\bf{Asymptotic}. $O (length (S))$.
+In the suffix of the machine any substring of $S$ corresponds to a path in the machine. Because duplicate rows in the machine can not be, then the answer to the problem - - - \bf{a number of different ways} in the machine, starting at the initial vertex $t_0$.
+Given that the suffix machine is an acyclic graph, the number of different ways you can read it using dynamic programming.
+$$ d[v] = 1 \sum_{w ~ : \atop (v,w,c) \in DAWG} d[w], $$
+i.e. $d[v]$ can be expressed as the sum of responses for all possible transitions from the state of $v$.
+The answer to the problem will be the value of $d[t_0]-1$ (the unit is taken away, to ignore the empty string).
+\h3{ total length of different substrings }
+\bf{Condition}. Given a string $S$. You want to know the total length of all the different substrings.
+\bf{Asymptotic}. $O (length (S))$.
+How to count $d[v]$, described in the previous task, and the value of the $ans[v]$ can be calculated thus:
+$$ ans[v] = \sum_{w ~ : \atop (v,w,c) \in DAWG} d[w] ans[w], $$
+i.e., we take the response for each vertex $w$, and add to it $d[w]$, thus would be attributing to the beginning of each line by one character.
+\h3{ Lexicographically k-th substring }
+\bf{Condition}. Given a string $S$. Requests - - - $K_i$, and you want to find the $K_i$-th in the sort order the substring of $S$.
+\bf{Solution}. The solution to this problem is based on the same idea as the previous two tasks. Lexicographically $k$-th substring --- lexicographic $k$-th path in the suffix of the machine. Therefore, considering for each state, the number of paths from him, we will be able to easily find $k$-th path, moving from the root machine.
+\h3{ Smallest cyclic shift }
+\bf{Condition}. Given a string $S$. You want to find the lexicographically smallest cyclic shift.
+\bf{Asymptotic}. $O (length (S))$.
+Consequently, the task will be to find in the machine lexicographically minimal path of length $length(S)$, which is trivial: we start in the initial state and each time act greedily, moving to transition from the minimal symbol.
+\h3{ Number of occurrences }
+\bf{Condition}. Dan text $T$, and requests in the form: given a string $P$, you want to know how many times the line $P$ is included in the text $T$ as a substring (occurrences may overlap).
+\bf{Solution}. Build machine suffix-text $T$.
+Next, we need to make such a preprocessing: for each state $v$ of the machine to count the number $cnt[v]$, equal to the size of the set $endpos(v)$. In fact, all rows corresponding to one and the same state are in $T$ have the same number of times equal to the number of items in the set $endpos$.
+However, to explicitly support multiple $endpos$ for all the States we can not, therefore, will learn to count only their sizes $cnt$.
+$$ cnt[link(v)] = cnt[v]. $$
+It is argued that in the end we calculate for each state the correct values $cnt$.
+Why is this true? All States, is not derived by cloning, exactly $length(S)$, and $i$-th of them came when we added the first $i$ characters. Therefore, each of these States, we put in compliance with this position, in the processing which it appeared. So initially each such condition $cnt = 1$, and all other States $cnt = 0$.
+Why thus we will not consider the same item multiple times? Because from every state it is "propisyvaetsya" only once, so I couldn't get that from one state it is "proposals" to some other state twice, in two different ways.
+Thus, we learned to count these values $cnt$ for all States of the automaton.
+\h3{ the Position of the first occurrence }
+\bf{Condition}. Dan text $T$, and requests in the form: given a string $P$, you want to know the start position of the first occurrence of the string $P$.
+\bf{Asymptotic}. Preprocessing of $O (length (T))$ and $O (length (P))$ for a single request.
+\bf{Solution}. Build machine suffix-text $T$.
+\bf{Support} these positions $firstpos$ the easiest way along the course of the build machine: when we create a new state $cur$ when you enter the function $sa\_extend()$, then putting him:
+$$ firstpos(cur) = len(cur) - 1 $$
+(if we work in the $0$-indexing).
+Cloning the vertices of $q$ in $clone$ we put:
+$$ firstpos(clone) = firstpos(q), $$
+(as another option values only one - - - $firstpos(cur)$, which is clearly more).
+\h3{ Position all occurrences }
+\bf{Condition}. Dan text $T$, and requests in the form: given a string $P$, you want to display the positions of all its occurrences in the string $T$ (occurrences may overlap).
+\bf{Asymptotic}. Preprocessing of $O (length (T))$. The response to one request for $O (length (P) K (P))$, where $answer(P)$ --- this is the size of the response, i.e., we will solve the problem about the size of the input and output.
+Now suppose that the request-prompt $P$. Find out which state $t$ it corresponds.
+It is clear that $firstpos(t)$ should just log in to reply. What other positions we need to find? We took into account the state of the machine containing the string $P$, however, did not take into account other conditions, which correspond to strings such that $P$ is a suffix.
+In other words, we want to find all of the States, of which \bf{reachable by suffix links} the condition $t$.
+This bypass will work for the time $O (K (P))$, since we do not visit the same state twice (because of each state of the suffix link goes only one, so there cannot be two paths leading to the same state).
+Moreover, you can easily get rid o recurring items, if we are not going to add to the response $firstpos$ from state-clones. In fact, in any state-clone leads the suffix link from the initial state that this condition is cloned. Thus, if we for each state, remember flag $is\_clon$, and won't add to the response $firstpos$ from States for which $is\_clon = true$, we thus get all the required $answer (P)$ positions without repeating.
+\code
+struct state {
+...
+bool is_clon
+int first_pos
+vector<int> inv_link
+}
+... after you build the machine ...
+for (int v=1
+st[st[v].link].inv_link.push_back (v)
+...
+// answer the query output all occurrences (possibly with repetitions)
+void output_all_occurences (int v, int P_length) {
+if (! st[v].is_clon)
+cout << st[v].first_pos - P_length 1 << endl
+for (size_t i=0
+output_all_occurences (st[v].inv_link[i], P_length)
+}
+\endcode
+\h3{ Search for the shortest line, not a member of this }
+\bf{Asymptotic}. The solution for $O (length (S))$.
+\bf{Solution}. To solve a dynamic programming on the machine, built for the string $S$.
+Let $d[v]$ --- this is the answer to a vertex $v$, i.e., we have already gained part of the substring, being in the condition $v$, and want to find the smallest number of characters that should be added to step outside of the machine, finding a non-existent transition.
+Otherwise, one symbol do not work, so we must take a minimum of responses by different symbols:
+$$ d[v] = 1 \min_{w ~ : \atop (v,w,c) \in DAWG} d[w]. $$
+The answer will be equal to $d[t_0]$, and the string itself, you can restore, restoring, how in the dynamics turned out to be this minimum.
+\h3{ Longest common substring of two strings }
+\bf{Asymptotic}. The solution for $O (length(S) length(T))$.
+\bf{Solution}. Build machine suffix string $S$.
+We will now go on the line $T$, and for each prefix to find the longest suffix of this prefix, occurring in $S$. In other words, we for each position in the string $T$ and want to find the longest common substring of $S$ and $T$, ending in this position.
+Originally $p=t_0$, $l=0$, i.e. there empty.
+Now suppose we consider the $symbol T[i]$ and want to recalculate the answer for him.
+\ul{
+\li If the condition $v$ in the machine, there is a transition for the symbol $T[i]$, then we just made this transition and increase $l$ per unit.
+\li If from the state of $v$ does not have the required transition, we should try to shorten the current matching part, which should follow the suffix link:
+$$ v = link(v). $$
+$$ l = len(v). $$
+If a new state again will not navigate to the desired character, then again we should follow the suffix link and reduce $l$, and so on, until we find a transition (then go to step 1) or we will not get into a sham $-1$ (which means that the symbol $T[i]$ does not occur in $S$, so assign $v=l=0$ and proceed to the next $i$).
+}
+The answer to the problem will be the maximum of the values of $l$ for all the time of the crawl.
+Implementation:
+\code
+string lcs (string s, string t) {
+sa_init()
+for (int i=0
+sa_extend (s[i])
+int v = 0, l = 0,
+best = 0, bestpos = 0
+for (int i=0
+while (v 
+v = st[v].link
+l = st[v].length
+}
+if (st[v].next.count(t[i])) {
+v = st[v].next[t[i]]
+ l
+}
+if (l > best)
+best = l, bestpos = i
+}
+return t.substr (bestpos-best of 1, best)
+}
+\endcode
+\h3{ Greatest common substring few lines. }
+\bf{Asymptotic}. The solution for $O (\sum length(S_i) \cdot K)$.
+\bf{Solution}. Glue all rows $S_i$ in one line $T$, attributing after each line $S_i$ of your own separator $D_i$ (i.e., typing $K$ extra special. characters $D_i$):
+$$ T = S_1 ~ D_1 ~ S_2 ~ D_2 ~ \ldots ~ S_k D_k. $$
+Build string $T$ suffix machine.
+Thus, we need to calculate the reachability: for each state of the automaton and each character $D_i$ is there a path that contains the delimiter $D_i$, and does not contain any delimiters. It's easy to make the depth/width or lazy dynamics. Then the answer to the problem is the line $longest(v)$ to state $v$, from which were found ways for all symbols.
+\h2{ Tasks in online judges }
+Tasks that can be solved using machine suffix:
+\ul{

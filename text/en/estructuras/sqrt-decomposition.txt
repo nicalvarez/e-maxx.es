@@ -1,0 +1,79 @@
+\h1{Sqrt-decomposition}
+Sqrt-decomposition-a method, or a data structure that allows you to perform some common operations (summation of the elements of the subarray, finding minimum/maximum, and so on) for $O(\sqrt{n})$, which is much faster than $O(n)$ for the trivial algorithm.
+\h2{data Structure based on the sqrt-decomposition}
+\bf{Pose the problem}. Given an array $a[0 \ldots n-1]$. You want to implement such a data structure that will be able to find the sum of elements $a[l \ldots r]$ for arbitrary $l$ and $r$ is $O(\sqrt{n})$ operations.
+\h3{Description}
+The main idea sqrt-decomposition is that will do the following \bf{redpocket}: divide the array of $a$ into blocks of length roughly $\sqrt{n}$, and each unit $i$ in advance will prepochitaem $b[i]$ of elements in it.
+$$ s = \left\lceil \sqrt{n} \right\rceil, $$
+then the array $a[]$ is divided into blocks like this:
+$$ \underbrace{ a[0] ~ a[1] ~ \ldots ~ a[s-1] }_{b[0]} ~~~ \underbrace{ a[s] ~ a[s 1] ~ \ldots ~ a[2 \cdot s-1] }_{b[1]} ~~~ \ldots ~~~ \underbrace{ a[(s-1) \cdot s] ~ \ldots ~ a[n] }_{b[s-1]}. $$
+Although the last block may contain less than the $s$, the elements (if $n$ is not divisible by $s$), --- it does not matter.
+Thus, for each block $k$ we know the amount it $b[k]$:
+$$ b[k] = \sum_{i=k \cdot s}^{\min (n-1, (k 1) \cdot s - 1)} a[i]. $$
+Illustration (here $k$ the indicated block number, which is $l$, and using $p$ --- the block number, which is $r$):
+$$ \ldots ~ \overbrace{ a[l] ~ \ldots ~ a[(k-1) \cdot s-1] ~ \underbrace{ a[(k-1) \cdot s] ~ \ldots ~ a[(k-2) \cdot s-1] }_{b[k-1]} ~ \ldots ~ \underbrace{ a[(p-1) \cdot s] ~ \ldots ~ a[p \cdot s-1] }_{b[p]}\ a[p \cdot s] ~ \ldots a_r }^{sum=?} ~ \ldots $$
+$$ \sum_{i=l}^{r} a[i] = \sum_{i=l}^{(k 1) \cdot s-1} a[i] \sum_{i=k + 1}^{p-1} b[i] \sum_{i=p \cdot s}^{r} a[i] $$
+(note: this formula is incorrect, when $k=p$: in this case, some elements will be summed up twice
+\h3{Implementation}
+Here first the simplest implementation:
+\code
+// input data
+int n
+vector<int> a (n)
+// redpocket
+int len = (int) sqrt (n .0) 1
+vector<int> b (len)
+for (int i=0
+b[i / len] = a[i]
+// response to requests
+for (
+int l, r
+int sum = 0
+for (int i=l
+if (i % len == 0 
+// if i indicates the start of a block lying wholly within [l
+sum = b[i / len]
+i = len
+}
+else {
+sum = a[i]
+ i
+}
+}
+The disadvantage of this implementation is that it unnecessarily many operations division (which, as you know, are significantly slower than other operations. Instead, you can count the number of blocks $c_l$ and $c_r$, where lie the boundaries of $l$ and $r$, respectively, and then make a for loop blocks with $c_l 1$ $c_r-1$, separately treating "tails" in blocks of $c_l$ and $c_r$. In addition, in such an implementation case $c_l = c_r$ becomes special and requires special processing:
+\code
+int sum = 0
+if (c_l == c_r)
+for (int i=l
+sum = a[i]
+else {
+for (int i=l; end=(c_l 1)*len-1
+sum = a[i]
+for (int i=1 c_l
+sum = b[i]
+for (int i=c_r*len
+sum = a[i]
+}
+\endcode
+\h3{Other tasks}
+$$ b[k] = a[i] - old\_a[i]. $$
+On the other hand, instead of the problem of the sum similarly, you can solve the problem of \bf{minimum, maximum} the elements in the segment. If these tasks to prevent changes in individual items, you also have to recalculate the value of $b_k$ is the block which contains the element to change, but to count already fully pass on all block elements for $O(len) = O(\sqrt{n})$ operations.
+There is a whole class of problems, when there \bf{changes of items on the whole subsegments}: adding or assigning items at some subsegments of the array of $A$.
+Finally, you can combine both types of tasks: change items on the segment and the answer to the query is also on the segment. Both operations will be performed for $O(\sqrt{n})$. For this we will need to do two "block" array $b$ and $c$: one is to ensure changes on the segment, the other is to reply to queries.
+\h2{Sqrt-decomposition of the input query}
+Let us now consider a completely different application ideas about sqrt-decomposition.
+Then \bf{divide input requests into blocks} (how long --- until we specify
+Thus, if only we have $m$ query, then processing will require $B(m) \frac{m}{s} m Q(s)$ time. The value of $s$ should be chosen based on specific kinds of functions $B()$ and $Q()$. For example, if $B(m)=O(m)$ and $Q(s)=O(s)$, then the optimal choice is $s \approx \sqrt{m}$, and the total complexity will be $O (m \sqrt{m})$.
+Since the above discussion is too abstract, here are a few examples of tasks that are applicable such sqrt-decomposition.
+Problem statement: given an array of numbers $a[1 \ldots n]$, and requests two types: find the value of $i$-th element of the array, and add some number $x$ for all elements of the array in some interval $a[l \dots, r]$.
+Although this task can be solved without this technique with split requests into blocks, we will bring her here-is - how simple and obvious application of this method.
+Thus, we have learned to respond to the requesting query time $O(\sqrt{m})$.
+It remains only to notice that at the end of each block requests, we must apply all the modifying requests this unit to the array $a[]$. But this is easy to do for $O(n)$ --- enough for each request additions $(l,r,x)$ be noted in the auxiliary array in point of $l$, the number $x$ and the point $r 1$ - - - $- x$, and then go through the array, adding the current amount to an array $a[]$.
+\h3{Example tasks: disjoint-set-union split}
+There undirected graph with $n$ vertices and $m$ edges. Requests of three kinds: add an edge $(x_i,y_i)$, delete the edge $(x_i,y_i)$, and check out, related or not vertex $x_i$ and $y_i$ path.
+If requests deletion was absent, then the solution would be a well-known data structure \algohref=dsu{disjoint-set-union (DSU)}. However, if you have deleted the task becomes complicated.
+As we must now answer the next query from the current block? Our DSU "knows" about all the edges except those that are added/removed in the current block. However, removal of the dsu, we do not already have --- we have removed all such edges from the graph. Thus, all that can be - - is an optional, added ribs, which may be the maximum of $\sqrt{m}$ pieces.
+\h2{Offline tasks to requests for podotraslej array and universal sqrt-heuristic for them}
+Let's look at another interesting variation ideas sqrt-decomposition.
+Let us have some problem which is an array of numbers, and are requesting the queries that have the form $(l,r)$ --- to learn something about subsegments $a[l \ldots, r]$. We believe that the requests are not modifying, and known in advance, i.e., task --- offline.
+Let us now describe \bf{universal heuristics} for all such tasks. Let's sort the requests for the pair: $(l ~ {\rm div} ~ \sqrt{n}, r)$. I.e., we have sorted the queries by number sqrt-block, which is the left end, and if the equality --- on the right end.

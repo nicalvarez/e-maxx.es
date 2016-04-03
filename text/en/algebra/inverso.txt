@@ -1,0 +1,50 @@
+\h1{ return element in the ring modulo }
+\h2{ Definition }
+Let set some natural module $m$, and consider the ring formed by this module (i.e., consisting of numbers from $0$ to $m-1$). Then for some elements of this ring can be found \bf{return element}.
+Inverse to the number of $a$ modulo $m$ is the number $b$ that:
+$$ a \cdot b \equiv 1 \pmod m $$
+and it is often denoted using $a^{-1}$.
+Consider the following two methods of finding the inverse of an element employed, provided that it exists.
+Finally, consider an algorithm that allows you to find the opposite to all the numbers in a certain module in linear time.
+\h2{ Finding using the Extended Euclid's algorithm }
+Consider the auxiliary equation (relatively unknown $x$ and $y$):
+$$ a \cdot x m \cdot y = 1. $$
+On the other hand, if we take from both sides residue modulo $m$, you get:
+$$ a \cdot x = 1 \pmod m. $$
+Thus, found $x$ and will be back to $a$.
+Implementation (considering the fact that found $x$ it is necessary to take the module $m$, and $x$ could be negative):
+\code
+int x, y
+int g = gcdex (a, m, x, y)
+if (g != 1)
+cout << "no solution"
+else {
+x = (x % m m) % m
+cout << x
+}
+\endcode
+The asymptotics of this solution turns out to $O (\log m)$.
+We will use Euler's theorem:
+$$ a ^ {\phi(m)} \equiv 1 \pmod m $$
+which is true just in case coprime $a$ and $m$.
+Incidentally, in the case of a simple module $m$ we get even more easy approval --- small Fermat's theorem:
+$$ a^{m-1} \equiv 1 \pmod m. $$
+Multiply both parts of each of the equations $a^{-1}$, we get:
+\ul{
+\li for any module $m$:
+$$ a^{\phi(m)-1} \equiv a^{-1} \pmod m $$
+\li for simple module $m$:
+$$ a^{m-2} \equiv a^{-1} \pmod m. $$
+}
+This method is somewhat easier described in the previous paragraph, however, it requires knowledge of the values of the Euler function that actually requires factorization module $m$, which can sometimes be very challenging.
+If the factorization of a number is known, then this method also works for complexity $O (\log m)$.
+\h2{ Finding all simple modulo p in linear time }
+Applying the above algorithms, we get a solution with complexity $O (m \log m)$. Here we present a simple solution with complexity $O (m)$.
+\bf{Solution} is as follows. Denote by $r[i]$ is the desired inverse to the number of $i$ modulo $m$. Then for $i > 1$ true identity:
+$$ r[i] = - \left\lfloor \frac{m}{i} \right\rfloor \cdot r[m {\rm~mod~} i]. \pmod m $$
+\bf{Implementation} this surprisingly elegant solution:
+\code
+r[1] = 1
+for (int i=2
+r[i] = (m - (m/i) * r[m%i] % m) % m
+\endcode

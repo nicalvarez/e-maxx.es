@@ -1,0 +1,56 @@
+\h1{ Finding all subpalindromes }
+\h2{ problem Statement }
+Given a string $s$ of length $n$. You want to find all such pairs $(i,j)$, where $i<j$, which is the substring of $s[i \ldots j]$ is a palindrome (i.e., reads the same from left to right and right to left).
+\h3{ specification of the statement }
+It is clear that in the worst case, such substrings-palindromes can be $O(n^2)$, and at first glance it seems that algorithm with linear complexity can not exist.
+For example, in the string $s = abababc$ there are three palindrome of odd length with the center in the symbol $s[3]=b$, i.e., the value of $d_1[3]=3$:
+$$ a\ \overbrace{b\ a\ \underbrace{b}_{s_3}\ a\ b}^{d_1[3]=3}\ c $$
+And in the string $s = cbaabd$ there are two palindrome of even length with the center in the symbol $s[3]=a$, i.e. the value of $d_2[3]=2$:
+$$ c\ \overbrace{b\ a\ \underbrace{a}_{s_3}\ b}^{d_2[3]=2}\ d $$
+Rather unexpected is the fact that there is a fairly simple algorithm that computes these arrays alendronate" $d_1[]$ and $d_2[]$ in linear time. This algorithm is described in this article.
+\h2{ Solution }
+Generally speaking, this task has several known solutions: using \algohref=string_hashes{techniques hashing} can be solved in $O (n \log n)$, and using \algohref=ukkonen{suffix trees} and \algohref=lca_linear{fast algorithm LCA} this problem can be solved in $O (n)$.
+\h3{ Trivial algorithm }
+To avoid ambiguities in the further description, let's agree what is "trivial algorithm.
+This is the algorithm for finding the answer at position $i$ over and over again trying to increase the response to a unit, each time comparing a pair of matching characters.
+This algorithm is too slow, the whole answer, it may consider just in time $O (n^2)$.
+Let us illustrate its implementation:
+\code
+vector<int> d1 (n) d2 (n)
+for (int i=0
+while (i-d1[i] >= 0 
+ d1[i]
+d2[i] = 0
+while (i-d2[i]-1 >= 0 
+ d2[i]
+}
+\endcode
+\h3{ Algorithm Manakara }
+Learn how to find all subpalindromes odd length, i.e., to compute the array $d_1[]$
+So, suppose we want to compute the value of $d_1[i]$ for the next $i$, all the previous values $d_1[]$ already counted.
+\ul{
+\li If $i$ is not within the current subpalindromes, i.e. $i > r$, then just perform the trivial algorithm.
+\li now Consider the case when $i \le r$.
+Let's try to extract information from the already calculated $d_1[]$. Namely, reflect the position $i$ inside subpalindromes $(l,r)$, i.e., get position $j = l (r - i)$, and consider the value of $d_1[j]$. Since $j$ --- the position symmetrical to the position $i$, then \bf{almost always} we can simply assign $d_1[i] = d_1[j]$. An illustration of this reflection (palindrome around $j$ is actually "copied" in the palindrome around the $i$):
+However, there is \bf{subtlety}, which must be processed correctly: when "internal palindrome" reaches the border of the outer or climbs for it, i.e. $j-d_1[j] 1 \le l$ (or, equivalently, $i d_1[j]-1 \ge r$). Because the external borders of the palindrome is no symmetry is not guaranteed, then just assign $d_1[i] = d_1[j]$ is already incorrect: we don't have enough information to say that at position $i$ subpalindromes has the same length.
+The illustration of this case (it is a palindrome with center $j$ are shown already cut to such length that it is next placed in an external palindrome):
+$$ \ldots \overbrace{\underbrace{s_l\ \ldots\ s_j\ \ldots\ s_{j (j-l)}}_{\rm European}\ \ldots\ \underbrace{s_{i-(r-i)}\ \ldots\ s_i\ \ldots\ s_r}_{\rm European}}^{\rm European}\ \underbrace{\ldots\ldots\ldots\ldots}_{\rm try\ moving\ here} $$
+}
+At the end of the description of the algorithm happened only to remind you that you should not forget to update the values of $(l,r)$ after calculating the next value of $d_1[i]$.
+Also again, we have described the reasoning to compute an array of odd palindromes $d_1[]$
+\h3{ Evaluation of the asymptotic behavior of the algorithm Manakara }
+However, a more careful analysis shows that the algorithm is still linear. (It is worth to refer to the well-known \algohref=z_function{algorithm Z-function-line}, which is internally much like the algorithm, and also works in linear time.)
+Given that, except for trivial searches, all the remaining parts of the algorithm Manakara obviously work in linear time, we obtain the resulting complexity is $O(n)$.
+\h3{ implementation of the algorithm of Manakara }
+For the case of subpalindromes odd length, i.e., to compute the array $d_1[]$, we obtain the following code:
+\code
+vector<int> d1 (n)
+int l=0, r=-1
+for (int i=0
+int k = (i>r ? 0 : min (d1[l r-i], r-i)) 1
+while (i k < n 
+d1[i] = k--
+if (i k > r)
+l = i-k, r = i k
+}
+\endcode

@@ -1,0 +1,72 @@
+\h1{the Centers of gravity of polygons and polyhedra}
+\bf{Center of mass} (or \bf{center of mass}) some body called point with the property that if you hang the body at this point, it will maintain its position.
+Below is two-dimensional and three-dimensional tasks associated with finding different centers of mass is mostly from the point of view of computational geometry.
+\h2{two-Dimensional case: polygons}
+Actually, speaking about the center of mass of two-dimensional shapes, you can refer to one of the following three \bf{task}:
+\ul{
+\li the Centre of mass of a system of points --- i.e., all mass is concentrated only at the vertices of the polygon.
+\li the Center of mass frame --- i.e., the mass of the polygon centered on its perimeter.
+\li the Center of mass of the solid figures --- i.e., the mass of the polygon distributed throughout its area.
+}
+\h3{Center of mass of a system of points}
+This is the easiest of the three tasks, and its solution is well - known physical formula of the center of mass of a system of material points:
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i} ~ m_i }{ \sum\limits_i m_i }, $$
+where $m_i$ --- mass of points $\vec{r_i}$ --- their radius-vectors (representing their position relative to the origin), and $\vec{r_c}$ --- desired radius-vector of the center of mass.
+$$ \vec{r_c} = \frac{ \vec{r_1} \vec{r_2} \vec{r_3} }{ 3 }. $$
+For \bf{proof} these formulas it is enough to recall that the equilibrium is achieved at the point $r_c$, where the sum of the moments of all forces is zero. In this case, it becomes the condition that the sum of the radius-vectors of all points relative to the point $r_c$, multiplied by the mass of the corresponding points, is zero:
+$$ \sum\limits_i \left( \vec{r_i} - \vec{r_c} \right) m_i = \vec{0}, $$
+and, expressing hence $\vec{r_c}$, we obtain the required formula.
+We assume for simplicity that the frame homogeneous, i.e. its density is everywhere the same.
+But then each side of the polygon can be replaced with one point-the middle of this section (because the center of mass of the homogeneous segment is the middle of this section), with the weight equal to the length of this segment.
+Now we got a problem on a system of material points, and applying thereto a solution of the preceding paragraph, we find:
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i^\prime} ~ l_i }{ P }, $$
+For \bf{triangle} we can show the following statement: this point is \bf{the point of intersection of the bisectors} of the triangle formed by the midpoints of the sides of the original triangle. (to show this, it is necessary to use the above formula, and then notice that the bisectors divide the sides of the resulting triangle in the same ratio that the centers of mass of these parties).
+\h3{Center of mass of a solid figure}
+\h4{Case triangle}
+It is argued that for a triangle, the answer is still the same \bf{centroid}, i.e., the point formed by the arithmetic mean of the coordinates of the vertices:
+$$ \vec{r_c} = \frac{ \vec{r_1} \vec{r_2} \vec{r_3} }{ 3 }. $$
+\h4{Case triangle: proof}
+Here we present an elementary proof that does not use the theory of integrals.
+The proof is to show that the center of mass of the triangle lies on one of the medians
+Divide this triangle $T$ four, connecting the midpoints of sides, as shown in the figure:
+\img{centroids_1.jpg}
+Four of the resulting triangle is similar to triangle $T$ with a factor of $1/2$.
+\img{centroids_2.jpg}
+Now suppose that the vector $\vec{r}$ - vector drawn from the vertex $A$ to the center of mass of $c_1$ of the triangle No. 1, and let the vector $\vec{m}$ - vector drawn from $A$ to point $c_{12}$ (which, recall, is the middle of the side on which it lies):
+\img{centroids_3.jpg}
+Our goal is to show that the vector $\vec{r}$ and $\vec{m}$ are collinear.
+The required center-of-mass $c$ of a triangle $T$ is in the middle of the segment connecting points $c_{12}$ and $c_{34}$ (since we broke the triangle $T$ into two parts of equal areas: No. 1-No. 2 and No. 3-No. 4):
+\img{centroids_4.jpg}
+Thus, the vector from the vertex $A$ to the centroid $c$ is $\vec{m} \vec{r}/2$. On the other hand, since the triangle No. 1 is similar to the triangle $T$ with a factor of $1/2$, then the same vector is equal to $2 \vec{r}$. Hence we get the equation:
+$$ \vec{m} \vec{r}/2 = 2 \vec{r}, $$
+where we find:
+$$ \vec{r} = \frac{2}{3} \vec{m}. $$
+Moreover, along the way, we have proved that the centroid divides each median in the ratio $2:1$, counting from the top.
+\h4{Case polygon}
+We turn now to the General case --- i.e., to the case \bf{mnogougolnik}. For him such reasoning is no longer applicable, so we reduce the problem to that of triangular: namely, we split the polygon into triangles (i.e. triangulorum it), find the center of mass of each triangle and then find the center of mass of the resulting centers of mass of the triangles.
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i^\circ} ~ S_i }{ S }, $$
+where $\vec{r_i^\circ}$ --- centroid $i$-th triangle in the triangulation of a given polygon, $S_i$ --- area of $i$-th triangle of a triangulation of $S$ --- total area of the polygon.
+Triangulation of a convex polygon --- trivial task: for this example, you can take the triangles $(r_1,r_{i-1},r_i)$, where $i = 3 \ldots n$.
+\h4{Case polygon: an alternative method}
+$$ \vec{r_c} = \frac{ \sum\limits_i {\vec r}_{z,p_i,p_{i 1}}^\circ ~ S_{z,p_i,p_{i 1}} }{ S }, $$
+where $z$ --- arbitrary point $p_i$ --- point of the polygon, ${\vec r}_{z,p_i,p_{i 1}}^\circ$ --- the centroid of the triangle $(z,p_i,p_{i 1})$, $S_{z,p_i,p_{i 1}}$ --- significant area of this triangle, $S$ --- significant total area of the polygon (i.e., $S = \sum_{i=1}^{n} S_{z,p_i,p_{i 1}}$).
+\h2{three-Dimensional case: polyhedra}
+Similarly, the two-dimensional case, in 3D we can speak of four possible formulations of the problem:
+\ul{
+\li the Center of mass frame of the edges of the polyhedron.
+\li the Center of mass of the surface --- i.e., the mass is distributed over the surface of the polyhedron.
+\li the Center of mass of the solid polyhedron --- i.e., the mass is distributed around the polyhedron.
+}
+\h3{Center of mass of a system of points}
+As in the two-dimensional case, we can apply the physical formula and get the same result:
+$$ \vec{r_c} = \frac{ \sum\limits_i \vec{r_i} ~ m_i }{ \sum\limits_i m_i }, $$
+\h3{Center of mass frame of the polyhedron}
+Similarly, the two-dimensional case, we simply replace each edge of the polyhedron material point located in the middle of the edge, and with a mass equal to the length of this edge. Having problem on material points, we can easily find its solution as a weighted sum of the coordinates of these points.
+\h3{Center of mass of the surface of the polyhedron}
+\h3{Center of mass of the solid polyhedron}
+\h4{Case tetrahedron}
+As in the two-dimensional case, consider first the simplest task-the task of the tetrahedron.
+It is argued that the center of mass of the tetrahedron coincides with the point of intersection of its medians (median tetrahedron is called a segment drawn from a vertex to the center of mass of the opposite face
+This point is the intersection point of the medians of the tetrahedron --- is called its \bf{centroid}. It can be shown that it actually has coordinates equal to the average of the coordinates of the vertices of the tetrahedron:
+$$ \vec{r_c} = \frac{ \vec{r_1} \vec{r_2} \vec{r_3} \vec{r_4} }{ 4 }. $$
+(this can be deduced from the fact that the centroid divides the medians in the ratio of $1:3$)

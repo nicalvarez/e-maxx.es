@@ -1,0 +1,221 @@
+<h1>los algoritmos Eficaces факторизации</h1>
+<hr>
+<p>Aquí la aplicación de algoritmos de факторизации, cada uno de ellos por separado puede trabajar como el más rápido, y muy lentamente, pero en la suma de dan muy rápido.</p>
+<p>la Descripción de estos métodos no se presentan, ya que ellos están muy bien descritos en Internet.</p>
+<h2>el Método Полларда p-1</h2>
+<p>la Primera prueba, rápidamente se da respuesta ni mucho menos para todos los números.</p>
+<p>Devuelve o encontrado el divisor, o 1, si el divisor no se ha encontrado.</p>
+<code>template 
+T pollard_p_1 (T n)
+{
+// parámetros del algoritmo, afectan el rendimiento y la calidad de la búsqueda
+const T b = 13
+const T q[] = { 2, 3, 5, 7, 11, 13 }
+// varios intentos de algoritmo
+T a = 5 % n
+for (int j=0
+{
+// buscamos es a que mutuamente simplemente con n
+while (gcd (a, n) != 1)
+{
+mulmod (a, a, n)
+a = 3
+a %= n
+}
+// calculamos a^M
+for (size_t i = 0
+{
+T qq = q[i]
+T e = (T) floor (log ((double) (b) / log ((double)qq))
+T aa = powmod (a, powmod (qq, e, n), n)
+if (aa == 0)
+continue
+// comprobamos que no se ha encontrado la respuesta
+T g = gcd (aa-1, n)
+if (1 
+return g
+}
+}
+// si no encontraron nada
+return 1
+}</code>
+<h2>el Método Полларда "Ro"</h2>
+<p>la Primera prueba, rápidamente se da respuesta ni mucho menos para todos los números.</p>
+<p>Devuelve o encontrado el divisor, o 1, si el divisor no se ha encontrado.</p>
+<code>template 
+T pollard_rho (T n, unsigned iterations_count = 100000)
+{
+T
+b0 = rand() % n,
+b1 = b0,
+g
+mulmod (b1, b1, n)
+if ( b1 == n)
+b1 = 0
+g = gcd (abs (b1 - b0), n)
+for (unsigned count=0
+{
+mulmod (b0, b0, n)
+if ( b0 == n)
+b0 = 0
+mulmod (b1, b1, n)
+ b1
+mulmod (b1, b1, n)
+if ( b1 == n)
+b1 = 0
+g = gcd (abs (b1 - b0), n)
+}
+return g
+}</code>
+<h2>el Método Бента (una modificación del método de Полларда "Ro")</h2>
+<p>la Primera prueba, rápidamente se da respuesta ni mucho menos para todos los números.</p>
+<p>Devuelve o encontrado el divisor, o 1, si el divisor no se ha encontrado.</p>
+<code>template 
+T pollard_bent (T n, unsigned iterations_count = 19)
+{
+T
+b0 = rand() % n,
+b1 = (b0*b0 2) % de n,
+a = b1
+for (unsigned iteration=0, series_len=1
+{
+T g = gcd (b1-b0, n)
+for (unsigned len=0
+{
+b1 = (b1*b1 2) % n
+g = gcd (abs(b1-b0), n)
+}
+b0 = a
+a = b1
+if (c != 1 
+return g
+}
+return 1
+}</code>
+<h2>el Método Полларда de Monte-Carlo</h2>
+<p>la Primera prueba, rápidamente se da respuesta ni mucho menos para todos los números.</p>
+<p>Devuelve o encontrado el divisor, o 1, si el divisor no se ha encontrado.</p>
+<code>template 
+T pollard_monte_carlo (T n, unsigned m = 100)
+{
+T b = rand() % (m-2) 2
+static std::vector
+static T m_max
+if (primos.empty())
+primos.push_back (3)
+if (m_max < m)
+{
+m_max = m
+for (T prime=5
+{
+bool is_prime = true
+for (std::vector
+iter!=end
+{
+T div = *iter
+if (div*div > prime)
+break
+if (prime % div == 0)
+{
+is_prime = false
+break
+}
+}
+if (is_prime)
+primos.push_back (prime)
+}
+}
+T g = 1
+for (size_t i=0
+{
+T cur = primos[i]
+while (cur 
+cur *= primos[i]
+cur /= primos[i]
+b = powmod (b, cur, n)
+g = gcd (abs(b-1), n)
+if (g == n)
+g = 1
+}
+return g
+}</code>
+<h2>el Método de la Granja</h2>
+<p>este Es un método cien por ciento, pero puede funcionar muy despacio, si el número de pequeñas rias.</p>
+<p>Por lo tanto se ejecute la pena sólo después de todos los demás métodos.</p>
+<code>template 
+T ferma (const T 
+{
+T2
+x = sq_root (n),
+y = 0,
+r = x*x - y*y - n
+for (
+if (r == 0)
+return x!=y ? x-y : x y
+else
+if (r > 0)
+{
+r -= y x y 1
+ y
+}
+else
+{
+r = x x 1
+ x
+}
+}</code>
+<h2>Trivial división</h2>
+<p>Este elemental técnica es útil para procesar números muy pequeños делителями.</p>
+<code>template 
+T2 prime_div_trivial (const T 
+{
+// primero comprobamos triviales de los casos
+if (n == 2 || n == 3)
+return 1
+if (n < 2)
+return 0
+if (even (n))
+return 2
+// generar sencillos de 3 a m
+T2 pi
+const vector
+// dividimos en todas las cosas simples
+for (std::vector
+iter!=end
+{
+const T2 
+if (div * div > n)
+break
+else
+if (n % div == 0)
+return div
+}
+if (n < m*m)
+return 1
+return 0
+}</code>
+<h2>juntándolo todo</h2>
+<p>Combinar todos los métodos de una función.</p>
+<p>Asimismo, la función utiliza la prueba de la sencillez, de lo contrario, los algoritmos de факторизации pueden funcionar durante mucho tiempo. Por ejemplo, puede seleccionar una prueba BPSW (<algohref=bpsw>leer el artículo de BPSW</algohref>).</p>
+<code>template 
+void factorize (const T 
+{
+if (n == 1)
+
+else
+// comprobamos que no es fácil, si el número de
+if (isprime (n))
+ result[n]
+else
+// si el número lo suficientemente pequeño, su разлагаем fuerza bruta
+if (n < 1000*1000)
+{
+T div = prime_div_trivial (n, 1000)
+ result[div]
+factorize (n / div, result, unused)
+}
+else
+{
+// el número es grande, lanzando sobre él algoritmos факторизации
+T div
+// primero rápidos algoritmos de Полларда

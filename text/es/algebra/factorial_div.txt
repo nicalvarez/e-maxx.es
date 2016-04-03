@@ -1,0 +1,24 @@
+\h1{ Encontrar el grado de un divisor de факториала }
+Dados dos números: $n$ y $k$. Es necesario contar, con qué grado de un divisor de $k$ se incluye en el número $n!$, es decir, encontrar el mayor $x$ tal que $n!$ se divide en $k^x$.
+\h2{ la Solución para el caso simple de $k$ }
+Consideremos primero el caso, cuando $k$ es sencillo.
+Daremos una expresión para факториала de forma explícita:
+$$ n! = 1\ 2\ 3\ \ldots\ (n-1)\ n $$
+Además, tenga en cuenta que de cada $k^2$el primer miembro de esta serie se divide en $k^2$, es decir, da 1 de la respuesta (teniendo en cuenta que $k$ en la primera medida ha sido tomada en cuenta antes)
+Y así sucesivamente, cada $k^i$-primer miembro de la serie da el 1 a la respuesta, y el número de esos miembros, igual que $\lfloor n/k^i \rfloor$.
+Por lo tanto, la respuesta es igual a la cantidad:
+$$ \frac{n}{k} \frac{n}{k^2} \ldots \frac{n}{k^i}, \ldots $$
+Realización:
+\code
+int fact_pow (int n, int k) {
+int res = 0
+while (n) {
+n /= k
+res = n
+}
+return res
+}
+\endcode
+\h2{ la Solución para el caso de compuesto de $k$ }
+La misma idea de aplicar aquí directamente ya no se puede.
+Pero podemos факторизовать $k$ solucionar la tarea para cada uno su simple divisor, y luego seleccionar un mínimo de respuestas.

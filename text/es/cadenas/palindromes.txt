@@ -1,0 +1,41 @@
+\h1{ se pueden Encontrar todos подпалиндромов }
+\h2{ problema }
+Dada una cadena $s$ de la longitud de $n$. Es necesario buscar todas las parejas) $(i,j)$, donde $i<j$, que es la subcadena $s[i \ldots j]$ es палиндромом (es decir, se lee igual de izquierda a derecha y de derecha a izquierda).
+\h3{ Aclaración planteamiento }
+Está claro que en el peor de los casos de estas subcadenas-палиндромов puede ser $O(n^2)$, y a primera vista parece que el algoritmo lineal асимптотикой no puede existir.
+Sin embargo, la información sobre los палиндромах puede devolver más de \bf{compacto}: para cada posición de $i=0, \ldots, n-1$ encontraremos con un valor de $d_1[i]$ y $d_2[i]$, que indican el número de палиндромов respectivamente impar y par de longitud, con su centro en la posición $i$.
+Por ejemplo, en la línea $s = abababc$ hay tres палиндрома impar de longitud, con sede en el símbolo $s[3]=b$, es decir, el valor de $d_1[3]=3$:
+$$ a\ \overbrace{b\ a\ \underbrace{b}_{s_3}\ a\ b}^{d_1[3]=3}\ c $$
+Y en la línea $s = cbaabd$ hay dos палиндрома par de longitud, con sede en el símbolo $s[3]=a$, es decir, el valor de $d_2[3]=2$:
+$$ c\ \overbrace{b\ a\ \underbrace{a}_{s_3}\ b}^{d_2[3]=2}\ d $$
+Es decir, la idea de que si hay подпалиндром de longitud $l$, con su centro en algún tipo de posición $i$, es decir, también подпалиндромы de longitud $l-2$, $l-4$, etc., con centros en el $i$. Por lo tanto, de dos de estas matrices de $d_1[i]$ y $d_2[i]$ es suficiente para el almacenamiento de información acerca de todas las подпалиндромах de esta cadena.
+Bastante sorprendente es el hecho de que hay bastante simple algoritmo que calcula estas "matrices палиндромностей" $d_1[]$ y $d_2[]$ por lineal del tiempo. Este algoritmo y se describe en este artículo.
+\h2{ Solución }
+En general, este problema tiene varias soluciones conocidas: con la ayuda de \algohref=string_hashes{la técnica de hash} se puede resolver por $O (n \log n)$, y con la ayuda de \algohref=ukkonen{суффиксных de los árboles} y \algohref=lca_linear{algoritmo rápido de la LCA} esta tarea se puede resolver en $O (n)$.
+Sin embargo, se describe en este artículo, el método es mucho más fácil y tiene menos ocultos constantes en la asíntota de la función de tiempo y memoria. Este algoritmo se ha abierto \bf{Glenn Манакером (Glenn Manacher)} en el año 1975
+\h3{ Trivial algoritmo }
+Para evitar ambigüedades a la hora de continuar la descripción de la llevaré a cabo, que tal es la "trivial algoritmo".
+Es un algoritmo para la búsqueda de la respuesta en la posición $i$ una y otra vez, intenta aumentar la respuesta en la unidad, cada vez que compara un par de caracteres.
+Este algoritmo es demasiado медленен, la respuesta completa se puede considerar que sólo por $O (n^2)$.
+Llevaremos para la visibilidad de la realización de la misma:
+\code
+vector<int> d1 (n), d2 (n)
+for (int i=0
+d1[i] = 1
+while (i-d1[i] >= 0 
+ d1[i]
+d2[i] = 0
+while (i-d2[i]-1 >= 0 
+ d2[i]
+}
+\endcode
+\h3{ Algoritmo Манакера }
+Aprendamos primero a encontrar todos los подпалиндромы impar de longitud, es decir, calcular la matriz $d_1[]$
+Para un rápido cálculo vamos a apoyar la \bf{frontera $(l,r)$} el derecho de descubierto подпалиндрома (es decir, подпалиндрома el valor mayor de $r$). Inicialmente se puede poner $l=0, r=-1$.
+Así, supongamos que queremos calcular el valor de $d_1[i]$ para el próximo $i$, con todos los valores anteriores $d_1[]$ ya contados.
+\ul{
+\li Si $i$, no se encuentra dentro de la actual подпалиндрома, es decir, $i > r$, simplemente ejecuta un algoritmo trivial.
+Es decir, vamos a ampliar el valor de $d_1[i]$, y comprobar que cada vez que --- si la verdad actual de la subcadena $[i-d_1[i]
+\li Consideremos ahora el caso, cuando $i \le r$.
+Intentaremos extraer parte de la información de la ya contada de los valores de $d_1[]$. Es decir, отразим la posición del $i$ dentro de подпалиндрома $(l,r)$, es decir, obtenemos la posición $j = l (r - i)$, y examinaremos el valor de $d_1[j]$. Ya que $j$ --- la posición simétrica de la posición $i$, \bf{casi siempre} podemos asignar $d_1[i] = d_1[j]$. La ilustración de esta reflexión (палиндром alrededor de $j$, de hecho "se copia" en палиндром alrededor de $i$):
+$$ \ldots \overbrace{s_l\ \ldots\ \underbrace{s_{j-d_1[j], 1}\ \ldots\ s_j\ \ldots\ s_{j d_1[j]-1}}_{\rm palindrome}\ \ldots\ \underbrace{s_{i-d_1[j], 1}\ \ldots\ s_i\ \ldots\ s_{i d_1[j]-1}}_{\rm palindrome}\ \ldots\ s_r\ \ldots}^{\rm palindrome} $$

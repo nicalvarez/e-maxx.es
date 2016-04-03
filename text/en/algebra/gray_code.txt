@@ -1,0 +1,32 @@
+\h1{ the gray Code }
+\h2{ Definition }
+The gray code is a numbering system of non-negative numbers, when codes of the two adjacent numbers differ by exactly one bit.
+For example, for numbers of length 3 bits are the sequence of gray codes: $000$, $001$, $011$, $010$, $110$, $111$, $101$, $100$. For Example, $G(4)=6$.
+This code was invented by Frank gray (Frank Gray) in 1953.
+\h2{ finding the gray code }
+\code
+int g (int n) {
+return n ^ (n >> 1)
+}
+\endcode
+\h2{ inverse gray code }
+Required by code gray $g$ to restore the original number $n$.
+We will go from bits to the younger (let the right-most bit is 1, and the senior --- $k$). Received such relationships between bits $n_i$ is the number $n$ bits $g_i$ of $g$:
+$$ n_k = g_k, $$
+$$ n_{k-1} = g_{k-1} \oplus n_k = g_k \oplus g_{k-1}, $$
+$$ n_{k-2} = g_{k-2} \oplus n_{k-1} = g_k \oplus g_{k-1} \oplus g_{k-2}, $$
+$$ n_{k-3} = g_{k-3} \oplus n_{k-2} = g_k \oplus g_{k-1} \oplus g_{k-2} \oplus g_{k-3}, $$
+$$ \ldots $$
+\code
+int rev_g (int g) {
+int n = 0
+for (
+n ^= g
+return n
+}
+\endcode
+\h2{ Application }
+Codes warming have several applications in different areas, sometimes quite unexpected:
+\ul{
+\li $n$-bit gray code corresponds to a Hamiltonian cycle on $n$-dimensional cube.
+\li In the technique, gray codes are used for \bf{minimize errors} when converting analog signals into digital (e.g., sensors). In particular, gray codes and were opened in connection with this application.

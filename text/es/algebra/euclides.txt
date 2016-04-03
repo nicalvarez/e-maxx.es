@@ -1,0 +1,38 @@
+\h1{Algoritmo de Euclides encontrar NOD (máximo común divisor)}
+Dados dos enteros no negativos en el número de $a$ y $b$. Es necesario encontrar el máximo común divisor, es decir, el mayor número es divisor de a la vez y de $a$ y $b$. En inglés "máximo común divisor" se escribe "greatest common divisor", y el común de su designación es ${\rm mcd}$:
+$$ {\rm mcd}(a,b) = \max_{k=1 \ldots \infty \ :\ k|a \ \
+(aquí el símbolo de "$|$" marcada divisibilidad, es decir, "$k|a$" significa "$k$ divide a $a$")
+Cuando se de números es igual a cero, y el otro distinto de cero, el mayor común divisor, de acuerdo con la definición, se trata de la segunda cifra. Cuando ambos números son iguales a cero, el resultado no está definido (ideal para cualquier infinitamente gran número), vamos a poner en este caso, el máximo común divisor de cero. Por lo tanto, se puede hablar de esta regla: si uno de los números es igual a cero, su máximo común divisor es el segundo número.
+\bf{Algoritmo de Euclides}, examinado a continuación, resuelve la tarea de encontrar el máximo común divisor de dos números de $a$ y $b$ por $O (\log \min(a,b))$.
+Este algoritmo fue descrito por primera vez en el libro de Euclides "el Principio" (alrededor del 300 a.c.), aunque, muy posiblemente, este algoritmo tiene más temprana de origen.
+\h2{Algoritmo}
+El algoritmo es muy simple, y se describe por la siguiente fórmula:
+$$ {\rm mcd}(a,b) = \cases{ a, 
+\h2{Aplicación}
+\code
+int mcd (int a, int b) {
+if (b == 0)
+retorno a
+else
+return mcd (b, a % b)
+}
+\endcode
+Usando terciario operador condicional C , el algoritmo puede grabar aún más corto:
+\code
+int mcd (int a, int b) {
+return b ? mcd (b, a % b) : a
+}
+\endcode
+Por último, se presentan y нерекурсивную forma de algoritmo:
+\code
+int mcd (int a, int b) {
+while (b) {
+a %= b
+swap (a, b)
+}
+retorno a
+}
+\endcode
+\h2{Prueba de la exactitud}
+Primero, tenga en cuenta que en cada iteración del algoritmo de Euclides en su segundo argumento estrictamente disminuye, por lo tanto, ya que él неотрицательный, el algoritmo de Euclides \bf{siempre termina}.
+Para \bf{prueba de la exactitud} tenemos que demostrar que ${\rm mcd}(a,b) = {\rm mcd} (b, a\ {\rm mod}\ b)$ para todo $a \ge 0, b > 0$.

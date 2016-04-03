@@ -1,0 +1,121 @@
+\h1{ Long arithmetic }
+Long arithmetic --- this is a set of software tools (data structures and algorithms) that allow you to work with numbers much larger than it allows standard data types.
+\h2{ Types of long integer arithmetic }
+Generally speaking, even only in the Olympiad tasks Toolkit is large enough so that will make classification of different types of long arithmetic.
+\h3{ Classic long arithmetic }
+Numbers can be used from any number system, typically used decimal system and its degree (ten thousand, billion), or binary system.
+Operations on numbers in the form of long arithmetic is done using the "school" algorithms for addition, subtraction, multiplication, division column. However, they are also applicable algorithms for fast multiplication: \algohref=fft_multiply{Fast Fourier transform} and the Algorithm Karatsuba.
+\h4{ data Structure }
+To store long numbers will be in the form of a vector of numbers $int$, where each element is a single digit number.
+\code
+typedef vector<int> lnum
+\endcode
+For efficiency, we will work in the system on the basis of a billion, i.e., each element of the vector $lnum$ contains not one, but $9$ digits:
+\code
+const int base = 1000*1000*1000
+\endcode
+Numbers will be stored in the vector in such a manner that at first there are the least significant digits (i.e., units, tens, hundreds, and so on).
+\h4{ Conclusion }
+The simplest is the conclusion of a long number.
+First, we simply print the last element of a vector (or $0$, if the vector is empty), and then output all the remaining vector elements, complementing them with zeros up to $9$ character:
+\code
+printf ("%d", a.empty() ? 0 : a.back())
+for (int i=(int)a.size()-2
+printf (" d", a[i])
+\endcode
+\h4{ Read }
+Reading a string $string$, and then convert it to a vector:
+\code
+for (int i=(int)s.length()
+if (i < 9)
+a.push_back (atoi (s.substr (0, i).with c_str()))
+else
+a.push_back (atoi (s.substr (i-9, 9).with c_str()))
+\endcode
+If you use instead of $string,$ array, $char$'s, then the code will be more compact:
+\code
+for (int i=(int)strlen(s)
+s[i] = 0
+a.push_back (atoi (i>=9 ? s i 9 : s))
+}
+\endcode
+If the input number may already be leading zeros, then after reading can be removed as follows:
+\code
+while (a.size() > 1 
+\endcode
+\h4{ Addition }
+Adds to the number of $a$ number $b$ and stores the result in $a$:
+\code
+int carry = 0
+for (size_t i=0
+if (i == a.size())
+a.push_back (0)
+a[i] = carry (i < b.size() ? b[i] : 0)
+carry = a[i] >= base
+if (carry) a[i] -= base
+}
+\endcode
+\h4{ Subtraction }
+Takes away from the number $a$ number $b$ ($a \ge b$) and stores the result in $a$:
+\code
+int carry = 0
+for (size_t i=0
+a[i] -= carry (i < b.size() ? b[i] : 0)
+carry = a[i] < 0
+if (carry) a[i] = base
+}
+while (a.size() > 1 
+a.pop_back()
+\endcode
+\h4{ Multiplication, long, short }
+Multiplies a long a $$ short $b$ ($b < {\rm base}$) and stores the result in $a$:
+\code
+int carry = 0
+for (size_t i=0
+if (i == a.size())
+a.push_back (0)
+long long cur = carry a[i] * 1ll * b
+a[i] = int (cur % base)
+carry = int (cur / base)
+}
+while (a.size() > 1 
+a.pop_back()
+\endcode
+Here we are after execution dividing remove leading zeros to support the predicate that they do not exist.
+\h4{ Multiply two long numbers }
+Multiply $a$ and $b$ and stores the result in $c$:
+\code
+lnum c (a.size() b.size())
+for (size_t i=0
+for (int j=0, carry=0
+long long cur = c[i, j] a[i] * 1ll * (j < (int)b.size() ? b[j] : 0) carry
+c[i, j] = int (cur % base)
+carry = int (cur / base)
+}
+while (c.size() > 1 
+c.pop_back()
+\endcode
+\h4{ Division of long to short }
+Divides long $a$ short $b$ ($b < {\rm base}$), private preserves in $a$, a balance of $carry$:
+\code
+int carry = 0
+for (int i=(int)a.size()-1
+long long cur = a[i] carry * 1ll * base
+carry = int (cur % b)
+}
+while (a.size() > 1 
+a.pop_back()
+\endcode
+\h3{ Long arithmetic in well as }
+Here the idea is to not store the number, and its factorization, i.e., the degree of each incoming it simple.
+This method is often used when it is necessary to make the division on a difficult module: then it is sufficient to store the number in degrees on common divisors of this module, and another number --- balance on the same module.
+\h3{ Long arithmetic on simple modules (Chinese theorem or scheme garner) }
+According to the Chinese theorem of residues, it is enough to uniquely store any number in the range from 0 to the works of these modules minus one. There \algohref=chinese_theorem{Algorithm garner}, which allows this recovery of the modular form in the usual, "classical", form number.
+However, all this comes at the price of very time-consuming translation number of this modular form in normal view, which, in addition to considerable time will also require the implementation of "classic" long arithmetic multiplication.
+In addition, to produce \bf{division} of numbers in this representation according to the system of simple modules is not possible.
+\h2{ Types of fractional long arithmetic }
+\h3{ Long arithmetic in irreducible fractions }
+The number is represented as an irreducible fraction $\frac{a}{b}$, where $a$ and $b$ --- integers. Then all operations on decimal numbers it is easy to reduce to operations over the numerators and denominators of these fractions.
+\h3{ position Selection floating point in a separate type }
+Sometimes the task you want to perform calculations with very large or very small numbers, but not to let them overflow. Built-in $8-10$-byte type $double$, as it is known, allows exponent values in the range $[-308
+When multiplying or dividing two numbers should accordingly be folded or subtract their exponents. When you add or subtract before performing this operation, the number should lead to the same exponent, which one of them damnaged $10$ in the degree of difference between the Exhibitor.

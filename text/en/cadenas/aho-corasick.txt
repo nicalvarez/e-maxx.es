@@ -1,0 +1,99 @@
+\h1{ Algorithm Aho-Corasick }
+Given a set of strings in the alphabet of size $k$, the total length $m$. The algorithm Aho-Corasick builds for this rowset data structure "Bor", and then through that wood building machine, all for $O (m)$ time and $O (m k)$ memory. The resulting machine can be used in different tasks, the simplest of which is finding all occurrences of each string from the given set in some text in linear time.
+\h2{ Bor. Build Bohr }
+Formally, \bf{Bor} --- this is a tree rooted at some vertex of $\rm Root$, and every edge of the tree signed some letter. If we consider the list of edges emanating from a given vertex (except the ribs, leading to the ancestor), then all edges must have different labels.
+Each vertex boron also has a flag $\rm leaf$ equal to $\rm true$ if the top ends any string from the given set.
+Accordingly, \bf{build Bor} on this rowset --- means to build such boron that each $\rm leaf$-top will match any string of the set, and Vice versa, each line will correspond to some $\rm leaf$-vertex.
+We introduce a structure corresponding to the peaks of boron:
+\code
+struct vertex {
+int next[K]
+bool leaf
+}
+vertex t[NMAX 1]
+int sz
+\endcode
+I.e., we will retain boron in the form of $t$ (the number of elements in the array is sz) structures $\rm vertex$. The structure of $\rm vertex$ contains a flag $\rm leaf$, and edges in an array $\rm next[]$, where $\rm next[i]$ --- pointer to a vertex, which is the edge symbol $i$ or $-1$, if such edges are not.
+\code
+memset (t[0].next, 255, sizeof t[0].next)
+sz = 1
+\endcode
+\code
+void add_string (const string 
+int v = 0
+for (size_t i=0
+char c = s[i]-'a'
+if (t[v].next[c] == -1) {
+memset (t[sz].next, 255, sizeof t[sz].next)
+t[v].next[c] = sz 
+}
+v = t[v].next[c]
+}
+t[v].leaf = true
+}
+\endcode
+Linear time and linear number of nodes in the trie are obvious. Since each vertex has $O (k)$ memory, the memory usage is $O (n k)$.
+\h2{ Build machine }
+May we have built Bor for a given set of strings. Look at him now a little on the other side. If we consider any vertex, the line that corresponds to it, is a prefix of one or more rows from a set of
+I.e., we can understand ribs boron as transitions in the machine on the corresponding letter. However, only the edges of boron should not be limited. If we try to skip through any letter, and the corresponding edges in the trie not, we nevertheless must go in a certain state.
+For example, if boron is built on the lines of $ab$ and $bc$, and we are under the influence of the line $ab$ passed in some state, which is the leaf. Then under the influence of the letter $c$ we have to go to the state corresponding to the string $"b'$, and there only go by the letter $c$.
+Thus, we have reduced the problem of construction of the machine to the task of finding suffix links for all vertices of boron. However, to build these suffix links, we will, oddly enough, on the contrary, using the built in machine transitions.
+Thus, the problem of nding the transition has been reduced to the task of finding the suffix links, and the task of finding the suffix links --- the task of finding the suffix links and transition, but for closer to the root vertex. We received a recursive dependency, but not infinite, and, moreover, allow which can in linear time.
+\code
+struct vertex {
+int next[K]
+bool leaf
+int p
+char pch
+int link
+int go[K]
+}
+vertex t[NMAX 1]
+int sz
+void init() {
+t[0].p = t[0].link = -1
+memset (t[0].next, 255, sizeof t[0].next)
+memset (t[0].go, 255, sizeof t[0].go)
+sz = 1
+}
+void add_string (const string 
+int v = 0
+for (size_t i=0
+char c = s[i]-'a'
+if (t[v].next[c] == -1) {
+memset (t[sz].next, 255, sizeof t[sz].next)
+memset (t[sz].go, 255, sizeof t[sz].go)
+t[sz].link = -1
+t[sz].p = v
+t[sz].pch = c
+t[v].next[c] = sz 
+}
+v = t[v].next[c]
+}
+t[v].leaf = true
+}
+int go (int v, char c)
+int get_link (int v) {
+if (t[v].link == -1)
+if (v == 0 || t[v].p == 0)
+t[v].link = 0
+t[v].link = go (get_link (t[v].p), t[v].pch)
+return t[v].link
+}
+int go (int v, char c) {
+if (t[v].go[c] == -1)
+if (t[v].next[c] != -1)
+t[v].go[c] = t[v].next[c]
+else
+t[v].go[c] = v==0 ? 0 : go (get_link (v), c)
+return t[v].go[c]
+}
+\endcode
+It is easy to understand that, due to memorize the found of suffix links and transitions, the total time spent by all of suffix links and transitions will be linear.
+\h2{ Application }
+\h3{ Search all rows from a given set in the text }
+We will build on this rowset Bor. We will now process the text, one letter, moving appropriately through the tree, in fact-is - on States of the automaton. Initially we are in the root of the tree. May we at the next step we are at $v$, and the next letter $c$. Then you should move in condition ${\rm go} (v, c)$, thereby either increasing on $1$ the length of the current matching substring, or reducing it, passing on the suffix link.
+\h3{ Finding the lexicographically smallest string of given length not containing none of the data samples }
+Given a set of samples, and given the length $L$. You want to find a string of length $L$, not containing none of the samples, and all these lines print the lexicographically smallest.
+\h3{ Finding the shortest string that contains all occurrences of samples }
+\h3{ Finding the lexicographically minimal string length $L$ containing the data samples in the sum of $k$ times }

@@ -1,0 +1,77 @@
+\h1{ Fibonacci Numbers }
+\h2{ Definition }
+The Fibonacci sequence is defined as follows:
+$$ F_0 = 0, $$
+$$ F_1 = 1, $$
+$$ F_n = F_{n-1} F_{n-2}. $$
+The first few of its members:
+$$ 0, ~ 1, ~ 1, ~ 2, ~ 3, ~ 5, ~ 8, ~ 13, ~ 21, ~ 34, ~ , ~ 55, ~ 89, ~ \ldots $$
+\h2{ History }
+These numbers are entered in 1202, Leonardo Fibonacci (Leonardo Fibonacci) (also known as Leonardo Pisano (Leonardo Pisano)). However, thanks to the mathematics of the 19th century Luc (Lucas) the name "Fibonacci numbers" was commonly used.
+\h2{ Fibonacci Numbers in nature }
+Indian mathematics Gopal and Hemachandra mentioned numbers of this sequence due to the number of rhythmic patterns, resulting from the alternation of long and short syllables in verse or weak and strong interests in music. The number of such drawings, with a total of $n$ shares, equal to $F_n$.
+Fibonacci numbers appear in the work of Kepler, 1611, who was thinking about numbers occurring in nature (work On hexagonal snowflakes").
+Generally speaking, many colors (for example, lilies) the number of petals is one or another Fibonacci number.
+However, it should be noted that there are plants for which the above estimates give the number of different sequences, so we cannot say that the phenomenon of phyllotaxis is the law, --- it is rather interesting trend.
+\h2{ Properties }
+Fibonacci numbers have many interesting mathematical properties.
+Here are just some of them:
+\ul{
+\li the Ratio of the Cassini:
+$$ F_{n-1} F_{n-1} - F_n^2 = (-1)^n. $$
+\li the Rule of "addition":
+$$ F_{n k} = F_k F_{n-1} F_{k-1} F_n. $$
+$$ F_{2n} = F_n (F_{n-1} F_{n-1}). $$
+\li From the previous draw, by induction, we can obtain that
+$F_{nk}$ is always divisible by $F_n$.
+\li the opposite is True to the previous statement:
+if $F_m$ is a multiple of $F_n$, then $m$ is a multiple of $n$.
+\li GBR-equality:
+$$ {\rm gcd} (F_m, F_n) = F_{{\rm gcd} (m, n)}. $$
+\li with respect to the Euclidean algorithm Fibonacci numbers have the remarkable property that they are the worst of the input data for this algorithm (see Theorem Lama" \algohref=euclid_algorithm{Euclid's Algorithm}).
+}
+\bf{a Theorem of Zeckendorf's representation} States that any natural number $n$ can be represented uniquely as a sum of Fibonacci numbers:
+$$N = F_{k_1} F_{k_2} \ldots F_{k_r}$$
+where $k_1 \ge 2 k_2$, $k_2 \ge k_3 2$, $\ldots$, $k_r \ge 2$ (i.e. account, you cannot use two adjacent Fibonacci numbers).
+It follows that any number can be uniquely written in \bf{the Fibonacci number system}, for example:
+$$ 9 = 8 1 = F_6 F_1 = (10001)_F, $$
+$$ 6 = 5 1 = F_5 F_1 = (1001)_F, $$
+$$ 19 = 13 5 1 = F_7 F_5 F_1 = (101001)_F, $$
+It is easy to get and the rule of adding one to the number in the Fibonacci number system: if the low number is equal to 0, it is replaced by 1, and if equal to 1 (i.e. at the end is 01), replaceable 01 10. Then "correct" the record, consistently correcting everywhere 011 100. As a result, in linear time, you will receive a record of the new number.
+\h2{ Formula for the n-th Fibonacci numbers }
+\h3{ Formula via radicals }
+There is a remarkable formula, named after the French mathematician Binet (Binet), although it was known to him the de Moivre (Moivre):
+$$ F_n = \frac{ \left( \frac{1 \sqrt{5}}{2} \right)^n - \left( \frac{1-\sqrt{5}}{2} \right)^n }{ \sqrt{5} }. $$
+This formula is easy to prove by induction, but it can bring with the help of concepts forming functions or by solving functional equations.
+$$F_n = \left[ \frac{ \left( \frac{1 \sqrt{5}}{2} \right)^n }{ \sqrt{5} } \right],$$
+where square brackets denote rounding to the nearest integer.
+However, for practical calculations, these formulas are not very suitable, because it requires very high precision work with fractional numbers.
+\h3{ Matrix formula for the Fibonacci numbers }
+It is easy to prove the following matrix equation:
+$$ \pmatrix{
+F_{n-2} 
+} \cdot \pmatrix{
+0 
+1 
+} = \pmatrix{
+F_{n-1} 
+}. $$
+$$ P \equiv
+\pmatrix{
+0 
+1 
+}, $$
+received:
+$$ \pmatrix{
+F_0 
+} \cdot P^n = \pmatrix{
+F_{n} 
+}. $$
+Thus, to find the $n$th Fibonacci numbers need to build a matrix $P$ in degree $n$.
+Remembering that the construction of the matrix $n$-th degree can be done for $O (\log n)$ (see \algohref=binary_pow{Binary exponentiation}), it follows that $n$-th Fibonacci number can easily be calculated in $O (\log n)$ using only integer arithmetic.
+Consider the Fibonacci sequence $F_i$ on some module $p$. Let us prove that it is periodic, and the period begins with $F_1=1$ (i.e. preperiod contains only $F_0$).
+We will prove this by contradiction. Consider $p^2 1$ pairs of Fibonacci numbers modulo $p$:
+$$(F_1,F_2),\ (F_2,F_3),\ \ldots,\ (F_{p^2 1},F_{p^2 2}).$$
+Choose now among all these identical pairs of two identical pairs with the smallest rooms. Let it pair with some rooms $(F_a,F_{a 1})$ and $(F_b,F_{b 1})$. Let us prove that $a=1$. Indeed, otherwise, for them there is a previous pair $(F_{a-1},F_a)$ and $(F_{b-1},F_b)$, which, by property of the Fibonacci numbers, will also be equal to each other. However, this contradicts the fact that we chose a matching pair with the smallest rooms that we wanted to prove.
+\h2{ Literature }
+\ul{

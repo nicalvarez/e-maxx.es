@@ -1,0 +1,6 @@
+\h1{ Троичная equilibrada sistema numérico }
+Троичная equilibrada sistema numérico - - es una posicional del sistema de numeración. La base del sistema es igual a $3$, sin embargo, es diferente de la normal ternario del sistema el hecho de que las cifras son $-1, 0, 1$. Ya que el uso de $-1$ para una cifra muy pequeña, generalmente toman algo de designación especial. Llevaré a cabo aquí el etiquetado, menos la unidad de la letra $z$.
+\h2{ Algoritmo de traducción }
+Aprender a traducir los números en троичную un sistema equilibrado.
+Para ello, primero traducir el número de троичную sistema.
+Más gracia el procedimiento descrito anteriormente se puede describir de la siguiente manera. Tomamos un número en el sistema ternario base, agregando a él un número infinito de $\sum_ 11111.11111 \ldots$, y luego de cada descarga / la llevamos a la unidad (ya sin las transferencias).

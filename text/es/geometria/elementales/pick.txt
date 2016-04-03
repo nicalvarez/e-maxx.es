@@ -1,0 +1,17 @@
+\h1{ Teorema de Máxima. El hallazgo de la plaza de la matriz del polígono }
+Polígono sin self-intersections se llama protector de parrilla, si todos sus vértices están en puntos enteros con coordenadas (en el sistema de coordenadas cartesianas).
+\h2{ Teorema de Pico }
+\h3{ Fórmula }
+Que dan un poco de listones de polígono, con cero de la plaza.
+Daremos el nombre de su superficie a través de $S$
+Entonces es justo relación, llamado \bf{fórmula Pico}:
+$$ S = I \frac{B}{2} - 1. $$
+En particular, si se conocen los valores de I y B, para un polígono, su tamaño se puede contar por $O (1)$, aún sin saber las coordenadas de sus vértices.
+Esta relación se abrió y demostró el matemático austriaco Georg Alexander Pico (Georg Alexander Pick) en 1899
+\h3{ Prueba }
+La prueba se realiza en varias etapas: desde las más sencillas figuras hasta arbitrarias de polígonos:
+\ul{
+\li un Solo cuadrado. En realidad, para él $S=1$, $I=0$, $B=4$, y la fórmula es correcta.
+\li Arbitrario невырожденный rectángulo con lados paralelos a los ejes de coordenadas. Para las pruebas de la fórmula denota por $a$ y $b$ las longitudes de los lados de un rectángulo. Entonces encontramos: $S = ab$, $I = (a-1)(b-1)$, $B = 2(a b)$. Estará sustituyendo convencidos de que la fórmula pesar de eso es cierto.
+\li triángulo rectángulo con катетами paralelas a los ejes de coordenadas. Para que la prueba tenga en cuenta que cualquier triángulo puede tener un cierre simple rectángulo de su diagonal. Refiriéndose a través de los $c$ número de enteros de los puntos que se encuentran en la diagonal, se puede mostrar que la fórmula del Pico de la se para de ese triángulo, independientemente del valor de $c$.
+\li Arbitrario triángulo. Tenga en cuenta que cualquier triángulo puede ser convertido en un rectángulo de encolado a sus lados rectangulares de triángulos con катетами paralelas a los ejes de coordenadas (es necesario no más de 3 triángulos). Desde aquí se puede obtener la corrección de la fórmula de la Cúspide, para cualquier triángulo.

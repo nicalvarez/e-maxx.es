@@ -1,0 +1,178 @@
+\h1{ Suffix tree. The Algorithm Ukkonen }
+This article --- temporary stub, and does not contain any descriptions.
+The description of the algorithm of Ukkonen can be found, for example, in the book of Gasfield Strings, trees and sequences algorithms".
+\h2{ implementation of the algorithm of Ukkonen }
+This algorithm builds a suffix tree for a given string of length $n$ in time $O (n \log k)$, where $k$ --- the size of the alphabet (if it be considered as a constant, the asymptotic get $O (n)$).
+Main function --- $\rm build\_tree$, it builds the suffix tree. The tree is stored as an array of structures $\rm node$, where ${\rm node}[0]$ --- the root of the suffix tree.
+In order to simplify coding ribs are stored in the same structures: for each vertex in its structure $\rm node$ the recorded data of the edge part of her ancestor. Total, each $\rm node$ contains $(l,r)$, define the label $s[l..r-1]$ edges in the ancestor, $\rm par$ --- top-ancestor, $\rm link$ --- the suffix link, $\rm next$ --- the list of outgoing edges.
+\code
+int n
+struct node {
+int l, r, par, link
+map<char,int> next
+node (int l=0, int r=0, int par=-1)
+: l(l), r(r), par(par), link(-1) {}
+int len() { return r - l
+int 
+if (!next.count(c)) next[c] = -1
+return next[c]
+}
+}
+node t[SEATS]
+int sz
+struct state {
+int v, pos
+state (int v, int pos) : v(v), pos(pos) {}
+}
+state ptr (0, 0)
+state go state st, int l, int r) {
+while (l < r)
+if (st.pos == t[st.v].len()) {
+st = state (t[st.v].get( s[l] ), 0)
+if (st.v == -1) return st
+}
+else {
+if (s[ t[st.v].l st.pos ] != s[l])
+return state (-1, -1)
+if (r-l < t[st.v].len() - st.pos)
+return state (st.v, st.pos r-l)
+l = t[st.v].len() - st.pos
+st.pos = t[st.v].len()
+}
+}
+int split (state st) {
+if (st.pos == t[st.v].len())
+return st.v
+if (st.pos == 0)
+return t[st.v].par
+node v = t[st.v]
+int id = sz 
+t[id] = node (v.l, v.l st.pos, v.par)
+t[v.par].get( s[v.l] ) = id
+t[id].get( s[v.l st.pos] ) = st.v
+t[st.v].par = id
+t[st.v].l = st.pos
+return id
+}
+int get_link (int v) {
+if (t[v].link != -1) return t[v].link
+if (t[v].par == -1) return 0
+int to = get_link (t[v].par)
+return t[v].link = split (go (state(to,t[to].len()), t[v].l (t[v].par==0), t[v].r))
+}
+void tree_extend (int pos) {
+for(
+state nptr = go (ptr, pos, pos-1)
+if (nptr.v != -1) {
+ptr = nptr
+return
+}
+int mid = split (ptr)
+int leaf = sz 
+t[leaf] = node (pos, n, mid)
+the ptr.v = get_link (mid)
+the ptr.pos = t[ptr.v].len()
+if (!mid) break
+}
+}
+void build_tree() {
+sz = 1
+for (int i=0
+tree_extend (i)
+}
+\endcode
+\h2{ Compressed implementation }
+Here also the following compact implementation of the algorithm Ukkonen proposed \href=http://codeforces.EN/profile/freopen{freopen}:
+\code
+const int N=1000000,INF=1000000000
+string a
+int t[N][26],l[N],r[N],p[N],s[N],tv,tp,ts,la
+void ukkadd (int c) {
+suff:
+if (r[tv]<tp) {
+if (t[tv][c]==-1) { t[tv][c]=ts
+p[ts ]=tv
+tv=t[tv][c]
+}
+if (tp==-1 || c==a[tp]-'a') tp 
+l[ts 1]=la
+l[tv]=tp
+tv=s[p[ts-2]]
+while (tp<=r[ts-2]) { tv=t[tv][a[tp]-'a']
+if (tp==r[ts-2] 1) s[ts 2]=tv
+tp=r[tv]-(tp-r[ts-2]) 2
+}
+}
+void build() {
+ts=2
+tv=0
+tp=0
+fill(r,r N,(int)a.size()-1)
+s[0]=1
+l[0]=-1
+r[0]=-1
+l[1]=-1
+r[1]=-1
+memset (t, -1, sizeof t)
+fill(t[1],t[1] 26,0)
+for (la=0
+ukkadd (a[la]-'a')
+}
+\endcode
+The same code, commented:
+\code
+const int N=1000000, // maximum number of nodes in the suffix tree
+INF=1000000000
+int t[N][26], // array of transitions (state, letter)
+l[N], // left
+r[N], // right boundary of the substring of a, corresponding to the edge part of the top
+p[N] / / ancestor vertices
+s[N], // the suffix link
+tv / top/ current suffix (if we are in the middle of the ribs, the lower the top of the ribs)
+tp, // the position in the row corresponding to the location on the edge (from l to[tv] to r[tv] including)
+ts, // number of vertices
+la
+void ukkadd(int c) { // append to the tree symbol c
+if (r[tv]<tp) { // check if not got out whether we are outside of the current edge
+// if out, will find the next edge. If not - create a sheet and attach to tree
+if (t[tv][c]==-1) {t[tv][c]=ts
+tv=t[tv][c]
+}
+if (tp==-1 || c==a[tp]-'a') tp 
+// the shared edge of two. In the middle of the top ts
+l[ts]=l[tv]
+t[ts][c]=1 ts
+// updating the parameters of the current vertex. Don't forget about the transition from an ancestor tv to ts.
+l[tv]=tp
+// prepare for descent: climbed to the ridge and crossed a suffix link.
+// tp will note where we are in the current suffix.
+tv=s[p[ts-2]]
+// until the current suffix is not ended, stomp down
+while (tp<=r[ts-2]) {tv=t[tv][a[tp]-'a']
+// if we came to the top, then put into it the suffix link, otherwise you will be put on ts
+if (tp==r[ts-2] 1) s[ts 2]=tv
+// set tp on a new edge and go to add a letter to the suffix.
+tp=r[tv]-(tp-r[ts-2]) 2
+}
+}
+void build() {
+ts=2
+tv=0
+tp=0
+fill(r,r N,(int)a.size()-1)
+// initialize the data for the root of the tree
+s[0]=1
+l[0]=-1
+r[0]=-1
+l[1]=-1
+r[1]=-1
+memset (t, -1, sizeof t)
+fill(t[1],t[1] 26,0)
+// add the text in the tree one letter
+for (la=0
+ukkadd (a[la]-'a')
+}
+\endcode
+\h2{ Tasks in online judges }
+Tasks that can be solved using suffix tree:
+\ul{

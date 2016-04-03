@@ -1,0 +1,70 @@
+\h1{ el teorema Chino de los restos }
+\h2{ Formulación }
+En su moderna formulación del teorema dice así:
+Supongamos que $p = p_1 \cdot p_2 \cdot \ldots \cdot p_k$, donde $p_i$ --- de dos en dos primos entre sí.
+Poner en el cumplimiento de la arbitraria entre $a$ $(0 \le a < p)$ tupla $(a_1, \ldots, a_k)$, donde $a_i \equiv a \pmod {p_i}$:
+$$ a \Longleftrightarrow (a_1, \ldots, a_k). $$
+Entonces es la correspondencia entre los números y tuplas) será \bf{mutuamente clara}. Y, además, las operaciones realizadas sobre el número de $a$, se puede equivalente a realizar sobre los elementos de la tupla --- a través de la independiente de las operaciones de cada componente.
+Es decir, si
+$$ a \Longleftrightarrow \Big( a_1, \ldots, a_k \Big), $$
+$$ b \Longleftrightarrow \Big( b_1, \ldots, b_k \Big), $$
+lo cierto:
+$$ {(a b) \pmod p} \Longleftrightarrow \Big( {(a_1 b_1) \pmod {p_1}}, \ldots, {(a_k b_k) \pmod {p_k}} \Big), $$
+$$ {(a-b) \pmod p} \Longleftrightarrow \Big( {(a_1-b_1) \pmod {p_1}}, \ldots, {(a_k-b_k) \pmod {p_k}} \Big), $$
+$$ {(a \cdot b) \pmod p} \Longleftrightarrow \Big( {(a_1 \cdot b_1) \pmod {p_1}}, \ldots, {(a_k \cdot b_k) \pmod {p_k}} \Big). $$
+En su texto original, este teorema fue demostrado matemático chino Sun Tzu, aproximadamente en el año 100 a.c. es decir, se ha demostrado en el caso particular de la equivalencia de las soluciones de un sistema de модулярных de las ecuaciones y de las soluciones de un модулярного de la ecuación (consulte el resultado 2 a continuación).
+\h3{ Resultado 1 }
+El sistema de модулярных de ecuaciones:
+$$ \cases{
+{x \equiv a_1 \pmod {p_1}}, \cr
+\ldots, \cr
+{x \equiv a_k \pmod {p_k}} \cr
+} $$
+es la única solución por el módulo de $p$.
+(como en el punto anterior, $p = p_1 \cdot \ldots \cdot p_k$, de la cantidad de $p_i$ por pares mutuamente fáciles, y el conjunto de $a_1, \ldots, a_k$ --- un conjunto aleatorio de números enteros)
+\h3{ Resultado 2 }
+La consecuencia es la relación entre el sistema модулярных de ecuaciones y una adecuada модулярным dada por la ecuación:
+La ecuación:
+$$ x \equiv a \pmod p $$
+es equivalente al sistema de ecuaciones:
+$$ \cases{
+{x \equiv a \pmod {p_1}}, \cr
+\ldots, \cr
+{x \equiv a \pmod {p_k}} \cr
+} $$
+(como en el punto anterior, se supone que $p = p_1 \cdot \ldots \cdot p_k$, de la cantidad de $p_i$ por pares mutuamente son simples y $a$ --- es un entero arbitrario)
+\h2{Algoritmo Garner}
+De china teorema de los residuos se debe, que pueden reemplazar a las operaciones sobre los números, las operaciones de tuplas. Recordemos, cada número es de $a$ se asigna a una tupla $(a_1, \ldots, a_k)$, donde:
+$$ { a_i \equiv a \pmod {p_i} } . $$
+Puede encontrar una amplia aplicación en la práctica (además de la aplicación directa de la recuperación del número de residuos de diversos módulos), ya que así podemos reemplazar la operación en la larga aritmética de las operaciones con la matriz de "cortos" de los números. Diremos que una matriz a partir de los $1000$ de los elementos de "suficiente" en número de alrededor de $3000$ registradas (si selecciona como $p_i$los primeros $1000$ simples)
+Vamos a buscar una solución en forma de:
+$$ a = x_1 x_2 \cdot p_1 x_3 \cdot p_1 \cdot p_2 \ldots x_k \cdot p_1 \cdot \ldots \cdot p_{k-1}, $$
+es decir, mixta el sistema numérico con pesas de dígitos de $p_1, p_2, \ldots, p_k$.
+Se denota por $r_{ij}$ ($i=1, \ldots k-1$, $j=i 1 \ldots k$) número, que es el inverso de $p_i$ por módulo $p_j$ (encontrar inversos de los elementos en el anillo por el módulo se describe \algohref=reverse_element{aquí}:
+$$ r_{ij} = (p_i) ^ {-1} \pmod {p_j} . $$
+Подставим la expresión de $a$ mixta el sistema numérico en la primera ecuación del sistema, obtenemos:
+$$ a_1 \equiv x_1. $$
+Подставим ahora de la expresión en la segunda ecuación:
+$$ a_2 \equiv x_1 x_2 \cdot p_1 \pmod {p_2}. $$
+Transformamos esta expresión, la ruina de ambas partes de $x_1$ y dividiendo en $p_1$:
+$$ a_2 - x_1 \equiv x_2 \cdot p_1 \pmod {p_2}
+$$ (a_2 - x_1) \cdot r_{12} \equiv x_2 \pmod {p_2}
+$$ x_2 \equiv (a_2 - x_1) \cdot r_{12} \pmod {p_2}. $$
+Sustituyendo en la tercera ecuación, de manera similar obtenemos:
+$$ a_3 \equiv { x_1 x_2 \cdot p_1 x_3 \cdot p_1 \cdot p_2 \pmod {p_3} }
+$$ (a_3 - x_1) \cdot r_{13} \equiv x_2 x_3 \cdot p_2 \pmod {p_3}
+$$ ((a_3 - x_1) \cdot r_{13} - x_2) \cdot r_{23} \equiv x_3 \pmod {p_3}
+$$ x_3 \equiv ((a_3 - x_1) \cdot r_{13} - x_2) \cdot r_{23} \pmod {p_3}. $$
+Ya bastante se ve claramente el patrón que es más fácil expresar código:
+\code
+for (int i=0
+x[i] = a[i]
+for (int j=0
+x[i] = r[j][i] * (x[i] - x[j])
+x[i] = x[i] % p[i]
+if (x[i] < 0) x[i] = p[i]
+}
+}
+\endcode
+Así, hemos aprendido a calcular los factores de $x_i$ por hora $O (k^2)$, y el mismo la respuesta --- número de $a$ --- se puede recuperar por la fórmula:
+$$ a = x_1 x_2 \cdot p_1 x_3 \cdot p_1 \cdot p_2 \ldots x_k \cdot p_1 \cdot \ldots \cdot p_{k-1}. $$

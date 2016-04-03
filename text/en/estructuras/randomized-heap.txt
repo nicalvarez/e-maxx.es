@@ -1,0 +1,51 @@
+\h1{conducting a randomized heap}
+Conducting a randomized heap (randomized heap) --- that's a lot of that is due to the use of the random number generator allows you to perform all the necessary operations in logarithmic expected time.
+A standard set of operations defined for heaps, the following:
+\ul{
+\li the Add item
+\li the Presence of at least
+\li the Extract minimum (removing it from the tree and return its value)
+\li Merging two heaps (returns the heap containing the elements of both heaps
+\li the Removal of an arbitrary element (at a known position in the tree)
+}
+\h2{data Structure}
+Immediately describe the data structure that describes a binary heap:
+\code
+struct tree {
+T value
+tree * l, * r
+}
+\endcode
+In the top of the tree stores the value $\rm value in$ a of type $\rm T$ for which the comparison operator ($\rm operator\ <$). In addition, stores the pointers to the left and right sons (which is equal to 0 if the corresponding son is missing).
+\h2{operations}
+So, we actually need only implement the operation of merging two heaps, all other operations are trivial for this operation.
+Thus, in order to achieve logarithmic asymptotics in average, we need to specify the method for selecting one of the two sons, so that the average length of the passable road would be of the order of the logarithm of the number of elements in the heap. It is easy to guess that to make this choice we \bf{accidentally}, thus, the implementation of the merge operation is such:
+\code
+tree * merge (tree * t1, tree * t2) {
+if (!t1 || !t2)
+return t1 ? t1 : t2
+if (t2->value < t1->value)
+swap (t1, t2)
+if (rand() 
+t1->l = merge (t1->l, t2)
+return t1
+}
+\endcode
+Here is checked first, if at least one of the heap is empty, then no action merger is not necessary to make. Otherwise, we make a lot of $\rm t1$ a heap with a smaller value at the root (which exchanged $\rm t1$ and $\rm t2$, if necessary). Finally, we believe that the second bunch of $\rm t2$ will merge with the left son of the root of the heap $\rm t1$, so we randomly exchanged left and right sons, and then perform the merge left child and the second heap.
+Let us introduce a random variable $h(T)$, denoting \bf{the length of the random path} from the root to a leaf (the length in number of edges). It is clear that the algorithm $\rm merge$ is $O(h(T1) h(T2))$ operations. Therefore, to study the asymptotic behavior of the algorithm it is necessary to investigate a random value of $h(T)$.
+\h3{expectation}
+It is argued that the mathematical expectation of $h(T)$ is estimated from above by the logarithm of the number $n$ vertices in the heap:
+$$ Eh(T) \le \log(n 1) $$
+Then true:
+$$ Eh(T) = 1 \frac{1}{2}(Eh(L) Eh(R)) \le 1 \frac{1}{2}(\log(n_L 1) \log(n_R 1)) = $$
+$$ = 1 \log \sqrt{ (n_L 1)(n_R 1) } = \log 2 \sqrt{ (n_L 1)(n_R 1) } \le $$
+$$ \le \log \frac{ 2 ((n_L 1) (n_R 1)) }{ 2 } = \log (n_L n_R 2) = \log(n 1) $$
+what we wanted to prove.
+\h3{Exceeding the expected evaluation}
+Let us prove that the probability of exceeding the above estimates is small:
+$$ P\{ h(T) > (c 1) \log n \} < \frac{1}{n^c} $$
+for any positive constant $c$.
+$$ P\{ h(T) > (c 1) \log n \} = \sum_{p \in P} 2^{|p|} < \sum_{p \in P} 2^{-(c 1) \log n} = |P| n^{-(c 1)} \le n^{-c} $$
+what we wanted to prove.
+\h3{Asymptotics of the algorithm}
+Thus, the algorithm $\rm merge$, and, therefore, all other expressed through his operations, is $O(\log n)$ on average.

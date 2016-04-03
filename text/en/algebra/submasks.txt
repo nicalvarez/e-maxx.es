@@ -1,0 +1,31 @@
+\h1{ Iterate through all of the subpatterns of this mask }
+\h2{ Bust of subpatterns fixed mask }
+Given a bitmask of $m$. You want now to go through all its subpatterns, i.e. such masks $s$, which can only be enabled for those bits that were included in the mask $m$.
+Immediately consider the implementation of this algorithm based on tricks with bitwise operations:
+\code
+int s = m
+while (s > 0) {
+... you can use s ...
+s = (s-1) 
+}
+\endcode
+or, using a more compact operator $for$:
+for (int s=m
+... you can use s ...
+\endcode
+The only exception for both options code --- subpattern of zero, will not be processed. It should be taken out of the loop, or to use a less elegant design, for example:
+\code
+for (int s=m
+... you can use s ...
+if (s==0) break
+}
+\endcode
+Thus, this algorithm generates all subpatterns of this mask is strictly decreasing, spending each transition two elementary operations.
+\h2{ Iterate through all masks with their subpatterns. Assessment of $3^n$ }
+In many tasks, especially on dynamic programming for the masks, I want to iterate over all the masks, and for each mask - all subpatterns:
+\code
+for (int m=0
+for (int s=m
+... s and m ...
+\endcode
+Let us prove that the inner loop total will do $O (3^n)$ iterations.

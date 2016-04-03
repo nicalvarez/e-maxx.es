@@ -1,0 +1,41 @@
+<h1>la Modificación de la pila y cola para la minimización de O (1)</h1>
+<p>Aquí vamos a ver las tres objetivos: la modificación de la pila con la adición de encontrar el menor elemento de a O (1), similar a la modificación de la cola, así como la aplicación a la tarea de encontrar el mínimo en todas подотрезках de longitud fija de la matriz de O (N).</p>
+<h2>la Modificación de la pila</h2>
+<p>es Necesario añadir la posibilidad de poder hallar el mínimo de la pila de O (1), manteniendo la misma асимптотику añadir y quitar elementos de la pila.</p>
+<p>Para ello, vamos a almacenar en la pila de los mismos elementos, y el de la pareja: el elemento y, al menos, en la pila, a partir de este elemento y a continuación. En otras palabras, si se imagina la pila como un conjunto de pares</p>
+<formula>stack[i].second = min { stack[j].first }
+j = 0..i</formula>
+<p>Claro que, entonces, encontrar el mínimo en toda la pila consistirá simplemente en tomar un valor de la pila.top().segunda.</p>
+<p>También es evidente que, cuando se agrega un nuevo elemento en la pila el valor de second será igual a min (stack.top().second, new_element). Eliminación de un elemento de la pila no es diferente de la eliminación de una pila normal, ya que el elemento que desea eliminar no podía afectar a los valores de la segunda para el resto de los elementos.</p>
+<p>la Implementación de:</p>
+<code>stack
+<ul>
+<li>para Agregar un elemento:
+<code>int minima = st.empty() ? new_element : min (new_element, st.top().second)
+st.push (make_pair (new_element, minima))
+<li>Extracción de un elemento:
+<code>int result = st.top().first
+st.pop()
+<li>el Hallazgo de un mínimo de:
+<code>minima = st.top().second
+</ul>
+<h2>la Modificación de la cola. Método 1</h2>
+<p>Aquí pongamos un sencillo método de modificación de la cola, pero tiene el inconveniente de que modificada de vez realmente se puede mantener todos los elementos (es decir, al extraer un elemento de la cola necesitamos conocer el valor del elemento que queremos extraer). Está claro que es muy específica de la situación (normalmente vez necesita más para conocer siguiente elemento, y no al revés), sin embargo, este método es atractivo por su sencillez. Además, este método es aplicable a la tarea de encontrar el mínimo en подотрезках (véase más adelante).</p>
+<p>la idea Clave es que, para que realmente almacenar en la cola de todos los elementos, sólo que necesitemos para determinar el mínimo. Es decir, que la cola es un неубывающую una secuencia de números (es decir, en la cabeza se almacena el valor más pequeño), y, por supuesto, no es arbitraria, sino que siempre contiene al menos. Entonces, al menos en toda la cola siempre será el de su primer elemento. Antes de añadir un nuevo elemento a la cola, basta con hacer "срезку": mientras que en la cola de la cola se encuentra el elemento más nuevo elemento, vamos a eliminar este elemento de la cola
+<p>Examinemos la implementación de las actividades anteriormente descritas:</p>
+<code>deque
+<ul>
+<li>el Hallazgo de un mínimo de:
+<code>current_minimum = q.front()
+<li>para Agregar un elemento:
+<code>while (!q.empty() 
+q.pop_back()
+q.push_back (added_element)
+<li>Extracción de un elemento:
+<code>if (!q.empty() 
+q.pop_front()
+</ul>
+<p>Claro que, en promedio, el tiempo de ejecución de todas estas operaciones es O (1).</p>
+<h2>la Modificación de la cola. Método 2</h2>
+<p>aquí otra forma de modificación de la cola para la minimización de O (1), que es algo más complejo de implementar, sin embargo, despojado principal de la falta de método anterior, todos los elementos de la cola realmente se guardan en ella, y, en particular, cuando se desprotege un elemento no desea saber su valor.</p>
+<p>la Idea es reducir el problema a una tarea en la pilas, que ya hemos resuelto. Aprenderemos a modelar la cola con la ayuda de dos pilas.</p>

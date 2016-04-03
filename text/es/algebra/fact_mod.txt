@@ -1,0 +1,13 @@
+\h1{Cálculo de факториала por el módulo}
+En algunos casos, debe considerarse como un simple módulo $p$ fórmulas complejas, que incluso pueden contener factoriales. Aquí vamos a ver el caso, cuando el módulo de $p$ relativamente pequeño. Está claro que esta tarea sólo tiene sentido cuando factoriales se incluyen en el numerador y en el denominador de la fracción. De hecho, el factorial de $p!$ y todos los demás se dirigen a cero por módulo $p$, sin embargo, en дробях todos los factores que contengan $p$, pueden reducirse, y la expresión ya será distinto de cero por módulo $p$.
+Por lo tanto, formalmente \bf{meta} tal. Se desea calcular $n!$ un simple módulo $p$, no teniendo en cuenta todos los múltiplos de $p$ multiplicadores de entrada en el factorial. Aprender de manera eficaz calcular un factorial, podemos calcular rápidamente el valor de las distintas комбинаторных de fórmulas (por ejemplo, \algohref=binomial_coeff{los coeficientes binomiales también}).
+\h2{Algoritmo}
+Daremos este "modificado" el factorial de forma explícita:
+$$ n!_{\%p} = $$
+$$ = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot (p-2) \cdot (p-1) \cdot \underbrace{1}_{p} \cdot (p 1) \cdot (p 2) \cdot \ldots \cdot (2p-1) \cdot \underbrace{2}_{2p} \cdot (2p 1) \cdot \ldots \cdot $$
+$$ \cdot (p^2-1) \cdot \underbrace{1}_{p^2} \cdot (p^2 1) \cdot \ldots \cdot n = $$
+$$ = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot (p-2) \cdot (p-1) \cdot \cdot \underbrace{1}_{p} \cdot 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot \underbrace{2}_{2p} \cdot 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot \underbrace{1}_{p^2} \cdot $$
+$$ \cdot 1 \cdot 2 \cdot \ldots \cdot (n\n%p) \pmod p. $$
+Cuando la grabación se ve que "modificado" el factorial se divide en varios bloques de longitud $p$ (el último bloque de la, tal vez, el más corto), que son todos iguales, excepto el último elemento:
+$$ n!_{\%p} = \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (p-2) \cdot (p-1) \cdot 1}_{1st} \cdot \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot 2 }_{2} \cdot \ldots \cdot \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot 1 }_{p-th} \cdot \ldots \cdot $$
+$$ \cdot \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (n\n%p)}_{tail} \pmod p. $$

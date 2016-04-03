@@ -1,0 +1,4 @@
+<h1>the length of the Union of line segments on a straight line in O (N log N)</h1>
+<p>Given N line segments on a straight line, i.e., each segment is defined by a pair of coordinates (X1, X2). Consider the Union of these segments and find its length.</p>
+<p>the Algorithm was proposed Kli (Klee) in 1977. The algorithm works in O (N log N). It has been proven that this algorithm is the fastest (asymptotically).</p>
+<h2>Description</h2>

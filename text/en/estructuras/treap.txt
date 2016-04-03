@@ -1,0 +1,144 @@
+<h1>Cartesian tree (treap, ceramide)</h1>
+<p>a Cartesian tree is a data structure that combines a binary search tree and a binary heap (hence its second name: treap (tree, heap) and ceramide (tree, pyramid).</p>
+<p>Ceramide were proposed by Cetelem (Siedel) and Aragon (Aragon) in 1989</p>
+<h2>Benefits of such data</h2>
+<h2>Operations</h2>
+<p>so, treap provides the following operations:</p>
+<ul>
+<li><b>Insert (X, Y)</b> - in O (log N) in average<br>Does adding in the new tree item.<br>Possible option in which the priority value Y is passed to the function, and is chosen randomly (however, be aware that it should not coincide with any other Y in the tree).</li>
+<li><b>Erase (X)</b> - in O (log N) in average<br>Looking for the item and removes it from the tree.</li>
+<li><b>Build (X<sub>1</sub>, ..., X<sub>N</sub>)</b> - O (N)<br>Builds a tree from a list of values. This operation can be implemented in linear time (assuming that the values of X<sub>1</sub>, ..., X<sub>N</sub> sorted), but here this implementation will not be considered.<br>Here we will use only the simplest implementation is in the form of consecutive calls to Insert, i.e., in O (N log N).</li>
+<li><b>Intersect (T<sub>1</sub>, T<sub>2</sub>)</b> - in O (M log (N/M)) average<br>Finds the intersection of two trees (i.e., common controls). Here the implementation of this operation will not be processed.</li>
+</ul>
+<p>in Addition, due to the fact that the Cartesian tree is a binary search tree by its values are applicable operations such as finding the K-th largest element, and, on the contrary, the identification element.</p>
+<h2>Description</h2>
+<p>To implement operations will need to implement two auxiliary operations: Split and Merge.</p>
+<p><b>Split (T, X)</b> - divides the tree T into two trees L and R (which are returned by value) so that L contains all elements that are less than the key of X, and R contains all elements, large X. This operation is performed in O (log N). The implementation is quite simple - obvious recursion.</p>
+<p>Now the obvious implementation of the <b>Insert (X, Y)</b>. First we go down the tree (as in ordinary binary search tree on X), but stop at the first element, in which the priority value was less than Y. We found a position where we will insert our element. Now called Split (X) from the found item (item together with all its subtree), and returned by L and R recordable as left and right son of the added item.</p>
+<p>Operation <b>Build</b> implement in O (N log N) simply by using successive calls to Insert.</p>
+<h2>Implementation</h2>
+<p>Implement all of the above operations. Here for convenience introduced other designations - priority indicated prior, value - key.</p>
+<code>struct item {
+int key, prior
+item * l, * r
+item() { }
+item (int key, int prior) : key(key), prior(prior), l(NULL), r(NULL) { }
+}
+typedef item * pitem
+void split (pitem t, int key, pitem 
+if (!t)
+l = r = NULL
+else if (key 
+split (t->l, key, l, t->l), r = t
+else
+split (t->r, key, t->r, r), l = t
+}
+void insert (pitem 
+if (!t)
+t = it
+else if (it->prior > t->prior)
+split (t, it->key, it->l, it->r), t = it
+else
+}
+void merge (pitem 
+if (!l || !r)
+t = l ? l : r
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l
+else
+merge (r->l, l, r->l), t = r
+}
+void erase (pitem 
+if (t->key == key)
+merge (t, t->l, t->r)
+else
+erase (key 
+}
+pitem unite (pitem l, pitem r) {
+if (!l || !r) return l ? l : r
+if (l->prior 
+pitem lt, rt
+split (r, l->key, lt, rt)
+l->l = unite (l->l, lt)
+l->r = unite (l->r, rt)
+return l
+}</code>
+<h2>Support sizes of the subtrees</h2>
+<code>int cnt (pitem t) {
+return t ? t->cnt : 0
+}
+void upd_cnt (pitem t) {
+if (t)
+t->cnt = 1 cnt(t->l) cnt (t->r)
+}</code>
+<h2>Building a Cartesian tree in O (N) in offline</h2>
+<p>TODO</p>
+<h2>Implicit Cartesian trees</h2>
+<ul>
+<li>Insert the element in the array in any position</li>
+<li>Remove an arbitrary element</li>
+<li>Sum, min/max on an arbitrary interval, and so on</li>
+<li>Addition, painting on a segment</li>
+<li>Coup (permutation of the elements in reverse order) on the interval</li>
+</ul>
+<p>Clearly, as now quickly calculate for the current vertex of its implicit key. Since all the operations we come to any top, down the tree, we can simply accumulate this amount, transferring its functions. If we go into the left subtree is accumulated amount does not change, and if we go in the right increases by cnt(t->l) 1.</p>
+<p>Here is a new implementation of the functions split and merge:</p>
+<code>void merge (pitem 
+if (!l || !r)
+t = l ? l : r
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l
+merge (r->l, l, r->l), t = r
+upd_cnt (t)
+}
+void split (pitem t, pitem 
+if (!t)
+return void( l = r = 0 )
+int cur_key = add cnt(t->l)
+if (key 
+split (t->l, l, t->l, key, add), r = t
+else
+split (t->r t->r, r, key, add 1 cnt(t->l)), l = t
+upd_cnt (t)
+}</code>
+<p>we Now turn to the implementation of various additional operations on implicit Cartesian trees:</p>
+<ul>
+<li><b>Destruction</b> element.<br>Here is more straightforward: it is enough to find the deleted item, and then perform the merge for his sons l and r, and to put the merger on the location of the vertex t. In fact, the removal of the implicit Cartesian tree is not different from the removal of the usual Cartesian tree.</li>
+<li><b>Revolution</b> segment.<br>This item is almost similar to the previous one - you enter the field, bool rev, which is set to true when you want to make a revolution in the subtree of the current node. "Pushing" field rev is that we exchange the places of the sons of the current node, and set the flag for them.</li>
+</ul>
+<code>typedef struct item * pitem
+struct item {
+int prior, value, cnt
+bool rev
+pitem l, r
+}
+int cnt (pitem it) {
+return it ? it->cnt : 0
+}
+void upd_cnt (pitem it) {
+if (it)
+it->cnt = cnt(it->l) cnt(it->r) 1
+}
+void push (pitem it) {
+if (it 
+it->rev = false
+swap (it->l, it->r)
+if (it->l) it->l->rev ^= true
+if (it->r) it->r->rev ^= true
+}
+}
+void merge (pitem 
+push (l)
+push (r)
+if (!l || !r)
+t = l ? l : r
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l
+else
+merge (r->l, l, r->l), t = r
+upd_cnt (t)
+}
+void split (pitem t, pitem 
+if (!t)
+return void( l = r = 0 )
+push (t)

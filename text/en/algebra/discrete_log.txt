@@ -1,0 +1,89 @@
+\h1{ Discrete taking the logarithm }
+The task is discrete taking the logarithm is that according to a number $a$, $b$, $m$ to solve the equation:
+$$ a^x = b \pmod m $$
+where $a$ and $m$ --- \bf{coprime} (note: if they are not relatively Prime, then the following algorithm is incorrect
+\h2{ Algorithm }
+So, we have the equation:
+$$ a^x = b \pmod m $$
+where $a$ and $m$ are coprime.
+Convert the equation. Put
+$$ x = np - q, $$
+where $n$ --- this is a pre-selected constant (how to choose depending on $m$, we will understand later). Sometimes $p$ is called the "giant step" (because the increase in its per unit increases to $x$ right $n$), and in contrast to the $q$ --- "baby step".
+$$ p \in \left[ 1
+Then the equation becomes:
+$$ a^{np-q} = b \pmod m $$
+where, using the fact that $a$ and $m$ are coprime, we get:
+$$ a^{np} = b a^q \pmod m. $$
+In order to solve the original equation, you need to find the appropriate values of $p$ and $q$ to the value of the left and right parts together. In other words, we must solve the equation:
+$$ f_1(p) = f_2(q). $$
+\h2{ Asymptotic }
+First, estimate the computation time of each of the functions $f_1(p)$ and $f_2(q)$. She and the other contains exponentiation, which can be done using \algohref=binary_pow{binary algorithm for exponentiation}. Then both of these functions we can calculate the time $O(\log m)$.
+The algorithm in the first phase contains the calculation of the function $f_1(p)$ for each possible value of $p$ and further sorting of values that gives us the asymptotics:
+In the second phase of the algorithm is the computation of the function $f_2(q)$ for each possible value of $q$ and binary search on the array of values $f_1$, which gives us the asymptotics:
+$$ O\left( n \left( \log m \log \left\lceil \frac{m}{n} \right\rceil \right) \right) = O\left( n \log m \right). $$
+Now, when we put these two asymptotics, we get $\log m$ by $n$ and $m/n$, and practically it is obvious that the minimum is achieved when $n \approx m/n$, i.e. for the optimal working of the algorithm is a constant $n$ should be chosen so:
+Then the asymptotic behavior of the algorithm becomes:
+$$ O\left( \sqrt{m} ~ \log m \right). $$
+Note. We could exchange roles $f_1$ and $f_2$ (i.e., the first phase to calculate values of the function $f_2$, and the second --- $f_1$), but it is easy to understand that the result will not change, and the asymptotics that we will not improve.
+\h2{ Implementation }
+\h3{ the Simplest implementation }
+The function $\rm powmod$ performs a binary construction of a number $a$ in degree $b$ modulo $m$, see \algohref=binary_pow{Binary exponentiation}.
+\code
+int powmod (int a, int b, int m) {
+int res = 1
+while (b > 0)
+if (b 
+res = (res * a) % m
+--b
+}
+else {
+a = (a * a) % m
+b >>= 1
+}
+return res % m
+}
+int solve (int a, int b, int m) {
+int n = (int) sqrt (m .0) 1
+map<int,int> vals
+for (int i=n
+vals[ powmod (a, i * n, m) ] = i
+for (int i=0
+int cur = (powmod (a, i, m) * b) % m
+if (vals.count(cur)) {
+int ans = vals[cur] * n - i
+if (ans < m)
+return ans
+}
+}
+return -1
+}
+\endcode
+Given that the argument of the function $f_1()$ during the first phase, we moved from the unit and up to $n$, and the argument of the function $f_2()$ on the second phase moves from zero to $n$, then we cover all the many possible answers, because the segment $[0
+\h3{ Improved implementation }
+When \bf{speed optimizations} you can do the following.
+First, it is immediately apparent uselessness of binary exponentiation on the second phase of the algorithm. Instead, you just make a variable and domniate her every $a$.
+Secondly, the same way you can get rid of the binary exponentiation and the first phase: in fact, once is enough to calculate the value of $a^n$, and then just domniate on it.
+\code
+int solve (int a, int b, int m) {
+int n = (int) sqrt (m .0) 1
+int an = 1
+for (int i=0
+an = (an * a) % m
+map<int,int> vals
+for (int i=1, cur=an
+if (!vals.count(cur))
+vals[cur] = i
+cur = (cur * an) % m
+}
+for (int i=0, cur=b
+if (vals.count(cur)) {
+int ans = vals[cur] * n - i
+if (ans < m)
+return ans
+}
+cur = (cur * a) % m
+}
+return -1
+}
+\endcode
+Finally, if the module $m$ is small enough, it can and does get rid of the logarithm of the asymptotic --- just sign instead of $map<>$ normal array.

@@ -1,0 +1,45 @@
+\h1{Рандомизированная un montón}
+Рандомизированная un montón (aleatorios heap) --- esto es un montón, que mediante el uso de un generador de números aleatorios permite realizar todas las operaciones necesarias por logarítmica de la hora prevista.
+\bf{Montón} se llama binario, el árbol, para cualquier picos que con razón, que el valor de la cima, menos o igual que los valores en todos sus descendientes (es una pila para un mínimo de
+Estándar de un conjunto de operaciones, definido en montones, el siguiente:
+\ul{
+\li Adición de un elemento de
+\li Encontrar el mínimo
+\li Extracción mínimo (eliminación de la madera y el reembolso de su valor)
+\li Fusión de dos pilas (se devuelve el montón que contiene elementos de ambos montones
+\li Eliminación arbitraria de un elemento al punto conocido en el árbol)
+}
+Рандомизированная un montón permite realizar todas estas operaciones por hora prevista de $O(\log n)$ en muy sencilla aplicación.
+\h2{Estructura de datos}
+En seguida describiremos la estructura de datos que describe binaria de un montón:
+\code
+struct tree {
+T value
+tree * l * r
+}
+\endcode
+En la parte superior del árbol se almacena el valor de $\rm value$ de algún tipo $\rm T$, para el que se define el operador de comparación ($\rm operator\ <$). Además, se almacenan punteros en el izquierdo y el derecho de los hijos (que son iguales a 0, si el hijo no está presente).
+\h2{la Ejecución de las operaciones}
+Es fácil de entender, que todas las operaciones sobre el montón se reducen a una sola operación: \bf{fusionar} dos montones en una sola. De hecho, adición de un elemento en una pila es equivalente a la fusión de la pila con una pila formada por un único elemento que se debe añadir. Encontrar el mínimo no requiere ninguna acción --- el mínimo es simplemente la raíz de la pila. Extracción de un mínimo equivalente a que la pila se reemplaza por el resultado de la fusión de la izquierda y la derecha de la raíz de un subárbol. Por último, la eliminación arbitraria de un elemento como el de eliminar el mínimo: todo el subárbol con raíz en la cima, se reemplaza por el resultado de la fusión de dos subárboles hijos de esta cima.
+Entonces, tenemos en realidad es necesario darse cuenta de que sólo la operación de la fusión de dos de los montones de todas las demás operaciones trivial se reducen a esta operación.
+Que se dan las dos montones de $T_1$ y $T_2$, desea volver a su unificación. Está claro que en la raíz de cada uno de estos montones están en sus mínimos, por lo tanto, en la raíz de la resultante de la pila será el mínimo de los dos valores. Así, comparamos, en la raíz de cuál de los montones se encuentra en un valor inferior, lo colocamos en la raíz de un resultado, y ahora tenemos que unir a los hijos el vértice seleccionado con el resto del montón. Si nosotros por cualquier motivo a elegir uno de los dos hijos, entonces nos basta combinar un subárbol en la raíz de este hijo con un montón de. Por lo tanto, hemos llegado de nuevo a la operación de combinación de correspondencia. Tarde o temprano, este proceso se detiene (en que sea necesario, claro, no es más que la suma de las alturas de pilas).
+Por lo tanto, para lograr una асимптотики en promedio, necesitamos especificar el método de selección de uno de los dos hijos, con el fin de, en promedio, la longitud tratamiento de la ruta se originaba sería del orden del logaritmo del número de elementos en la pila. Es fácil adivinar que producir esta selección vamos a \bf{accidentalmente}, por lo tanto, la aplicación de la operación de fusión sería así:
+\code
+tree * merge (tree * t1, tree * t2) {
+if (!t1 || !t2)
+return t1 ? t1 : t2
+if (t2->value < t1->value)
+swap (t1, t2)
+if (rand() 
+swap (t1->l, t1->r)
+t1->l = merge (t1->l, t2)
+return t1
+}
+\endcode
+Aquí primero se comprueba si al menos uno de los montones está vacía, entonces ninguna acción de la fusión de producir no es necesario. De otra manera, lo hacemos para un montón de $\rm t1$ fue un montón de menor valor en la raíz (para lo cual alquilamos $\rm t1$ y $\rm t2$, si es necesario). Por último, consideramos que la segunda montón $\rm t2$ vamos a tirar con la izquierda el hijo de la raíz de la pila $\rm t1$, por lo tanto, hemos de forma aleatoria alquilamos izquierdo y derecho de los hijos, y a continuación, hacemos la fusión de la izquierda el hijo y el segundo montón.
+\h2{Asíntotas}
+Introduce accidental de la cantidad de $h(T)$ y que indica \bf{longitud accidental de la ruta} desde la raíz hasta la hoja (longitud entre las costillas). Está claro que el algoritmo de $\rm merge$ se $O(h(T1) h(T2))$ operaciones. Por lo tanto, para el estudio de асимптотики algoritmo es necesario explorar accidental de la cantidad de $h(T)$.
+\h3{expectativa}
+Se afirma que la expectativa $h(T)$ estimado de arriba логарифмом del número $n$ de vértices en este montón:
+$$ Eh(T) \le \log(n-1) $$
+Se demuestra es fácilmente por inducción. Supongamos que $L$ y $R$ --- en consecuencia de la izquierda y la derecha subárboles de la raíz de la pila $T$, y $n_L$ y $n_R$ --- el número de vértices en ellos (claro que $n = n_L n_R 1$).

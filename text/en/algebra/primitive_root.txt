@@ -1,0 +1,38 @@
+\h1{Primitive roots}
+\h2{Definition}
+Primitive root modulo $n$ (primitive root modulo $n$) is the number of $g$ that all of his degrees modulo $n$ run all the numbers that are relatively Prime to $n$. Mathematically, it is formulated as follows: if $g$ is a primitive root modulo $n$, then for any integer $a$ such that ${\rm gcd}(a,n)=1$, there is an integer $k$ that $g^k \equiv a \pmod{n}$.
+\h2{Existence}
+Primitive root modulo $n$ exists when and only when $n$ is the degree of odd Prime or twice a Prime power, and in the cases $n=1$, $n=2$, $n=4$.
+This theorem (which was fully proved by Gauss in 1801) is given here without proof.
+\h2{Link \algohref=euler_function{function Euler}}
+In addition, if modulo $n$ there is at least one primitive root, then all of their $\phi( \phi(n) )$ (since a cyclic group with $k$ elements is $\phi(k)$ of generators).
+\h2{an algorithm for nding a primitive root}
+Above was the theorem that if the smallest number $k$ for which $g^k \equiv 1 \pmod{n}$ (i.e. $k$ - - - $g$ is $\phi(n)$, then $g$ --- primitive root. As for any number $a$, is relatively Prime to $n$, is \algohref=http://e-maxx.EN/algo/euler_function
+Factorize number $\phi(n) = p_1^{a_1} \ldots p_s^{a_s}$. Let us prove that in the previous algorithm it is enough to consider as $d$ only numbers of the form $\frac{ \phi(n) }{ p_i }$. Indeed, let $d$ --- own arbitrary divisor $\phi(n)$. Then, obviously, there are such $j$ that $d\ |\ \frac{ \phi(n) }{ p_j }$, i.e. $d \cdot k = \frac{ \phi(n) }{ p_j }$. However, if $g^d \equiv 1 \pmod{n}$, we would get:
+$$ g^{\frac{ \phi(n) }{ p_j }} \equiv g^{d \cdot k} \equiv {\left( g^d \right) }^k \equiv 1^k \equiv 1 \pmod{n}, $$
+Thus, the algorithm for nding a primitive root of this. Find $\phi(n)$, factorize it. Now iterate over all numbers $g = 1 \ldots n$, and for each we consider all values $g^{ \frac{ \phi(n) }{ p_i } } \pmod{n}$. If $g$, all these numbers were different from $1$, then $g$ is the desired primitive root.
+About the rate of growth of primitive roots with increasing $n$ is known only rough estimates. It is known that primitive roots --- of a relatively small magnitude. One of the known estimates --- assessment of Supa (Shoup) that, assuming the truth of the Riemann hypothesis, the original root is $O (\log^6 n)$.
+\h2{Implementation}
+To adapt this function to arbitrary $p$, it is enough to add the calculation \algohref=euler_function{function Euler} in $phi$, and also to weed out $res$, which is not relatively Prime to $n$.
+\code
+int powmod (int a, int b, int p) {
+int res = 1
+while (b)
+if (b 
+res = int (res * 1ll * a % p) --b
+else
+a = int (a * 1ll * a % p), b >>= 1
+return res
+}
+int generator (int p) {
+vector<int> fact
+int phi = p-1, n = phi
+for (int i=2
+if (n % i == 0) {
+fact.push_back (i)
+while (n % i == 0)
+n /= i
+}
+if (n > 1)
+fact.push_back (n)
+for (int res=2

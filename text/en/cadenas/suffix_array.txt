@@ -1,0 +1,145 @@
+\h1{ Suffix array }
+Given a string $s[0 \ldots n-1]$ of length $n$.
+$i$-th \bf{suffix} string is the substring of $s[i \ldots n-1]$, $i=0 \ldots n-1$.
+Then \bf{suffix array} string $s$ is called a permutation of the indices suffix $p[0 \ldots n-1]$, $p[i] \in [0
+For example, for the string $s=abaab$ suffix array will be equal to:
+$$ (2,3,0,4,1) $$
+Strictly speaking, the following algorithm will sort are not suffixes, and \bf{cyclic shifts} line. However, this algorithm is easy to get and sorting algorithm suffixes: enough to ascribe to the end of line character, which is obviously less of any character, which may consist of a string (for example, it may be a dollar or sharp
+We consider the algorithm consists of about $\log n$ phases. On $k$-th phase ($k = 0 \ldots \lceil \log n \rceil$) are sorted cyclic substring of length $2^k$. At last, $\lceil \log n \rceil$-th phase, will be sorted substrings of length $2^{\lceil \log n \rceil} > n$, which is equivalent to sorting the cyclic shifts.
+Here \bf{example}. Consider a string $s=aaba$. Array values $p[]$ and $c[]$ at each stage with zero at the second are:
+$$ \matrix{
+0: 
+1: 
+2: 
+} $$
+Now let's build \bf{algorithm}. Input data:
+\code
+char *s
+int n
+// constants
+const int maxlen = ...
+const int alphabet = 256
+\endcode
+\code
+int p[maxlen], cnt[maxlen], c[maxlen]
+memset (cnt, 0, alphabet * sizeof(int))
+for (int i=0
+ cnt[s[i]]
+for (int i=1
+cnt[i] = cnt[i-1]
+for (int i=0
+p[--cnt[s[i]]] = i
+c[p[0]] = 0
+int classes = 1
+for (int i=1
+if (s[p[i]] != s[p[i-1]]) classes
+c[p[i]] = classes-1
+}
+\endcode
+Next, suppose we have completed $k-1$-th phase (i.e., calculated values of array $p[]$ and $c[]$ for it), now we will learn how $O(n)$ run \bf{the following, $k$-th phase}. Since phases only $O(\log n)$, this will give us the desired algorithm with time $O(n \log n)$.
+$$ \ldots \overbrace{ \underbrace{ s_i \ldots s_{i, 2^{k-1}-1} }_{{\rm length}=2^{k-1},{\rm class}=c[i]}\ \ \underbrace{ s_{i, 2^{k-1}} \ldots s_{i, 2^k-1} }_{{\rm length}=2^{k-1},\ {\rm class}=c[i 2^{k-1}]} }^{{\rm length}=2^k} \ldots \overbrace{ \underbrace{ s_j \ldots s_{j 2^{k-1}-1} }_{{\rm length}=2^{k-1},{\rm class}=c[j]}\ \ \underbrace{ s_{j 2^{k-1}} \ldots s_{j 2^k-1} }_{{\rm length}=2^{k-1},{\rm class}=c[j 2^{k-1}]} }^{{\rm length}=2^k} \ldots $$
+How to perform this sort of pairs? Since the elements of the pairs do not exceed $n$, then you can sort by count. However, to achieve the best hidden in the asymptotic constants instead of sorting pairs will come to sorting just numbers.
+Thus, with just deduct Commission from the elements of the array p []$, we sort by the second elements of the pairs. It is now necessary to produce a stable sort on the first elements of the pairs, it can be done in $O(n)$ by using the sort by count.
+It remains only to calculate the number $c[]$ of equivalence classes, but they're easy to get, just having received a new permutation $p[]$ and comparing neighboring elements (again, comparing a pair of two numbers).
+\code
+int pn[maxlen], cn[maxlen]
+for (int h=0
+for (int i=0
+pn[i] = p[i] - (1<<h)
+if (pn[i] < 0) pn[i] = n
+}
+memset (cnt, 0, classes * sizeof(int))
+for (int i=0
+ cnt[c[pn[i]]]
+for (int i=1
+cnt[i] = cnt[i-1]
+for (int i=n-1
+p[--cnt[c[pn[i]]]] = pn[i]
+cn[p[0]] = 0
+classes = 1
+for (int i=1
+int mid1 = (p[i] (1<<h)) % n, mid2 = (p[i-1] (1<<h)) % n
+if (c[p[i]] != c[p[i-1]] || c[mid1] != c[mid2])
+ classes
+cn[p[i]] = classes-1
+}
+memcpy (c, cn, n * sizeof(int))
+}
+\endcode
+\h2{ Application }
+\h3{ Finding the smallest cyclic shift of the rows }
+The above algorithm produces a sort of cyclic shifts (if the string is not to be attributed to the dollar), and therefore $p[0]$ will give the desired position of the smallest cyclic shift. Time --- $O(n \log n)$.
+\h3{ Search substring in string }
+\h3{ Compare two substrings of the string }
+Required by a given string $s$, producing some of its preprocessing, learn $O(1)$ responding to compare two arbitrary substrings (i.e. checking that the first substring is equal/less/greater than the second).
+We will construct the suffix array for $O (|s| \log |s|)$, it will keep the intermediate results: we will need the arrays $c[]$ from each phase. Therefore, the memory required is also $O (|s| \log |s|)$.
+Let now received another request to compare two substrings of length $l$ with basis in the indices $i$ and $j$. Find the largest block size that fit inside a substring of this length, i.e., the largest $k$ such that $2^k \le l$. Then the comparison of the two substrings can be replaced by the comparison of two pairs of overlapping blocks of length $2^k$: first, I need to compare two blocks, starting at position $i$ and $j$, and if equality is to compare two blocks, ending at position $i l-1$ and $j l-1$:
+$$ \ldots \overbrace{ s_i \ldots \underbrace{ s_{i l-2^k} \ldots s_{i, 2^k-1} \ldots s_{i, l-1} }_{2^k} }^{\rm first} \ldots \overbrace{ s_j \ldots \underbrace{ s_{j l-2^k} \ldots s_{j 2^k-1} \ldots s_{j l-1} }_{2^k} }^{\rm second} \ldots $$
+Thus, the implementation turns out like this (here is that the calling procedure itself calculates the $k$, because to do it in constant time is not so easy (apparently the fastest --- predposchitan), but in any case it has nothing to do with the use of suffix array):
+\code
+int compare (int i, int j, int l, int k) {
+pair<int,int> b = make_pair (c[k][j], c[k][j l-(1<<k)])
+return a == b ? 0 : a < b ? -1 : 1
+}
+\endcode
+\h3{ Greatest common prefix of two strings: the method with additional memory }
+Required by a given string $s$, producing some of its preprocessing, learn $O(\log |s|)$ responding greatest common prefix (longest common prefix lcp) for any two suffixes with positions $i$ and $j$.
+We will construct the suffix array for $O (|s| \log |s|)$, it will keep the intermediate results: we will need the arrays $c[]$ from each phase. Therefore, the memory required is also $O (|s| \log |s|)$.
+Implementation:
+\code
+int lcp (int i, int j) {
+int ans = 0
+for (int k=log_n
+if (c[k][i] == c[k][j]) {
+ans = 1<<k
+i = 1<<k
+j = 1<<k
+}
+return ans
+}
+\endcode
+Here $\rm log\_n$ defined constant, equal to the logarithm of the $n$ in base 2, rounded down.
+\h3{ Greatest common prefix of two strings: the way without additional memory. The greatest common prefix of two adjacent suffixes }
+Thus, if we have such an array of $\rm lcp$, then the answer to any query greatest common prefix is reduced to query \bf{minimum on the interval} of $\rm lcp$. This classic problem of the minimum on the interval (range minimum query RMQ) has many solutions with different asymptotics described \algohref=rmq{here}.
+After zero iterations array, $\rm lcp$, obviously, must be zero.
+Now suppose that we have completed $k-1$-th iteration, received $\rm lcp^\prime$, and should the current $k$-th iteration count this array, having its new value $\rm lcp$. As we remember, in the algorithm for constructing the suffix array circular substring of length $2^k$ was divided in half into two substrings of length $2^{k-1}$
+\bf{Implementation:}
+\code
+int lcp[maxlen], lcpn[maxlen], lpos[maxlen], rpos[maxlen]
+memset (lcp, 0, sizeof lcp)
+for (int h=0
+for (int i=0
+rpos[c[p[i]]] = i
+for (int i=n-1
+lpos[c[p[i]]] = i
+... all the steps to build SUFF. array except for the last line (memcpy) ...
+rmq_build (lcp, n-1)
+for (int i=0
+int a = p[i], b = p[i 1]
+if (c[a] != c[b])
+lcpn[i] = lcp[rpos[c[a]]]
+else {
+int aa = (a (1<<h)) % n, bb = (b (1<<h)) % n
+lcpn[i] = (1<<h) rmq (lpos[c[aa]], rpos[c[bb]]-1)
+lcpn[i] = min (n, lcpn[i])
+}
+}
+memcpy (lcp, lcpn, (n-1) * sizeof(int))
+memcpy (c, cn, n * sizeof(int))
+}
+\endcode
+The algorithm for constructing the suffix array had only to make a copy of the array c[]$, since during the computation of $\rm lcp$ we need the old values of this array.
+It should be noted that our implementation finds the length of the common prefix for \bf{cyclic substrings}, while in practice often need the length of the common prefix of the suffixes in their usual meaning. In this case, we just need to limit the values of $\rm lcp$ at the end of the algorithm:
+for (int i=0
+lcp[i] = min (lcp[i], min (n-p[i], n-p[i 1]))
+\endcode
+For \bf{any} of the two suffixes, the length of their greatest common prefix can now be found at least on the corresponding section of $\rm lcp$:
+\code
+for (int i=0
+pos[p[i]] = i
+rmq_build (lcp, n-1)
+... received a request (i,j) in the presence of LCP ...
+int result = rmq (min(i,j), max(i,j)-1)
+\endcode
+\h3{ the Number of distinct substrings }
+To do this, we will consider what new substring starting at position $p[0]$, then at position $p[1]$, and so on, in fact, we take another in the sort order suffix and see what prefixes give a new substring. Thus we, obviously, do not lose sight of any of the substrings.

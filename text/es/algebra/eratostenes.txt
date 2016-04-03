@@ -1,0 +1,50 @@
+\h1{ Tamiz Eratosfena }
+Tamiz Eratosfena --- es un algoritmo que permite encontrar todos los primos en el tramo de $[1
+La idea es sencilla --- escribir una serie de números de 1 $\sum_ n$, y vamos a centrado primero todos los números que se dividen en $2$, excepto el número de $2$ y, a continuación, деляющиеся $3$, excepto el número $3$, entonces $a 5$, entonces $7$, $11$, y todos los demás simples hasta $n$.
+\h2{ Aplicación }
+En seguida presentamos la implementación de un algoritmo:
+\code
+int n
+vector<char> prime (n 1, true)
+prime[0] = prime[1] = false
+for (int i=2
+if (prime[i])
+if (i * 1ll * i <= n)
+for (int j=i*i
+prime[j] = false
+\endcode
+Este código se marca primero todos los números, excepto el cero y la unidad, como simples y, a continuación, comienza el proceso de cribado de compuestos de números. Para ello, hemos перебираем en el ciclo de todos los números de 2 $a$ a $n$, y si el número actual de $i$ simple, помечаем todos los números múltiplos, como compuestas.
+Cuando empezamos a caminar desde $i^2$, ya que todos menos el número de múltiplos de $i$, necesariamente tienen un divisor primo menor a $i$, y eso significa que todos ellos ya se han cribado antes. (Pero ya que $i^2$ fácilmente puede desbordar el tipo de $int$, en el código antes de la segunda adjunto ciclo se hace una comprobación adicional con el uso de un tipo $long~long$.)
+Cuando tal aplicación algoritmo consume $O (n)$ memoria (obviamente) y se ejecuta $O (n \log \log n)$ acciones (esto se demuestra en la siguiente sección).
+\h2{ Asíntotas }
+Demostramos que asíntotas algoritmo es de O (n \log \log n)$.
+Así, para cada una simple $p \le n$ se ejecutará el bucle interior, que hará $\frac{n}{p}$ de acción. Por lo tanto, necesitamos estimar el siguiente valor:
+$$ \sum_{ \scriptstyle p \le n \atop\scriptstyle p~is~prime } \frac{n}{p} = n \cdot \sum_{ \scriptstyle p \le n \atop\scriptstyle p~is~prime } \frac{1}{p}. $$
+Recordemos aquí las dos más famosas de hecho: que el número de sencillos, menos o iguales a $n$ es aproximadamente igual a $\frac{n}{\ln n}$ y que $k$-tes simple número aproximadamente igual a $k \ln k$ (esto se deduce de la primera aprobación). Entonces la cantidad se puede escribir así:
+$$ \sum_{ \scriptstyle p \le n \atop\scriptstyle p~is~prime } \frac{1}{p} \approx \frac{1}{2} \sum_{k=2}^{\frac{n}{\ln n}} \frac{1}{k \ln k}. $$
+Aquí hemos identificado el primer sencillo de esta cantidad, ya que si $k = 1$ de acuerdo a aproximar $k \ln k$ resultar $0$, lo que llevará a la división por cero.
+Sin embargo, este enfoque --- \bf{"bits compresión} --- difícil la operación de estos bits. Cualquier lectura o escritura de un bit se presentar varias de las operaciones aritméticas, lo que finalmente conduciría a la desaceleración del algoritmo.
+Por lo tanto, este enfoque es adecuado, sólo si $n$ es tan grande, que $n$ bytes de memoria para asignar ya no se puede. Ahorro de memoria (en $8$ más), te pagaremos por esto es importante desaceleración en el algoritmo.
+En conclusión, vale la pena señalar que en el lenguaje C, ya se han llevado contenedores, automáticamente realizan bits compresión: vector<bool> y bitset<>. Sin embargo, si la velocidad de trabajo es muy importante, lo mejor es realizar la compresión de mapa de bits manualmente, con la ayuda de bits de operaciones --- en el día de hoy, uno de los compiladores de los mismos no son capaces de generar suficiente código rápido.
+\h3{ Colocar el tamiz }
+De la optimización de la "limpieza de simples a raíz de que no hay necesidad de almacenar todo el tiempo todo el conjunto de $prime[1 \ldots, n]$. Para realizar el tamizado suficiente para almacenar sólo simples hasta la raíz de $n$, es decir, $prime[1 \ldots \sqrt{n}]$, y el resto de la matriz $prime$ construir bloques, manteniendo en este momento, en un único bloque.
+Pida a $s$ --- la constante que define el tamaño de la unidad, entonces el total sería de $\left\lceil \frac{n}{s} \right\rceil$ bloques, $k$-primer bloque ($k = 0 \ldots \left\lfloor \frac{n}{s} \right\rfloor$) contiene un número en el tramo de $[ks
+Llevaremos la aplicación del bloque de tamiz. El programa lee el número $n$ y encuentra una serie de sencillas desde $1 a$ a $n$:
+\code
+const int SQRT_MAXN = 100000
+const int S = 10000
+bool nprime[SQRT_MAXN], bl[S]
+int primos[SQRT_MAXN], la cnt
+int main() {
+int n
+cin >> n
+int nsqrt = (int) sqrt (n .0)
+for (int i=2
+if (!nprime[i]) {
+primos[cnt ] = i
+if (i * 1ll * i <= nsqrt)
+for (int j=i*i
+nprime[j] = true
+}
+int result = 0
+for (int k=0, maxk=n/S

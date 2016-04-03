@@ -1,0 +1,108 @@
+\h1{ Linear Diophantine equation with two variables }
+Diophantine equation with two unknowns is:
+$$ a \cdot x b \cdot y = c, $$
+where $a, b, c$ --- specified integers $x$ and $y$ --- unknown integers.
+Here are several classical problems in these equations: finding any solution, all solutions, finding the number of solutions and the solutions themselves in a certain period, the solution with the least amount unknown.
+One degenerate case we will exclude from consideration: when $a = b = 0$. In this case, it is clear that the equation has infinitely many arbitrary decisions, or no decisions at all (depending on $c = 0$ or not).
+\h2{ Finding one solution }
+To find one solution diofantos equations with two unknowns using \algohref=extended_euclid_algorithm{Extended Euclid's algorithm}. Suppose rst that the numbers $a$ and $b$ are nonnegative.
+$$ a \cdot x_g b \cdot y_g = g. $$
+It is argued that if $c$ is divisible by $g = {\rm gcd} (a,b)$, then the Diophantine equation $a \cdot x b \cdot y = c$ has a solution
+Suppose that $c$ is divisible by $g$, then, obviously, is:
+$$ a \cdot x_g \cdot (c/g) b \cdot y_g \cdot (c/g) = c, $$
+$$ \cases{
+x_0 = x_g \cdot (c / g), \cr
+y_0 = y_g \cdot (c / g).
+} $$
+We have described the solution in the case when $a$ and $b$ are nonnegative. If one of them or both negative, then you can do so: take them on the module and apply the Euclidean algorithm, as described above, and then change the sign found $x_0$ and $y_0$ in accordance with the present sign of the numbers $a$ and $b$ respectively.
+Implementation (recall that here we consider that the input $a=b=0$ invalid):
+\code
+if (a == 0) {
+x = 0
+return b
+}
+int x1, y1
+int d = gcd (b%a, a, x1, y1)
+x = y1 - (b / a) * x1
+y = x1
+return d
+}
+bool find_any_solution (int a, int b, int c, int 
+g = gcd (abs(a) abs(b), x0, y0)
+if (c % g != 0)
+return false
+x0 *= c / g
+y0 *= c / g
+if (a < 0) x0 *= -1
+if (b < 0) y0 *= -1
+return true
+}
+\endcode
+\h2{ Obtaining all solutions }
+We will show how to obtain all solutions (and they are endless) diofantos equation, knowing one solution $(x_0,y_0)$.
+Now, let $g = {\rm gcd}(a,b)$, and $x_0, y_0$ satisfy the condition:
+Then note that, adding to $x_0$, the number $b/g$ and at the same time taking away $a/g$ from $y_0$, we will not violate the equality:
+$$ a \cdot (x_0 b/g) b \cdot (y_0 - a/g) = a \cdot x_0 b \cdot y_0 a \cdot b/g - b \cdot a/g = c. $$
+Obviously, this process can be repeated indefinitely, i.e., all numbers of the form:
+$$ \cases{
+x = x_0 k \cdot b/g, \cr
+y = y_0 - k \cdot a/g,
+}~~~~ k \in Z $$
+are solutions diofantos equations.
+\h2{ finding the number of solutions and the solutions themselves in a given interval }
+Let we have two segments $[min_x
+Note that if one of the numbers $a, b$ is zero, then the task has more than one solution, so these cases are we in this section to be excluded from consideration.
+Similarly you can find the solution with the maximum appropriate $x=rx1$, i.e. $x \le max_x$.
+Then move on to the satisfaction of the constraints on $y$, i.e., for consideration of the segment $[min_y
+Thus, the number of solutions will be equal to the length of this section, divided by $|b|$ (since $x$is the coefficient can be changed only on $\pm b$), and plus one.
+Here is the implementation (it was difficult because you need to carefully consider the cases of positive and negative coefficients $a$ and $b$):
+\code
+void shift_solution (int 
+x = cnt * b
+y -= cnt * a
+}
+int find_all_solutions (int a, int b, int c, int minx, int maxx, int miny, int maxy) {
+int x, y, g
+return 0
+a /= g
+int sign_a = a>0 ? 1 : -1
+int sign_b = b>0 ? 1 : -1
+shift_solution (x, y, a, b, (minx - x) / b)
+if (x < minx)
+shift_solution (x, y, a, b, sign_b)
+if (x > maxx)
+return 0
+int lx1 = x
+shift_solution (x, y, a, b, (maxx - x) / b)
+if (x > maxx)
+shift_solution (x, y, a, b, -sign_b)
+int rx1 = x
+shift_solution (x, y, a, b, - (miny - y) / a)
+if (y < miny)
+shift_solution (x, y, a, b, -sign_a)
+if (y > maxy)
+return 0
+int lx2 = x
+shift_solution (x, y, a, b, - (maxy - y) / a)
+if (y > maxy)
+shift_solution (x, y, a, b, sign_a)
+int rx2 = x
+if (lx2 > rx2)
+swap (lx2, rx2)
+int lx = max (lx1, lx2)
+int rx = min (rx1, rx2)
+return (rx - lx) / abs(b) 1
+}
+\endcode
+\h2{ Finding solutions in a given segment with the lowest sum x y }
+Here $x$ and $y$ must also be imposed any restrictions, otherwise the answer will almost always negative infinity.
+The solution is the same as in the previous paragraph: first find any solution diofantos equations, and then, using the described in the previous paragraph the procedure, come to the best solution.
+$$ \cases{
+x^\prime = x k \cdot (b/g), \cr
+y^\prime = y - k \cdot (a/g),
+}~~~~ k \in z$$
+Note that the sum of $x, y$ changes as follows:
+$$x^\prime, y^\prime = x y k \cdot (b/g a/g) = x y k \cdot (b - a) / g.$$
+I.e., if $a < b$, then you need to choose the smallest value of $k$, if $a > b$, then you need to choose the largest possible value of $k$.
+If $a = b$, then we will not be able to improve the solution, --- all solutions will have the same amount.
+\h2{ Tasks in online judges }

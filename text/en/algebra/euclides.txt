@@ -1,0 +1,54 @@
+\h1{Euclidean Algorithm to find the GCD (greatest common divisor)}
+Given two integers non-negative integers $a$ and $b$. You want to find their greatest common divisor, i.e., the greatest number that is a divisor simultaneously and $a$ and $b$. In English "greatest common divisor" is the "greatest common divisor", and its common designation is ${\rm gcd}$:
+$$ {\rm gcd}(a,b) = \max_{k=1 \ldots \infty \ :\ k|a \ \
+When one of the numbers is zero, and the other is non-zero, their greatest common divisor, by definition, it will be the second number. When both numbers are zero, the result is undefined (will fit any infinitely large number), we will put in this case, the greatest common divisor is equal to zero. So we can talk about this rule: if one of the numbers is zero, then their greatest common divisor equal to the second number.
+This algorithm was first described in the book of Euclid "the Beginning" (about 300 BC), although it is quite possible that this algorithm has an earlier origin.
+\h2{Algorithm}
+The algorithm is extremely simple and is described by the following formula:
+$$ {\rm gcd}(a,b) = \cases{ a, 
+\h2{Implementation}
+\code
+int gcd (int a, int b) {
+if (b == 0)
+return a
+else
+return gcd (b, a % b)
+}
+\endcode
+Using the ternary conditional operator C , the algorithm can be written even shorter:
+\code
+return b ? gcd (b, a % b) : a
+}
+\endcode
+Finally, we present and non-recursive form of the algorithm:
+\code
+int gcd (int a, int b) {
+while (b) {
+a %= b
+swap (a, b)
+}
+return a
+}
+\endcode
+\h2{Proof}
+First, note that at each iteration of Euclid's algorithm is its second argument is strictly decreasing, hence, since it is nonnegative, the algorithm Euclid \bf{always ends}.
+We show that the amount standing to the left side of the equality, is divided into a real right in, and standing in the right --- shares standing to the left. Obviously, this will mean that the left and right side match, which will prove the correctness of Euclid's algorithm.
+Let $d = {\rm gcd}(a,b)$. Then, by definition, $d|a$ and $d|b$.
+Next, decompose the remainder of $a$ and $b$ through them private:
+$$ a\ {\rm mod}\ b = a - b \left\lfloor \frac{a}{b} \right\rfloor $$
+But then it follows:
+$$ d\ |\ (a\ {\rm mod}\ b) $$
+$$ \cases{ d\ |\ b \cr d\ |\ (a\ {\rm mod}\ b) } $$
+Let us use now the following simple fact: if for any three integers $p,q,r$ done: $p|q$ and $p|r$, that is: $p\ |\ {\rm gcd}(q,r)$. In our situation we get:
+$$ d\ |\ {\rm gcd}(b, a\ {\rm mod}\ b) $$
+Or, substituting instead of $d$ as ${\rm gcd}(a,b)$, we get:
+$$ {\rm gcd}(a,b)\ |\ {\rm gcd}(b, a\ {\rm mod}\ b) $$
+So, we spent half the evidence, showed that the left hand side divides the right. The second half of the proof is similar.
+The running time of the algorithm is evaluated \bf{theorem Lam}, which sets the surprising connection of Euclid's algorithm and the Fibonacci sequence:
+If $a > b \ge 1$ and $b < F_n$ for some $n$, then the Euclidean algorithm will perform no more than $n-2$ recursive calls.
+Given that the Fibonacci numbers grow exponentially (as a constant in degree $n$), we find that the Euclidean algorithm runs in $O(\log \min(a,b))$ multiplications.
+\h2{LCM (least common multiple)}
+Calculate the least common multiple (least common multiplier, lcm) is reduced to the computation of $\rm gcd$ the following simple statement:
+$$ {\rm lcm}(a,b) = \frac{ a \cdot b }{ {\rm gcd}(a,b) } $$
+Thus, the calculation of the NOC can also be done using the Euclidean algorithm, with the same asymptotics:
+\code

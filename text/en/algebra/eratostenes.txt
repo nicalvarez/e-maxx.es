@@ -1,0 +1,80 @@
+\h1{ Sieve of Eratosthenes }
+The sieve of Eratosthenes --- this algorithm to find all Prime numbers in the interval $[1
+The idea is simple --- write the number $1 \ldots n$, and we will strike first, all numbers divisible by $2$, except the number of $2$, then eleusina $3$, except the number $3$, then $5$, then $7$, $11$, and all other simple $n$.
+\h2{ Implementation }
+Immediately following implementation of the algorithm:
+\code
+int n
+vector<char> prime (n 1, true)
+prime[0] = prime[1] = false
+if (prime[i])
+if (i * 1ll * i <= n)
+for (int j=i*i
+prime[j] = false
+\endcode
+This code first checks all numbers except zero and one, as simple, and then begins the process of screening a compound numbers. To do this, we iterate through all numbers from $2$ to $n$, and if the current number $i$ is simple, then mark all multiples of him as a compound.
+In such an implementation, the algorithm consumes $O (n)$ memory (obviously) and runs $O (n \log \log n)$ action (this is proved in the next section).
+\h2{ Asymptotic }
+We prove that the asymptotic behavior of the algorithm is $O (n \log \log n)$.
+So, for each Prime $p \le n$ will execute the inner loop, which will make $\frac{n}{p}$ of action. Therefore, we need to estimate the following quantity:
+$$ \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{n}{p} = n \cdot \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{1}{p}. $$
+$$ \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{1}{p} \approx \frac{1}{2} \sum_{k=2}^{\frac{n}{\ln n}} \frac{1}{k \ln k}. $$
+Here we have identified the first simple the amount, because when $k = 1$ according to the approximation $k \ln k$ will be $0$, which will lead to division by zero.
+We now estimate this amount by using the integral of the same function on $k$ from $2$ to $\frac{n}{\ln n}$ (we can make this approximation because, in fact, the amount refers to the integral as its approximation by the formula of rectangles):
+The integral for the integrand is $\ln \ln k$. Performing the substitution and removing members of a smaller order, we get:
+$$ \int\limits_2^{\frac{n}{\ln n}} \frac{1}{k \ln k}\ dk = \ln \ln \frac{n}{\ln n} - \ln \ln 2 = \ln (\ln n \ln \ln n) - \ln \ln 2 \approx \ln \ln n. $$
+Returning now to the initial amount received its approximate rating:
+$$ \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{n}{p} \approx n \ln \ln n o(n), $$
+what we wanted to prove.
+\h2{ Various optimizations sieve of Eratosthenes }
+The biggest drawback of the algorithm is-is that it "walks" from memory, constantly going beyond the cache, causing the constant hidden in $O (n \log \log n)$, is comparatively high.
+In addition, for sufficiently large $n$ becomes a bottleneck memory footprint.
+The following are methods to reduce the number of operations performed, and significantly reduce memory consumption.
+The most obvious point-is - that in order to find all Prime to $n$, it is enough to perform screening only simple, not exceeding the square root of $n$.
+So change the outer loop of the algorithm:
+\code
+for (int i=2
+\endcode
+\h3{ Sieve only on odd numbers }
+Since all even numbers, except $2$, --- composite, can not be processed in any way even number, and to operate only odd numbers.
+First, it allows to halve the amount of required memory. Secondly, it will reduce the number of do the algorithm operations about half.
+\h3{ reducing the amount of consumed memory }
+However, this approach --- \bf{"bitmap compression"} --- will significantly complicate the operation of these bits. Any read or write bit will be a few arithmetic operations, which ultimately will lead to a slowdown of the algorithm.
+Thus, this approach is justified only if $n$ so large that $n$ bytes of memory to allocate anymore. Saving memory ($8$ times), we will pay a significant slowdown of the algorithm.
+\h3{ Block sieve }
+From the optimization of screening a simple root, it follows that there is no need to keep all the time the whole array $prime[1 \ldots n]$. To perform the screening is sufficient to store only a simple root of $n$, i.e. $prime[1 \ldots \sqrt{n}]$, and the rest of the array $prime$ to build one block at a time, keeping the current point in time only one block.
+Here is the implementation of block sieve. The program reads the number $n$ and finds a number of simple from $1$ to $n$:
+\code
+const int SQRT_MAXN = 100000
+const int S = 10000
+bool nprime[SQRT_MAXN], bl[S]
+int primes[SQRT_MAXN], cnt
+int main() {
+int n
+cin >> n
+int nsqrt = (int) sqrt (n .0)
+for (int i=2
+if (!nprime[i]) {
+primes[cnt ] = i
+if (i * 1ll * i <= nsqrt)
+for (int j=i*i
+nprime[j] = true
+}
+int result = 0
+for (int k=0, maxk=n/S
+memset (bl, 0, sizeof (bl)
+int start = k * S
+for (int i=0
+int j = max(start_idx,2) * primes[i] - start
+for (
+bl[j] = true
+}
+if (k == 0)
+bl[0] = bl[1] = true
+for (int i=0
+if (!bl[i])
+ result
+}
+cout << result
+}
+\endcode

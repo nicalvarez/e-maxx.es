@@ -1,0 +1,45 @@
+\h1{ Sieve of Eratosthenes with linear time }
+An integer $n$. You want to find \bf{simple} in the interval $[2
+A classical way to solve this problem --- \bf{\algohref=eratosthenes_sieve{sieve of Eratosthenes}}. This algorithm is very simple, but works for the time $O (n \log \log n)$.
+In addition, here the algorithm as a "side effect" actually computes \bf{factorization of all integers} in the interval $[2
+The disadvantage of this algorithm is that it uses \bf{memory} than the classic sieve of Eratosthenes: you want to create an array of $n$ numbers, while the classic sieve of Eratosthenes enough $n$ bits of memory (what is $32$ times less).
+The authorship of the algorithm, apparently, belongs to Grice and Misra (Gries, Misra, 1978 --- see references at the end). (And, in fact, to call this algorithm the "sieve of Eratosthenes" is incorrect: too different these two algorithms.)
+\h2{ algorithm Description }
+Our goal is to calculate for each number $i$ in the interval $[2
+In addition, we will need to keep a list of all known primes --- let's call it array $pr[]$.
+We will now go through the current number of $i$ from $2$ to $n$. We can have two cases:
+\ul{
+\li $lp[i] = 0$ --- this means that the number of $i$ --- simple, because it was not found by other factors.
+Therefore, it is necessary to assign $lp[i] = i$ and add $i$ in the end of the list $pr[]$.
+\li $lp[i] \ne 0$ --- this means that the current number of $i$ --- composite, and its minimal Prime divisor is $lp[i]$.
+}
+It is argued that for this purpose it is possible to do so. Consider numbers of the form:
+$$ x_j = i \cdot p_j, $$
+where the sequence $p_j$ --- all of this is simple, not exceeding $lp[i]$ (for this, we need to store the list of all primes).
+All numbers of this form will postavim new value $lp[x_j]$ --- obviously, it will equal $p_j$.
+Why is this algorithm correct, and why it works in linear time --- see below, but for now here is its implementation.
+\h2{ Implementation }
+\code
+const int N = 10000000
+int lp[N 1]
+vector<int> pr
+for (int i=2
+if (lp[i] == 0) {
+lp[i] = i
+pr.push_back (i)
+}
+for (int j=0
+lp[i * pr[j]] = pr[j]
+}
+\endcode
+This implementation can be a little faster, getting rid of the vector $pr$ (replacing it with a regular array with a count), as well as getting rid of duplicate multiplication in the nested loop $for$ (for which the result of the work you just have to remember in any variable).
+\h2{ Proof }
+To this end, note that any number of $i$ \bf{the only view} like this:
+$$ i = lp[i] \cdot x $$
+where $lp[i]$ --- (as before) the minimal Prime divisor of $i$ and the number $x$ has no divisors less than $lp[i]$, i.e.:
+$$ lp[i] \le lp[x]. $$
+Now compare this with what makes our algorithm it is actually for each $x$ can enumerate all simple that it can be applied, i.e., a simple $lp[x]$, inclusive, to obtain the numbers in the above representation.
+This means the correctness of the algorithm and the fact that it works in linear time.
+\h2{ Time and memory required }
+Although the asymptotics of $O (n)$ is better asymptotics $O (n \log \log n)$ the classic sieve of Eratosthenes, the difference between them is small. In practice, this means only a twofold difference in speed, and optimized versions of the sieve of Eratosthenes and not lose here the algorithm.
+However, saves him that the array $lp[]$, computed by this algorithm allows you to search factorization of any number in the interval $[2
