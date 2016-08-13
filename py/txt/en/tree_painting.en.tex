@@ -1,0 +1,181 @@
+the <h1>Coloring of the tree edges</h1>
+
+<p>This is a fairly frequent task. Given a tree G. requests are Coming in two types: the first type is to paint an edge, the second is the number of colored edges between two vertices.</p>
+<p>Here will be described the simple solution (using <algohref=segment_tree>.</algohref>), which will answer queries in O (log N) with preprocessing (preliminary processing of the tree) in O (M).</p>
+the <h2>Solution</h2>
+<p>To begin with, we have to implement <algohref=lca>LCA</algohref> to each request of the second type (i,j) be summed up in two queries (a,b), where a is an ancestor of b.</p>
+<p>here we describe <b>preprocessing</b> for our task. Run the depth-first search from the root of the tree, the depth-first search will be a list of visiting vertices (each vertex is added to the list when the search comes to her, and each time after a depth-first search returns from the son of the current node) - incidentally, the same list is used by the LCA algorithm. This list will contain each edge (in the sense that if i and j are the ends of the ribs, the list will definitely be a place, where i and j are consecutive to each other), and to be present exactly 2 times: in the forward direction (from i to j, where node i closer to the root than vertex j) and return (from j in i).</p>
+<p><b>Build</b> two segment trees (for the amount, with some modification) on this list: T1 and T2. The tree T1 would be to consider each edge only in the forward direction, and the tree T2 on the contrary, only in reverse.</p>
+<p>May arrived next <b>request</b> of the form (i,j), where i is ancestor of j and it is required to specify the number of colored edges on the path between i and j. Find i and j in the list of depth (we definitely need a position where they meet for the first time), let it some positions p and q (this can be done in O (1), if we calculate these positions in advance during preprocessing). Then <b>response will be the sum of T1[p..q-1] - sum T2[p..q-1]</b>.</p>
+<p>Why? Let's consider the segment [p;q] in the bypass list in depth. It contains the edges we need the path from i to j, but also contains a set of edges that lie on other routes from i. However, we need ribs and the rest ribs there is one big difference: the right edges will be contained in this list only once, and in the forward direction, and all other edges will appear twice, both in direct and in reverse. Therefore, the difference T1[p..q-1] - T2[p..q-1] will give us the answer (the minus one is necessary because otherwise we can grab another extra edge from vertex j to somewhere up or down). The request amounts in the segment tree is O (log N).</p>
+<p>respond to <b>inquiry</b> type 1 (about painting any edges) is even easier - we just need to update T1 and T2, namely to perform a single modification of the element that corresponds to our edge (to find an edge in the bypass list, again, is possible in O (1), if you run this search in the preprocessing). A single modification in the segment tree is O (log N).</p>
+the <h2>Implementation</h2>
+<p>Here will be the full implementation of the decision, including LCA:</p>
+<code>const int INF = 1000*1000*1000;
+
+typedef vector < vector<int> > graph;
+
+vector<int> dfs_list;
+vector<int> ribs_list;
+vector<int> h;
+
+void dfs (int v, const graph & g, const graph & rib_ids, int cur_h = 1)
+{
+h[v] = cur_h;
+dfs_list.push_back (v);
+for (size_t i=0; i<g[v].size(); ++i)
+if (h[g[v][i]] == -1)
+{
+ribs_list.push_back (rib_ids[v][i]);
+dfs (g[v][i], g, rib_ids, cur_h+1);
+ribs_list.push_back (rib_ids[v][i]);
+dfs_list.push_back (v);
+}
+}
+
+vector<int> lca_tree;
+vector<int> first;
+
+void lca_tree_build (int i, int l, int r)
+{
+if (l == r)
+lca_tree[i] = dfs_list[l];
+else
+{
+int m = (l + r) >> 1;
+lca_tree_build (i+i, l, m);
+lca_tree_build (i+i+1, m+1, r);
+int lt = lca_tree[i+i], rt = lca_tree[i+i+1];
+lca_tree[i] = h[lt] < h[rt] ? lt : rt;
+}
+}
+
+lca_prepare void (int n)
+{
+lca_tree.assign (dfs_list.size() * 8, -1);
+lca_tree_build (1, 0, (int)dfs_list.size()-1);
+
+first.assign (n, -1);
+for (int i=0; i < (int)dfs_list.size(); ++i)
+{
+int v = dfs_list[i];
+if (first[v] == -1) first[v] = i;
+}
+}
+
+int lca_tree_query (int i, int tl, int tr, int l, int r)
+{
+if (tl == l && tr == r)
+return lca_tree[i];
+int m = (tl + tr) >> 1;
+if (r <= m)
+lca_tree_query return (i+i, tl, m, l, r);
+if (l > m)
+lca_tree_query return (i+i+1, m+1, tr, l, r);
+int lt = lca_tree_query (i+i, tl, m, l, m);
+int rt = lca_tree_query (i+i+1, m+1, tr, m+1, r);
+return h[lt] < h[rt] ? lt : rt;
+}
+
+int lca (int a, int b)
+{
+if (first[a] > first[b]) swap (a, b);
+return lca_tree_query (1, 0, (int)dfs_list.size()-1, first[a] first[b]);
+}
+
+
+vector<int> first1, first2;
+vector<char> rib_used;
+vector<int> tree1, tree2;
+
+query_prepare void (int n)
+{
+first1.resize (n-1, -1);
+first2.resize (n-1, -1);
+for (int i = 0; i < (int) ribs_list.size(); ++i)
+{
+int j = ribs_list[i];
+if (first1[j] == -1)
+first1[j] = i;
+else
+first2[j] = i;
+}
+
+rib_used.resize (n-1);
+tree1.resize (ribs_list.size() * 8);
+tree2.resize (ribs_list.size() * 8);
+}
+
+sum_tree_update void (vector<int> & tree, int i, int l, int r, int j, int delta)
+{
+tree[i] += delta;
+if (l < r)
+{
+int m = (l + r) >> 1;
+if (j <= m)
+sum_tree_update (tree, i+i, l, m, j, delta);
+else
+sum_tree_update (tree, i+i+1, m+1, r, j, delta);
+}
+}
+
+int sum_tree_query (const vector<int> & tree, int i, int tl, int tr, int l, int r)
+{
+if (l > r || tl > tr) return 0;
+if (tl == l && tr == r)
+return tree[i];
+int m = (tl + tr) >> 1;
+if (r <= m)
+return sum_tree_query (tree, i+i, tl, m, l, r);
+if (l > m)
+return sum_tree_query (tree, i+i+1, m+1, tr, l, r);
+return sum_tree_query (tree, i+i, tl, m, l, m)
++ sum_tree_query (tree, i+i+1, m+1, tr, m+1, r);
+}
+
+int query (int v1, int v2)
+{
+return sum_tree_query (tree1, 1, 0, (int)ribs_list.size()-1, first[v1], first[v2]-1)
+- sum_tree_query (tree2, 1, 0, (int)ribs_list.size()-1, first[v1], first[v2]-1);
+}
+
+
+int main()
+{
+// read count
+int n;
+scanf ("%d", &n);
+graph g (n), rib_ids (n);
+for (int i=0; i<n-1; ++i)
+{
+int v1, v2;
+scanf ("%d%d", &v1, &v2);
+--v1, --v2;
+g[v1].push_back (v2);
+g[v2].push_back (v1);
+rib_ids[v1].push_back (i);
+rib_ids[v2].push_back (i);
+}
+
+h.assign (n, -1);
+dfs (0, g, rib_ids);
+lca_prepare (n);
+query_prepare (n);
+
+for (;;) {
+if () {
+// request to paint the edge with the number x;
+// if start=true, the edge is painted, otherwise the paint is removed
+rib_used[x] = start;
+sum_tree_update (tree1, 1, 0, (int)ribs_list.size()-1, first1[x] start?1:-1);
+sum_tree_update (tree2, 1, 0, (int)ribs_list.size()-1, first2[x] start?1:-1);
+}
+else {
+ // request the number of colored edges on the path between v1 and v2
+int l = lca (v1, v2);
+int result = query (l, v1) + query (l, v2);
+// result - the answer to the inquiry
+}
+}
+
+}</code>

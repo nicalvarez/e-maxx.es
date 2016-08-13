@@ -1,0 +1,45 @@
+<h1>Estar el mayor peso sobre el вершинно-ponderado паросочетания</h1>
+<p>Dan двудольный conde G. Para cada vértice de la primera cuota se especifica su peso. Es necesario encontrar паросочетание de mayor peso, es decir, con la mayor suma de pesos saturadas de vértices.</p>
+<p>a Continuación vamos a describir y probaremos un algoritmo basado en <algohref=kuhn_matching>el algoritmo de kuhn</algohref>, que se va a encontrar la solución óptima.</p>
+<h2>el Algoritmo de</h2>
+<p>El algoritmo es muy simple. <b>Ordenará</b> de la cima de la primera cuota, en orden descendente (mejor dicho, невозрастания) pesos, y se aplica a la columna <b><algohref=kuhn_matching>el algoritmo de kuhn</algohref></b>.</p>
+<p>se Afirma que obtiene al máximo (desde el punto de vista de la cantidad de aristas) паросочетание será la óptima desde el punto de vista de la suma de los pesos de grasas saturadas de los vértices (a pesar de que después de ordenar que en realidad ya no utilizamos estos pesos).</p>
+<p>Por lo tanto, la aplicación será aproximadamente:</p>
+<code>int n;
+vector < vector<int> > g (n);
+vector<char> used (n);
+vector<int> order (n); // una lista de vértices, ordenada por el peso
+... lectura ...
+
+for (int i=0; i<n; ++i) {
+int v = order[i];
+used.assign (n, false);
+try_kuhn (v);
+}</code>
+<p>la Función de try_kuhn() se toma sin ningún tipo de cambios de algoritmo de kuhn.</p>
+<h2>Prueba</h2>
+<p>Recordemos las principales disposiciones de la <b>teoría de la матроидов</b>.</p>
+<p>Матроид M es la ordenada de un par (S,I), donde S es un conjunto, I - vacío familia de subconjuntos del conjunto S, que cumplen las siguientes condiciones:</p>
+<ol>
+<li>la Multitud de S final.</li>
+<li>la Familia I es hereditario, es decir, si algo de la multitud pertenece I, todos los subconjuntos de a I.</li>
+<li>la Estructura de la M tiene la propiedad de reemplazo, es decir, si A∈I, B∈I, y |A|<|B|, entonces hay un elemento x∈A-B, A∪x∈I.</li>
+</ol>
+<p>los Elementos de la familia I se denominan independientes subconjuntos.</p>
+<p>Матроид se llama conciencia, si para cada elemento x∈S se define un poco de peso. El peso de un subconjunto se denomina la suma de los pesos de sus elementos.</p>
+<p>por Último, el plato teorema en la teoría de la ponderados матроидов: para obtener una óptima respuesta, es decir, independiente de un subconjunto con el mayor peso, se debe actuar con avidez: a partir del vacío de un subconjunto de, vamos a añadir (si, por supuesto, el elemento actual se puede añadir sin violación de la independencia), los elementos uno por uno en orden decreciente (más exactamente, невозрастания) pesos:</p>
+<code>ordenar los muchos S de невозрастанию de peso;
+ans = [];
+foreach (x in S)
+if (ans ∪ x ∈ I)
+ans = ans ∪ x;</code>
+<p>se Afirma, de que al final de este proceso obtenemos un subconjunto con el mayor peso.</p>
+<p>Ahora <b>prueba</b>, que <b>nuestra tarea -</b> no que otro, como el asma <b>матроид</b>.</p>
+<p>Que S es el conjunto de todos los vértices de la primera parte. Para reducir nuestra tarea en двудольном la columna a матроиду respecto de los vértices de la primera fracción, a poner en el cumplimiento de cada паросочетанию este subconjunto de S, que es igual a la multitud saturadas de los vértices de la primera parte. También puede definir el cumplimiento de lo contrario (de los varios saturadas de vértices en паросочетание), que, aunque no será el único, pero es muy probable que nos va a dar una.</p>
+<p>Entonces definimos la familia I como una familia de subconjuntos del conjunto S, para los que hay, al menos, una correspondiente a la паросочетание.</p>
+<p>a Continuación, para cada elemento de S, es decir, para cada vértice de la primera fracción, por la condición de que se define un poco de peso. Y el peso de un subconjunto, como nosotros, y necesaria en el marco de la teoría матроидов, se define como la suma de los pesos de los elementos en ella.</p>
+<p>Entonces, el problema de encontrar паросочетания mayor peso ahora переформулируется como una tarea independiente de encontrar un subconjunto de mayor peso.</p>
+<p>Queda comprobar que se cumplen los 3 anteriores condiciones impuestas en el матроид. En primer lugar, es evidente que S es finito. En segundo lugar, es evidente que la eliminación de los bordes de паросочетания equivalente a eliminar la cima de la multitud saturadas de vértices, y debido a la propiedad de la herencia se realiza. En tercer lugar, como se desprende de la corrección del algoritmo de kuhn, si el паросочетание no el máximo, siempre hay esa cima, que se puede saturar, no mediante la eliminación de la multitud saturadas vértices vértices diferentes.</p>
+<p>por lo tanto, hemos demostrado que nuestra tarea es prudente матроидом acerca de la multitud de grasas saturadas de los vértices de la primera cuota, sino porque a ella se aplica el algoritmo voraz.</p>
+<p>Queda demostrar que <b>el algoritmo de kuhn es el algoritmo codicioso</b>.</p>
+<p>sin Embargo, es bastante obvio. El algoritmo de kuhn en cada paso, tratando de saciar actual de la cima - o simplemente pasando el borde en ненасыщенную la cima de la segunda fracción, o encontrando удлиняющую la cadena y alternando паросочетание a lo largo de ella. Y que, en cualquier caso, ninguna de las ya saturadas en la cima no dejan de ser ácidos grasos, insaturados en los pasos anteriores a la cima de la primera cuota no se sacian y en este paso. Por lo tanto, el algoritmo de kuhn es el algoritmo codicioso, строящим óptima independiente de un subconjunto de матроида, que completa nuestra prueba.</p>

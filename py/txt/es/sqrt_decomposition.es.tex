@@ -1,0 +1,176 @@
+\h1{Sqrt-la descomposición}
+
+Sqrt-descomposición --- este es el método o estructura de datos que permite realizar algunas operaciones típicas (la suma de los elementos de подмассива, la búsqueda de un mínimo/máximo, etc.) a $O(\sqrt{n})$, que es mucho más rápido de lo que $O(n)$ para el trivial de un algoritmo.
+
+Primero se describirá la estructura de datos para uno de los más simples aplicaciones de esta idea, a continuación te mostraremos cómo generalizar para resolver otros problemas, y, por último, vamos a ver algunos de lo contrario la aplicación de esta idea: la división de entrada de solicitudes sqrt-bloques.
+
+
+\h2{Estructura de datos en la base de la sqrt-descomposición}
+
+\bf{Pondremos a la tarea}. Dada la matriz $a[0 \ldots, n-1]$. Se desea implementar una estructura de datos que es capaz de encontrar la suma de los elementos $a[l \ldots r]$ sin $l$ y $r$ $O(\sqrt{n})$ de operaciones.
+
+
+\h3{Descripción}
+
+La idea principal de raiz-de la descomposición consiste en que haremos el siguiente \bf{предпосчет}: dividiremos la matriz $a$ en bloques de longitud aproximadamente $\sqrt{n}$, y en cada bloque de $i$ de antemano предпосчитаем la suma de $b[i]$ elementos en el mismo.
+
+Se puede considerar que la longitud de un bloque y el número de bloques iguales para el mismo número de --- la raíz de $n$, округленному arriba:
+
+$$ s = \left\lceil \sqrt{n} \right\rceil, $$
+
+entonces la matriz $a[]$ se divide en bloques de aproximadamente así:
+
+$$ \underbrace{ a[0] ~ a[1] ~ \ldots ~ a[s-1] }_{b[0]} ~~~ \underbrace{ a[s] ~ a[s+1] ~ \ldots ~ a[2 \cdot s-1] }_{b[1]} ~~~ \ldots ~~~ \underbrace{ a[(s-1) \cdot s] ~ \ldots ~ a[n] }_{b[s-1]}. $$
+
+Aunque en el último bloque puede contener menos de $s$, de los elementos (si $n$ no se divide en $s$), --- no importa.
+
+Por lo tanto, para cada bloque de $k$ sabemos la cantidad en él $b[k]$:
+
+$ a$ b[k] = \sum_{i=k \cdot s}^{\min (n-1, (k+1) \cdot s - 1)} a[i]. $$
+
+Por tanto, que estos valores $b_k$ previamente calculados (para ello es necesario, obviamente, $O(n)$ de operaciones). Que pueden dar al cálculo de la respuesta en la próxima consulta $(l,r)$? Tenga en cuenta que si el segmento $[l;r]$ largo, en él se incluirá varias unidades enteras, y en estos bloques podemos saber la cantidad de ellos en una sola operación. En resumen de todo el tronzado $[l;r]$ seguirá siendo sólo dos bloques que caen en él sólo parcialmente, y en esas piezas tendremos que realizar la suma de trivial por el algoritmo.
+
+La ilustración (aquí a través de la $k$ indicará el número de bloque, en el que est $l$, y por $p$ --- número de bloque, en el que est $r$):
+
+$$ \sum_ ~ \overbrace{ a[l] ~ \ldots ~ a[(k+1) \cdot s-1] ~ \underbrace{ a[(k+1) \cdot s] ~ \ldots ~ a[(k+2) \cdot s-1] }_{b[k+1]} ~ \ldots ~ \underbrace{ a[(p-1) \cdot s] ~ \ldots ~ a[p \cdot s-1] }_{b[p]}\ a[p \cdot s] ~ \ldots a_r }^{sum=?} ~ \ldots $$
+
+En esta figura se ve que para calcular el monto en el tramo de $[l \ldots r]$, es necesario sumar los elementos de sólo dos "colas" de: $[l \ldots (k+1) \cdot s-1],$ y $[p \cdot s \ldots r]$, y sumar el valor de $b[i]$ en todos los bloques, a partir de $k+1$ hasta $p-1$:
+
+$$ \sum_{i=l}^{r} a[i] = \sum_{i=l}^{(k+1) \cdot s-1} a[i] + \sum_{i=k+1}^{p-1} b[i] + \sum_{i=p \cdot s}^{r} a[i] $$
+
+(nota: esta fórmula es incorrecta, cuando $k=p$: en este caso, algunos elementos se sumar dos veces; en este caso, simplemente hay que sumar los elementos de con $l$ $r$)
+
+Así que экононим un número considerable de operaciones. De hecho, el tamaño de cada una de las "colas", es evidente, no excede de la longitud de la unidad $s$, y el número de bloques no supera los $s$. Ya que $s$ seleccionamos $\approx \sqrt{n}$, entonces totales para el cálculo de la suma en el intervalo $[l \ldots r]$ necesitaremos sólo $O(\sqrt{n})$ de operaciones.
+
+
+\h3{Aplicación}
+
+Veamos primero simplísimo la aplicación de:
+
+\code
+// datos de entrada
+int n;
+vector<int> a (n);
+
+// предпосчет
+int len = (int) sqrt (n + .0) + 1; // tamaño de la unidad, y el número de bloques
+vector<int> b (len);
+for (int i=0; i<n; ++i)
+b[i / len] += a[i];
+
+// la respuesta a las solicitudes de
+for (;;) {
+int l, r; // leyendo los datos de entrada - una nueva consulta
+int sum = 0;
+for (int i=l; i<=r; )
+if (i % len == 0 && i + len - 1 <= r) {
+// si i indica el inicio de un bloque entero yace en el [l;r]
+sum += b[i / len];
+i += len;
+}
+else {
+sum += a[i];
+++i;
+}
+}
+\endcode
+
+La desventaja de esta aplicación es que en ella demasiado de las operaciones de la división (que, como se sabe, son considerablemente más lento que otras operaciones). En lugar de ello, se puede contar el número de bloque $c_l$ y $c_r$, en la que se encuentran las fronteras de $l$ y $r$, respectivamente, y, a continuación, hacer un ciclo de bloques con $c_l+1$ de $c_r-1$, por separado, tratando de "colas" en los bloques de $c_l$ y $c_r$. Además, cuando tal aplicación caso $c_l = c_r$ se convierte en especial y requiere de tratamiento individual:
+
+\code
+int sum = 0;
+int c_l = l / len, c_r = r / len;
+if (c_l == c_r)
+for (int i=l; i<=r; i++)
+sum += a[i];
+else {
+for (int i=l, end=(c_l+1)*len-1; i<=end; ++i)
+sum += a[i];
+for (int i=c_l+1; i<=c_r-1; i++)
+sum += b[i];
+for (int i=c_r*len; i<=r; i++)
+sum += a[i];
+}
+\endcode
+
+
+\h3{Otras tareas}
+
+Hemos observado que la tarea de encontrar la suma de los elementos de la matriz en la parte de подотрезке. Esta tarea se puede ampliar un poco: solucionaremos también \bf{variar} los elementos individuales de la matriz $A$. En efecto, si se cambia algún elemento $a_i$, es suficiente con actualizar el valor de $b[k]$ es el bloque en el que este elemento se encuentra ($k = i / len$):
+
+$ a$ b[k] += a[i] - old\_a[i]. $$
+
+Por otro lado, en lugar de la tarea sobre la suma de igual forma, puede resolver problemas de \bf{mínimo, máximo} los elementos de la pieza. Si en estas tareas, permitir el cambio de los elementos individuales, sino que también será necesario volver a calcular el valor de $b_k$ lo de la unidad a la que pertenece el elemento a cambiar, pero contar ya por completo, el paso de todos los elementos de la unidad a $O(len) = O(\sqrt{n})$ de operaciones.
+
+Del mismo modo sqrt-estructura de desglose se puede utilizar para multitud de \bf{otros} de estas tareas: encontrar el número cero de los elementos, el primer elemento distinto de, contar el número de elementos específicos, etc.
+
+Hay una clase de tareas, cuando se producen \bf{modificación de elementos en un conjunto de подотрезке}: la suma o la apropiación de los elementos en algún подотрезке de la matriz $A$.
+
+Por ejemplo, es necesario realizar los siguientes dos tipos de consultas: añadir a todos los elementos de un segmento $[l;r]$ valor $\delta$, y a reconocer el valor de un elemento individual de $a_i$. Entonces como $b_k$ pondremos la cantidad que debe ser sera a todos los elementos de $k$-ésimo bloque (por ejemplo, inicialmente, todos los $b_k = 0$); entonces cuando se ejecuta la consulta "aumento" será necesario realizar la suma de todos los elementos de $a_i$ "colas" y, a continuación, realizar la suma de todos los elementos de $b_i$ para los bloques de la totalidad de la mentira, en el tramo de $[l \ldots r]$. Y la respuesta a la segunda solicitud, obviamente, será de sólo $a_i + b_k$, donde $k = i / len$. Por lo tanto, el aumento en el tramo de la se ejecutará por $O(\sqrt{n})$, y la solicitud de un elemento individual - - - $O(1)$.
+
+Por último, se pueden combinar ambos tipos de tareas: cambio de los elementos en el tramo y la respuesta a las solicitudes también en el tramo. Ambos tipos de operaciones se ejecutarán $O(\sqrt{n})$. Para ello, ya que es necesario hacer dos "блоковых" $b$ y $c$: uno --- para asegurar el cambio en el tramo, el otro --- para responder a las solicitudes.
+
+Se puede citar el ejemplo y otras tareas a las que se puede aplicar sqrt-estructura de desglose. Por ejemplo, se puede abordar la tarea de \bf{mantener el conjunto de números} con la posibilidad de agregar/quitar números, verificar el número de afiliación a la multitud, la búsqueda de $k$-al orden de los números. Para resolver esta tarea es necesario almacenar el número de ordenadas, divididas en varios bloques de $\sqrt{n}$ de números cada una. Cuando se agrega o quita número será necesario producir un "перебалансировку" de los bloques, echando números que comenzó a/cabo de unos bloques de inicio/los extremos de los bloques adyacentes.
+
+
+\h2{Sqrt-la descomposición de entrada de consultas}
+
+Veamos ahora el otro la aplicación de la idea sobre la sqrt-de descomposición.
+
+Supongamos que tenemos una cierta tarea en la que se nos dan algunos datos de entrada y, a continuación, provienen de $k$ comandos y consultas, cada uno de los cuales debemos dar a procesar y emitir una respuesta. Consideramos el caso, cuando las solicitudes son como solicitan (no cambian el estado del sistema, y sólo piden un poco de información), y modifican (es decir, influyen en el estado del sistema, inicialmente, el valor nominal de la entrada de datos).
+
+Objetivo específico puede ser muy compleja, y "honesto" de su decisión (que lee una petición, la procesa, cambiando el estado del sistema, y devuelve la respuesta) puede ser técnicamente difícil o no ser de las fuerzas para el final. Por otro lado, la decisión de "оффлайнового" variante de la tarea, es decir, cuando no se modifican de la operación, y sólo se dispone de sólo solicitan consultas --- a menudo resulta mucho más fácil. Supongamos que estamos \bf{capaces de hacer frente a las "оффлайновый" opción} de la tarea, es decir, construir un lapso de tiempo de $B(n)$ una estructura de datos que puede responder, pero no es capaz de procesar modifican las solicitudes.
+
+Entonces \bf{romperemos de entrada de las solicitudes en los bloques} (¿qué longitud --- hasta que no precisamos; se denota esta longitud a través de la $s$). En el inicio del procesamiento de cada bloque vamos a por $B(n)$ a construir la estructura de datos para "оффлайнового" variante de la tarea a partir de datos en el momento de inicio de este bloque.
+
+Ahora vamos a por la cola de tomar las solicitudes de bloque actual y procesar cada uno de ellos. Si la solicitud actual --- модифицирующий, lo perderemos. Si la solicitud actual --- el solicitante, volvemos a la estructura de datos para оффлайнового de la variante de la tarea, pero previamente \bf{teniendo en cuenta todas modifican las solicitudes en el bloque actual}. Qué es la racionalización de la modificación de las consultas es posible, no siempre es, y debe ser lo suficientemente rápido --- por hora $O(s)$ o un poco peor; se denota este tiempo a través de la $Q(s)$.
+
+Por lo tanto, si sólo tenemos $m$ consulta, procesamiento necesario $B(m) \frac{m}{s} + m Q(s)$ de tiempo. La cantidad de $s$ se deben elegir en función de un determinado tipo de función $B)$ y $Q()$. Por ejemplo, si $B(m)=O(m)$ y $Q(s)=O(s)$, entonces la mejor opción será $s \approx \sqrt{m}$, y el final asíntotas resultará $O (m \sqrt{m})$.
+
+Ya que el anterior razonamiento es demasiado abstractas, a continuación se presentan varios ejemplos de tareas a las que se refiere esta sqrt-la descomposición.
+
+
+\h3{un Ejemplo: el aumento en el tramo de la}
+
+Planteo del problema: dada una matriz de números $a[1 \ldots, n]$, y se recibe la solicitud de dos tipos: encontrar el valor de $i$-ésimo elemento de la matriz, y añadir un número de $x$ a todos los elementos de la matriz en cierto tramo de la $a[l \dots r]$.
+
+Aunque esta tarea se puede resolver sin la recepción con una ruptura de consultas en bloques, presentamos aquí --- como sencilla y clara de la aplicación de este método.
+
+Así, dividimos de entrada de las solicitudes en bloques de $\sqrt{m}$ (donde $m$ --- número de solicitudes). En el comienzo del primer bloque de consultas ninguna de las estructuras a construir no es necesario, simplemente guardamos la información de la matriz $a[]$. Vamos ahora por consultas al primer bloque. Si la solicitud actual --- solicitud de incorporación, mientras que saltamos. Si la solicitud actual --- solicitud de lectura de los valores en cierta posición de la $i$, lo primero simplemente tomemos como respuesta el valor de $a[i]$. A continuación, vamos a hacer un recorrido por todas пропущенным en este bloque, las peticiones de incorporación, y para aquellos en que cae $i$, se aplica un aumento actual de la respuesta.
+
+Por lo tanto, hemos aprendido a responder a las cuales solicitan consultas por hora $O(\sqrt{m})$.
+
+Solo queda observar que al final de cada bloque de las solicitudes que deben aplicar los modificadores consultas de este bloque a la matriz $a[]$. Pero esto es fácil de hacer por $O(n)$ --- suficiente para cada consulta sumar $(l,r,x)$ señalar en el informativo de la matriz en el punto $l$ número $x$ en el punto $r+1$ --- cantidad de $x$, y luego caminar por la matriz, aumentando la cantidad a la matriz $a[]$.
+
+Por lo tanto, el total asíntotas de la decisión será de $O (\sqrt{m} (n + m))$.
+
+
+\h3{Ejemplo de tarea: disjoint-set-union con la separación}
+
+Hay неориентированный el conde con $n$ cimas $m$ las costillas. Se recibe la solicitud de tres tipos: añadir arista $(x_i,y_i)$, eliminar la arista $(x_i,y_i)$, y comprobar si son o no de la cima de $x_i$ y $y_i$ camino.
+
+Si las solicitudes de eliminación faltaban, entonces la solución sería la conocida estructura de datos \algohref=dsu{disjoint-set-union (sistema de conjuntos disjuntos)}. Sin embargo, si tiene eliminaciones tarea mucho más complicado.
+
+Haremos de la siguiente manera. Al comienzo de cada bloque de consultas de ver cuáles son las costillas en este bloque se eliminen, y de inmediato \bf{eliminaremos} de conde. Ahora construiremos un sistema de conjuntos disjuntos (dsu) en el que recibió la columna.
+
+Como estamos ahora, debe responder a una nueva consulta bloque actual? Nuestro sistema de conjuntos disjuntos "sabe" acerca de todas las costillas, además de aquellos que se añaden/eliminan en el bloque actual. Sin embargo, la eliminación de la dsu debemos hacer ya no es necesario --- que previamente han eliminado todos esos nervios de la columna. Por lo tanto, todo lo que puede ser --- es más, добавляющиеся de la aleta, que puede ser un máximo de $\sqrt{m}$ de las piezas.
+
+Por lo tanto, cuando la respuesta a la actual solicita la consulta podemos simplemente soltar un rastreo en el ancho de los componentes de la conectividad dsu, que cumplirá $O(\sqrt{m})$, ya que tenemos en el examen será de sólo $O(\sqrt{m})$ de las costillas.
+
+
+
+\h2{Locales la tarea de responder a подотрезках de la matriz y universal sqrt-heurística para ellos}
+
+Veamos una interesante variación de la idea de raiz-de descomposición.
+
+Supongamos que tenemos una cierta tarea en la que hay una matriz de números, y llegan solicitan consultas, que tiene la apariencia de $(l,r)$ --- averiguar algo sobre подотрезке $a[l \ldots r]$. Creemos que las solicitudes no se modifican, y conocemos de antemano, es decir, la tarea --- оффлайновая.
+
+Finalmente, introduciremos la última \bf{restricción}: creemos que sabemos rápidamente a calcular la respuesta a la consulta cuando se cambia la izquierda o a la derecha de la frontera de la unidad. Es decir, si sabemos la respuesta a la consulta $(l,r)$, entonces rápidamente podemos calcular la respuesta a la consulta $(l+1,r)$ o $(l-1,r)$ o $(l,r+1)$ $(l,r-1)$.
+
+Describamos ahora \bf{universal de la heurística} para todas las tareas. Ordenará las solicitudes de pareja: $(l ~ {\rm div} ~ \sqrt{n}, r)$. Es decir, hemos clasificado las consultas por número de raiz-de un bloque en el que se encuentra el extremo izquierdo, y en caso de empate, - - - a la derecha finales.
+
+Veamos ahora el grupo de peticiones con el mismo valor de $l ~ {\rm div} ~ \sqrt{n}$ y vamos a procesar todas las solicitudes de este grupo. La respuesta a la primera solicitud consideramos trivial. Cada consulta siguiente vamos a considerar en base a la respuesta anterior: es decir, mover los bordes izquierdo y derecho de la consulta anterior a las fronteras de la consulta siguiente, manteniendo la respuesta actual. Ponemos асимптотику: límite izquierdo cada vez que pueda moverse en no más de $\sqrt{n}$ más, y la derecha --- no más de $n$ más en la suma de todas las consultas en el grupo actual. Total, si el grupo era de $k$ de consultas, en la suma será el hecho de no más de $n + k \cdot \sqrt{n}$ de los nuevos cálculos. En la suma de todo el algoritmo funciona --- $O((n + m) \cdot \sqrt{n})$ de los nuevos cálculos.
+
+Simple \bf{ejemplo} en esta heurística es el problema de averiguar la cantidad de números diferentes en el tramo de la matriz $[l;r]$.
+
+Un poco más de усложненным una variante de esta tarea es \href=http://www.codeforces.es/contest/86/problem/D{tarea de una de las rondas de Codeforces}.

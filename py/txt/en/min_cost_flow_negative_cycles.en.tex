@@ -1,0 +1,167 @@
+\h1{minimum-cost Flow, minimum cost circulation. Algorithm for removing cycles of negative weight}
+
+\h2{Setting goals}
+
+Let $G$ --- network (network), i.e. a directed graph in which the selected vertex is the source $s$ and sink $t$. The set of vertices we denote by $V$, the set of edges --- through $E$. Each edge $(i,j) \in E$ is mapped to its capacity $u_{ij} \ge 0$ and the cost per unit flow $c_{ij}$. If any edge $(i,j)$ in the column no then assume that $u_{ij} = c_{ij} = 0$.
+
+\bf{Stream} (flow) in a network $G$ is such deystvitelnosti function $f$ that maps each pair of vertices $(i,j)$, the flow $f_{ij}$ between them, and satisfies three conditions:
+
+\ul{
+\li the bandwidth Limit (conducted for any $i, j \in V$):
+$$ f_{ij} \le u_{ij} $$
+\li Antisymmetrical (performed for any $i, j \in V$):
+$$ f_{ij} = - f_{ji} $$
+\li Save thread (runs for any $i \in V$ except $i=s$, $i=t$):
+$$ \sum_{j \in V} f_{ij} = 0 $$
+}
+
+The flow value is value
+$$ |f| = \sum_{i \in V} f_{si} $$
+
+The value stream is value
+$$ z(f) = \sum_{i,j \in V} c_{ij} f_{ij} $$
+
+The problem of nding \bf{flow of minimum cost} is that for a given flow value $|f|$ is required to find a flow with minimum value of $z(f)$. You should pay attention to the fact that the cost $c_{ij}$ is assigned to edges that are responsible for the cost of a unit of ow along this edge; sometimes there is a problem when the ribs are compared the cost of leakage flow along this edge (i.e., if flows a stream of any size, you will be charged this cost, regardless of the size of the stream) --- this problem has nothing to do with discussed here and, moreover, is NP-complete.
+
+The problem of nding \bf{maximum flow of minimum cost} is to find a flow of maximum value, among all such --- with minimal cost. In the special case when all edge weights are equal, this is equivalent to ordinary maximum ow problem.
+
+The problem of nding \bf{the minimum-cost circulation} is to find the flow of the null value with minimal cost. If all costs are nonnegative, then the answer will be zero flow $f_{ij}=0$; if there are edges of negative weight (or rather, the cycles of negative weight), even at zero flow you can find the thread negative value. The problem of nding the minimum-cost circulation can, of course, be put on the network without source and drain, since no semantic load they carry (however, in this graph, you can add the source and drain in the form of isolated vertices and obtain a regular on the wording of the task). Sometimes the task of finding the maximum circulation value --- clearly, it is enough to change the cost of the edges on opposite and get the task of finding a circulation of minimum cost already.
+
+All of these tasks, of course, can be applied to undirected graphs. However, to move from an undirected graph to oriented easy: each undirected edge $(i,j)$ with capacity $u_{ij}$ and $c_{ij}$ should be replaced by two directed edges $(i,j)$ and $(j,i)$ with the same bandwidth capabilities and costs.
+
+\h2{the residual network}
+
+The concept of \bf{residual network} $G^f$ based on the following simple idea. Let there be some thread $f$; along each edge $(i,j) \in E$ occurs some flow $f_{ij} \le u_{ij}$. Then along this edge can (in theory) let $u_{ij} - f_{ij}$ units of flow; this value and call \bf{residual bandwidth}:
+$$ r_{ij}^f = u_{ij} - f_{ij} $$
+The cost of these additional units of flow will be the same:
+$$ c_{ij}^f = c_{ij} $$
+
+However, in addition, \bf{direct} the edge $(i,j)$ in the residual network $G^f$ appears \bf{back edge} $(j,i)$. The intuitive meaning of this edge is that we may in the future cancel the portion of the stream that flowed by the edge $(i,j)$. Accordingly, the transmission of this reverse ow along the edges $(j,i)$ in fact, both formally means a decrease in the flow along edge $(i,j)$. The reverse edge has a capacity equal to zero (so that, for example, if $f_{ij}=0$ and on the reverse edge impossible to miss the stream, with positive to the value of $f_{ij}>0$ for backward edges on a property antisymmetrical will be $f_{ji}<0$, which is less than $c_{ji}^f = 0$, i.e. you can pass some ow along the reverse edge), residual capacity --- equal to the ow along the straight edges, and the cost --- opposite (because after the abolition of part of the stream we should accordingly be reduced and the cost):
+$$ u_{ji}^f = 0 $$
+$$ r_{ji}^f = f_{ij} $$
+$$ c_{ji}^f = -c_{ij} $$
+
+Thus, to each oriented edge in $G$ corresponds to two oriented edges in the residual network $G^f$, and every edge of the residual network an additional feature --- the residual bandwidth. However, it is easy to see that the expression for the residual bandwidth $r_{ij}^f$ is essentially the same both for direct and for reverse edges, i.e. we can write for any edge $(i,j)$ in the residual network:
+$$ r_{ij}^f = u_{ij}^f - f_{ij}^f $$
+By the way, if you implement this feature allows you to store the residual bandwidth, but simply calculate them when needed for the ribs.
+
+It should be noted that from the residual network removes all edges with zero residual capacity. The residual network $G^f$ must contain \bf{only edges with positive residual bandwidth $r_{ij}^f$}.
+
+Here you should pay attention to this important point: if $G$ are both edges $(i,j)$ and $(j,i)$, then in the residual network, each of them will appear on the reverse edge, and will eventually appear \bf{multiple edges}. For example, this situation often occurs when the network is based on an undirected graph (and, it turns out, each undirected edge will eventually lead to the emergence of four edges in the residual network). This peculiarity should always be remembered, it leads to a slight complication in programming, though in General doesn't change anything. In addition, the designation of edges $(i,j)$ in this case becomes ambiguous, therefore, everywhere below we will assume that this network is not (solely for the purpose of simplicity and correctness of the descriptions on the correctness of ideas is not affected).
+
+\h2{the optimality Criterion for the presence of negative weight cycles}
+
+\bf{Theorem.} Some thread $f$ is optimal (i.e. has the lowest cost among all flows of the same magnitude) then and only then, when the residual network $G^f$ does not contain cycles of negative weight.
+
+\bf{Proof: necessity}. Let the flow of $f$ is optimal. Assume that the residual network $G^f$ contains a cycle of negative weight. Take this cycle of negative weight and we choose $k$ among the residual capacities of edges of this cycle ($k$ will be greater than zero). But then we can increase the ow along each edge of the cycle by the value of $k$, thus no properties of the flow is not disturbed, the flow will not change, however, the cost of flow will decrease (reduced by the cost of the cycle multiplied by $k$). Thus, if there is a negative weight cycle, then $f$ cannot be optimal, hours etc.
+
+\bf{Proof: sufficiency}. To do this, first prove the auxiliary facts.
+
+\bf{Lemma 1} (flow decomposition): any flow $f$ can be represented as a set of paths from the source to the drain and cycles, all --- with a positive flow. We will prove this Lemma is constructive: we show how to break the flow of the set of paths and cycles. If the flow has a nonzero value, then, obviously, from the source $s$ leaves at least one edge with positive flow; go by this edge, we find ourselves in some kind of vertex $v_1$. If the vertex $v_1 = t$, then stop --- find the path from $s$ to $t$. Otherwise, save the flow of $v_1$ must go at least one edge with positive flow; go through it to a vertex $v_2$. By repeating this process, we will either come to the sink $t$, or come into some vertex for the second time. In the first case, we find the path from $s$ to $t$, in the second-cycle. Found the path/cycle will have a positive flow of $k$ (at least of the threads of edges of this path/cycle). Then reduce the ow along every edge of this path/cycle by the value of $k$, the result is again a stream, which again is applicable to this process. Sooner or later, the flow along all edges becomes zero, and we find its decomposition into paths and cycles.
+
+\bf{Lemma 2} (a difference of streams): for any two flows $f$ and $g$ is one value ($|f| = |g|$), the flux $g$ can be represented as a flow $f$ plus a few cycles in the residual network $G^f$. Indeed, consider the difference between these flows $g-f$ (subtraction of flows is memberwise subtraction, i.e. subtraction of threads along each edge). It is easy to verify that the result is some thread of zero size, i.e. the circulation. To perform the decomposition of this circulation by the preceding Lemma. Obviously, this decomposition cannot contain paths (a $s$-$t$-paths with a positive flow means that the flow rate in the network is positive). Thus, the difference flows $g$ and $f$ can be represented as a sum of cycles in the network $G$. Moreover, it will be cycles in the residual network $G^f$, because $g_{ij} - f_{ij} \le u_{ij} - f_{ij} = r_{ij}^f$, h. etc.
+
+Now, armed with these lemmas, we can easily \bf{to prove the sufficiency}. So, consider the flow $f$, the residual network in which there are no cycles of negative cost. Consider also the flow of the same magnitude, but the minimum value of $f^*$; prove that $f$ and $f^*$ have the same value. By Lemma 2, the flow $f^*$ can be represented as the sum of the flow $f$ and several cycles. But once the cost of all cycles is non-negative, then the value of the flow $f^*$ cannot be less than the cost of the flow $f$: $z(f^*) \ge z(f)$. On the other hand, since the flow $f^*$ is optimal, its cost can not be higher than the cost of the flow $f$. Thus, $z(f) = z(f^*)$, hours etc.
+
+\h2{Algorithm for removing cycles of negative weight}
+
+Just proven theorem gives us a simple \bf{algorithm} that allows to find a flow of minimum cost: if we have a flow $f$, then for him to build the residual network, check if it has a cycle of negative weight. If this cycle no, then the flow $f$ is optimal (has minimum cost among all flows of the same magnitude). If there was found a negative cost cycle, it is possible to calculate the flow of $k$ that you can skip further through this loop (it $k$ will be equal to the minimum of the residual capacities of edges of the cycle). Increasing the flow on $k$ along each edge of the cycle, we obviously don't violate the properties of flow, change the flow rate, but decrease the cost of this stream, after receiving a new flow $f^\prime$ for which it is necessary to repeat the whole process.
+
+Thus, to start the process of improving the value stream, we first need to find \bf{arbitrary flow desired value} (any standard algorithm for finding the maximum flow, see for example \algohref=edmonds_karp{algorithm Edmonds-Karp}). In particular, if you want to find the lowest circulation value, you can just start with zero flow.
+
+Rate \bf{complexity} of the algorithm. Searching for a negative cost cycle in a graph with $n$ vertices and $m$ edges is $O(nm)$ (see \algohref=negative_cycle{appropriate article}). If we denote by $C$ the largest of the values of edges, using $U$ --- greater of capacities, the maximum value of the cost stream does not exceed $mCU$. If all the cost and bandwidth --- integers, then each iteration of the algorithm reduces the value of the flow at least by one; therefore, only the algorithm make $O(mCU)$ iterations, while the complexity will be:
+$$ O(nm^2) $$
+
+This asymptotic behavior --- not strictly polynomial (strong polynomial), as a function of values of throughputs and costs.
+
+However, if the search is not arbitrary negative cycle, and used a more clear approach, the asymptotic behavior can be drastically decreased. For example, if every time to find the cycle with minimum average cost (which also can be made $O(nm)$), the time of the whole algorithm is reduced to $O(nm^2 \log n)$, and this asymptotic behavior is already strictly polynomial.
+
+\h2{the Implementation}
+
+First, we introduce the data structures and functions to store the graph. Each edge is stored in a separate structure $\rm edge$, all the edges are in the list $\rm edges$, and for each vertex $i$ in the vector ${\rm g}[i]$ are the numbers of edges going out from it. This organization makes it easy to find the room opposite edges by the number of direct edges --- they are in the list $\rm edges$ adjacent, and one room can call another operation "^1" (it inverts the low-order bit). Adding oriented edges to the graph by the function $\rm add\_edge$, which immediately adds forward and reverse edges.
+
+\code
+const int MAXN = 100*2;
+int n;
+struct edge {
+int v, to, u, f, c;
+};
+vector<edge> edges;
+vector<int> g[MAXN];
+
+void add_edge (int v, int to, int cap, int cost) {
+edge e1 = { v, to, cap, 0, cost };
+edge e2 = { to, v, 0, 0, -cost };
+g[v].push_back ((int) edges.size());
+edges.push_back (e1);
+g[to].push_back ((int) edges.size());
+edges.push_back (e2);
+}
+\endcode
+
+In the main program after the reading of the graph is an infinite loop, inside of which runs the algorithm Ford-Bellman, and if it finds a negative cost cycle, then along the cycle increases the flow. As the residual network may be a disconnected graph, the algorithm Ford-Bellman run from each not yet reached the top. In order to optimize the algorithm uses the queue (current queue $\rm q$ and new $\rm nq$), not to touch at every stage all edges. Along the detected cycle each time is pushed exactly one unit of flow, although, of course, in order to optimize the value stream can be defined as the minimum residual bandwidth.
+
+\code
+const int INF = 1000000000;
+for (;;) {
+bool found = false;
+
+vector<int> d (n, INF);
+vector<int> par (n, -1);
+for (int i=0; i<n; ++i)
+if (d[i] == INF) {
+d[i] = 0;
+vector<int> q, nq;
+q.push_back (i);
+for (int it=0; it<n && q.size(); ++it) {
+nq.clear();
+sort (q.begin(), q.end());
+q.erase (unique (q.begin(), q.end()), q.end());
+for (size_t j=0; j<q.size(); ++j) {
+int v = q[j];
+for (size_t k=0; k<g[v].size(); ++k) {
+int id = g[v][k];
+if (edges[id].f < edges[id].u)
+if (d[v] + edges[id].c < d[edges[id].to]) {
+d[edges[id].to] = d[v] + edges[id].c;
+par[edges[id].to] = v;
+nq.push_back (edges[id].to);
+}
+}
+}
+swap (q, nq);
+}
+if (q.size()) {
+int leaf = q[0];
+vector<int> path;
+for (int v=leaf; v!=-1; v=par[v])
+if (find (path.begin(), path.end(), v) == path.end())
+path.push_back (v);
+else {
+path.erase (path.begin(), find (path.begin(), path.end(), v));
+break;
+}
+for (size_t j=0; j<path.size(); ++j) {
+int to = path[j], v = path[(j+1)%path.size()];
+for (size_t k=0; k<g[v].size(); ++k)
+if (edges[ g[v][k] ].to == to) {
+int id = g[v][k];
+edges[id].f += 1;
+edges[id^1].f -= 1;
+}
+}
+found = true;
+}
+}
+
+if (!found) break;
+}
+\endcode
+
+\h2{Literature}
+
+\ul{
+\li \book{Thomas Cormen, Charles Leiserson, Ronald Rivest, Clifford Stein}{Algorithms: Construction and analysis}{2005}{cormen.djvu}
+\li \book{Ravindra Ahuja, Thomas Magnanti, James Orlin}{Network flows}{1993}{ahuja_flows.djvu}
+\li \book{Andrew Goldberg, Robert Tarjan}{Finding Minimum-Cost Circulations by Cancelling Negative Cycles}{1989}
+}

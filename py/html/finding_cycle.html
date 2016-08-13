@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Проверка графа на ацикличность и нахождение цикла</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Проверка графа на ацикличность и нахождение цикла</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Проверка графа на ацикличность и нахождение цикла&lt;/h1&gt;
+
+&lt;p&gt;Пусть дан ориентированный или неориентированный граф без петель и кратных рёбер. Требуется проверить, является ли он ациклическим, а если не является, то найти любой цикл.&lt;/p&gt;
+&lt;p&gt;Решим эту задачу с помощью &lt;algohref=dfs&gt;поиска в глубину&lt;/algohref&gt; за O (M).&lt;/p&gt;
+&lt;h2&gt;Алгоритм&lt;/h2&gt;
+&lt;p&gt;Произведём серию поисков в глубину в графе. Т.е. из каждой вершины, в которую мы ещё ни разу не приходили, запустим поиск в глубину, который при входе в вершину будет красить её в серый цвет, а при выходе - в чёрный. И если поиск в глубину пытается пойти в серую вершину, то это означает, что мы нашли цикл (если граф неориентированный, то случаи, когда поиск в глубину из какой-то вершины пытается пойти в предка, не считаются).&lt;/p&gt;
+&lt;p&gt;Сам цикл можно восстановить проходом по массиву предков.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;p&gt;Здесь приведена реализация для случая ориентированного графа.&lt;/p&gt;
+&lt;code&gt;int n;
+vector &amp;lt; vector&amp;lt;int&gt; &gt; g;
+vector&amp;lt;char&gt; cl;
+vector&amp;lt;int&gt; p;
+int cycle_st, cycle_end;
+
+bool dfs (int v) {
+	cl[v] = 1;
+	for (size_t i=0; i&amp;lt;g[v].size(); ++i) {
+		int to = g[v][i];
+		if (cl[to] == 0) {
+			p[to] = v;
+			if (dfs (to))  return true;
+		}
+		else if (cl[to] == 1) {
+			cycle_end = v;
+			cycle_st = to;
+			return true;
+		}
+	}
+	cl[v] = 2;
+	return false;
+}
+
+int main() {
+	... чтение графа ...
+
+	p.assign (n, -1);
+	cl.assign (n, 0);
+	cycle_st = -1;
+	for (int i=0; i&amp;lt;n; ++i)
+		if (dfs (i))
+			break;
+
+	if (cycle_st == -1)
+		puts (&quot;Acyclic&quot;);
+	else {
+		puts (&quot;Cyclic&quot;);
+		vector&amp;lt;int&gt; cycle;
+		cycle.push_back (cycle_st);
+		for (int v=cycle_end; v!=cycle_st; v=p[v])
+			cycle.push_back (v);
+		cycle.push_back (cycle_st);
+		reverse (cycle.begin(), cycle.end());
+		for (size_t i=0; i&amp;lt;cycle.size(); ++i)
+			printf (&quot;%d &quot;, cycle[i]+1);
+	}
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

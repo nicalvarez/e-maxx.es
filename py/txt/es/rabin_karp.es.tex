@@ -1,0 +1,41 @@
+<h1>el Algoritmo de rabin-la Carpa de la búsqueda de una subcadena en una cadena de O (N)</h1>
+
+<p>Este algoritmo se basa en el hash de filas, y aquellos que no están familiarizados con el tema, отсылаю a <algohref=string_hashes>"los Algoritmos de hash en las tareas de la cadena"</algohref>.</p>
+
+<p> </p>
+
+<p>los Autores del algoritmo - rabin (Rabin) y la Carpa (Karp), 1987.</p>
+<p>Dada una cadena de S y el texto de T, consistente en pequeñas letras del alfabeto latino. Es necesario encontrar todas las apariciones de una cadena S en el texto de T por un tiempo O (|S| + |T|).</p>
+<p>el Algoritmo. Calcular el hash de la cadena S. Calcular el valor hash de la contraseña para todos los prefijos de la cadena T. Ahora переберем todas las subcadenas T la longitud de la |S| y cada una de las comparamos con |S| en tiempo O (1).</p>
+<h2>Realización</h2>
+<code>string s, t; // datos de entrada
+
+// contamos todos los grados de la p
+const int p = 31;
+vector<long long> p_pow (max (s.length(), t.length()));
+p_pow[0] = 1;
+for (size_t i=1; i<p_pow.size(); ++i)
+p_pow[i] = p_pow[i-1] * p;
+
+// creemos hashes de todos los prefijos de línea T
+vector<long long> h (t.length());
+for (size_t i=0; i<t.length (); i++)
+{
+h[i] = (t[i] - \'a\' + 1) * p_pow[i];
+if (i) h[i] += h[i-1];
+}
+
+// contamos el hash de la cadena S
+long long h_s = 0;
+for (size_t i=0; i<s.length (); i++)
+h_s += (s[i] - \'a\' + 1) * p_pow[i];
+
+// перебираем todas las subcadenas T la longitud de la |S| y los comparamos
+for (size_t i = 0; i + s.length() - 1 < t.length (); i++)
+{
+long long cur_h = h[i+s.length()-1];
+if (i) cur_h -= h[i-1];
+// llevamos el hash de una medida y los comparamos
+if (cur_h == h_s * p_pow[i])
+cout << i << \' \';
+}</code>

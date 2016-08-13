@@ -1,0 +1,143 @@
+\h1{Finding the minimum cut. The Algorithm Curtains-Wagner}
+
+
+\h2{problem Statement}
+
+Given an undirected weighted graph $G$ with $n$ vertices and $m$ edges. A cut $C$ is called a subset of vertices (in fact, split --- split the vertices in two sets: belonging to $C$ and all others). The weight of a cut is the sum of the weights of the edges passing across the cut, i.e. edges, exactly one end of which belongs to $C$:
+
+$$ w(C) = \sum_{(v,u) \in E, \atop u \in C, v \not\in C} c(v,u), $$
+
+where $E$ denoted the set of all edges of the graph $G$, and using $c(v,u)$ --- the weight of edge $(v,u)$.
+
+You want to find \bf{the cut of minimum weight}.
+
+Sometimes this task is called "global minimum cut" --- in contrast with the task, when set the top-drain and source, and you want to find the minimum cut $C$ that contains the runoff and does not contain the source. Global minimum cut is equal to the minimum among the sections of the minimum cost over all pairs source-drain.
+
+Although this problem can be solved using the algorithm for finding the maximum flow (launching its $O(n^2)$ time for various pairs of source and drain), however, described below is much simpler and faster algorithm proposed by Mathilde Blind (Mechthild Stoer) and Frank Wagner (Frank Wagner) in 1994
+
+In the General case of allowed loops and multiple edges, although, of course, hinges absolutely no effect on the result, and all multiple edges can be replaced by one edge with their total weight. We therefore for simplicity we assume that the input graph loops and multiple edges are missing.
+
+
+\h2{algorithm Description}
+
+\bf{the basic idea} the algorithm is very simple. We will iteratively repeat the following process: find the minimum cut between any pair of vertices $s$ and $t$, and then merge these two vertices into one (combining the adjacency lists). In the end, after $n-1$ iterations, the graph will be compressed into a single vertex and the process stops. After that, the answer is the minimum among all the $n-1$ cuts is found. Indeed, for each $i$-th stage found the minimum cut of $C_i$ between vertices $s_i$ and $t_i$ will either be the desired global minimum cut, or, alternatively, vertices $s_i$ and $t_i$ is unprofitable to refer to different sets, so we don't worsen by combining these two vertices into one.
+
+Thus, we have reduced the problem to the following: for a given graph find \bf{a minimum cut between some arbitrary pair of vertices} of $s$ and $t$. To solve this problem was proposed another iterative process. The input is some set of vertices $A$, which initially contains a single arbitrary vertex. At each step there is the peak, \bf{most strongly associated} with the set $A$, i.e. vertex $v \not\in A$ for which the following maximum:
+
+$$ w(v,A) = \sum_{(v,u) \in E, \atop u \in A} c(v,u) $$
+
+(i.e. the maximum sum of weights of edges, one end of which is $v$, and the other belongs to $A$).
+
+Again, this process will be completed through $n-1$ the iteration when all vertices will move to the set $A$ (by the way, this process is very similar to \algohref=mst_prim{Prim's algorithm}). Then, according to \bf{theorem Curtains-Wagner}, if we denote by $s$ and $t$ the last two added to $A$ vertices, the minimum cut between vertices $s$ and $t$ would consist of only the top --- $t$. The proof of this theorem will be given in the next section (as is often the case, by itself it does not contribute to the understanding of the algorithm).
+
+Thus, the total \bf{algorithm} Curtains-Wagner is. The algorithm consists of $n-1$ phases. At each phase a set $A$ relies first consisting of any vertex; counted starting weight of vertices $w(v,A)$. Then there is $n-1$ iteration, each of which choose a vertex $u$ with the largest value of $w(v,A)$ and is added to the set $A$, then translated values $w$ for the remaining vertices (which, obviously, need a refresher on the edges of the adjacency list of the selected vertices $u$). After completing all iterations, we record in $s$ and $t$ the numbers of the last two added vertices, and as the cost of the minimum cut between $s$ and $t$ can take the value $w(t,A \setminus t)$. Then it is necessary to compare the minimum cut with the current response, if less, updating answer. To move to the next phase.
+
+If you do not use any complex data structures, the most critical part will be finding the vertex with the largest value of $w$. If you make it $O(n)$, then, given that all phases of $n-1$, and $n-1$ in each iteration, the resulting \bf{asymptotic behavior of the algorithm} is $O(n^3)$.
+
+If for finding the vertex with the largest value of $w$ to use the \bf{Fibonacci heap} (which allow you to increase the value of the key $O(1)$ on average and to extract the most $O(\log n)$ in average), all related to the set $A$ the operation in one phase will be executed $O(m + n \log n)$. The complexity of the algorithm in this case is $O(m n + n^2 \log n)$.
+
+
+\h2{the Proof of theorem Curtains-Wagner}
+
+Recall the statement of this theorem. If you add to the set $A$ in turn all the vertices, each time adding a vertex that is most strongly associated with this variety, we will denote the penultimate vertex added via $s$, and the last --- through $t$. Then the minimum $s$-$t$ cut consists of a single vertex --- $t$.
+
+For the proof consider an arbitrary $s$-$t$ cut $C$ and show that its weight cannot be less than the weight of the cut consisting of only the vertices of $t$:
+
+$$ w(\{t\}) \le w(C). $$
+
+To do this, we will prove the following fact. Let $A_v$ --- the state of the set $A$ before adding the vertex $v$. Let $C_v$ --- cut sets $A_v \cup v$, induced by a cut $C$ (in other words, $C_v$ is equal to the intersection of these two sets of vertices). Further, the vertex $v$ is called active (with respect to the cross section $C$) if the vertex $v$ and added to previous $A$ vertex belong to different parts of the sequence $C$. Then, it is argued, for any active vertex $v$ the following inequality holds:
+
+$$ w(v,A_v) \le w(C_v). $$
+
+In particular, $t$ is an active vertex (since before it was added to the vertex $s$) and when $v = t$, this inequality becomes the statement of the theorem:
+
+$$ w(t,A_t) = w(\{t\}) \le w(C_t) = w(C). $$
+
+So, we will prove the inequality, for which we use the method of mathematical induction.
+
+For the first active vertex $v$, this inequality is true (more than that, it becomes an equality) --- since all the vertices of $A_v$ belong to the same part of the section and $v$ --- other.
+
+Now suppose that this inequality holds for all active nodes until some vertex $v$, we prove it for the next active vertex $u$. For that we will transform the left part:
+
+$$ w(u,A_u) \equiv w(u,A_v) + w(u,A_u \setminus A_v). $$
+
+First, note that:
+
+$$ w(u,A_v) \le w(v,A_v), $$
+
+--- this follows from the fact that when the set $A$ were equal to $A_v$, it was added exactly the vertex $v$, not $u$, then it had the largest value of $w$.
+
+Next, since $w(v,A_v) \le w(C_v)$ by the induction hypothesis, we get:
+
+$$ w(u,A_v) \le w(C_v), $$
+
+where we have:
+
+$$ w(u,A_u) \le w(C_v) + w(u,A_u \setminus A_v). $$
+
+Now observe that a vertex $u$ and all vertices $A_u \setminus A_v$ are in different parts of the sequence $C$, so this value of $w(u,A_u \setminus A_v)$ denotes the sum of weights of edges that are included in $w(C_u)$, but have not yet been accounted for in $w(C_v)$ and get:
+
+$$ w(u,A_u) \le w(C_v) + w(u,A_u \setminus A_v) \le w(C_u), $$
+
+what we wanted to prove.
+
+We proved the ratio $w(v,A_v) \le w(C_v)$, and from it, as mentioned above, should the whole theorem.
+
+
+\h2{the Implementation}
+
+For the most simple and clear implementations (with the asymptotics of $O(n^3)$) was chosen as the representation of the graph in form of adjacency matrix. The answer is stored in the variables $\rm best\_cost$ and $\rm best\_cut$ (the desired value of the minimum cut and the peaks contained therein).
+
+For each vertex in the array $\rm exist$ stored, does it exist or it has been merged with some other top. In the list of ${\rm v}[i]$ for each compressed vertex $i$ are the numbers of the source nodes, which were compressed in the top of $i$.
+
+The algorithm consists of $n-1$ phase (a cycle in the variable $\rm ph$). At each phase, first all the vertices are outside the set $A$, the array $\rm in\_a$ is zero-filled, and connectivity $w$ of all nodes is zero. On each of the $n-{\rm ph}$ of the iteration is the peak $\rm sel$ with the largest value of $w$. If this is the last iteration, then the answer, if necessary, updated and the penultimate $\rm prev$ and the last $\rm sel$ selected vertices are merged into one. If iteration is not the last, that $\rm sel$ is added to the set $A$, and then recalculated the weights of all other vertices.
+
+It should be noted that the algorithm in the course of their work "spoils" count $\rm g$, so if it will be needed later, need to save a copy before calling the function.
+
+\code
+const int MAXN = 500;
+int n, g[MAXN][MAXN];
+int best_cost = 1000000000;
+vector<int> best_cut;
+
+void mincut() {
+vector<int> v[MAXN];
+for (int i=0; i<n; ++i)
+v[i].assign (1, i);
+int w[MAXN];
+bool exist[MAXN], in_a[MAXN];
+memset (exist, true, sizeof exist);
+for (int ph=0; ph<n-1; ++ph) {
+memset (in_a, false, sizeof in_a);
+memset (w, 0, sizeof w);
+for (int it=0, prev; it<n-ph; it++) {
+int sel = -1;
+for (int i=0; i<n; ++i)
+if (exist[i] && !in_a[i] && (sel == -1 || w[i] > w[sel]))
+sel = i;
+if (it == n-ph-1) {
+if (w[sel] < best_cost)
+best_cost = w[sel] best_cut = v[sel];
+v[prev].insert (v[prev].end(), v[sel].begin(), v[sel].end());
+for (int i=0; i<n; ++i)
+g[prev][i] = g[i][prev] += g[sel][i];
+exist[sel] = false;
+}
+else {
+in_a[sel] = true;
+for (int i=0; i<n; ++i)
+w[i] += g[sel][i];
+prev = sel;
+}
+}
+}
+}
+\endcode
+
+
+\h2{Literature}
+
+\ul{
+\li \book{Mechthild Stoer, Frank Wagner}{A Simple Min-Cut Algorithm}{1997}{stoer_wagner_mincut.pdf}
+\li \book{Kurt Mehlhorn, Christian Uhrig}{The minimum cut algorithm of Stoer and Wagner}{1995}{mehlhorn_mincut_stoer_wagner.pdf}
+}

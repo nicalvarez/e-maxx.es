@@ -1,0 +1,76 @@
+\h1{Primitive roots}
+
+\h2{Definition}
+
+Primitive root modulo $n$ (a primitive root modulo $n$) is the number of $g$ that all of its degree modulo $n$ run through all numbers relatively Prime to $n$. Mathematically, it is formulated thus: if $g$ is a primitive root modulo $n$, then for any integer $a$ such that ${\rm gcd}(a,n)=1$, there is an integer $k$ that $g^k \equiv a \pmod{n}$.
+
+In particular, for the case of simple $n$ - degree primitive root run through all numbers from $1$ to $n-1$.
+
+\h2{the Existence}
+
+Primitive root modulo $n$ exists only when $n$ is any odd Prime degree, or double degree simple as well as in the cases $n=1$, $n=2$, $n=4$.
+
+This theorem (which was completely proved by Gauss in 1801) is provided here without proof.
+
+\h2{the Connection from / algohref=euler_function{function Euler}}
+
+Let $g$ be a primitive root modulo $n$. Then it can be shown that the smallest number $k$ for which $g^k \equiv 1 \pmod{n}$ (i.e. $k$ - index of $g$ (multiplicative order)), $\phi(n)$. Moreover, the opposite is true, and this fact will be used below in the algorithm for finding the primitive root.
+
+In addition, if the module $n$ there is at least one primitive root, then all of them $\phi( \phi(n) )$ (because cyclic group with $k$ elements is $\phi(k)$ generators).
+
+\h2{the algorithm for finding the primitive root}
+
+A naive algorithm will require for each tested value of $g$ of $O(n)$ time to compute all the degrees and check that they are all different. It's too slow algorithm, below we with several well-known theorems from number theory will get a faster algorithm.
+
+Above was the theorem stating that if is the smallest number $k$ for which $g^k \equiv 1 \pmod{n}$ (i.e. $k$ - index of $g$), $\phi(n)$, then $g$ --- primitive root. Since for any number $a$, coprime with $n$, is \algohref=http://e-maxx.ru/algo/euler_function#4{Euler's theorem} ($a^{\phi(n)} \equiv 1 \pmod{n}$), then to check that $g$ primitive root, it suffices to verify that for all integers $d$ smaller than $\phi(n)$ performed $g^d \not\equiv 1 \pmod{n}$. However, while this algorithm is too slow.
+
+From the Lagrange theorem it follows that the exponent of any number modulo $n$ is the divisor $\phi(n)$. Thus, it is enough to check that for all divisors $d\ |\ \phi(n)$ is $g^d \not\equiv 1 \pmod{n}$. This is already a much faster algorithm, but you can go even further.
+
+Factorswhen the number of $\phi(n) = p_1^{a_1} \ldots p_s^{a_s}$. Let us prove that the previous algorithm is rather to be considered as $d$, only numbers of the form $\frac{ \phi(n) }{ p_i }$. Indeed, let $d$ --- own arbitrary divisor $\phi(n)$. Then, obviously, there is such $j$ that $d\ |\ \frac{ \phi(n) }{ integer }$, i.e. $d \cdot k = \frac{ \phi(n) }{ integer }$. However, if $g^d \equiv 1 \pmod{n}$, then we would have:
+$$ g^{\frac{ \phi(n) }{ not integer }} \equiv g^{d \cdot k} \equiv {\left( g^d \right) }^k \equiv 1^k \equiv 1 \pmod{n}, $$
+ie still among the numbers of the form $\frac{ \phi(n) }{ p_i }$ are found for which the criterion is not met, what we wanted to prove.
+
+Thus, an algorithm for nding such a primitive root. Find $\phi(n)$, factorize it. Now iterate over all integers $g = 1 \ldots n$, and for each we consider all values of $g^{ \frac{ \phi(n) }{ p_i } } \pmod{n}$. If the current $g$ all of these numbers were different from $1$, then $g$ is the desired primitive root.
+
+The algorithm (assuming that the number $\phi(n)$ there is $O \left( \log \phi(n) \right)$ of divisors, and the exponentiation is performed by the algorithm \algohref=binary_pow{Binary exponentiation}, i.e. $O(\log n)$) is $O \left( {\rm Ans} \cdot \log \phi(n) \cdot \log n \right)$ plus the time of factorization of the number $\phi(n)$, where $\rm Ans$ --- the result, i.e. the value of the desired primitive root.
+
+About the speed of the growth of primitive roots with increasing $n$ is known to only a rough estimate. It is known that primitive roots --- the relatively small magnitude. One of the best-known assessments --- evaluation Shoop (Shoup) that, assuming the truth of Riemann hypothesis, a primitive root is $O (\log^6 n)$.
+
+\h2{the Implementation}
+
+Function powmod() perform binary exponentiation of the module, and function generator (int p) finds a primitive root for a Prime modulus $p$ (by factorization of the number $\phi(n)$ here has the simplest algorithm for $O( \sqrt{ \phi(n) } )$).
+
+To adapt this function for arbitrary $p$, it is enough to add computation \algohref=euler_function{function Euler} in $phi$, as well as filter out $res$ that are not coprime with $n$.
+
+\code
+int powmod (int a, int b, int p) {
+int res = 1;
+while (b)
+if (b & 1)
+res = int (res * 1ll * a % p) --b;
+else
+a = int (a * 1ll * a % p), b >>= 1;
+return res;
+}
+
+int generator (int p) {
+vector<int> fact;
+int phi = p-1, n = phi;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+fact.push_back (i);
+while (n % i == 0)
+n /= i;
+}
+if (n > 1)
+fact.push_back (n);
+
+for (int res=2; res<=p; ++res) {
+bool ok = true;
+for (size_t i=0; i<fact.size() && ok; ++i)
+ok &= powmod (res, phi / fact[i], p) != 1;
+if (ok) return res;
+}
+return -1;
+}
+\endcode

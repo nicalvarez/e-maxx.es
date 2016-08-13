@@ -1,0 +1,174 @@
+\h1{ Buscar подотрезка de la matriz de máxima/mínima la suma }
+
+Aquí nos fijamos en la tarea de búsqueda de подотрезка de la matriz con la cantidad máxima ("maximum subarray problem", en inglés), así como algunas de sus variantes (incluyendo el algoritmo de solución de la variante de esta tarea en el modo en línea --- descrito por el autor del algoritmo --- KADR (yaroslav tverdohleb)).
+
+
+\h2{ el Planteamiento de la tarea }
+
+Dada una matriz de números $a[1 \ldots, n]$. Necesita encontrar un подотрезок $a[l \ldots r]$, lo que suma en él \bf{proteccin}:
+
+$$ \max_{ 1 \le l \le r \le n } \sum_{i=l}^{r} a[i]. $$
+
+Por ejemplo, si todos los números de la matriz $a[]$ sería no negativa, entonces, como una respuesta posible sería la de tomar toda la matriz. La decisión de нетривиально, cuando la matriz puede contener tanto los positivos como los negativos de los números.
+
+Está claro que la tarea de la búsqueda de \bf{mínimo} подотрезка --- esencialmente la misma, basta con cambiar los caracteres de todos los números opuestos.
+
+
+\h2{ Algoritmo 1 }
+
+Aquí nos fijamos en casi obvio el algoritmo. (De aquí en adelante nos veremos otro algoritmo, que es un poco complicado llegar, sin embargo, su implementación resulta aún más corto.)
+
+\h3{ Descripción del algoritmo }
+
+El algoritmo es muy simple.
+
+Introduciremos para la comodidad \bf{codigo}: $s[i] = \sum_{j=1}^{i} a[j]$. Es decir, la matriz $s[i]$ --- es la matriz de las sumas parciales de la matriz $a[]$. También pondremos un valor de $s[0] = 0$.
+
+Vamos a ahora \bf{dedo} el índice $r = 1 \ldots, n$, y aprender para cada valor actual $r$ rápida de encontrar la óptima $l$, con el que se alcanza la cantidad máxima en подотрезке $[l; r]$.
+
+Formalmente, esto significa que necesitamos para el actual $r$ dicho $l$ (no supera los $r$) para el valor $s[r] - s[l-1]$ era máxima. Después de lo trivial de la conversión conseguimos que debemos encontrar en la matriz $s[]$ mínimo en el intervalo $[0;r-1]$.
+
+De ahí que de inmediato obtenemos el algoritmo de solución: vamos a almacenar, donde en el array $s[]$ es mínimo actual. Mediante el uso de este mínimo, lo $O(1)$ encontramos actual óptimo índice $l$, al pasar de un índice seleccionado $r$ al siguiente simplemente estamos actualizando este mínimo.
+
+Obviamente, este algoritmo funciona de la $O(n)$ y asintóticamente óptimo.
+
+\h3{ Aplicación }
+
+Para la implementación de nosotros y no será necesario que claramente almacenar la matriz de las sumas parciales $s[]$ --- de él nos va a requerir de un solo elemento actual.
+
+La implementación de la figura en el 0-las matrices, y no en el 1 de numeración, como se ha descrito anteriormente.
+
+Veamos primero la solución que busca simplemente numérico de la respuesta, no encontrando índices de búsqueda del corte:
+
+\code
+int ans = a[0],
+sum = 0,
+min_sum = 0;
+for (int r=0; r<n; ++r) {
+sum += a[r];
+ans = max (ans, sum - min_sum);
+min_sum = min (min_sum, sum);
+}
+\endcode
+
+Ahora presentamos la versión completa de la solución, que en paralelo con el numérico de la solución que busca los límites de búsqueda del corte:
+
+\code
+int ans = a[0],
+ans_l = 0,
+ans_r = 0,
+sum = 0,
+min_sum = 0,
+min_pos = -1;
+for (int r=0; r<n; ++r) {
+sum += a[r];
+
+int cur = sum - min_sum;
+if (cur > ans) {
+ans = cur;
+ans_l = min_pos + 1;
+ans_r = r;
+}
+
+if (sum < min_sum) {
+min_sum = sum;
+min_pos = r;
+}
+}
+\endcode
+
+
+\h2{ Algoritmo 2 }
+
+Aquí vamos a ver otro algoritmo. Él es un poco complicado de entender, pero es más elegante que la anterior, y aplicando un poco más corto. Este algoritmo fue propuesto por Jay Каданом (Jay Kadane) en 1984
+
+\h3{ Descripción del algoritmo }
+
+El \bf{el algoritmo} de la siguiente manera. Vamos a ir por la matriz y almacenar en una variable $s$ actual importe parcial. Si en algún momento $s$ será negativo, simplemente se crea $s=0$. Se afirma que el máximo de todos los valores de la variable $s$, se produjo durante el trabajo, y es la respuesta a una tarea.
+
+\bf{Prueba} este algoritmo.
+
+En realidad, examinemos el primer momento, cuando la suma de $s$ se convirtió en negativo. Esto significa que, стартовав con cero parcial de la suma, que llegó a la negativa parcial de la suma de --- significa, y todo el prefijo de la matriz, así como de cualquiera de sus sufijo tienen un importe negativo. Por lo tanto, de todo ello, el prefijo de la matriz en el futuro no puede ser de alguna utilidad: él sólo puede dar negativo el aumento de la respuesta.
+
+Sin embargo, esto no es suficiente para la prueba de un algoritmo. En el algoritmo de nosotros, de hecho, solo en encontrar la respuesta únicamente las líneas que comienzan inmediatamente después de plazas, cuando acertó $s<0$.
+
+Pero, en realidad, considere arbitrario trozo $[l;r]$ y $l$, no está en una "crítica" de la posición (es decir, $l > p+1$, donde $p$ --- la última de estas la posición en la que $s<0$). Dado que esta última actitud crítica está estrictamente antes de lo que $l-1$, resulta que la suma de $a[p+1 \ldots l-1]$ неотрицательна. Esto significa que, deslizando $l$ posición $p+1$, que habríamos respuesta o, en caso extremo, no vamos a cambiar.
+
+De un modo o de otro, pero resulta que es válida para encontrar la respuesta puede limitar sólo líneas que comienzan inmediatamente después de las posiciones en las que se prestó $s<0$. Esto demuestra la corrección de un algoritmo.
+
+\h3{ Aplicación }
+
+Como en el algoritmo 1, se presentan primero una versión simplificada de la aplicación, que busca únicamente el número de la respuesta, no encontrando límites original del corte:
+
+\code
+int ans = a[0],
+sum = 0;
+for (int r=0; r<n; ++r) {
+sum += a[r];
+ans = max (ans, sum);
+sum = max (sum, 0);
+}
+\endcode
+
+La versión completa de la solución, con el mantenimiento de los índices de límites original del corte:
+
+\code
+int ans = a[0],
+ans_l = 0,
+ans_r = 0,
+sum = 0,
+minus_pos = -1;
+for (int r=0; r<n; ++r) {
+sum += a[r];
+
+if (sum > ans) {
+ans = sum;
+ans_l = minus_pos + 1;
+ans_r = r;
+}
+
+if (sum < 0) {
+sum = 0;
+minus_pos = r;
+}
+}
+\endcode
+
+
+\h2{ Conexos de la tarea }
+
+\h3{ Buscar el máximo/mínimo de подотрезка con restricciones }
+
+Si en la condición de la tarea, en el tramo de $[l;r]$ se superponen restricciones adicionales (por ejemplo, que la longitud de la $r-l+1$ del corte debe estar dentro de ciertos límites), se describe el algoritmo es probable que fácilmente se resume en estos casos --- de una u otra manera, la tarea será aún consistir en la búsqueda de un mínimo en el array $s[]$ si ha definido más restricciones.
+
+\h3{ Bidimensional caso de la tarea: la búsqueda de máxima/mínima подматрицы }
+
+Se describe en este artículo la tarea, naturalmente, se resume en la ampliación de la dimensión. Por ejemplo, en dos dimensiones, se convierte en la búsqueda de un подматрицы $[l_1 \ldots r_1; l_2 \ldots r_2]$ especificada de la matriz, que tiene el máximo de la suma de los números en ella.
+
+De lo descrito anteriormente, la solución para el caso unidimensional \bf{obtener fácilmente} solución a $O(n^3)$: переберем $l_1$ y $r_1$, y calcular la matriz de sumas de $l_1$ $r_1$ en cada fila de la matriz; hemos llegado a la unidimensional de la tarea análisis de los índices de $l_2$ y $r_2$ en esta matriz, que ya se puede decidir por lineal del tiempo.
+
+\bf{Más rápidos} algoritmos de resolución de esta tarea, aunque conocidos, pero no son muy rápido $O(n^3)$, y es muy difícil (tan complejas, que oculta la constante de muchos de ellos ceden тривиальному algoritmo en todas las razonables limitaciones). Al parecer, en el mejor de los algoritmos conocidos funciona por $O \left( n^3 \frac{ \log^3 \log n }{ \log^2 n} \right)$ (T. Chan 2007 "More algorithms for all-pairs shortest paths in ponderado de salud").
+
+Este algoritmo de Chan, así como muchos otros de los resultados en este ámbito en realidad describen \bf{rápida multiplicación} matrices (donde la multiplicación de matrices se entiende modificado la multiplicación: en lugar de sumar, se utiliza menos, pero en lugar de multiplicar --- suma). El hecho de que la tarea de la búsqueda de подматрицы con la mayor suma se reduce a la tarea de la búsqueda de caminos más cortos entre todos los pares de vértices, y en esta tarea, a su vez, - - - se reduce a esa multiplicación de matrices.
+
+\h3{ Buscar подотрезка con el máximo/mínimo de la media de la suma }
+
+Esta tarea consiste en que es necesario encontrar un trozo de $[l;r]$, para el promedio era máxima:
+
+$$ \max_{l \le r} \frac{ 1 }{ r-l+1 } \sum_{i=l}^{r} a[i]. $$
+
+Por supuesto, si en el tramo de $[l;r]$ por la condición de que no se imponen otras condiciones, la decisión será siempre un segmento de longitud $1$ en el punto máximo de la matriz. La tarea tiene sentido sólo si hay \bf{restricciones adicionales} (por ejemplo, la longitud original del corte está limitada a la parte inferior).
+
+En este caso, es aplicable \bf{técnica estándar} cuando se trabaja con las tareas de la media aritmética: vamos a recoger lo que busca la máxima promedio \bf{binario de búsqueda}.
+
+Para ello, tenemos que aprender a resolver esta subtarea: dado el número de $x$, y es necesario comprobar si hay подотрезок de la matriz $a[]$ (por supuesto, satisface a todos restricciones adicionales de tareas), en la que el valor promedio de más de $x$.
+
+Para resolver esta subtarea, quitaremos $x$ de cada elemento de la matriz $a[]$. Entonces nuestro subtarea se transforma realmente en esa: hay o no hay en este conjunto подотрезок positiva de la suma. Y en esta tarea estamos ya sabemos resolver.
+
+Por lo tanto, nosotros tenemos la solución a асимпотику $O (T(n) \log W)$, donde $W$ --- precisión requerida, $T(n)$ --- tiempo de resolución de una subtarea para la matriz de longitud $n$ (que puede variar en función de las superposiciones de limitaciones adicionales).
+
+\h3{ la Solución de la tarea en el modo en línea }
+
+La condición de la tarea es la siguiente: dada una matriz de $n$ de números, y también se da el número de $L$. Se recibe la solicitud de la vista $(l,r)$, y en respuesta a la solicitud necesita encontrar подотрезок del corte $[l;r]$ longitud de no menos de $L$ medida de lo posible, la media aritmética.
+
+El algoritmo de solución de esta tarea es compleja. El autor de este algoritmo --- KADR (yaroslav tverdohleb) --- \href=http://e-maxx.ru/forum/viewtopic.php?id=410{describió el algoritmo en su mensaje en el foro}.

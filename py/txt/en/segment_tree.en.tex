@@ -1,0 +1,739 @@
+\h1{Tree}
+
+The segment tree is a data structure that allows to effectively (i.e. for the asymptotic $O (\log n)$) to realize the operation similar to the following: finding the sum/minimum of array elements in the given range ($a[l \ldots r]$, where $l$ and $r$ is input to the algorithm), optionally you can change the elements of the array: how changing the value of one element and changing elements on the whole current segment of the array (i.e. it is allowed to assign all elements of $a[l \ldots r]$ any value, or to add all elements of array of any number).
+
+In General, the segment tree --- very flexible structure, and the number of problems solved for her, is theoretically unlimited. In addition to the above types of transactions with the trees, it is also possible and much more complex operations (see "the Complicated version of the segment tree"). In particular, the segment tree is easily generalized to higher dimensions: for example, to solve the problem of finding the sum/minimum in a vertex of this matrix (though only for a time $O (\log^2 n)$).
+
+An important feature of trees is that they use linear memory: standard tree segments requires about $4n$ elements memory for work array of size $n$.
+
+
+\h2{the Description of the tree of the segments in the base case}
+
+For a start, consider the simplest case of segment tree --- tree of the segments to amounts. If to put the problem formally, then we have an array $a[0..n-1]$, and our tree should be able to find the sum of elements from $l$to $r$-th (this is the request amount), and process change the value of one specified element of the array, i.e. actually respond to the assignment $a[i]=x$ (this is the query modification). Once again, the segment tree must handle both query time $O (\log n)$.
+
+
+\h3{Structure of segment tree}
+
+So, what is segment tree?
+
+Calculate and remember somewhere the sum of the elements of the entire array, i.e., the segment $a[0 \ldots n-1]$. Also calculate the sum on the two halves of that array: $a[0 \ldots n/2]$ and $a[n/2+1 \ldots n-1]$. Each of these two halves, in turn, divide in half, calculate and save the sum, then divide in half again, and so on until the current reaches a segment of length $1$. In other words, we start with the segment $[0;n-1]$ and every time we divide the current segment into two (if it has not yet become a segment of unit length), then calling the same procedure on both halves; for each such segment we store the sum of the numbers on it.
+
+Can we say that these segments, we considered the amount, form a tree: root --- cut $[0 \ldots n-1]$, and each vertex has exactly two sons (except for the tops of the leaves, whose period has length $1$). Hence the name --- "tree" (although the implementation is typically no tree is not constructed explicitly, but more on that below in the section implementation).
+
+So, we have described the structure of segment tree. Note that it is \bf{linear size}, namely, contains at least $2n$ vertices. This can be understood as follows: the first level of segment tree contains a single vertex (segment $[0 \ldots n-1]$), the second level --- in the worst case the two vertices on the third level in the worst case will be four vertices, and so on, until the number of vertices reaches $n$. Thus, the number of vertices in the worst case is estimated by $n + n/2 + n/4 + n/8 + \ldots + 1 < 2n$.
+
+It is worth noting that when $n$, other than powers of two, not all levels of the segment tree will be completely filled. For example, when $n=3$, the left son of the root is the segment $[0 \ldots 1]$ that have two descendants, while the right son of the root --- cut $[2 \ldots 2]$, which is the sheet. There are no special difficulties in the implementation it is not, but nevertheless it should be borne in mind.
+
+\bf{Height} of the segment tree has the size $O (\log n)$ --- for example, because the length of the segment in the root of the tree is equal to $n$, and the transition of one level down the length of the segments is reduced by about half.
+
+
+\h3{Build}
+
+The process of building a segment tree given an array $a$ can be done efficiently as follows, from below upward: first, let's write the values of the elements $a[i]$ in the corresponding leaves of the tree, then based on them calculate the value for vertices of the previous level as the sum of the values in two sheets, then similarly calculate values for another level, etc. it is Convenient to describe this operation recursively: we start the procedure of constructing the root of the segment tree and the process of building, if it is caused not by the plate, calls itself on each of two sons and sums the calculated values, but if its caused from the leaf --- it simply writes a value of this array element.
+
+Asymptotic construction of segment tree will amount to thus $O(n)$.
+
+
+\h3{Request amount}
+
+Let us now consider the query sum. The input receives two numbers $l$ and $r$, and we have time $O (\log n)$ to calculate the sum of numbers on the segment $a[l \ldots r]$.
+
+For this we are going down the segment tree, using to calculate the answer previously calculated amounts for each vertex of the tree. Initially we get to the root of the segment tree. Let's see which of his two sons gets the request segment $[l \ldots r]$ (recall that the sons of the root of segment tree --- are segments $[0 \ldots n/2]$ and $[n/2+1 \ldots n-1]$). You have two options: cut that $[l \ldots r]$ is only in one son of the root, and that, on the contrary, the segment intersects with two sons.
+
+The first case is simple: just go to that son, which is our cut-inquiry, and apply the described algorithm to the current vertex.
+
+In the second case, we were left with no other options but to go first to the left and count son the answer to the query in it, and then --- go to the right child calculate the answer and add to our response. In other words, if the left son represented the segment $[l_1 \ldots r_1]$ and the right --- the segment $[l_2 \ldots r_2]$ (note that $l_2 = r_1 + 1$), then we will move to the left son with the request $[l \ldots r_1]$ and right --- with a request of $[l_2 \ldots r]$.
+
+So, the request amount is an \bf{recursive function}, which each time calls itself the left or from the son or from the right (without changing the boundaries of the request in both cases), or from both at once (thus dividing our inquiry into two of the corresponding subquery). However, recursive calls will do not always: if the current request coincided with the boundaries of the segment at the current vertex of segment tree, then the response will return the precomputed value of the sum in this segment recorded in the segment tree.
+
+In other words, evaluating the query is a descent down the tree that propagates through all branches of the tree, and for quick work using the already calculated sums for each segment in the segment tree.
+
+Why does \bf{asymptotics} this algorithm will be $O (\log n)$? To do this, look at each level of the segment tree, the maximum number of segments able to attend our recursive function when processing any request. It is argued that such cuts could not be more than four; then, given the estimate $O (\log n)$ for the height of the tree, we obtain the desired asymptotic time of the algorithm.
+
+We show that this estimate is correct about the four segments. In fact, at the zero level of the tree the query is addressed only peak --- the root of the tree. On the first level recursive call in the worst case is split into two recursive calls, but the important point is that the queries in these two challenges will coexist, i.e. the number $l^{\prime\prime}$ request in the second recursive call will be one greater than the number $r^\prime$ request in the first recursive call. It follows that at the next level each of these two calls could generate two more recursive calls, but in this case, half of these requests will practice non-recursive, taking the right value from the vertex of segment tree. Thus, every time we will have no more than two working branches of the recursion (it is possible to say that one branch is close to the left border of the query, and the other branch --- to right), and the total number of affected segments could not exceed the height of segment tree, multiplied by four, i.e. it is the number of $O (\log n)$.
+
+In conclusion, it is possible to result and such an understanding of work request amount: input the segment $[l \ldots r]$ is divided into several calculating e, the answer to each of which is counted and stored in the tree. If you do it split the right way, thanks to the tree structure of segments the number of required calculating e is always $O (\log n)$, which gives the efficiency of the segment tree.
+
+
+\h3{update Request}
+
+Recall that the update request takes on input an index $i$ and the value $x$, and rebuilds the tree so that it corresponds to a new value $a[i]=x$. This request must also be performed in time $O (\log n)$.
+
+This is an easier request than the request amount. The fact that the element $a[i]$ is involved only in a relatively small number of tree vertices: namely, $O (\log n)$ vertices --- one on each level.
+
+Then it is clear that the update request can be implemented as a recursive function: it is passed the current vertex of segment tree, and this function performs a recursive call from one of his two sons (the one that contains the position $i$ in its segment), and after that --- recalculates the value for amount in the current vertex in exactly the same way as we did when constructing the segment tree (i.e. the sum of the both sons of the current vertex).
+
+
+\h3{Implementation}
+
+The main selling point --- that's how \bf{store} the segment tree in memory. For the purpose of simplicity, we will not store the tree in an explicit form, and we will use this trick again: let us say that the root of the tree has the number $1$, his sons --- the numbers $2$ and $3$, their sons --- the numbers with $4$ or $7$, and so on. It is easy to understand the correctness of the following formula: if the vertex has the number $i$, let its left son is the node number $2i$, and the right one --- number $2i+1$.
+
+This technique greatly simplifies the programming of segment tree, now we don't need to store in memory a tree structure of segments, but only to have any array for the sums on each segment of segment tree.
+
+It is worth noting that the size of this array in such numbering should be put not $2n$ and $4n$. The fact that such a numbering works perfectly in the case when $n$ is not a power of two --- then there are the missing numbers that do not correspond with the vertices (actually the numbering behaves just as if $n$ would be rounded up to the nearest power of two). It does not create any difficulties in implementation, however, leads to the fact that the size of the array should be increased to $4n$.
+
+Thus, the segment tree we \bf{stored} just as an array $t[]$, four times the size larger than $n$ input:
+
+\code
+int n, t[4*MAXN];
+\endcode
+
+The procedure \bf{build segment tree} given an array $a[]$ as follows: is a recursive function, pass the array $a[]$, the number $v$ of the current tree node, and borders $tl$ and $tr$ of the line segment corresponding to the current top of the tree. From the main program to call this function with parameters $v=1$, $tl=0$, $tr=n-1$.
+
+\code
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = a[tl];
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl, tm);
+build (a, v*2+1, tm+1, tr);
+t[v] = t[v*2] + t[v*2+1];
+}
+}
+\endcode
+
+Further, the function for \bf{request amount} is also a recursive function, which similarly is passed information about the current tree node (i.e., the number $v$, $tl$, $tr$, which in the main program should pass the values $1$, $0$, $n-1$ respectively), and in addition --- the bounds $l$ and $r$ the current request. In order to simplify the code, this function always makes two recursive calls, even if you really need one --- just unnecessary recursive call will be passed to the query, where $l > r$, which is easily cut off extra checking at the beginning of the function.
+
+\code
+int sum (int v, int tl, int tr, int l, int r) {
+if (l > r)
+return 0;
+if (l == tl && r == tr)
+return t[v];
+int tm = (tl + tr) / 2;
+return sum (v*2, tl, tm, l, min(r,tm))
++ sum (v*2+1, tm+1, tr, max(l,tm+1), r);
+}
+\endcode
+
+Finally, \bf{query modification}. He got the same information about the current vertex of segment tree, and further specify an index of the changing element and its new value.
+
+\code
+void update (int v, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+t[v] = new_val;
+else {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+t[v] = t[v*2] + t[v*2+1];
+}
+}
+\endcode
+
+It is worth noting that the function $\rm update$ easy to do non-recursive, since the tail recursion in it, i.e. the branching never happens: one call can produce only one recursive call. When non-recursive implementation, the speed may increase by several times.
+
+Other \bf{optimizations} it is worth mentioning that multiplication and division by two is necessary to replace bit operations -it also slightly improves performance of segment tree.
+
+
+\h2{Complicated version of a segment tree}
+
+Segment tree --- very flexible structure, and allows to generalize in many different directions. Below we will try to classify them.
+
+
+\h3{More complex functions and queries}
+
+The improvement of segment tree in this direction may be fairly obvious (like minimum/maximum instead of sum), and very, very non-trivial.
+
+\h4{Searching for minimum/maximum}
+
+Making some changes to the conditions of the problem described above: instead of the request amount will now produce a query of minimum/maximum on the interval.
+
+Then the segment tree for this problem practically does not differ from the segment tree described above. Just need to change the method of calculating $t[v]$ in the functions $\rm build$ and $\rm update$, and the calculation is returned in the response function $\rm sum$ (replace summation for minimum/maximum).
+
+\h4{Searching for minimum/maximum and number of times it occurs}
+
+The difference is that now, in addition to high is also required to return the number of its occurrences. This problem arises naturally, e.g., when solving with the help of segment tree: to find the number of longest increasing subsequences in a given array.
+
+To solve this problem at each vertex of segment tree will store a pair of numbers: in addition to the maximum number of its occurrences in the relevant segment. Then when building the tree we have just two of these pairs received from the sons of the current vertex, to get a pair for the current node.
+
+The Union of two such pairs, one stands out in a separate function, because this operation has to be carried out and in the query modification, and query to find the maximum.
+
+\code
+pair<int,int> t[4*MAXN];
+
+pair<int,int> combine (pair<int,int> a, pair<int,int> b) {
+if (a.first > b.first)
+return a;
+if (b.first > a.first)
+return b;
+return make_pair (a.first, a.second + b.second);
+}
+
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = make_pair (a[tl], 1);
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl, tm);
+build (a, v*2+1, tm+1, tr);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+
+pair<int,int> get_max (int v, int tl, int tr, int l, int r) {
+if (l > r)
+return make_pair (-INF, 0);
+if (l == tl && r == tr)
+return t[v];
+int tm = (tl + tr) / 2;
+return combine (
+get_max (v*2, tl, tm, l, min(r,tm)),
+get_max (v*2+1, tm+1, tr, max(l,tm+1), r)
+);
+}
+
+void update (int v, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+t[v] = make_pair (new_val, 1);
+else {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+ update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+\endcode
+
+\h4{greatest common divisor / least common multiple}
+
+I.e. we want to learn how to find the GCD/LCM of all numbers in the given range of the array.
+
+This is quite an interesting generalization of the segment tree is obtained in exactly the same way as trees for the sum/minimum/maximum: simply stored in each node of the tree of GCD/LCM of all the numbers in the corresponding segment of the array.
+
+\h4{counting the number of zeros, finding the $k$-th zero}
+
+In this task we want to learn how to answer the query the number of zeros in a given interval of the array, and the query of finding the $k$-th zero element.
+
+Again slightly modify the data stored in the segment tree: we keep now in the array $t[]$ the number of zeros occurring in the relevant segments of the array. Understand how to maintain and use this data as functions of $\rm build$, $\rm sum$, $\rm update$, --- thus we have solved the problem of the number of zeros in a given interval of the array.
+
+Now, let's solve the problem of finding $k$-th occurrence of zero in the array. For this we will descend the tree starting from the root, and each time moving to the left or right son depending on which of the segments is the desired $k$-th zero. In fact, to understand what son we need to move, just look at the value written to the left son, if it is greater than or equal to $k$, then move to the left son (because his segment has at least $k$ zeroes), but otherwise --- to move in the right son.
+
+In the implementation you can trim the case when $k$-th zero does not exist, even when the input to the function, returning as a response, for example, $-1$.
+
+\code
+find_kth int (int v, int tl, int tr, int k) {
+if (k > t[v])
+return -1;
+if (tl == tr)
+return tl;
+int tm = (tl + tr) / 2;
+if (t[v*2] >= k)
+find_kth return (v*2, tl, tm, k);
+else
+find_kth return (v*2+1, tm+1, tr, k - t[v*2]);
+}
+\endcode
+
+\h4{prefix Search array with a given sum}
+
+Problem such: is required by the given value $x$ to quickly find such $i$ that the sum of the first $i$ elements of the array $a[]$ greater than or equal to $x$ (assuming that the array $a[]$ contains only non-negative numbers).
+
+This problem can be solved by binary search, calculating each time inside the amount on a particular prefix of the array, but this will lead to a solution with $O (\log^2 n)$.
+
+Instead, you can use the same idea as in the previous paragraph, and seek the desired position by one climb down the tree, each time moving to the left or right child depending on the magnitude of the sum in the left son. Then the answer to the search query will be a single descent through the tree, and, therefore, will be executed $O (\log n)$.
+
+\h4{Search podutiska with a maximum amount}
+
+Still the input is an array $a[0 \ldots n-1]$, and receive requests of $(l,r)$, which means: to find a segment of this list $a[l^\prime, \ldots, r^\prime]$, that $l \le l^\prime$, $r^\prime \le r$, and the sum of this segment of $a[l^\prime, \ldots, r^\prime]$ is maximal. Requests modification of individual elements of the array are allowed. The array elements can be negative (and, for example, if all numbers are negative, then the optimal podotrasl will be empty --- amount equal to zero).
+
+This is a highly nontrivial generalization of the segment tree is obtained as follows. Let's store in each vertex of segment tree four quantities: the amount on this interval, the maximum sum among all prefixes of this section, the maximum amount among all the suffixes, as well as the maximum amount podutiska on it. In other words, for each segment of segment tree the answer to it already prepositon, and additionally the answer is counted among all of the segments abuts against the left border of the segment, as well as among all of the segments abutting the right border.
+
+How to build a segment tree with such data? Again approach it from a recursive point of view: let the current vertex all the four values in the left son and the right son is already calculated, calculate them for the top. Note that the answer at the top is:
+
+\ul{
+\li the answer is either the left son, which means that the best segment of this list in the current top fits into a cut left a son,
+\li any answer in the right son, which means that the best segment of this list in the current top fits into a cut right son
+\li or the sum of the maximum suffix in the left son and the maximum prefix in the son, which means that the best segment of this list is its beginning in the son, and the end --- in the.
+}
+
+So, the answer to the current vertex equal to the maximum of these three values. To count same maximum amount on the prefixes and the suffixes easier. Here is an implementation of a function $\rm combine$, which will be passed two structures $\rm data$, containing the data on the left and right sons, and which returns the data in the current vertex.
+
+\code
+struct data {
+int sum, pref, suff, ans;
+};
+
+combine data (data l, data r) {
+data res;
+res.sum = l.sum + r.sum;
+res.pref = max (l.pref, l.sum + r.pref);
+res.suff = max (r.suff, r.sum + l.suff);
+res.ans = max (max (l.ans r.ans), l.suff + r.pref);
+return res;
+}
+\endcode
+
+Thus, we learned to build tree of segments. It's easy to obtain and implement the query modification: as in the simple segment tree, we perform the recalculation of all the changed tree vertices, for which we use all the same function $\rm combine$. To calculate the values of the tree in the leaves of the auxiliary function $\rm make\_data$, which returns a structure $\rm data$, calculated by a single number $\rm val$.
+
+\code
+data make_data (int val) {
+data res;
+res.sum = val;
+res.pref = res.suff = res.ans = max (0, val);
+return res;
+}
+
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = make_data (a[tl]);
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl, tm);
+build (a, v*2+1, tm+1, tr);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+
+void update (int v, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+t[v] = make_data (new_val);
+else {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+\endcode
+
+It remains to deal with the response to the request. For this reason we also, as before, down the tree, thus splitting a segment query $[l \ldots r]$ for some calculating e which is coincident with the segments of the segment tree, and combine the answers into a single answer to the whole problem. Then it is clear that the work does not differ from that of a conventional segment tree, only it is necessary instead of a simple summation/minimum/maximum values use the function $\rm combine$. The following implementation is slightly different from the implementation of the query, $\rm sum$: it does not allow cases when the left boundary $l$ of the query exceeds the right border $r$ (otherwise there will be unpleasant events --- what structure of $\rm data$ vozvrashat when a segment query is empty?..).
+
+\code
+data query (int v, int tl, int tr, int l, int r) {
+if (l == tl && tr == r)
+return t[v];
+int tm = (tl + tr) / 2;
+if (r <= tm)
+return query (v*2, tl, tm, l, r);
+if (l > tm)
+return query (v*2+1, tm+1, tr, l, r);
+return combine (
+query (v*2, tl, tm, l, tm),
+query (v*2+1, tm+1, tr, tm+1, r)
+);
+}
+\endcode
+
+
+\h3{Saving all of the subarray in each vertex of segment tree}
+
+This is a separate subkey, which stands apart from the rest, since at each vertex of segment tree we will store not some kind of compressed information about this current segment (the sum, minimum, maximum, etc.), and \bf{all} elements of the array lying in this current segment. Thus, the root of the segment tree will store all the elements of the array, the left son of the root --- the first half of the array, the right son of the root --- the second half, and so on.
+
+The simplest variant of this technique --- when every vertex of segment tree is kept sorted list of all numbers that occur in the corresponding interval. In more complex variants are not stored lists, and any data structure built over these lists ($\rm set$, $\rm map$, etc.). But all these methods have in common is that in each vertex of segment tree is stored a data structure having in memory the order of the length of the corresponding segment.
+
+The first natural question arising when considering trees of this class is the \bf{memory footprint}. It is argued that if each vertex of segment tree contains a list of all occurring on this segment of numbers, or any other data structure size is of the same order, in the sum of all the segment tree will take $O (n \log n)$ memory cells. Why is it so? Because each number $a[i]$ falls in $O (\log n)$ of the segments of the segment tree (at least because the height of segment tree is $O (\log n)$).
+
+So, despite the seeming extravagance of such segment tree, it consumes memory not much larger than a normal segment tree.
+
+Here are a few typical applications of such data structures. It is immediately noted a clear analogy of the trees of this type with \bf{two-dimensional data structures} (actually, in some sense, this is the two-dimensional data structure, but with very limited capabilities).
+
+\h4{Search of the smallest number, greater than or equal to the specified, in the specified interval. Requests modification no}
+
+Want to answer queries of the following form: $(l,r,x)$, which means to find the minimum number in the interval $a[l \ldots r]$, which is greater than or equal to $x$.
+
+\bf{Build} tree, where at each vertex we store a sorted list of all numbers that occur at the corresponding interval. For example, the root will contain an array $a[]$ in sorted form. How to build a segment tree as efficiently as possible? To do this, let us approach the task, as usual, from the point of view of recursion: let for left and right sons of the current node, these lists are already built, and we need to build this list for the current node. At such statement of a question is almost obvious that this can be done in linear time: we simply need to merge two sorted list into one that is a single pass with two pointers. Users C++ is even easier, because the merge algorithm is already included in the standard library STL:
+
+\code
+vector<int> t[4*MAXN];
+
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = vector<int> (1, a[tl]);
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl, tm);
+build (a, v*2+1, tm+1, tr);
+merge (t[v*2].begin(), t[v*2].end(), t[v*2+1].begin(), t[v*2+1].end(),
+back_inserter (t[v]));
+}
+}
+\endcode
+
+We already know that thus constructed segment tree will take $O (n \log n)$ memory. And thanks to this realization the time of its construction also has the size $O (n \log n)$ --- because each list is constructed for linear relative to its size. (By the way, here there is a clear analogy with the algorithm \bf{merge-sort}: only here we store the information from all the stages of the algorithm, and not just the result.)
+
+Now consider \bf{response, request}. Let's get to the tree, as does standard answer to the query in the segment tree, splitting our period $a[l \ldots r]$ for some calculating e (of order $O (\log n)$ units). It is clear that the answer to the whole problem is equal to the minimum among the responses to each of these calculating e. Understand now how to respond to the request in this current segment coincident with a vertex of the tree.
+
+So, we came to some vertex of segment tree and want to calculate the answer to it, i.e. to find minimum number, greater than or equal to a given $x$. For that we only need to perform \bf{binary search} on the list, counted in the top of the tree, and return the first number from this list, greater than or equal to $x$.
+
+Thus, the answer to the query in one current segment occurs at $O (\log n)$, and the query works in time $O (\log^2 n)$.
+
+\code
+int query (int v, int tl, int tr, int l, int r, int x) {
+if (l > r)
+return INF;
+if (l == tl && tr == r) {
+vector<int>::iterator pos = lower_bound (t[v].begin(), t[v].end(), x);
+if (pos != t[v].end())
+return *pos;
+return INF;
+}
+int tm = (tl + tr) / 2;
+return min (
+query (v*2, tl, tm, l, min(r,tm), x),
+query (v*2+1, tm+1, tr, max(l,tm+1), r, x)
+);
+}
+\endcode
+
+The constant $\rm INF$ is equal to some large number, certainly larger than any number in the array. It carries the meaning of "answer in the given range does not exist."
+
+\h4{Search of the smallest number, greater than or equal to the specified, in the specified interval. Allowed requests modification}
+
+The difference is that now allowed requests modifications: to handle the assignment $a[i] = y$.
+
+The solution is also similar to the previous task, but instead of simple lists at each vertex of segment tree we will store a balanced list that allows you to quickly find the desired number, delete it, and insert a new number. Given that generally speaking the number in the input array may be repeated, the best choice is the STL data structure $\rm multiset$.
+
+\bf{Build} of the tree of the segments takes place about the same as in the previous problem, only now we have to merge unsorted lists, and $\rm multiset$ that will lead to the fact that the asymptotic form of the building will deteriorate to $n \log^2 n$ (though, apparently, red-black trees enable you to merge two trees in linear time, however, the STL does not guarantee this).
+
+Response to \bf{search} in General, almost equivalent to the above code, now only $\rm lower\_bound$ call $t[v]$.
+
+Finally, \bf{query modification}. To process it we have to climb down the tree by changing all $O (\log n)$ list that contains the affected element. We simply remove the old value of that element (not forgetting that we do not need to remove all duplicates of this number) and insert its new value.
+
+\code
+void update (int v, int tl, int tr, int pos, int new_val) {
+t[v].erase (t[v].find (a[pos]));
+t[v].insert (new_val);
+if (tl != tr) {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+}
+else
+a[pos] = new_val;
+}
+\endcode
+
+The processing of this request is also for a time $O (\log^2 n)$.
+
+\h4{Search of the smallest number, greater than or equal to the specified, in the specified interval. Acceleration using the technique of "fractional cascading"}
+
+Improve the response time for the search query time to $O (\log n)$ by applying the techniques \bf{"fractional cascading"} ("fractional cascading").
+
+Fractional cascading is a simple technique that allows you to improve the running time of a few binary searches, maintained at the same value. In fact, the answer to the query search is that we divide our task into several subtasks, each of which is then solved by binary search on the number $x$. Fractional cascading allows you to replace all of these binary searches on one.
+
+The simplest and most obvious example of fractional cascading is \bf{next task}: there are several sorted lists of numbers, and we need each list to find the first number greater than or equal to the specified value.
+
+If we had solved the problem "in a forehead", we would have had to run binary search on each of these lists, if these lists a lot, it becomes very significant factor: if the entire list of $k$, we get the asymptotic behavior of $O (k \log(n/k))$, where $n$ --- total size of all lists (asymptotics this is because the worst case is when all the lists are approximately equal to each other in length, i.e. equal to $n/k$).
+
+Instead, we could combine all these lists into one sorted list, where each $n_i$ will store a list of positions: a position in the first list, the first number greater than or equal to $n_i$, a similar position in the second list, and so on. In other words, each occurring the number we stored with this number the results of the binary searches in each list. In this case, the asymptotics of the answer to the query is obtained to $O (\log n + k)$, which is significantly better, but we are forced to pay a large memory consumption: namely, we need $O (nk)$ memory cells.
+
+Fractional cascading technique goes further in solving this problem and achieves a memory consumption of $O (n)$ at the same time the request response $O (\log n + k)$. (For this we store one list of length $n$ and back to $k$ lists, but together with each list stored every second element from the following list; we'll along with each number to record its position in both lists (current and next), but this will continue to respond effectively to a request: we do a binary search on the first list, and then go on to these lists in order, each time moving to the next list using predpochtenii pointers, and making one step to the left given that half of the following list was included).
+
+But we in our application to the segment tree \bf{not need} the full power of this technique. The fact that the current list at the top contains all the numbers that can occur in the left and right sons. Therefore, in order to avoid the binary search through the list of the son, we have enough for each list in the segment tree to calculate for each number its position in the lists of the left and right sons (or rather, the position of the first number smaller or equal to the current).
+
+Thus, instead of the usual list of all the numbers we store a list of triples: the number, the position in the list of the left son, right son list. This will allow us over the $O (1)$ to determine the position in the list of the left or right child, instead of making the binary list on it.
+
+Easiest way to apply this technique to the task that requests the modification does not, --- then these positions are just numbers, and to count them when building the tree very easily inside of the algorithm merging two sorted sequences.
+
+In the case where legitimate requests of modification is slightly more complicated: these positions now need to be stored in the form of iterators inside $\rm multiset$, and when you request updates --- the right to decrease/increase for those items for which it is required.
+
+Anyway, the task is already reduced to a purely implementation details, but the basic idea --- replace $O (\log n)$ binary search one binary search on a list in the root of the tree --- are described fully.
+
+\h4{directions}
+
+Note that this technique implies a whole class of possible applications --- all is determined by the data structure chosen to store in each node of the tree. Above we have discussed the application with the use of $\rm vector$ and $\rm multiset$, while in General you can use any other compact data structure: segment tree (little is said about this below in the section on multidimensional trees), \algohref=fenwick_tree{Bit}, \algohref=treap{Cartesian tree}, etc.
+
+
+\h3{Update on segment}
+
+Above considered only the problem when the query modification affects a single element of the array. Actually, the segment tree allows you to make requests that apply to whole segments of consecutive elements, and to comply with such requests at the same time $O (\log n)$.
+
+\h4{Adding on a segment}
+
+We will begin consideration of trees of this kind with the simplest case: a query modification is the addition of all numbers on some current segment $a[l \ldots r]$ for some number $x$. Read request --- still reads the value of some number $a[i]$.
+
+To request the addition of efficiently, we store in each vertex of segment tree, how much must be added to all the numbers of this segment entirely. For example, if a request comes "to add to the array $a[0 \ldots n-1]$ the number 2", we will deliver in the root of the tree the number of $2$. Thus we will be able to process the request adding on any current segment effectively, rather than changing all $O (n)$ values.
+
+If we have query read the values of a number, then it is enough for us to climb down the tree, summing all the observed values recorded at the vertices of the tree.
+
+\code
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = a[tl];
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl, tm);
+build (a, v*2+1, tm+1, tr);
+}
+}
+
+void update (int v, int tl, int tr, int l, int r, int add) {
+if (l > r)
+return;
+if (l == tl && tr == r)
+t[v] += add;
+else {
+int tm = (tl + tr) / 2;
+update (v*2, tl, tm, l, min(r,tm), add);
+update (v*2+1, tm+1, tr, max(l,tm+1), r, add);
+}
+}
+
+int get (int v, int tl, int tr, int pos) {
+if (tl == tr)
+return t[v];
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+return t[v] + get (v*2, tl, tm, pos);
+else
+return t[v] + get (v*2+1, tm+1, tr, pos);
+}
+\endcode
+
+\h4{Attribution on segment}
+
+Now suppose that the query modification is an assignment to all elements of a segment $a[l \ldots r]$ for some values $p$. As a second inquiry will examine the read values of the array $a[i]$.
+
+To make modification on the whole segment will have at each vertex of segment tree to store, whether painted this piece entirely in any number or not (and if colored, it is possible to store the number itself). This will allow us to do \bf {a"belated" update} segment trees: when they request a modification, we instead change the values in the set of tree vertices, will change only some of them, leaving flags "colored" for other segments, which means that the whole segment together with its podotrasli should be painted in this color.
+
+So, when you execute the query modifying the segment tree becomes, generally speaking, irrelevant --- it was left unfinished some modifications.
+
+For example, if a query modification "to assign the whole array $a[0 \ldots n-1]$ for some number", then in the segment tree we will do the only change --- mark the root of a tree, which he painted entirely in that number. The rest of the vertices remain unchanged, although actually the tree should be painted in the same number.
+
+Suppose now that in the same tree came the second request modifications --- to paint the first half of the array $a[0 \ldots n/2]$ to any other number. In order to process the request, we need to paint the whole of the left son of the root in this new color, but before you do that, we have to deal with the root of the tree. The subtlety here is that in the tree should be maintained that the right half is painted in the old color, and at this point in the tree no information for the right side not preserved.
+
+The exit is: to produce \bf{pushing} the information from the root, i.e., if the root of the tree was colored in any number, then paint it in the number of its left and right son, and from the root of this mark be removed. We can paint the left son of the root, without losing any necessary information.
+
+Summarizing, we get: for any queries in this tree (request modification or reading) during the descent through the tree, we always have to do the pushing of information from the current vertex in both of her sons. You can understand that when descending the tree, we use the trailing modification, but only as much as is necessary (in order not to worsen the complexity from $O (\log n)$).
+
+In the implementation this means that we need to make the function $\rm push$, which will be transmitted to the vertex of segment tree, and it will produce the pushing of information from this node in both her sons. To call this function you should in the beginning of function process requests (but does not cause leaf, because of the sheet to push information is not necessary, and nowhere else).
+
+\code
+void push (int v) {
+if (t[v] != -1) {
+t[v*2] = t[v*2+1] = t[v];
+t[v] = -1;
+}
+}
+
+void update (int v, int tl, int tr, int l, int r, int color) {
+if (l > r)
+return;
+if (l == tl && tr == r)
+t[v] = color;
+else {
+push (v);
+int tm = (tl + tr) / 2;
+update (v*2, tl, tm, l, min(r,tm), color);
+update (v*2+1, tm+1, tr, max(l,tm+1), r, color);
+}
+}
+
+int get (int v, int tl, int tr, int pos) {
+if (tl == tr)
+return t[v];
+push (v);
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+return get (v*2, tl, tm, pos);
+else
+return get (v*2+1, tm+1, tr, pos);
+}
+\endcode
+
+The function $\rm get$ could be implemented in a different way: not in the delayed update, and immediately return a response as soon as it hits the vertex of segment tree, entirely colored in a particular color.
+
+\h4{Adding on a segment, the request of maximum}
+
+Now suppose that the query modification will again be a query adding all the numbers some podotrasli the same number, and the read request will be finding the maximum in a current segment.
+
+Then at each vertex of segment tree will need to additionally store the maximum of all current segment. But the subtlety here is how to recalculate the values.
+
+For example, suppose that there is a request "to add to all of the first half, i.e. $a[0 \ldots n/2]$, the number 2". Then in the tree it will reflect the record number of $2$ in the left son of the root. Now how to calculate the new value of the maximum in the son and in the root? Here it becomes important not to get confused --- what is the maximum is stored in the top of the tree: max without adding on top of all this, or ignoring it. You can choose any one of these approaches, but most importantly --- to consistently use it everywhere. For example, when you first approach a maximum at the root will be obtained as the maximum of two numbers: the maximum of the left son plus the addition in the left son, and the maximum of the right son plus a new addition to it. In the second approach the maximum at the root will be obtained as the addition in the root plus the maximum of the maximums in the left and right sons.
+
+\h4{Other direction}
+
+There were considered only the basic use of segment trees in problems with modifications on the segment. The remaining tasks are based upon the same ideas that are described here.
+
+It is important to be very careful when working with pending modifications: it should be remembered that even if the current vertex we have already "pushed" pending modification, in the left and right sons, most likely, haven't done it yet. So often it is necessary to call $\rm push$ from the left and right sons of the current vertex, or to carefully consider the pending modifications in them.
+
+
+\h3{Generalization in higher dimensions}
+
+The segment tree is generalised quite naturally to a two-dimensional and in General multi-dimensional case. If in the one-dimensional case, we broke the indices of the array into segments, in the two-dimensional case now let us first break all by first indices, and for each segment by the first index --- usual build segment tree for the second index. Thus, the basic idea of the solution is the insertion of segment trees on the second index inside the segment tree for the first index.
+
+Let us explain this idea on the example of a specific task.
+
+\h4{two-Dimensional segment tree in the simplest version}
+
+Given a rectangular matrix $a[0 \ldots n-1, 0 \ldots m-1]$, and enter search queries the amount (or minimum/maximum) on some podpraporschik $a[x_1 \ldots x_2, y_1 \y_2 ldots]$, and also requests modification of individual matrix elements (i.e., queries of the form $a[x][y] = p$).
+
+So, we will build a two-dimensional segment tree: the first tree by the first coordinate ($x$), and the second ($y$).
+
+To \bf{build process} was better understood, it is possible to forget that the original array was two-dimensional, and leave only the first coordinate. We will build the usual one-dimensional segment tree, working only with the first coordinate. But as the value of each cut we will not write down any number, as in the univariate case, but the whole segment tree: i.e. at this point we remember that we have a second coordinate; but because at this moment it is recorded that the first coordinate of some segment $[l \ldots r]$, then we actually work with a band like this $a[l \ldots r, 0 \ldots m-1]$, and construct the segment tree.
+
+Here is an implementation of the operation of constructing a two-dimensional tree. It actually consists of two separate blocks: the construction of a tree of segments on the coordinate $x$ ($\rm build\_x$) and $y$ coordinates ($\rm build\_y$). If the first function is almost indistinguishable from the usual one-dimensional tree, the other is forced to deal separately with two cases: when the current segment along the first coordinate ($[tlx \ldots trx]$) has a unit length, and when --- the length, greater than unity. In the first case, we just take the right value from the matrix $a[][]$, while the second --- combine the values of two trees from the left son and right son in the coordinate $x$.
+
+\code
+void build_y (int vx, int lx, int rx, int vy, int ly, int ry) {
+if (ly == ry)
+if (lx == rx)
+t[vx][vy] = a[lx][ly];
+else
+t[vx][vy] = t[vx*2][vy] + t[vx*2+1][vy];
+else {
+int my = (ly + ry) / 2;
+build_y (vx, lx, rx, vy*2, ly, my);
+build_y (vx, lx, rx, vy*2+1, my+1, ry);
+t[vx][vy] = t[vx][vy*2] + t[vx][vy*2+1];
+}
+}
+
+void build_x (int vx, int lx, int rx) {
+if (lx != rx) {
+int mx = (lx + rx) / 2;
+build_x (vx*2, lx, mx);
+build_x (vx*2+1, mx+1, rx);
+}
+build_y (vx, lx, rx, 1, 0, m-1);
+}
+\endcode
+
+Such a segment tree is still a linear amount of memory, but with a bigger constant: $16 m n$ memory cells. It is clear that it is constructed as described above procedure $\rm build\_x$ is also in linear time.
+
+We now proceed to \bf{request processing}. To answer a two-dimensional query will be on the same principle: first split request on the first coordinate, and then, when we got to some vertex of segment tree on the rst coordinate --- call request from the corresponding segment tree on the second coordinate.
+
+\code
+int sum_y (int vx, int vy, int tly, int try_, int ly, int ry) {
+if (ly > ry)
+return 0;
+if (ly == tly && try_ == ry)
+return t[vx][vy];
+int tmy = (tly + try_) / 2;
+return sum_y (vx, vy*2, tly, tmy, ly, min(ry,tmy))
++ sum_y (vx, vy*2+1, tmy+1, try_, max(ly,tmy+1), ry);
+}
+
+int sum_x (int vx, int tlx, int trx, int lx, int rx, int ly, int ry) {
+if (lx > rx)
+return 0;
+if (lx == tlx && trx == rx)
+return sum_y (vx, 1, 0, m-1, ly, ry);
+int tmx = (tlx + trx) / 2;
+sum_x return (vx*2, tlx, tmx, lx, min(rx,tmx), ly, ry)
++ sum_x (vx*2+1, tmx+1, trx, max(lx,tmx+1), rx, ly, ry);
+}
+\endcode
+
+This function works in time $O (\log n \log m)$, as it first descends the tree on the first coordinate, and for each passed vertex of this tree --- makes a request in a conventional segment tree on the second coordinate.
+
+Finally, consider \bf{query modification}. We want to learn how to modify the segment tree in accordance with the changing value of any element of $a[x][y] = p$. It is clear that changes will occur only in the vertices of the first tree segments, which cover the coordinate $x$ (and there will be $O (\log n)$), and for trees of segments corresponding to them --- the changes are only in those nodes, which cover the coordinate $y$ (and $O (\log m)$). Therefore, the implementation of the query modification will not differ much from the one-dimensional case, only now we have first down on the first coordinate, and then --- on the second.
+
+\code
+void update_y (int vx, int lx, int rx, int vy, int ly, int ry, int x, int y, int new_val) {
+if (ly == ry) {
+if (lx == rx)
+t[vx][vy] = new_val;
+else
+t[vx][vy] = t[vx*2][vy] + t[vx*2+1][vy];
+}
+else {
+int my = (ly + ry) / 2;
+if (y <= my)
+update_y (vx, lx, rx, vy*2, ly, my, x, y, new_val);
+else
+update_y (vx, lx, rx, vy*2+1, my+1, ry, x, y, new_val);
+t[vx][vy] = t[vx][vy*2] + t[vx][vy*2+1];
+}
+}
+
+void update_x (int vx, int lx, int rx, int x, int y, int new_val) {
+if (lx != rx) {
+int mx = (lx + rx) / 2;
+if (x <= mx)
+update_x (vx*2, lx, mx, x, y, new_val);
+else
+update_x (vx*2+1, mx+1, rx, x, y, new_val);
+}
+update_y (vx, lx, rx, 1, 0, m-1, x, y, new_val);
+}
+\endcode
+
+\h4{Compression of two-dimensional segment tree}
+
+Let the task following: there are $n$ points in the plane, defined by their coordinates $(x_i,y_i)$, and receive requests of the form "count the number of points lying in the rectangle $((x_1,y_1),(x_2,y_2))$". It is clear that in the case of such tasks becomes unnecessarily wasteful to build two-dimensional segment tree with $O (n^2)$ elements. Most of this memory will be wasted, because every single point can fall only in $O (\log n)$ of the segments of the segment tree for the rst coordinate, and, therefore, the total "useful" size of all trees on the second coordinate is the value of $O (n \log n)$.
+
+Then proceed as follows: each vertex of segment tree for the rst coordinate we store the segment tree built only on the second coordinate that appear in the current segment of the first coordinates. In other words, when you build the segment tree is inside a vertex $vx$ and the boundary $tlx, trx$ we will consider only the points that fall in this interval $x \in [tlx; trx]$, and construct the segment tree just above them.
+
+Thereby we will ensure that each segment tree on the second coordinate will take exactly as much memory as it should. In the end, the total \bf{memory} decreasing to $O (n \log n)$. \bf{to respond to the request} we'll still $O (\log^2 n)$, just now when the request from the tree segments for the second coordinate we will need to do a binary search on the second coordinate, but this complexity does not worsen.
+
+But payback will be the inability to do arbitrary \bf{query modification}: indeed, if there will be a new point, it will lead to what we will have in any segment tree on the second coordinate to add a new item in the middle of what effectively can be done.
+
+In conclusion, we note that the compressed in the manner described a two-dimensional segment tree is virtually \bf{equivalent} described above modification of the one-dimensional segment tree (see "Saving the entire subarray at each vertex of segment tree"). In particular, it turns out that the described two-dimensional segment tree is just a special case of the preservation of the subarray in each node of the tree, where the subarray itself is stored as a tree of segments. It follows that if you have to abandon the two-dimensional segment tree because of the inability to perform a particular query, it makes sense to try to replace nested segment tree any more powerful data structure, for example, \algohref=treap{Cartesian tree}.
+
+
+\h3{segment Tree with the preservation of the history of its values (the persistent data structures)}
+
+Persistent-the data structure is a data structure that in each modification remembers its previous state. This allows to refer to any us version of this data structure and perform the query on it.
+
+The segment tree is a data structure that can be turned into a persistent data structure (of course, we consider efficient persistent-structure and not one that copies all of himself completely before each update).
+
+In fact, any change request in the segment tree will modify the data in $O (\log n)$ vertices, and along a path starting from the root. So if we keep a segment tree on the pointers (i.e., pointers to the left and right sons make the pointers stored in the top), then when you request an update we should instead just modify the existing vertices to create new vertices and links of which direct to the old vertices. Thus, when the refresh request will be created in $O (\log n)$ new peaks, including a new tree root segment and all previous version of the tree, suspended from an old root, will remain unchanged.
+
+Here is an example for the simplest implementation of segment tree: when there's only a query counting the amounts in current segment and the query modification singular.
+
+\code
+struct vertex {
+vertex * l, * r;
+int sum;
+
+vertex (int val)
+: l(NULL), r(NULL), sum(val)
+{ }
+
+vertex (vertex * l, vertex * r)
+: l(l), r(r), sum(0)
+{
+if (l) sum += l->sum;
+if (r) sum += r->sum;
+}
+};
+
+vertex * build (int a[], int tl, int tr) {
+if (tl == tr)
+return new vertex (a[tl]);
+int tm = (tl + tr) / 2;
+return new vertex (
+build (a, tl, tm),
+build (a, tm+1, tr)
+);
+}
+
+int get_sum (vertex * t, int tl, int tr, int l, int r) {
+if (l > r)
+return 0;
+if (l == tl && tr == r)
+return t->sum;
+int tm = (tl + tr) / 2;
+return get_sum (t->l, tl, tm, l, min(r,tm))
++ get_sum (t->r, tm+1, tr, max(l,tm+1), r);
+}
+
+vertex * update (vertex * t, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+return new vertex (new_val);
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+return new vertex (
+update (t->l, tl, tm, pos, new_val),
+t->r
+);
+else
+return new vertex (
+t->l,
+update (t->r, tm+1, tr, pos, new_val)
+);
+}
+\endcode
+
+Using this approach can be turned into a persistent data structure almost any tree.

@@ -1,0 +1,36 @@
+<h1>prueba de conde de la двудольность y dividir en dos fracciones</h1>
+
+<p>Deje que dan неориентированный conde. Desea comprobar y, si es двудольным, es decir, ¿se puede dividir la cima en dos fracciones, para que no se aristas que unen dos vértices de cada participación. Si el gráfico es двудольным, lo de sacar a los propios de la proporción.</p>
+<p>Decidamos a esta tarea con la ayuda de <algohref=bfs>búsqueda en anchura</algohref> a O (M).</p>
+<h2>Marca двудольности</h2>
+<p>el Teorema. El conde es двудольным entonces, y sólo entonces, cuando todas sus ciclos simples tienen será par de longitud.</p>
+<p>sin Embargo, desde un punto de vista práctico buscar todos los ciclos simples incómodo. Es mucho más fácil de comprobar que el gráfico de la двудольность el algoritmo siguiente:</p>
+<h2>el Algoritmo de</h2>
+<p>Realizaremos una serie de búsquedas en el ancho. Es decir, vamos a ejecutar la búsqueda en anchura de cada непосещенной la cima. La cima, desde la que empezamos a caminar, colocamos en la primera fracción. En el proceso de búsqueda en anchura, si nos vamos a una nueva cima, colocamos en proporción distinta a la que la proporción actual de la cima. Si tratamos de pasar por una arista en la cumbre, que ya visitada, comprobamos que esta cima actual de la cima se encontraban en diferentes fracciones. En caso contrario, el conde de двудольным no lo es.</p>
+<p>después De terminar el trabajo de un algoritmo o nos encontramos con que el conde no двудолен, o encontraremos la ruptura de los vértices de un gráfico en dos fracciones.</p>
+<h2>Realización</h2>
+<code>int n;
+vector < vector<int> > g;
+... lectura del conde ...
+
+vector<char> part (n, -1);
+bool ok = true;
+vector<int> q (n);
+for (int st=0; st<n; ++st)
+if (part[st] == -1) {
+int h=0, t=0;
+q[t++] = st;
+part[st] = 0;
+while (h<t) {
+int v = q[h++];
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (part[to] == -1)
+part[to] = !part[v], q[t++] = to;
+else
+ok &= part[to] != part[v];
+}
+}
+}
+
+puts (ok ? "YES" : "NO");</code>

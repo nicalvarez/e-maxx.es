@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Наименьший общий предок. Нахождение за O (1) с препроцессингом O (N) (алгоритм Фарах-Колтона и Бендера)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Наименьший общий предок. Нахождение за O (1) с препроцессингом O (N) (алгоритм Фарах-Колтона и Бендера)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Наименьший общий предок. Нахождение за O (1) с препроцессингом O (N) (алгоритм Фарах-Колтона и Бендера)&lt;/h1&gt;
+&lt;p&gt;Пусть дано дерево G. На вход поступают запросы вида (V1, V2), для каждого запроса требуется найти их наименьшего общего предка, т.е. вершину V, которая лежит на пути от корня до V1, на пути от корня до V2, и из всех таких вершин следует выбирать самую нижнюю. Иными словами, искомая вершина V - предок и V1, и V2, и среди всех таких общих предков выбирается нижний. Очевидно, что наименьший общий предок вершин V1 и V2 - это их общий предок, лежащий на кратчайшем пути из V1 в V2. В частности, например, если V1 является предком V2, то V1 является их наименьшим общим предком.&lt;/p&gt;
+&lt;p&gt;На английском эта задача называется задачей LCA - Least Common Ancestor.&lt;/p&gt;
+&lt;p&gt;Описываемый здесь алгоритм Фарах-Колтона и Бендера (Farach-Colton, Bender) является асимптотически оптимальным, и при этом сравнительно простым (по сравнению с другими алгоритмами, например, Шибера-Вишкина).&lt;/p&gt;
+&lt;h2&gt;Алгоритм&lt;/h2&gt;
+&lt;p&gt;Воспользуемся классическим сведением задачи LCA &lt;b&gt;к задаче RMQ&lt;/b&gt; (минимум на отрезке) (более подробно см. &lt;algohref=lca&gt;Наименьший общий предок. Нахождение за O (sqrt (N)) и O (log N) с препроцессингом O (N)&lt;/algohref&gt;). Научимся теперь решать задачу RMQ в данном частном случае с препроцессингом O (N) и O (1) на запрос.&lt;/p&gt;
+&lt;p&gt;Заметим, что задача RMQ, к которой мы свели задачу LCA, является весьма специфичной: любые два соседних элемента в массиве &lt;b&gt;отличаются ровно на единицу&lt;/b&gt; (поскольку элементы массива - это не что иное как высоты вершин, посещаемых в порядке обхода, и мы либо идём в потомка, тогда следующий элемент будет на 1 больше, либо идём в предка, тогда следующий элемент будет на 1 меньше). Собственно алгоритм Фарах-Колтона и Бендера как раз и представляет собой решение такой задачи RMQ.&lt;/p&gt;
+&lt;p&gt;Обозначим через A массив, над которым выполняются запросы RMQ, а N - размер этого массива.&lt;/p&gt;
+&lt;p&gt;Построим сначала алгоритм, решающий эту задачу &lt;b&gt;с препроцессингом O (N log N) и O (1) на запрос&lt;/b&gt;. Это сделать легко: создадим так называемую Sparse Table T[l,i], где каждый элемент T[l,i] равен минимуму A на промежутке [l; l+2&lt;sup&gt;i&lt;/sup&gt;). Очевидно, 0 &amp;lt;= i &amp;lt;= &amp;lceil;log N&amp;rceil;, и потому размер Sparse Table будет O (N log N). Построить её также легко за O (N log N), если заметить, что T[l,i] = min (T[l,i-1], T[l+2&lt;sup&gt;i-1&lt;/sup&gt;,i-1]). Как теперь отвечать на каждый запрос RMQ за O (1)? Пусть поступил запрос (l,r), тогда ответом будет min (T[l,sz], T[r-2&lt;sup&gt;sz&lt;/sup&gt;+1,sz]), где sz - наибольшая степень двойки, не превосходящая r-l+1. Действительно, мы как бы берём отрезок (l,r) и покрываем его двумя отрезками длины 2&lt;sup&gt;sz&lt;/sup&gt; - один начинающийся в l, а другой заканчивающийся в r (причём эти отрезки перекрываются, что в данном случае нам нисколько не мешает). Чтобы действительно достигнуть асимптотики O (1) на запрос, мы должны предпосчитать значения sz для всех возможных длин от 1 до N.&lt;/p&gt;
+&lt;p&gt;Теперь опишем, &lt;b&gt;как улучшить&lt;/b&gt; этот алгоритм до асимптотики O (N).&lt;/p&gt;
+&lt;p&gt;Разобьём массив A на блоки размером K = 0.5 log&lt;sub&gt;2&lt;/sub&gt; N. Для каждого блока посчитаем минимальный элемент в нём и его позицию (поскольку для решения задачи LCA нам важны не сами минимумы, а их позиции). Пусть B - это массив размером N / K, составленный из этих минимумов в каждом блоке. Построим по массиву B Sparse Table, как описано выше, при этом размер Sparse Table и время её построения будут равны:&lt;/p&gt;
+&lt;formula&gt;N/K log N/K = (2N / log N) log (2N / log N) =
+= (2N / log N) (1 + log (N / log N)) &amp;lt;= 2N / log N + 2N = O (N)&lt;/formula&gt;
+&lt;p&gt;Теперь нам осталось только научиться быстро отвечать на запросы RMQ &lt;b&gt;внутри каждого блока&lt;/b&gt;. В самом деле, если поступил запрос RMQ(l,r), то, если l и r находятся в разных блоках, то ответом будет минимум из следующих значений: минимум в блоке l, начиная с l и до конца блока, затем минимум в блоках после l и до r (не включительно), и наконец минимум в блоке r, от начала блока до r. На запрос &quot;минимум в блоках&quot; мы уже можем отвечать за O (1) с помощью Sparse Table, остались только запросы RMQ внутри блоков.&lt;/p&gt;
+&lt;p&gt;Здесь мы воспользуемся &quot;+-1 свойством&quot;. Заметим, что, если внутри каждого блока от каждого его элемента отнять первый элемент, то все блоки будут однозначно определяться последовательностью длины K-1, состоящей из чисел +-1. Следовательно, количество различных блоков будет равно:&lt;/p&gt;
+&lt;formula&gt;2&lt;sup&gt;K-1&lt;/sup&gt; = 2&lt;sup&gt;0.5 log N - 1&lt;/sup&gt; = 0.5 sqrt(N)&lt;/formula&gt;
+&lt;p&gt;Итак, количество различных блоков будет O (sqrt (N)), и потому мы можем предпосчитать результаты RMQ внутри всех различных блоков за O (sqrt(N) K&lt;sup&gt;2&lt;/sup&gt;) = O (sqrt(N) log&lt;sup&gt;2&lt;/sup&gt; N) = O (N). С точки зрения реализации, мы можем каждый блок характеризовать битовой маской длины K-1 (которая, очевидно, поместится в стандартный тип int), и хранить предпосчитанные RMQ в некотором массиве R[mask,l,r] размера O (sqrt(N) log&lt;sup&gt;2&lt;/sup&gt; N).&lt;/p&gt;
+&lt;p&gt;Итак, мы научились предпосчитывать результаты RMQ внутри каждого блока, а также RMQ над самими блоками, всё в сумме за O (N), а отвечать на каждый запрос RMQ за O (1) - пользуясь только предвычисленными значениями, в худшем случае четырьмя: в блоке l, в блоке r, и на блоках между l и r не включительно.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;p&gt;В начале программы указаны константы MAXN, LOG_MAXLIST и SQRT_MAXLIST, определяющие максимальное число вершин в графе, которые при необходимости надо увеличить.&lt;/p&gt;
+&lt;code&gt;const int MAXN = 100*1000;
+const int MAXLIST = MAXN * 2;
+const int LOG_MAXLIST = 18;
+const int SQRT_MAXLIST = 447;
+const int MAXBLOCKS = MAXLIST / ((LOG_MAXLIST+1)/2) + 1;
+
+int n, root;
+vector&amp;lt;int&gt; g[MAXN];
+int h[MAXN]; // vertex height
+vector&amp;lt;int&gt; a; // dfs list
+int a_pos[MAXN]; // positions in dfs list
+int block; // block size = 0.5 log A.size()
+int bt[MAXBLOCKS][LOG_MAXLIST+1]; // sparse table on blocks (relative minimum positions in blocks)
+int bhash[MAXBLOCKS]; // block hashes
+int brmq[SQRT_MAXLIST][LOG_MAXLIST/2][LOG_MAXLIST/2]; // rmq inside each block, indexed by block hash
+int log2[2*MAXN]; // precalced logarithms (floored values)
+
+// walk graph
+void dfs (int v, int curh) {
+	h[v] = curh;
+	a_pos[v] = (int)a.size();
+	a.push_back (v);
+	for (size_t i=0; i&amp;lt;g[v].size(); ++i)
+		if (h[g[v][i]] == -1) {
+			dfs (g[v][i], curh+1);
+			a.push_back (v);
+		}
+}
+
+int log (int n) {
+	int res = 1;
+	while (1&amp;lt;&amp;lt;res &amp;lt; n)  ++res;
+	return res;
+}
+
+// compares two indices in a
+inline int min_h (int i, int j) {
+	return h[a[i]] &amp;lt; h[a[j]] ? i : j;
+}
+
+// O(N) preprocessing
+void build_lca() {
+	int sz = (int)a.size();
+	block = (log(sz) + 1) / 2;
+	int blocks = sz / block + (sz % block ? 1 : 0);
+
+	// precalc in each block and build sparse table
+	memset (bt, 255, sizeof bt);
+	for (int i=0, bl=0, j=0; i&amp;lt;sz; ++i, ++j) {
+		if (j == block)
+			j = 0,  ++bl;
+		if (bt[bl][0] == -1 || min_h (i, bt[bl][0]) == i)
+			bt[bl][0] = i;
+	}
+	for (int j=1; j&amp;lt;=log(sz); ++j)
+		for (int i=0; i&amp;lt;blocks; ++i) {
+			int ni = i + (1&amp;lt;&amp;lt;(j-1));
+			if (ni &gt;= blocks)
+				bt[i][j] = bt[i][j-1];
+			else
+				bt[i][j] = min_h (bt[i][j-1], bt[ni][j-1]);
+		}
+
+	// calc hashes of blocks
+	memset (bhash, 0, sizeof bhash);
+	for (int i=0, bl=0, j=0; i&amp;lt;sz||j&amp;lt;block; ++i, ++j) {
+		if (j == block)
+			j = 0,  ++bl;
+		if (j &gt; 0 &amp;&amp; (i &gt;= sz || min_h (i-1, i) == i-1))
+			bhash[bl] += 1&amp;lt;&amp;lt;(j-1);
+	}
+
+	// precalc RMQ inside each unique block
+	memset (brmq, 255, sizeof brmq);
+	for (int i=0; i&amp;lt;blocks; ++i) {
+		int id = bhash[i];
+		if (brmq[id][0][0] != -1)  continue;
+		for (int l=0; l&amp;lt;block; ++l) {
+			brmq[id][l][l] = l;
+			for (int r=l+1; r&amp;lt;block; ++r) {
+				brmq[id][l][r] = brmq[id][l][r-1];
+				if (i*block+r &amp;lt; sz)
+					brmq[id][l][r] =
+						min_h (i*block+brmq[id][l][r], i*block+r) - i*block;
+			}
+		}
+	}
+
+	// precalc logarithms
+	for (int i=0, j=0; i&amp;lt;sz; ++i) {
+		if (1&amp;lt;&amp;lt;(j+1) &amp;lt;= i)  ++j;
+		log2[i] = j;
+	}
+}
+
+// answers RMQ in block #bl [l;r] in O(1)
+inline int lca_in_block (int bl, int l, int r) {
+	return brmq[bhash[bl]][l][r] + bl*block;
+}
+
+// answers LCA in O(1)
+int lca (int v1, int v2) {
+	int l = a_pos[v1],  r = a_pos[v2];
+	if (l &gt; r)  swap (l, r);
+	int bl = l/block,  br = r/block;
+	if (bl == br)
+		return a[lca_in_block(bl,l%block,r%block)];
+	int ans1 = lca_in_block(bl,l%block,block-1);
+	int ans2 = lca_in_block(br,0,r%block);
+	int ans = min_h (ans1, ans2);
+	if (bl &amp;lt; br - 1) {
+		int pw2 = log2[br-bl-1];
+		int ans3 = bt[bl+1][pw2];
+		int ans4 = bt[br-(1&amp;lt;&amp;lt;pw2)][pw2];
+		ans = min_h (ans, min_h (ans3, ans4));
+	}
+	return a[ans];
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

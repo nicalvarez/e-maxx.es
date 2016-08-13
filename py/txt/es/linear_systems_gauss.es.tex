@@ -1,0 +1,265 @@
+\h1{ el Método de gauss solución de sistemas de ecuaciones lineales }
+
+
+Dana sistema $n$ lineales algebraicas de las ecuaciones (slough) con $m$ desconocidos. Es necesario resolver el sistema: determinar cuántas soluciones tiene (ninguna, una o infinitos), y si tiene al menos una solución, encontrar a uno de ellos.
+
+\bf{Formalmente} la tarea se plantea de la siguiente manera: resolver el sistema:
+
+$$ \cases{
+a_{11} x_1 + a_{12} x_2 + \ldots + a_{1m} x_m = b_1, \cr
+a_{21} x_1 + a_{22} x_2 + \ldots + a_{2m} x_m = b_2, \cr
+\ldots \cr
+a_{n1} x_1 + a_{n2} x_2 + \ldots + a_{nm} x_m = b_n,
+} $$
+
+donde los coeficientes de $a_{ij} (i=1, \ldots, n, j=1 \ldots m)$ y $b_i (i = 1, \ldots, n)$ conocidas, y las variables $x_i (i=1, \ldots m)$ --- los desconocidos.
+
+Es conveniente matemática de la presentación de esta tarea:
+
+$$ A, x = b, $$
+
+donde $A$ --- matriz $n \times m$, compuesta de los factores de $a_{ij}$, $x,$ y $b$ --- vectores-columna de altura $m$.
+
+Vale la pena señalar que slough, no puede estar por encima del campo de los números reales, y sobre el campo \bf{módulo} de cualquier número de $p$, es decir:
+
+$$ \cases{
+a_{11} x_1 + a_{12} x_2 + \ldots + a_{1m} x_m = b_1, \pmod p \cr
+a_{21} x_1 + a_{22} x_2 + \ldots + a_{2m} x_m = b_2, \pmod p \cr
+\ldots \cr
+a_{n1} x_1 + a_{n2} x_2 + \ldots + a_{nm} x_m = b_n \pmod p
+} $$
+
+--- el algoritmo de gauss funciona y para tales sistemas también (pero en este caso será discutido más adelante en la sección correspondiente).
+
+
+
+\h2{ el Algoritmo de gauss }
+
+Estrictamente hablando, se describe a continuación el método correcto es llamar al método de gauss-Жордана" (Gauss-Jordan elimination), ya que es una variación del método de gauss, se describe геодезистом guillermo Жорданом en 1887 (vale la pena señalar que guillermo jordania no es el autor ni el teorema de Жордана de curvas, ni жордановой álgebra --- todo esto en tres diferentes científicos homónimo; además, parece más correcta es la transcripción de "jordan", pero escribir "jordania" ya estaba en la literatura rusa). También es interesante notar que al mismo tiempo Жорданом (y según algunas incluso antes que él), este algoritmo inventado Класен (B. I. Clasen).
+
+
+\h3{ esquema básico }
+
+En pocas palabras, el algoritmo consiste en \bf{secuencial de la excepción} las variables de cada una de las ecuaciones, hasta que en cada ecuación no se quedará sólo en una variable. Si $n=m$, entonces se puede decir que el algoritmo de gauss-Жордана trata de poner la matriz $A$ el sistema a una sola matriz --- ya que después se convirtió en la matriz de una sola, la solución del sistema es evidente --- solución única y se establece получившимися los factores de $b_i$.
+
+Con este algoritmo se basa en dos simples equivalentes de las transformaciones del sistema: en primer lugar, se puede intercambiar dos ecuaciones, y en segundo lugar, cualquier ecuación se puede sustituir una combinación lineal de esta línea (con un coeficiente distinto de cero) y otras cadenas (con múltiples factores).
+
+\bf{En el primer paso} el algoritmo de gauss-Жордана divide la primera fila de una tasa de $a_{11}$. A continuación, el algoritmo añade la primera línea hacia el resto de las filas con las cuotas para los coeficientes de la primera columna se dirigían en ceros --- para ello, obviamente, al sumar la primera fila de a $i$-oh es necesario домножать en $-a_{i1}$. En cada operación con la matriz $A$ (división por un número, la suma de una fila de la otra) las transacciones se realizan y con el vector $b$; en cierto sentido, él se comporta como si él hubiera sido $m+1$en la primera columna de la matriz $A$.
+
+Finalmente, después de este primer paso, la primera columna de la matriz $A$ se convertirá en singular (es decir, contendrá la unidad en la primera fila y ceros en el resto).
+
+De manera similar se realiza el segundo paso del algoritmo, sólo que ahora se refiere a la segunda columna y segunda fila: primero, la segunda línea se divide en $a_{22}$, y luego se resta de todas las demás filas con estos factores, para reiniciar la segunda columna de la matriz $A$.
+
+Y así sucesivamente, hasta que nos encargaremos de todas las filas y todas las columnas de la matriz $A$. Si $n=m$, de la construcción de un algoritmo es evidente que la matriz $A$ resultar unitario que nosotros y era necesario.
+
+
+\h3{ Búsqueda de un elemento de soporte (pivoting) }
+
+Por supuesto, como se describe anteriormente, el esquema incompleto. Funciona sólo en el caso de que en cada una de las $i$-ohmios paso el elemento $a_{ii}$ es distinto de cero --- de lo contrario, simplemente no podemos lograr cero el resto de los factores en la actual columna sumando a él $i$-oh de la cadena.
+
+Para hacer un algoritmo que trabaja en estos casos, existe un proceso de \bf{selección de un elemento de soporte} (en inglés se llama una palabra "pivoting"). Él es el que se lleva a cabo la transposición de filas y/o columnas de la matriz, para que en el elemento de $a_{ii}$ result un número distinto de cero.
+
+Tenga en cuenta que una permutación de filas es mucho más fácil, se implementa en el equipo, que la transposición de columnas, pues en el intercambio de asientos de dos de cualquier tipo de columnas es necesario recordar que estas dos variables se intercambiaron lugares, para luego, cuando la recuperación de la respuesta, para restaurar correctamente cuál es la respuesta a qué variable se refiere. Al intercambiar las filas ninguna de tales acciones adicionales de producir no es necesario.
+
+Afortunadamente, para la corrección de un método bastante solo en los intercambios de filas (lo que se conoce como "partial pivoting", a diferencia de "full pivoting", cuando se intercambian y filas y columnas). Pero, qué es la cadena que se deben seleccionar para el intercambio? Y si es verdad que la búsqueda de un elemento de soporte se debe hacer sólo cuando el elemento actual de $a_{ii}$ cero?
+
+Total de respuestas a esta pregunta no existe. Hay una gran variedad de heurística, sin embargo, la manera más eficaz de ellos (sobretodo el de la simplicidad y resultados), es \bf{heurística}: como un elemento de soporte debe tomar el mayor de módulo de un elemento, y buscar un elemento de soporte y el cambio se debe a \bf{siempre}, y no sólo cuando es necesario (es decir, no sólo cuando $a_{ii}=0$).
+
+En otras palabras, antes de realizar la $i$fase del algoritmo de gauss-Жордана con la heurística partial pivoting debe encontrar en $i$-ohm columna de los elementos con los índices de $i$ a $n$ el módulo, y cambiar la línea con este elemento de con $i$-oh de la cadena.
+
+En primer lugar, esta heurística para resolver las slough, aunque por el camino de la solución va a suceder de modo que el elemento $a_{ii}=0$. En segundo lugar, lo que es más importante, esta heurística mejora \bf{numérica sostenibilidad} el algoritmo de gauss-Жордана.
+
+Sin esta heurística, incluso si el sistema es tal que en cada una $i$la fase $a_{ii} \ne 0$ --- el algoritmo de gauss-Жордана funcione, pero al final se la desviación puede ser tan grande que incluso para matrices de tamaño de alrededor de $20$ margen de error será superior a sí mismo la respuesta.
+
+
+\h3{ Вырожденные casos }
+
+Si, pues, detenerse en el algoritmo de gauss-Жордана con partial pivoting, entonces, se afirma, si $m=n$ y el sistema de невырождена (es decir, tiene determinante distinto de cero, lo que significa que ella es la única solución), lo descrito anteriormente, el algoritmo totalmente funcione y llegue a una sola matriz $A$ (prueba de ello, es decir, que no un elemento de soporte siempre va a estar, no se presenta aquí).
+
+Veamos ahora \bf{un caso} --- cuando $n$ y $m$ no necesariamente son iguales. Supongamos que un elemento de soporte en $i$-ohmios paso no se ha encontrado. Esto significa que $i$-ohm columna de todas las filas, a partir de la actual, contienen ceros. Se afirma, que en este caso esta $i$-aja variable no puede ser definido, y es \bf{variable} (puede tomar un valor arbitrario). Para que el algoritmo de gauss-Жордана continuó su trabajo para todas las variables, en tal situación, es necesario simplemente saltar actual $i$-sima columna, sin aumentar el número de la línea actual (se puede decir que estamos prácticamente a eliminar el $i$-sima columna de la matriz).
+
+Así, algunas de las variables en el proceso de trabajo del algoritmo, se pueden recibir independientes. Está claro que cuando la cantidad de $m$ variables más la cantidad de $n$ de ecuaciones, por lo menos $m-n$ las variables de actos independientes.
+
+En general, si haba una al menos una variable independiente, se puede tomar un valor arbitrario, mientras que el resto (dependientes) las variables de expresarse a través de ella. Esto significa que, cuando trabajamos en el campo de los números reales, el sistema potencialmente tiene un \bf{infinitamente muchas soluciones} (si consideramos que el slough por el módulo, el número de soluciones es igual al módulo de medida de la cantidad de variables independientes). Sin embargo, debe ser cuidadoso: hay que recordar que incluso si se han detectado las variables independientes, sin embargo, de slough (\bf{no puede tener soluciones en absoluto}. Esto ocurre cuando en el resto de los brutos en las ecuaciones (aquellos a los que el algoritmo de gauss-Жордана no ha llegado, es decir, ecuaciones en las que se han quedado sólo las variables independientes) al menos uno distinto de cero miembro libre.
+
+Sin embargo, más fácil es comprobar explícita la sustitución de la decisión encontrada: todo independientes de las variables de asignar un valor de cero, dependiente de las variables de asignar los valores encontrados, y poner esta decisión en el actual slough.
+
+
+
+\h2{ Aplicación }
+
+Aquí la implementación del algoritmo de gauss-Жордана con la heurística partial pivoting (selección de un elemento de soporte como máximo de la columna).
+
+En la entrada de la función $\rm gauss()$ se pasa a la misma matriz del sistema es de $a$. La última columna de la matriz $a$ --- esto en nuestros viejos leyenda de la columna $b$ libres de los factores (esto se hace para facilitar la programación, - - - ya que en el algoritmo de todas las operaciones con software libre los factores de $b$ repiten la operación con la matriz $A$).
+
+La función devuelve el número de soluciones del sistema ($0$, $1$ o $\infty$) (infinito indicadas en el código de extraordinario valor constante de $\rm INF$, que se puede definir cualquier gran importancia). Si alguna existe una solución, entonces se devuelve el vector $\rm ans$.
+
+\code
+int gauss (vector < vector<double> > a, vector<double> & ans) {
+int n = (int) a.size();
+int m = (int) a[0].size() - 1;
+
+vector<int> where (m, -1);
+for (int col=0, row=0; col<m && row<n; col++) {
+int sel = row;
+for (int i=row; i<n; ++i)
+if (abs (a[i][col]) > abs (a[sel][col]))
+sel = i;
+if (abs (a[sel][col]) < EPS)
+continue;
+for (int i=col; i<=m; i++)
+swap (a[sel][i], a[row][i]);
+where[col] = row;
+
+for (int i=0; i<n; ++i)
+if (i != row) {
+double c = a[i][col] / a[row][col];
+for (int j=col; j<=m; j++)
+a[i][j] -= a[row][j] * c;
+}
+++row;
+}
+
+ans.assign (m, 0);
+for (int i=0; i<m; i++)
+if (where[i] != -1)
+ans[i] = a[where[i]][m] / a[where[i]][i];
+for (int i=0; i<n; ++i) {
+double suma = 0;
+for (int j=0; j<m; j++)
+sum += ans[j] * a[i][j];
+if (abs (sum - a[i][m]) > EPS)
+return 0;
+}
+
+for (int i=0; i<m; i++)
+if (where[i] == -1)
+return INF;
+return 1;
+}
+\endcode
+
+En la función, se admiten dos del puntero --- en la columna actual $\rm col$, y la línea actual de $\rm row$.
+
+También aparece el vector $\rm where$, en el que para cada variable se registra en qué línea debe ser posible (en otras palabras, para cada columna se escribirá el número de la línea que esta columna es distinto de cero). Este vector es necesario, ya que algunas variables no pueden "decidir" en el curso de la solución (es decir, las variables independientes, las cuales puede asignar un valor arbitrario --- por ejemplo, en la aplicación son ceros).
+
+Implementación utiliza la técnica partial pivoting, produciendo la búsqueda de una línea con un máximo de un módulo de un elemento, y reorganizar a continuación, la cadena en la posición $\rm row$ (a pesar de la clara permutación de filas, se puede sustituir el intercambio de los dos índices de alguna matriz, en la práctica, esto no le dará el premio final, ya que en los intercambios se gasta $O(n^2)$ de operaciones).
+
+En la aplicación para la simplicidad de la fila actual no está dividido en un elemento de soporte --- así que finalmente, después de terminar el trabajo del algoritmo de la matriz se vuelve no una sola, sino de la diagonal (sin embargo, al parecer, la división de la fila a conduce el elemento que permite reducir algo de la que surgen de la incertidumbre).
+
+Después de encontrar una solución a la que se pone de nuevo en la matriz --- para comprobar si el sistema de, al menos, una solución o no. Si la comprobación de la decisión encontrada fue un éxito, la función devuelve $1$ o $\infty$ --- dependiendo de si hay al menos una variable independiente o no.
+
+
+
+\h2{ Asíntotas }
+
+Ponemos асимптотику obtenido del algoritmo. El algoritmo se compone de $m$ fases, en cada una de las cuales es:
+
+\ul{
+\li búsqueda y la relocalización de un elemento de soporte --- por hora $O(n+m)$ cuando se utiliza la heurística "partial pivoting" (la búsqueda del máximo de la columna)
+\li si un elemento de soporte en la actual columna encontrada --- el aumento actual de la ecuación para todo el resto de las ecuaciones --- por hora $O(nm)$
+}
+
+Obviamente, en el primer párrafo tiene menos асимптотику que el segundo. Tenga en cuenta también, que el segundo párrafo de no más de $\min(n,m)$ veces --- tanto, puede ser dependientes de las variables en slough.
+
+Por lo tanto, \bf{final asíntotas} el algoritmo toma la apariencia de $O (\min(n,m) \cdot n m)$.
+
+Si $n = m$ esta evaluación se convierte en un $O(n^3)$.
+
+Tenga en cuenta que cuando slough no se considera en el campo de los números reales, y en el campo por el módulo dos, entonces el sistema se puede resolver mucho más rápido --- a continuación en la sección "Solución de slough por el módulo".
+
+\h3{Más precisa para estimar el número de acciones}
+
+Para facilidad de cálculos vamos a suponer que $n = m$.
+
+Como ya sabemos, el tiempo de funcionamiento de todo el algoritmo, de hecho se define como el tiempo que se invierte en la exclusión actual de la ecuación de los demás.
+
+Esto puede ocurrir en cada uno de $n$ de pasos, al este de la actual ecuación se suma a todos $n-1$ el resto. Al sumar el trabajo va solo con las columnas, a partir del presente año. Por lo tanto, el total es $n^3 / 2$ de operaciones.
+
+
+
+
+\h2{ Adiciones }
+
+
+\h3{ Aceleración del algoritmo: la separación de su directo y el inverso }
+
+Lograr el doble de la aceleración del algoritmo se puede, habiendo examinado el otro su versión más clásica, cuando el algoritmo se divide en la fase de búsqueda directa e inversa.
+
+En general, a diferencia de lo descrito anteriormente, el algoritmo, se puede generar una matriz no diagonal decir, a \bf{треугольному cuenta} --- cuando todos los elementos estrictamente por debajo de la diagonal principal son iguales a cero.
+
+Sistema de triangular la matriz se decide trivial --- primero de la última ecuación en seguida se encuentra el valor de la última variable y, a continuación, se halló el valor se sustituye en el penltimo la ecuación y el valor de la penúltima de la variable, y así sucesivamente. Este proceso se llama \bf{reversa} el algoritmo de gauss.
+
+\bf{el paso Directo} el algoritmo de gauss --- es un algoritmo similar al descrito anteriormente el algoritmo de gauss-Жордана, con una excepción: la variable no se excluye de todas las ecuaciones, sino sólo de ecuaciones después de la actual. Como resultado de ello, realmente no es diagonal, triangular de la matriz.
+
+La diferencia es que el paso directo funciona \bf{más rápido} el algoritmo de gauss-Жордана --- ya que en promedio se hace en dos veces menos adiciones de una ecuación a otra. Marcha atrás funciona a $O(nm)$, que en cualquier caso asintóticamente más rápido directo de la marcha.
+
+Por lo tanto, si $n=m$, entonces el algoritmo va a hacer ya $n^3/4$ operaciones --- que es dos veces menor que el algoritmo de gauss-Жордана.
+
+
+\h3{ la Solución de slough por el módulo }
+
+Para resolver slough por el módulo se puede aplicar el algoritmo descrito anteriormente, ha mantenido su corrección.
+
+Por supuesto, ahora es necesario utilizar algún tipo de sofisticadas técnicas de selección de un elemento de soporte --- basta de encontrar cualquier elemento distinto de cero en la actual columna.
+
+Si el módulo de simple, sin complicaciones, en general no se produce --- ocurren sobre la marcha del algoritmo de gauss de la división no crean problemas especiales.
+
+Especialmente maravilloso \bf{módulo igual a dos}: para él todas las operaciones con la matriz se puede realizar de manera muy eficiente. Por ejemplo, отнимание de una fila de la otra por el módulo dos --- en realidad, es su симметрическая la diferencia ("xor"). Por lo tanto, todo el algoritmo se puede acelerar, apretando con toda una matriz de bits de la máscara y en términos sólo de ellos. Aquí una nueva implementación de la parte principal del algoritmo de gauss-Жордана, utilizando un contenedor estándar de C++ "bitset":
+
+\code
+int gauss (vector < bitset<N> > a, int n, int m, bitset<N> & ans) {
+vector<int> where (m, -1);
+for (int col=0, row=0; col<m && row<n; col++) {
+for (int i=row; i<n; ++i)
+if (a[i][col]) {
+swap (a[i], a[row]);
+break;
+}
+if (! a[row][col])
+continue;
+where[col] = row;
+
+for (int i=0; i<n; ++i)
+if (i != row && a[i][col])
+a[i] ^= a[fila];
+++row;
+}
+\endcode
+
+Como se puede observar, la implementación fue incluso un poco más corto, que es considerablemente más rápido de la antigua aplicación de la --- a saber, el más rápido en $32$ veces a expensas de bits de compresión. También cabe señalar que la decisión de los sistemas de módulo dos, en la práctica, funciona muy rápido, ya que los casos, cuando una línea es necesario tomar otra, se producen con poca frecuencia (en matrices dispersas este algoritmo puede trabajar durante más de un orden de un cuadrado del tamaño de un cubo).
+
+Si el módulo \bf{arbitrario} (no siempre fácil), todo se vuelve un poco más difícil. Está claro que al usar \algohref=chinese_theorem{China el teorema de los residuos}, reducimos la tarea arbitrario módulo sólo a los módulos de tipo "grado de simple". [ seguir el texto se oculta, ya que esta información no comprobada --- es posible, la forma incorrecta de la decisión ]
+
+Por último, examinemos la cuestión de la \bf{número de decisiones de slough por el módulo}. La respuesta es muy simple: el número de soluciones es igual a $p^k$, donde $p$ --- módulo, $k$ --- el número de variables independientes.
+
+
+\h3{ un Poco acerca de los diferentes métodos de selección de un elemento de soporte }
+
+Como se mencionó anteriormente, una respuesta clara a esta pregunta es no.
+
+La heurística "partial pivoting", que consistió en la búsqueda de maximizar el elemento actual de la columna, funciona en la práctica es muy bueno. También resulta que es ella la que da casi el mismo resultado que el "full pivoting" --- cuando un elemento de soporte que se busca entre los elementos de toda la подматрицы --- a partir de la línea de la columna actual.
+
+Pero es interesante notar que estos dos heurística con la búsqueda de la máxima de un elemento, de hecho, muy dependen del grado en que se han промасштабированы de origen de la ecuación. Por ejemplo, si una de las ecuaciones del sistema multiplicar por un millón, esta ecuación es casi seguro que se ha seleccionado como líder en la primera fase. Parece bastante extraño, por lo tanto, es lógica la transición a un poco más compleja эвристике --- el llamado \bf{"implicit pivoting"}.
+
+La heurística implicit pivoting es que los elementos de las diferentes cadenas se comparan como si ambas cadenas se пронормированы de tal manera que el módulo de un elemento en ellos sería igual a la unidad. Para la implementación de esta técnica sólo debe mantener el actual máximo en cada fila (o mantener cada línea para un máximo de ella es igual a la unidad, módulo, pero esto puede llevar a un aumento de накапливаемой margen de error).
+
+
+\h3{ Mejora encontrado la respuesta }
+
+Porque, a pesar de las diferentes heurística, el algoritmo de gauss-Жордана de todos modos puede dar lugar a grandes errores en las matrices incluso de tamaños del orden de $de$ 50 - $100$.
+
+En este sentido, obtenido por el algoritmo de gauss-Жордана la respuesta se puede mejorar mediante la aplicación a ella de cualquier simple método numérico --- por ejemplo, el método simple de la iteración.
+
+Por lo tanto, la solución se convierte en двухшаговое: primero se ejecuta el algoritmo de gauss-Жордана y, a continuación, - - - de algún método numérico que toma como datos iniciales, la solución obtenida en el primer paso.
+
+Esta técnica permite ampliar un poco la multitud de tareas decididas por el algoritmo de gauss-Жордана con un margen de incertidumbre aceptable.
+
+
+
+\h2{ Literatura }
+
+\ul{
+\li \book{William H. Press, Saul A. Teukolsky, William T. Vetterling, Brian P. Flannery}{Numerical Recipes: The Art of Scientific Computing}{2007}{numerical_recipes.pdf}
+\li \book{Anthony valencia, Philip Rabinowitz}{A first course in numerical analysis}{2001}
+}

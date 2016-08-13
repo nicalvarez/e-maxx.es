@@ -1,0 +1,71 @@
+\h1{ Extended Euclidean algorithm }
+
+
+While \algohref=euclid_algorithm{"normal" Euclidean algorithm} just finds the greatest common divisor of two numbers $a$ and $b$, the extended Euclidean algorithm finds GCD in addition to the coefficients of $x$ and $y$ such that:
+
+$$a \cdot x + b \cdot y = {\rm gcd} (a, b).$$
+
+Ie, it finds the factors by which the GCD of two numbers is expressed using these numbers.
+
+
+\h2{Algorithm}
+
+To make the calculation of these coecients in the Euclidian algorithm is easy enough to deduce the formula, which they change during the transition from a pair $(a,b)$ to the pair $(b\%a,a)$ (a percent sign denotes taking the remainder of division).
+
+So, suppose we have found a solution $(x_1,y_1)$ of the problem for a new pair $(b\%a,a)$:
+
+$$ (b \% a) \cdot x_1 + a \cdot y_1 = g, $$
+
+and I want to get the solution $(x,y)$ for our pair $(a,b)$:
+
+$$ a \cdot x + b \cdot y = g. $$
+
+To do this, we transform the magnitude of $b \% a$:
+
+$$ b \% a = b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a. $$
+
+Substitute this in the above expression with $x_1$ and $y_1$ and get:
+
+$$ g = (b \% a) \cdot x_1 + a \cdot y_1 = \left( b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a \right) \cdot x_1 + a \cdot y_1, $$
+
+and, carrying out a regrouping of summands, we get:
+
+$$ g = b \cdot x_1 + a \cdot \left( y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1 \right). $$
+
+Comparing this with the original expression over the unknown $x$ and $y$, we get the required expression:
+
+$$ \cases{
+x = y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1, \cr
+y = x_1.
+} $$
+
+
+\h2{the Implementation}
+
+\code
+
+int gcd (int a, int b, int & x, int & y) {
+if (a == 0) {
+x = 0; y = 1;
+return b;
+}
+int x1, y1;
+int d = gcd (b%a, a, x1, y1);
+x = y1 - (b / a) * x1;
+y = x1;
+return d;
+}
+\endcode
+
+This is a recursive function which still returns the GCD of the numbers $a$ and $b$, but beyond that --- also looking for coefficients $x$ and $y$ as parameters to functions, transmitted through the links.
+
+The base of the recursion --- case $a = 0$. Then the GCD is $b$, and, obviously, the required coefficients of $x$ and $y$ equal to $0$ and $1$ respectively. In other cases, the normal solution, and the coefficients are recalculated according to the above formulas.
+
+Extended Euclidean algorithm in such an implementation works correctly even for negative numbers.
+
+
+\h2{ Literature }
+
+\ul{
+\li \book{Thomas Cormen, Charles Leiserson, Ronald Rivest, Clifford Stein}{Algorithms: Construction and analysis}{2005}{cormen.djvu}
+}

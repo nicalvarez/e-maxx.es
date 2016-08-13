@@ -1,0 +1,103 @@
+\h1{los coeficientes binomiales también}
+
+Биномиальным una tasa de $C_n^k$ se refiere al número de maneras de seleccionar el conjunto de $k$ artículos $n$ de diversos artículos sin tener en cuenta el orden de aparición de estos elementos (es decir, el número de conjuntos desordenados).
+
+También los coeficientes binomiales también es коффициенты en la descomposición de $(a+b)^n$ (lo que se conoce como el binomio de newton):
+
+$$ (a+b)^n = C_n^0 a^n + C_n^1 a^{n-1} b + C_n^2 a^{n-2} b^2 + \ldots + C_n^k a^{n-k} b^k + \ldots + C_n^n b^n $$
+
+Se considera que esta fórmula, como el triángulo, que efectivamente encontrar los factores, abrió blaise pascal (Blaise Pascal), que vivió en el siglo 17 s. sin Embargo, se ha conocido aún chino matemáticas jan Хуэю (Yang Hui), que estaba en el 13 siglo Posible, que abrió el científico persa omar jayyam (Omar Khayyam). Además, el matemático indio pingala (Pingala), que vivía aún en 3 s. adc, recibió cercanos de los resultados. El mérito de la misma de newton es que él resumió esta fórmula para los grados que no son naturales.
+
+\h2{Cálculo}
+
+\bf{Análisis de la fórmula} para calcular:
+
+$$ C_n^k = \frac{n!}{k! (n-k)!} $$
+
+Esta fórmula es fácil de deducir a partir de la tarea de trastornos de la muestra (número de formas de seleccionar imágenes de $k$ elementos $n$ de los elementos). Primero calcular el número de muestras ordenadas. Seleccionar el primer elemento es $n$ maneras, la segunda --- $n-1$, tercer --- $n-2$, y así sucesivamente. En consecuencia, para el número de clasificados de muestras obtenemos la fórmula: $ n (n-1) (n-2) \ldots (n-k+1) = \frac{n!}{(n-k)!} $. El desordenado muestras de pasar fácilmente, si se observar que de cada confuso de la muestra coincide exactamente con $k!$ ordenados (porque es la cantidad de permutaciones de $k$ elemento). En consecuencia, compartiendo $\frac{n!}{(n-k)!}$ $k!$, tenemos lo que busca la fórmula.
+
+\bf{la esquizofrenia recurrente fórmula} (con la que está asociado el famoso "triángulo de pascal"):
+
+$$ C_n^k = C_{n-1}^{k-1} + C_{n-1}^k $$
+
+Fácil de mostrar a través de la fórmula anterior.
+
+Vale la pena señalar, especialmente cuando $n<k$ es $C_n^k$ siempre depende de cero.
+
+\h2{Propiedades}
+
+Los coeficientes binomiales también poseen muchas propiedades diferentes, pondremos el más simple de ellos:
+
+\ul{
+\li Regla de la simetría:
+$$ C_n^k = C_n^{n-k} $$
+\li Realizar es la separación:
+$$ C_n^k = \frac{n}{k} C_{n-1}^{k-1} $$
+\li Suma de $k$:
+$$ \sum_{k=0}^n C_n^k = 2^n $$
+\li Suma de $n$:
+$$ \sum_{m=0}^n C_m^k = C_{n+1}^{k+1} $$
+\li Suma de $n$ y $k$:
+$$ \sum_{k=0}^{m} C_{n+k}^k = C_{n+m+1}^m $$
+\li Suma de los cuadrados:
+$$ (C_n^0)^2 + (C_n^1)^2 + \ldots + (C_n^n)^2 = C_{2n}^n $$
+\li Ponderado de la suma de:
+$$ 1 C_n^1 + 2 C_n^2 + \ldots + n C_n^n = n 2^{n-1} $$
+\li Relación con \algohref=fibonacci_numbers{los números de fibonacci}:
+$$ C_n^0 + C_{n-1}^1 + \ldots + C_{n-k}^k + \ldots + C_0^n = F_{n+1} $$
+}
+
+
+\h2{ Cálculo en el programa }
+
+\h3{ Directos de cálculo analítico de la fórmula }
+
+El cálculo de la primera, estará fórmula, muy fáciles de programar, sin embargo, este método es susceptible переполнениям incluso cuando relativamente pequeños valores de $n$ y $k$ (incluso si la respuesta es colocado en algún tipo de datos, el cálculo de los intermedios factorial puede provocar un desbordamiento). Por lo tanto, muy a menudo, este método sólo se puede aplicar junto con [[Larga aritmética|Larga aritmética]]:
+
+\code
+
+int C (int n, int k) {
+int res = 1;
+for (int i=n-k+1; i<=n; ++i)
+res *= i;
+for (int i=2; i<=k; i++)
+res /= i;
+}
+\endcode
+
+\h3{ Mejora de la implementación }
+
+Se puede observar que en la anterior aplicación en el numerador y el denominador de la cuesta la misma cantidad de cofactores ($k$), cada uno de los cuales no es menor que la unidad. Por lo tanto, se puede sustituir nuestra fracción en la obra de $k$ fracciones, cada una de las cuales es вещественнозначной. Sin embargo, se puede observar que, después de домножения actual de la respuesta a cada una de la siguiente fracción de todos modos salga un número entero (esto es, por ejemplo, de las propiedades de realizar-la imposición"). Por lo tanto, nos encontramos con esta aplicación:
+
+\code
+
+int C (int n, int k) {
+double res = 1;
+for (int i=1; i<=k; i++)
+res = res * (n-k+i) / i;
+return (int) (res + 0.01);
+}
+\endcode
+
+Aquí estamos con cuidado proporcionamos un número fraccionario de un todo, teniendo en cuenta, que debido a que se acumulan de los sesgos que puede ser un poco menos del valor verdadero (por ejemplo, $2.99999$ en lugar de tres).
+
+\h3{ Triángulo de pascal }
+
+Con el uso de la misma рекуррентного una relación se puede construir la tabla binomial de los factores (de hecho, el triángulo de pascal), y de ella sacar el resultado. La ventaja de este método es que los resultados intermedios nunca superan a la respuesta, y para el cálculo de cada nuevo elemento de la tabla es tan sólo una suma. La desventaja es que el trabajo lento para grandes de N y K, si en realidad, el cuadro no es necesario, sino más bien de un valor único (ya que para el cálculo de $C_n^k$ necesitará construir una tabla para todos los $C_i^j,\ \ 1 \le i \le n,\ \ 1 \le j \le n$, o, al menos, hasta $1 \le j \le \min(i,2k)$).
+
+\code
+
+const int maxn = ...;
+int C[maxn+1][maxn+1];
+for (int n=0; n<=maxn; ++n) {
+C[n][0] = C[n][n] = 1;
+for (int k=1; k<n; k++)
+C[n][k] = C[n-1][k-1] + C[n-1][k];
+}
+\endcode
+
+Si toda la tabla de valores no es necesario, entonces, como puedes ver, la suficiente para almacenar de ella solamente dos líneas (actual --- $n$n la línea y la anterior --- $n-1$-ésimo).
+
+\h3{ Cálculo de O(1) }
+
+Por último, en algunas situaciones resulta beneficioso предпосчитать de antemano el valor de todos los factorial, para posteriormente considerar necesarios биномиальный factor, produciendo sólo dos de la división. Esto puede ser beneficioso cuando se utiliza \algohref=big_integer{Larga de la aritmética}, si la memoria no permite предпосчитать todo el triángulo de pascal, o cuando desea realizar cálculos de un simple módulo (si el módulo no es fácil, lo difícil al dividir el numerador de la fracción por el denominador; puede superar, si факторизовать módulo y almacenar todos los números en forma de vectores de grados de estos sencillos; cm \algohref=big_integer{la sección Larga de la aritmética en факторизованном forma"}).

@@ -1,0 +1,46 @@
+\h1{ Вершинная la coherencia. La propiedad y la búsqueda }
+
+
+\h2{ Definición }
+
+Que dan неориентированный el conde de $G$ c $n$ cimas $m$ las costillas.
+
+\bf{Culminante de связностью} $\lambda$ el conde de $G$ se llama el menor número de vértices que desea eliminar y, para el conde dejó de ser coherente..
+
+Por ejemplo, para inconexo conde вершинная la conectividad es igual a cero. Para el enlace del conde de, con el único punto de articulación вершинная la conectividad es igual a la unidad. Para el pleno del conde de вершинную conectividad piensan igual a $n-1$ (ya que, cualquier par de vértices. ni nos elegimos, incluso la eliminación de todos los demás vértices no hará incoherentes). Para todos los gráficos, además de completo, вершинная conectividad no supera $n-2$ --- ya que se puede encontrar un par de vértices, entre los cuales no hay costillas, y eliminar todos los demás $n-2$ a la cima.
+
+Dicen que la multitud de $S$ vértices \bf{divide} la cima de la $s$ y $t$, si la eliminación de estos vértices del grafo de la cima de la $u$ y $v$ en relación con los diferentes componentes de la conectividad.
+
+Claro que вершинная conectividad de grafo es igual a un mínimo de menor número de vértices que separan a las dos de la cima de $s$ y $t$, tomado de entre todo tipo de parejas $(s,t)$.
+
+
+\h2{ Propiedades }
+
+
+\h3{ Relación de whitney }
+
+\bf{Relación de whitney (Whitney)} (1932) entre \algohref=rib_connectivity{costal связностью} $\lambda$, culminante связностью $\kappa$ y el menor de los grados de los vértices de $\delta$:
+
+$$ \kappa \le \lambda \le \delta. $$
+
+\bf{Prueba} esta afirmación.
+
+Demostremos primero la primera desigualdad: $\kappa \le \lambda$. Considere la posibilidad de este conjunto de $\lambda$ aristas que hacen que el conde de несвязным. Si tomamos de cada una de estas aristas de un extremo (cualquiera de los dos) y eliminamos el conde, por tanto, a través de $\le \lambda$ remotos de los vértices (dado que el mismo vértice podía reunirse dos veces) haremos el conde несвязным. Por lo tanto, $\kappa \le \lambda$.
+
+Probaremos la segunda desigualdad: $\lambda \le \delta$. Considere la cima grado mínimo, entonces podemos eliminar todo $\delta$ conexos con ella las costillas y por lo tanto la separación de esta cima de todo el resto de la gráfica. Por lo tanto, $\lambda \le \delta$.
+
+Es interesante que la desigualdad de whitney \bf{no se puede mejorar}: es decir, para cualquier tríos de números que cumplen esta desigualdad, existe al menos un conde. Cm. la tarea \algohref=connectivity_back_problem{"crea gráficos con los valores culminante y costal связностей y el menor de los grados de los vértices"}.
+
+
+\h2{ Encontrar culminante de la conectividad }
+
+Переберем un par de vértices $s$ y $t$, y encontrar el mínimo número de vértices, que es necesario eliminar para dividir $s$ y $t$.
+
+Para ello \bf{раздвоим} cada vértice: es decir, el de cada vértice $i$ crearemos dos copias --- una $i_1$ para las costillas, la otra $i_2$ --- para la salida, y estos dos copias están relacionados el uno con el otro borde de $(i_1, i_2)$.
+
+Cada arista de $(u,v)$ de origen conde en esta modificada de la red se convertirá en dos costillas: $(u_2, v_1)$ y $(v_2, u_1)$.
+
+Todos los bordes проставим ancho de banda igual a la unidad. Encontraremos ahora el flujo máximo en este apartado entre fuente $s$ y la escorrentía $t$. Para la construcción de la gráfica, él será el mínimo número de vértices necesarios para la separación de los $s$ y $t$.
+
+Por lo tanto, si para buscar el flujo máximo que vamos a elegir el algoritmo \algohref=edmonds_karp{Эдмондса-la Carpa}, trabaja en el tiempo $O (n m^2)$, entonces el total de asíntotas algoritmo de $O (n^3 m^2)$. Sin embargo, la constante, oculta en la asíntota de la función, es muy pequeño: como hacer el conde, en el que los algoritmos de haber trabajado cuando cualquier par fuente-drenaje, es casi imposible.
+

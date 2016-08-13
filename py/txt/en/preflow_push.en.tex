@@ -1,0 +1,95 @@
+the <h1>Maximum flow method of Pushing preporuka O (N<sup>4</sup>)</h1>
+
+<p>Suppose we are given a graph G, where two vertices: the source S and the sink T, and each edge defined bandwidth C<sub>u,v</sub>. The stream F can be represented as a flow of matter that could pass through the network from the source to the drain, if we consider the graph as a network of pipes with certain bandwidth capabilities. I.e. the flux - function F<sub>u, v</sub>, defined on the set of edges of the graph.</p>
+<p> </p>
+<p>the Challenge is in finding the maximum flow. Here we will consider a method of Pushing preporuka running in O (N<sup>4</sup>), or, more precisely, O (N<sup>2</sup> M). The algorithm was proposed by Goldberg in 1985.</p>
+the <h2>the Algorithm</h2>
+<p>the General scheme of the algorithm is as follows. At each step we will consider some predator - i.e. a function that recalls the thread, but do not necessarily satisfy the law of conservation of flow. At each step we will try to apply one of two operations: pushing flow or raising the top. If at some step it will be impossible to apply any of the two operations, we find the desired flow.</p>
+<p>For each vertex defined by its height H<sub>u</sub> and H<sub>S</sub> = N, H<sub>T</sub> = 0, and for every residual edge (u, v) are of H<sub>u</sub> <= H<sub>v</sub> + 1.</p>
+<p>For each vertex (except S), we can Dene its excess: E<sub>u</sub> = F<sub>V, u</sub>. Vertex with positive excess is called overcrowded.</p>
+<p>the push Operation Push (u, v) is applicable if the vertex u is overflowing, the residual bandwidth Cf<sub>u, v</sub> > 0 and H<sub>u</sub> = H<sub>v</sub> + 1. Operation push is to maximize the flow from u to v that are bounded by excess of E<sub>u</sub> and residual bandwidth Cf<sub>u, v</sub>.</p>
+<p>the lifting Operation Lift (u) raises an overflowing vertex u with the maximum permissible height. I.e., H<sub>u</sub> = 1 + min { H<sub>v</sub> }, where (u, v) - residual edge.</p>
+<p>it Remains only to consider the initialization stream. You need to initialize only the following values: F<sub>S, v</sub> = C<sub>S, v</sub>, F<sub>u, S</sub> = C<sub>u, S</sub>, the other values equal to zero.</p>
+the <h2>Implementation</h2>
+<code>const int inf = 1000*1000*1000;
+
+
+typedef vector<int> graf_line;
+typedef vector<graf_line> graf;
+
+typedef vector<int> vint;
+typedef vector<vint> vvint;
+
+
+void push (int u, int v, vvint & f, vint & e, const vvint & c)
+{
+int d = min (e[u], c[u][v] - f[u][v]);
+f[u][v] += d;
+f[v][u] = - f[u][v];
+e[u] = d;
+e[v] += d;
+}
+
+void lift (int u, vint & h, const vvint & f, const vvint & c)
+{
+int d = inf;
+for (int i = 0; i < (int)f.size(); i++)
+if (c[u][i]-f[u][i] > 0)
+d = min (d, h[i]);
+if (d == inf)
+return;
+h[u] = d + 1;
+}
+
+
+int main()
+{
+int n;
+cin >> n;
+vvint c (n, vint(n));
+for (int i=0; i<n; i++)
+for (int j=0; j<n; j++)
+cin >> c[i][j];
+// source is vertex 0, the drain is the top n-1
+
+vvint f (n, vint(n));
+for (int i=1; i<n; i++)
+{
+f[0][i] = c[0][i];
+f[i][0] = -c[0][i];
+}
+
+vint h (n);
+h[0] = n;
+
+vint e (n);
+for (int i=1; i<n; i++)
+e[i] = f[0][i];
+
+for ( ; ; )
+{
+int i;
+for (i=1; i<n-1; i++)
+if (e[i] > 0)
+break;
+if (i == n-1)
+break;
+
+int j;
+for (j=0; j<n; j++)
+if (c[i][j]-f[i][j] > 0 && h[i]==h[j]+1)
+break;
+if (j < n)
+push (i, j, f, e, c);
+else
+lift (i, h, f, c);
+}
+
+int flow = 0;
+for (int i=0; i<n; i++)
+if (c[0][i])
+flow += f[0][i];
+
+cout << max(flow,0);
+
+}</code>

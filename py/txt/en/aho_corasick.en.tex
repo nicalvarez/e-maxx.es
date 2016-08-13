@@ -1,0 +1,191 @@
+\h1{ Algorithm Aho-Corasick }
+
+Let the given set of strings in the alphabet of size $k$ of total length $m$. Algorithm Aho-Corasick builds for this rowset data structure "Bor", and then through that wood builds a machine, all for $O (m)$ time and $O (m k)$ memory. The resulting machine can now be used in a variety of tasks, the simplest of which is finding all occurrences of each string from the given set in some text in linear time.
+
+This algorithm was proposed by canadian scientists Alfred Aho (Alfred Vaino Aho) and anthropologist Margaret Corasick (John and Margaret Corasick) in 1975
+
+
+\h2{ Bor. The construction of Bora }
+
+Formally, \bf{Bohr} is a tree rooted at a vertex $\rm Root$ and every edge is a tree signed some letter. If we consider the list of edges emerging from this vertex (except the edges leading to an ancestor), all edges must have different labels.
+
+Consider in the trie every path from the root; let us write in a row the labels of edges of this path. As a result, we get some string that matches this path. If we consider any vertex boron, it will put in line the row corresponding to the path from the root to this vertex.
+
+Each vertex boron also has the flag $\rm leaf$ that $\rm true$ if this top ends with any string from this set.
+
+Accordingly, \bf{build Bohr} on the given set of strings --- so to build such a Bor that each $\rm leaf$-top will match any string from the set, and, conversely, each row of the set will correspond to some $\rm leaf$-vertex.
+
+Let us describe now, \bf{how to build a Bohr} for a given set of strings in linear time relative to their total length.
+
+We introduce a structure corresponding to the peaks of Bora:
+
+\code
+struct vertex {
+int next[K];
+bool leaf;
+};
+
+vertex t[NMAX+1];
+int sz;
+\endcode
+
+I.e. we will retain boron in the form of an array $t$ (the number of elements in the array is sz) structures of $\rm vertex$. The structure of $\rm vertex$ contains a flag $\rm leaf$, and edges in the form of the $\rm next[]$, where $\rm next[i]$ --- the pointer to the vertex to which the leading edge of the symbol $i$, or $-1$ if that edge is not.
+
+First boron consists of only one node-the root (be sure that the root always has in the array $t$, the index $0$). Therefore, \bf{initialization} boron is as follows:
+
+\code
+memset (t[0].next, 255, sizeof t[0].next);
+sz = 1;
+\endcode
+
+Now implement the function that will be \bf{add to Bor} given a string $s$. The implementation is very simple: we stand in the root Bor, look, is there a from the root of the transition by the letter $s[0]$: if a transition there, then just move it to another vertex, otherwise create new node and add a transition at the top of the letter $s[0]$. Then we stand in a vertex, repeat the process for the letter $s[1]$, etc. are After the process mark the last visited vertex flag $\rm leaf = true$.
+
+\code
+void add_string (const string & s) {
+int v = 0;
+for (size_t i=0; i<s.length(); ++i) {
+char c = s[i]-'a'; // depending on the alphabet
+if (t[v].next[c] == -1) {
+memset (t[sz].next, 255, sizeof t[sz].next);
+t[v].next[c] = sz++;
+}
+v = t[v].next[c];
+}
+t[v].leaf = true;
+}
+\endcode
+
+Work in linear time and a linear number of nodes in the trie is obvious. Since each vertex is $O (k)$ memory, the memory usage is $O (n k)$.
+
+The memory consumption can be reduced to linear ($O (n)$), but due to the increase of the asymptotics of work to $O (n \log k)$. It's enough to keep the transitions $\rm next$ is not an array, but a mapping $\rm map<char,int>$.
+
+
+\h2{ the Build machine }
+
+Suppose we have built a Bor for a given set of strings. Look at him now a little from the other side. If we look at any vertex, the line that corresponds to it, is a prefix of one or more strings from a set; i.e. each vertex boron can be understood as a position in one or more rows from a set.
+
+In fact, the peaks of boron can be understood as the state \bf{finite deterministic automaton}. Being in a certain state, we are under the influence of some input the letters move to a different state --- i.e., to another position in the rowset. For example, if a Bor is only the string $abc$ and we are in state $2$ (which corresponds to the line $ab$), then under the influence of the letter $c$ we move to state $3$.
+
+Ie we can understand the ribs boron as transitions in the automaton on the corresponding letter. However, only one rib should not be limited to boron. If we try to scroll through any letter, and the corresponding edge in Bor not, we nevertheless must move in a certain state.
+
+More rigorously, suppose we are in state $p$, which corresponds to some string $t$, and want to navigate to a symbol $c$. If in the trie from vertex $p$ have the letter $c$, then we just go through this edge and get into the vertex, which corresponds to the line $tc$. If that edge is not, then we need to find a state that corresponds to the longest own suffix of a string $t$ (the longest available in Bor), and try to scroll through the letter $c$.
+
+For example, suppose that Bohr built on the lines $ab$ and $"bc"$, and we are under the influence of the line $ab$ in a switched state, which is the leaf. Then under the influence of the letters $c$ we have to go to the state line $"b"$, and only from there to scroll through the letter $c$.
+
+\bf{Suffix link} for each vertex $p$ is a vertex, which ends the longest own suffix strings corresponding to the vertex $p$. The only special case --- the root of boron; for convenience, a suffix link from it will hold in itself. We can now reformulate the statement about the transitions in the automaton: while from the current vertex boron there is no transition on the corresponding letter (or until we get to the root of Bohr), we must follow the suffix link.
+
+Thus, we have reduced the problem of constructing an automaton to the problem of nding the suffix links for all vertices of boron. However, to build these suffix links, we will, ironically, Vice versa, using built in machine transitions.
+
+Note that if we want to know the suffix link for a vertex $v$, then we can move to the parent of $p$ the current node (even if $c$ is a letter on which $p$ is the transition in $v$), then follow its suffix link and then to perform a transition in the machine by the letter $c$.
+
+Thus, the problem of nding the transition is reduced to the problem of finding the suffix links, and the problem of nding suffix links --- to the problem of finding the suffix links and the transition, but for closer to the root vertex. We got a recursive dependency, but not infinite, and, moreover, to resolve that can in linear time.
+
+We now proceed to \bf{implementation}. Note that all we need now is for each node to store its ancestor $\rm p$ and the symbol $\rm pch$, from which ancestor is the transition into our top. Also in each vertex will be stored $\rm int~link$ --- the suffix link (or $-1$ if it is not computed), and an array $\rm int~go[k]$ --- transitions in the automaton for each of the characters (again, if the array element is equal to $-1$, then it has not yet been evaluated). We now present a full implementation of all necessary functions:
+
+\code
+struct vertex {
+int next[K];
+bool leaf;
+int p;
+char pch;
+int link;
+int go[K];
+};
+
+vertex t[NMAX+1];
+int sz;
+
+void init() {
+t[0].p = t[0].link = -1;
+memset (t[0].next, 255, sizeof t[0].next);
+memset (t[0].go, 255, sizeof t[0].go);
+sz = 1;
+}
+
+void add_string (const string & s) {
+int v = 0;
+for (size_t i=0; i<s.length(); ++i) {
+char c = s[i]-'a';
+if (t[v].next[c] == -1) {
+memset (t[sz].next, 255, sizeof t[sz].next);
+memset (t[sz].go, 255, sizeof t[sz].go);
+t[sz].link = -1;
+t[sz].p = v;
+t[sz].pch = c;
+t[v].next[c] = sz++;
+}
+v = t[v].next[c];
+}
+t[v].leaf = true;
+}
+
+int go (int v, char c);
+
+int get_link (int v) {
+if (t[v].link == -1)
+if (v == 0 || t[v].p == 0)
+t[v].link = 0;
+else
+t[v].link = go (get_link (t[v].p), t[v].pch);
+return t[v].link;
+}
+
+int go (int v, char c) {
+if (t[v].go[c] == -1)
+if (t[v].next[c] != -1)
+t[v].go[c] = t[v].next[c];
+else
+t[v].go[c] = v==0 ? 0 : go (get_link (v), c);
+return t[v].go[c];
+}
+\endcode
+
+It is easy to understand that, by remembering found of suffix links and transitions, total time spent of all the suffix links and navigation will be linear.
+
+
+\h2{ Application }
+
+\h3{ Search all lines from a given set in the text }
+
+Given a set of strings given text. You want to display all occurrences of all strings from the set in the text in time $O ({\rm Len + Ans})$, where $\rm Len$ --- the length of the text, $\rm Ans$ --- the response size.
+
+We will build on this rowset Bor. We'll now process the text one letter at a time, moving accordingly on a tree, in fact --- the States of the automaton. Initially, we are in the root of the tree. May we at the next step we are in state $v$, and the next letter of the text $c$. Then you should switch to state ${\rm go} (v, c)$, thus either increasing by $1$ the length of the current matching substring, or reducing it, going through suffix link.
+
+Now how to know the current state of $v$, is there a match some string from the set? First, it is clear that if we stand in the marked peak ($\rm leaf=true$) then there is a match with the sample in Bor ends at a vertex $v$. However, this is not the only possible case of attaining equivalence: if we are moving along the suffix links, we can achieve one or more marked nodes, then the match will be also, but for samples ending in these States. A simple example of such a situation --- when the row set is $\{ "dabce", "abc", "bc" \}$, and the text is $"dabc"$.
+
+Thus, if each marked vertex to store the number of the pattern that ends in it (or a list of numbers, if permitted duplicate samples), we can for the current state for $O (n)$ to find the numbers of all samples for which coincidence is achieved, by just following the suffix links from the current node to the root. However, it is not effective enough a solution, because the amount of asymptotics will get $O (n \cdot {\rm Len})$. However, you can see that the movement on the suffix links can be one labor in tune, tentatively considering for each vertex nearest marked vertex, reachable along the suffix links (this is called the "output function"). This value can be considered lazy dynamics in linear time. Then for the current node, we can in $O (1)$ to find the following in the suffix path marked vertex, i.e. the next match. Thus, each match will need to spend $O (1)$ action, and the result is the asymptotic behavior of $O ({\rm Len + Ans})$.
+
+In a simpler case, when you have to find not themselves occurrences, but only their number, instead of the output function to count lazy dynamics the number of marked nodes reachable from the current vertex $v$ in suffix links. This value can be calculated for $O (n)$ in the sum, and then for the current state $v$, we can in $O (1)$ to find the number of occurrences of all the samples in the text ending in the current position. Thus, the problem of nding the total number of occurrences can be solved for $O ({\rm Len})$.
+
+
+\h3{ Finding the lexicographically smallest strings of a given length that do not contain any of these samples }
+
+Given a set of samples, and given the length $L$. You want to find a string of length $L$, containing none of the samples, and of all such strings, print the lexicographically smallest.
+
+We will build on this rowset Bor. Remember now that those vertices, of which the suffix links it is possible to reach a marked vertex (and these vertices can be found in $O (n)$, for example, lazy dynamics), can be perceived as an occurrence of any string from the set given in the text. Since in this problem we need to avoid the occurrences, this would seem to suggest that such peaks we can not come. On the other hand, all other vertices we can go. Thus, we remove from the machine all the "bad" vertices in the remaining graph automaton is required to find the lexicographically smallest path length $L$. This problem can be addressed for $O (L)$, i.e. \algohref=dfs{a depth-first search}.
+
+
+\h3{ Finding shortest string with occurrences of all samples }
+
+We again use the same idea. For each vertex we store a mask that indicates the samples for which there was an occurrence in the vertex. Then problem can be reformulated so: initially in a state $(v={\rm Root},~{\rm Top}=0)$, required to reach the state $(v,~{\rm Top}=2^n-1)$, where $n$ is the number of samples. Transitions from one state to another would represent adding one letter to text, i.e., the transition from the edge of the machine to another node with the corresponding change mask. Running \algohref=bfs{BFS} in such a graph, we will find the way to the state of $(v,~{\rm Top}=2^n-1)$ is the smallest length that we needed.
+
+
+\h3{ Finding the lexicographically least string of length $L$ containing the data samples into $k$ times }
+
+As in the previous task, we calculate for each vertex the number of occurrences that corresponds to it (i.e. the number of marked nodes reachable from it by suffix links). Lets reformulate the problem thus: the current state is determined by the triple of numbers $(v,~{\rm Len,~Cnt})$, and required from the condition $({\rm Root},~0,~0)$ to arrive at the condition $(v,~L,~k)$, where $v$ --- any vertex. State transitions --- it's just the transitions on the edges of the machine from the current node. Thus, simply to find \algohref=dfs{depth} path between these two States (if the depth-to view the letters in their natural order, then the path found will automatically be the lexicographically smallest).
+
+
+
+\h2{ Problem in online judges }
+
+Tasks that can be solved by using boron or the algorithm of Aho-Corasick:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2637{UVA #11590 \bf{"Prefix Lookup"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2112{UVA #11171 \bf{"SMS"} ~~~~ [difficulty: medium]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1620{UVA #10679 \bf{"I Love Strings!!!"} ~~~~ [difficulty: medium]}
+
+}

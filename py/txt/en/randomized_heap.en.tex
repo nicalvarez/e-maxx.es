@@ -1,0 +1,85 @@
+\h1{Randomizearray heap}
+
+Randomizearray heap (randomized heap) is a heap, which is due to the use of the random number generator allows you to perform all the required operations in logarithmic expected time.
+
+\bf{Heap} is called a binary tree, for any node which satisfies that the value in this node is less than or equal to the value of all its descendants (it's a lot for minimum; of course, symmetrically, you can define a lot for high). Thus, in the root of the heap is always the minimum.
+
+A standard set of operations that are defined for heaps, the following:
+\ul{
+\li the item is added
+\li the location of the minimum
+\li Retrieve at least (removing it from the tree and return its value)
+\li the Merging of two heaps (a heap is returned that contains the elements of both heaps; duplicates are not removed)
+\li Delete an arbitrary element (with known position in the tree)
+}
+
+Randomizearray pile allows you to perform all of these operations in expected time $O(\log n)$ in a very simple implementation.
+
+\h2{data Structure}
+
+Immediately describe the data structure that describes a binary heap:
+\code
+struct tree {
+T value;
+tree * l, * r;
+};
+\endcode
+In the top of the tree stores the value $\rm value$ for some type $\rm T$ for which the specified comparison operator ($\rm operator\ <$). In addition, stores the pointers to the left and right sons (which is equal to 0, if the son is absent).
+
+\h2{operations}
+
+It is easy to see that all operations on the heap can be reduced to one operation: \bf{merge} two heaps into one. Indeed, the addition of an item in a heap is equivalent to merge this heap with a heap consisting of a single adding element. Finding the minimum requires no action --- the minimum is simply the root of the heap. Retrieving at least equivalent to the fact that the heap is replaced by the result of merging the left and right subtree of the root. Finally, the removal of arbitrary element is similar to the removal of the entire subtree rooted at this node is replaced by the result of merging two subtrees of the sons of this node.
+
+So, we actually need to implement only the operation of merging two heaps, all other operations are trivial to this operation.
+
+I suppose that there are two piles of $T_1$ and $T_2$, is required to return their Union. It is clear that fundamentally each of these piles are their minimums, so the root in the resulting heap will be the minimum of these two values. Now, we compare, at the root of which piles is of less importance, it is placed in the root of the result, and now we must unite the sons of selected node with the remaining bunch. If we are to some basis can choose one of two sons, then we'd just have to merge the subtree with the root in this son with a bunch. Thus, we again came to the merge operation. Sooner or later this process will stop (it will take not more than the sum of the heights of the piles).
+
+Thus to achieve logarithmic asymptotics on the average, we need to specify how the selection of one of the two sons, so that the average length of the passable way it would have turned out the order of the logarithm of the number of elements in the heap. It is easy to guess that to make this choice we \bf{by accident} thus, the implementation of the merge operation is obtained like this:
+
+\code
+tree * merge (tree * t1, tree * t2) {
+if (!t1 || !t2)
+return t1 ? t1 : t2;
+if (t2->value < t1->value)
+swap (t1, t2);
+if (rand() & 1)
+swap (t1->l, t1->r);
+t1->l = merge (t1->l, t2);
+return t1;
+}
+\endcode
+
+Here we first check if at least one of the heaps is empty, then any action to merge is not necessary to make. Otherwise, we make a bunch of $\rm t1$ was a lot lower value in the root (for which the exchanged $\rm t1$ and $\rm t2$, if necessary). Finally, we believe that the second bunch of $\rm t2$ will merge with the left son of the root heap $\rm t1$, so we randomly swapped the left and right sons, and then execute the merge of the left son and the second pile.
+
+\h2{Asymptotics}
+
+We introduce the random variable $h(T)$ denoting \bf{the length of the random path} from the root to the leaf (length in number of edges). It is clear that the algorithm $\rm merge$ is $O(h(T1)+h(T2))$ operations. Therefore, for the study of the asymptotic behavior of the algorithm it is necessary to investigate the random variable $h(T)$.
+
+\h3{expectation}
+
+It is argued that the mathematical expectation of $h(T)$ is estimated from above by a logarithm of the number $n$ of vertices in this pile:
+$$ Eh(T) \le \log(n+1) $$
+
+This is easily proved by induction. Let $L$ and $R$ --- respectively left and right subtrees of the root heap $T$ and $n_L$ and $n_R$ the number of vertices in them (it is clear that $n = n_L+n_R+1$).
+
+Then it would be true:
+$$ Eh(T) = 1 + \frac{1}{2}(Eh(L) + Eh(R)) \le 1 + \frac{1}{2}(\log(n_L+1) + \log(n_R+1)) = $$
+$$ = 1 + \log \sqrt{ (n_L+1)(n_R+1) } = \log 2 \sqrt{ (n_L+1)(n_R+1) } \le $$
+$$ \le \log \frac{ 2 ((n_L+1) + (n_R+1)) }{ 2 } = \log (n_L + n_R + 2) = \log(n+1) $$
+what we wanted to prove.
+
+\h3{exceeding the expected evaluation}
+
+Let us prove that the probability of exceeding the above estimate is low:
+$$ P\{ h(T) > (c+1) \log n \} < \frac{1}{n^c} $$
+for any positive constant $c$.
+
+Denote by $P$ the set of paths from the root of the heap to a leaf, the length of which exceeds $(c+1) \log n$. Note that for any path $p$ of length $|p|$ is the probability, as random paths will be chosen equal to $2^{-|p|}$. Then we get:
+$$ P\{ h(T) > (c+1) \log n \} = \sum_{p \in P} 2^{-|p|} < \sum_{p \in P} 2^{-(c+1) \log n} = |P| n^{-(c+1)} \le n^{-c} $$
+what we wanted to prove.
+
+\h3{Asymptotic behavior of the algorithm}
+
+Thus, the algorithm $\rm merge$, and, hence, all other expressed through their surgery performed in $O(\log n)$ on average.
+
+Moreover, for any positive constant $\epsilon$ exists such a positive constant $c$, what is the probability that the operation will require more than $c \log n$ operations, less than $n^{-\epsilon}$ (it is in some sense describes the worst case behavior of the algorithm).

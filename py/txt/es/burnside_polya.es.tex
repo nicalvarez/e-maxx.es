@@ -1,0 +1,192 @@
+\h1{lemma Бернсайда. El Teorema De Poya}
+
+\h2{lemma Бернсайда}
+
+Este lema fue formulada y probada \bf{Бернсайдом} (Burnside) en 1897, sin embargo, se encontró que esta fórmula se ha abierto \bf{Фробениусом} (Frobenius) en 1887, y aún antes - \bf{Коши} (Cauchy) en 1845, Por lo tanto, esta fórmula se denomina a veces леммой Бернсайда y, a veces, el teorema de Коши-Фробениуса.
+
+Lemma Бернсайда le permite contar el número de clases de equivalencia en un cierto conjunto, basándose en cierta interior de la simetría.
+
+\h3{Objetos y presentación}
+
+Realizaremos una distinción clara entre la cantidad de objetos y el número de vistas.
+
+El mismo los objetos pueden coincidir con diferentes vistas, pero, por supuesto, cualquier idea coincide exactamente con un único objeto. Por lo tanto, el conjunto de todas las representaciones se divide en clases de equivalencia. Nuestra tarea-para-el - calcular exactamente el número de objetos, o lo que es lo mismo, el número de clases de equivalencia.
+
+\h3{Ejemplo de tarea: pintar binarios árboles}
+
+Consideremos la siguiente tarea. Es necesario contar el número de maneras de pintar raíces de árboles binarios con $n$ vértices en 2 colores, si cada vértice nosotros no distinguimos la derecha y la izquierda hijo.
+
+Muchos objetos aquí --- es una gran cantidad de variedad en este sentido colorear de árboles.
+
+Definimos ahora la multitud de vistas. Cada pintura a poner en el cumplimiento de indicar su función $f(v)$, donde $v = 1 \ldots, n$ y $f(v)=0 \ldots 1$. Entonces la multitud de representaciones --- es el conjunto de las diferentes funciones de este tipo, y tamaño, obviamente, es el de $2^n$. Al mismo tiempo, en este conjunto 
+vistas, hemos introducido la división en clases de equivalencia. 
+
+Por ejemplo, si $n=3$, y el árbol es la raíz de --- la cima de la 1, y los vértices 2 y 3 --- a sus hijos. Entonces, las siguientes funciones $f_1$ y $f_2$ son equivalentes:
+
+$$ \matrix{
+f_1(1)=0 & f_2(1)=0 \cr
+f_1(2)=1 & f_2(2)=0 \cr
+f_1(3)=0 & f_2(3)=1 \cr
+} $$
+
+\h3{Инвариантные permutación}
+
+¿Por qué estas dos funciones $f_1$ y $f_2$ pertenecen a la misma clase de equivalencia? Intuitivamente, esto es comprensible --- porque podemos reorganizar los hijos de los vértices 1, es decir, los vértices 2 y 3, y después de esa transformación de la función $f_1$ y $f_2$ coincidirán. Pero técnicamente, esto significa que hay de esta \bf{инвариантная intercambiar} $\pi$ (es decir, que por la condición de que el problema no cambia el objeto mismo, sino sólo su representación), tal que:
+
+$$ f_2 \pi \equiv f_1 $$
+
+Así, sobre la base de las condiciones de la tarea, podemos encontrar todos los инвариантные de permutación, es decir, mediante los cuales nosotros no pasamos de una clase de equivalencia en el otro. Entonces, para comprobar, si son dos funciones $f_1$ y $f_2$ equivalentes (es decir, si corresponden a la realidad de un objeto), es necesario para cada una de las invariantes de permutación de $\pi$ comprobar, no se ejecutará si la condición es: $f_2 \pi \equiv f_1$ (o lo que es lo mismo, $f_1 \pi \equiv f_2$). Si al menos una de permutación se ha descubierto es la igualdad de $f_1$ y $f_2$ son equivalentes, de lo contrario, no son equivalentes.
+
+Encontrar todos esos инвариантных permutaciones, acerca de que nuestra tarea es invariante --- este es el paso clave para la aplicación como леммы Бернсайда, y del teorema de poya. Claro que estas инвариантные de permutación que dependen de la tarea, y su localización --- proceso puramente heurístico, basado en consideraciones intuitivas. Sin embargo, en la mayoría de casos, basta con buscar manualmente varios de los "principales" de los traslados, de los cuales el resto de permutaciones pueden obtenerse de ellos todo tipo de obras (y este, exclusivamente mecánica, parte del trabajo podrá delegar en el equipo; más detalles de esto se tratará más adelante en el ejemplo de una tarea específica).
+
+Es fácil comprender que инвариантные permutación forman \bf{grupo} --- ya que la obra de cualquier инвариантных permutaciones también es invariante por transposición. Se denota \bf{grupo инвариантных permutaciones} a través de $G$.
+
+\h3{Redacción леммы}
+
+Para la formulación de queda recordar la noción de álgebra. \bf{Fija el punto} $f$ para la permutación de $\pi$ se llama el elemento que инвариантен con respecto a esta permutación: $f \equiv f \pi$. Por ejemplo, en nuestro ejemplo, inmóviles puntos serán los de la función $f$, que corresponden a раскраскам, no a la evolución de la aplicación a ellos de permutación de $\pi$ (no a la evolución de saber, en el sentido formal de la igualdad de las dos funciones). Se denota por $I(\pi)$ \bf{cantidad fija de puntos} para mover el $\pi$.
+
+Entonces \bf{lemma Бернсайда} suena de la siguiente manera: el número de clases de эквивалетности es igual a la suma de las cantidades fijas de puntos de todos traiga significativos cambios de un grupo $G$, dividido por el tamaño de este grupo:
+
+$$ {\rm ClassesCount} = \frac{1}{|c|} \sum_{\pi \in G} I(\pi) $$
+
+Aunque lemma Бернсайда de por sí no es tan conveniente para la aplicación en la práctica (aunque no está claro cómo buscar de forma rápida el valor de $I(\pi)$), es el más claramente revela la matemática, la esencia, en la que se basa la idea de contar las clases de equivalencia.
+
+\h3{Prueba de леммы Бернсайда}
+
+Aquí se describe es la prueba de леммы Бернсайда no es tan importante para su comprensión y aplicación en la práctica, por lo que se puede omitir, en la primera lectura.
+
+La siguiente prueba es la más simple de famosos y no utiliza la teoría de grupos. Esta prueba fue publicado Богартом (Bogart) y kenneth (Kenneth) en 1991
+
+Así que, tenemos que demostrar la siguiente afirmación:
+
+$$ {\rm ClassesCount} |G| = \sum_{\pi \in G} I(\pi) $$
+
+El valor, de pie a la derecha --- no es nada, como el número de "инвариантных pares" $(f, \pi)$, es decir, de esas parejas que $f \pi \equiv f$. Es evidente que en la fórmula tenemos el derecho de cambiar el orden de suma - hacer el exterior de la suma de los elementos de f, y dentro de ella poner la cantidad de $J(f)$ --- el número de permutaciones, respecto de las cuales f es invariante:
+
+$$ {\rm ClassesCount} |G| = \sum_{f} J(f) $$
+
+Para la prueba de esta fórmula y preparamos una tabla, las columnas que serán firmados por todos los valores de $f_i$, de cadena --- todos los traslados $\pi_j$, y en las celdas de la tabla se pondrán de pie de la obra $f_i \pi_j$. Entonces, si nos fijamos en las columnas de esta tabla como muchos, algunos de ellos pueden coincidir, y eso sería como suponer que los estas columnas de $f$, también son equivalentes. Por lo tanto, el número de diferentes como el conjunto de columnas es igual a la cantidad de $\rm ClassesCount$. Por cierto, desde el punto de vista de la teoría de los grupos de la columna de la tabla, firmado por algún miembro $f_i$ --- es la órbita de este elemento; para elementos equivalentes, obviamente, de la órbita coinciden, y el número de diferentes órbitas da exactamente $\rm ClassesCount$.
+
+Así, las columnas de la tabla mismos se dividen en clases de equivalencia; introduzcamos ahora cualquier clase y considere las columnas en el mismo. En primer lugar, tenga en cuenta que en estas columnas pueden estar solamente los elementos $f_i$ una clase de equivalencia (de lo contrario sería el de que de alguna equivalente a la conversión de $\pi_j$ hemos pasado en otra clase de equivalencia, lo cual es imposible). En segundo lugar, cada elemento de $f_i$ se reunirá con el mismo número de veces en todas las columnas (esto también se deduce del hecho de que las columnas corresponden a los equivalentes de los elementos). De aquí se puede concluir que todas las columnas dentro de una clase de equivalencia coinciden el uno con el otro como мультимножества.
+
+Ahora introduzcamos aleatorio, el elemento de $f$. Por un lado, se encuentra en su columna de exactamente $J(f)$ más (por su propia definición, $J(f)$). Por otro lado, todas las columnas dentro de una clase de equivalencia son los mismos мультимножества. Por lo tanto, dentro de cada columna de esta clase de equivalencia de cualquier elemento de g $$ se encuentra exactamente $J(g)$ más.
+
+Por lo tanto, si tomamos de manera arbitraria de cada clase de equivalencia de una columna y просуммируем el número de elementos en ellos, lo conseguimos, por un lado, ${\rm ClassesCount} |G|$ (esto se obtiene simplemente multiplicando el número de columnas pesar de su tamaño), y por otro lado --- la suma de los valores $J(f)$ para todo $f$ (esto se deduce de los anteriores razonamientos):
+
+$$ {\rm ClassesCount} |G| = \sum_{f} J(f) $$
+
+que se quería demostrar.
+
+\h2{Teorema de poya. La opción más sencilla}
+
+El teorema \bf{poya} (Polya) es una generalización del леммы Бернсайда, además, proporciona más herramienta fácil de usar para encontrar el número de clases de equivalencia. Cabe mencionar que, hasta la poya de este teorema se abrió y se ha demostrado Редфилдом (Redfield) en 1927, sin embargo, su publicación ha pasado desapercibido por matemáticos de la época. Poya con independencia llegó al mismo resultado sólo en 1937, y su publicación ha sido más exitosa.
+
+Aquí nos fijamos en la fórmula, получающуюся como caso particular del teorema de poya, y que es muy cómodo de usar para los cálculos en la práctica. General el teorema de poya en este artículo no se considerará.
+
+Se denota por $C(\pi)$ número de ciclos en un movimiento de $\pi$. Entonces se ejecuta la siguiente fórmula (\bf{caso particular del teorema de poya}):
+
+$$ {\rm ClassesCount} = \frac{1}{|c|} \sum_{\pi \in G} k^{ C(\pi) } $$
+
+donde $k$ --- número de valores que puede tomar cada elemento de la vista $f(v)$. Por ejemplo, en nuestra tarea-ejemplo (pintura de la raíz del árbol binario en 2 colores) $k = 2$.
+
+\h3{Prueba}
+
+Esta fórmula es consecuencia directa de леммы Бернсайда. Para conseguirlo, necesitamos encontrar sólo una expresión explícita para la magnitud de la $I(\pi)$, que figura en la лемме (recordemos, es la cantidad fija de puntos de permutación de $\pi$).
+
+Vamos a hablar un poco de una permutación de $\pi$ y algún elemento de $f$. Bajo la acción de la permutación de $\pi$ elementos $f$ se mueven, como se sabe, en ciclos de permutación. Tenga en cuenta que así como el resultado debe obtenerse $f \equiv f \pi$, dentro de cada ciclo de permutación deben estar los mismos elementos de $f$. Al mismo tiempo, para los diferentes ciclos de ninguna relación entre los valores de los elementos no se produce. Por lo tanto, para cada ciclo de permutación de $\pi$ elegimos un valor (entre $k$ opciones), y por lo tanto obtendremos todas las vistas de $f$, инвариантные con respecto a esta permutación, es decir:
+
+$$ I(\pi) = k ^ {C(\pi)} $$
+
+donde $C(\pi)$ --- número de ciclos de permutación.
+
+\h2{Ejemplo de tarea: Collares}
+
+La tarea de "collares" --- este es uno de los clásicos комбинаторных de tareas. Es necesario contar el número de diferentes collares de $n$ cuentas, cada una de las cuales puede ser pintado en uno de $k$ de colores. Cuando se comparan dos collares se puede rotar, pero no dar la vuelta (es decir, se permite hacer un desplazamiento cíclico).
+
+En esta tarea, podemos encontrar un grupo de инвариантных permutaciones. Obviamente, ella será de $n$ permutaciones:
+
+$$ \pi_0 = 1\ 2\ 3\ \ldots\ n $$
+$$ \pi_1 = 2\ 3\ \ldots\ n\ 1 $$
+$$ \pi_2 = 3\ \ldots\ n\ 1\ 2 $$
+$$ \ldots $$
+$$ \pi_{n-1} = n\ 1\ 2\ \ldots\ (n-1) $$
+
+Encontramos una clara fórmula para el cálculo de $C(\pi_i)$. En primer lugar, tenga en cuenta que las permutaciones son de este tipo, que en el $i$-oh cambiar de lugar en el $j$-oh de la posición cuesta $i+j$ (tomada por el módulo $n$, si es más de $n$). Si nos fijamos en la estructura cíclica de $i$-oh permutación, veremos que la unidad pasa a $1+i$ a $1+i$ pasa a $1+2i$ a $1+2i$ - - - $1+3i$, y así sucesivamente, hasta que no lleguemos en el número de $1 + kn$; para el resto de los elementos se cumplen similares de aprobación. De aquí se puede entender que todos los ciclos tienen la misma longitud, equivalente a ${\rm lcm}(i,n) / i$, es decir $n / {\rm mcd}(i,n)$ ("gcd" --- el máximo común divisor, "lcm" --- el mínimo común múltiplo). Entonces el número de ciclos en $i$-oh realizar la rotación sería de sólo ${\rm mcd}(i,n)$.
+
+Sustituyendo los valores encontrados en el teorema de poya, obtenemos \bf{para decisión}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{i=1}^{n} k ^ {{\rm mcd}(i,n)} $$
+
+Se puede dejar la fórmula en esta forma, y puede minimizar aún más. Pasemos de la suma de todos los $i$ a a la suma de sólo делителям $n$. De hecho, en nuestra será la suma de muchos de los mismos términos: si $i$ a no es un divisor de $n$, es tal el divisor hay después de calcular el ${\rm mcd}(i,n)$. Por lo tanto, para cada divisor $d|n$ su término $k^{{\rm mcd}(d,n)} = k^d$ учтется varias veces, es decir, la cantidad se puede presentar de la siguiente manera:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d, n} C_d k^d $$
+
+donde $C_d$ --- este es el número de estos números, $i$ que ${\rm mcd}(i,n) = d$. Encontramos una clara expresión de esta cantidad. Cualquier cuál es el número de $i$ es: $i=dj$, donde ${\rm mcd}(j,n/d) = 1$ (de lo contrario sería de ${\rm mcd}(i,n) > d$). Recordando \algohref=euler_function{la función de euler}, nos encontramos con que el número de esos $j$ --- este es el valor de la función de euler $\phi(n/d)$. Por lo tanto, $C_d = \phi(n/d)$, y finalmente obtenemos \bf{fórmula}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d, n} \phi \left( \frac{n}{d} \right) k^d $$
+
+\h2{Aplicación de леммы Бернсайда conjuntamente con el software de cálculos}
+
+No siempre se puede puramente analítico a través de obtener una fórmula explícita para el número de clases de equivalencia. En muchos problemas el número de permutaciones que integran el grupo, puede ser demasiado grande para cálculos manuales, y calcular analíticamente el número de ciclos en ellos no es posible.
+
+En este caso, hay que buscar manualmente varios de los "principales" de permutaciones, que será suficiente para desencadenar todo el grupo $G$. A continuación, puede escribir un programa que genere todas las permutaciones de un grupo $G$, considere que en cada uno de ellos el número de ciclos y coloca en la fórmula.
+
+Por ejemplo, considere la \bf{tarea sobre el número de colorantes torá}. Hay rectangular a cuadros en la hoja de papel $n \times m$ $(n < m)$, algunas de las células están pintadas en color negro. Luego de esta hoja de cálculo reciben el cilindro, склеивая dos lados con longitudes $m$. Luego de un cilindro reciben thor, склеивая dos círculos (de la base del cilindro) y sin causar daños. Es necesario contar el número de diferentes res (hoja de cálculo ha sido pintada al azar), teniendo en cuenta que la línea de encolado indistinguibles, y thor se puede girar y dar la vuelta.
+
+En esta tarea la vista se puede considerar una hoja de papel $n \times m$, algunas de las células que están pintadas en color negro. Es fácil comprender que los siguientes tipos de transformaciones conservan la clase de equivalencia: desplazamiento cíclico de filas de la hoja, el desplazamiento cíclico de las columnas de la hoja de cálculo, el giro de la hoja de 180 grados; también de forma intuitiva se puede entender que estos tres tipos de transformaciones suficiente para desencadenar todo el grupo инвариантных de transformación. Si estamos de alguna manera занумеруем de la célula de campo, podemos grabar tres permutaciones $p_1$, $p_2$, $p_3$ correspondientes a este tipo de transformaciones. Sigue sólo generar todas las permutaciones resultantes de obras de esta. Es evidente que todas estas permutaciones tienen la apariencia de $p_1^{i_1} p_2^{i_2} p_3^{i_3}$, donde $i_1 = 0 \ldots m-1$, $i_2 = 0 \ldots, n-1$, $i_3 = 0 \ldots 1$.
+
+Por lo tanto, podemos escribir la implementación de una solución de esta tarea:
+
+\code
+void mult (vector<int> & a, const vector<int> & b) {
+vector<int> aa (a);
+for (size_t i=0; i<a.size(); ++i)
+a[i] = aa[b[i]];
+}
+
+int cnt_cycles (vector<int> a) {
+int res = 0;
+for (size_t i=0; i<a.size(); ++i)
+if (a[i] != -1) {
+++res;
+for (size_t j=i; a[j]!=-1; ) {
+size_t nj = a[j];
+a[j] = -1;
+j = nj;
+}
+}
+return res;
+}
+
+int main() {
+int n, m;
+cin >> n >> m;
+
+vector<int> p (n*m), p1 (n*m), p2 (n*m), p3 (n*m);
+for (int i=0; i<n*m; i++) {
+p[i] = i;
+p1[i] = (i%, n + 1) % n + i / n * n;
+p2[i] = (i / n + 1) % m * n + i % n;
+p3[i] = (m - 1 - i / n) * n + (n - 1 - i%, n);
+}
+
+int sum = 0, la cnt = 0;
+set < vector<int> > s;
+for (int i1=0; i1<n; ++i1) {
+for (int i2=0; i2<m; i2++) {
+for (int i3=0; i3<2; ++i3) {
+if (!s.count(p)) {
+s.insert (p);
+++cnt;
+sum += 1 << cnt_cycles(p);
+}
+mult (p, p3);
+}
+mult (p, p2);
+}
+mult (p, p1);
+}
+
+cout << sum / cnt;
+}
+\endcode

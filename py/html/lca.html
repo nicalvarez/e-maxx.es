@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Наименьший общий предок. Нахождение за O (sqrt (N)) и O (log (N)) с препроцессингом O (N)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Наименьший общий предок. Нахождение за O (sqrt (N)) и O (log (N)) с препроцессингом O (N)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Наименьший общий предок. Нахождение за O (sqrt (N)) и O (log N) с препроцессингом O (N)&lt;/h1&gt;
+&lt;p&gt;Пусть дано дерево G. На вход поступают запросы вида (V1, V2), для каждого запроса требуется найти их наименьшего общего предка, т.е. вершину V, которая лежит на пути от корня до V1, на пути от корня до V2, и из всех таких вершин следует выбирать самую нижнюю. Иными словами, искомая вершина V - предок и V1, и V2, и среди всех таких общих предков выбирается нижний. Очевидно, что наименьший общий предок вершин V1 и V2 - это их общий предок, лежащий на кратчайшем пути из V1 в V2. В частности, например, если V1 является предком V2, то V1 является их наименьшим общим предком.&lt;/p&gt;
+&lt;p&gt;На английском эта задача называется задачей LCA - Least Common Ancestor.&lt;/p&gt;
+&lt;h2&gt;Идея алгоритма&lt;/h2&gt;
+&lt;p&gt;Перед тем, как отвечать на запросы, выполним так называемый &lt;b&gt;препроцессинг&lt;/b&gt;. Запустим обход в глубину из корня, который будет строить список посещения вершин Order (текущая вершина добавляется в список при входе в эту вершину, а также после каждого возвращения из её сына), нетрудно заметить, что итоговый размер этого списка будет O (N). И построим массив First[1..N], в котором для каждой вершины будет указана позиция в массиве Order, в которой стоит эта вершина, т.е. Order[First[I]] = I для всех I. Также с помощью поиска в глубину найдём высоту каждой вершины (расстояние от корня до неё) - H[1..N].&lt;/p&gt;
+&lt;p&gt;Как теперь отвечать на запросы? Пусть имеется текущий запрос - пара вершин V1 и V2. Рассмотрим список Order между индексами First[V1] и First[V2]. Нетрудно заметить, что в этом диапазоне будет находиться и искомое LCA (V1, V2), а также множество других вершин. Однако LCA (V1, V2) будет отличаться от остальных вершин тем, что это будет вершина с наименьшей высотой.&lt;/p&gt;
+&lt;p&gt;Таким образом, чтобы ответить на запрос, нам нужно просто &lt;b&gt;найти вершину с наименьшей высотой&lt;/b&gt; в массиве Order в диапазоне между First[V1] и First[V2]. Таким образом, &lt;b&gt;задача LCA сводится к &lt;algohref=rmq&gt;задаче RMQ&lt;/algohref&gt;&lt;/b&gt; (&quot;минимум на отрезке&quot;). А последняя задача решается с помощью структур данных (см. &lt;algohref=rmq&gt;задача RMQ&lt;/algohref&gt;).&lt;/p&gt;
+&lt;p&gt;Если использовать &lt;algohref=sqrt_decomposition&gt;&lt;b&gt;sqrt-декомпозицию&lt;/b&gt;&lt;/algohref&gt;, то можно получить решение, отвечающее на запрос за &lt;b&gt;O (sqrt (N))&lt;/b&gt; и выполняющее препроцессинг за O (N).&lt;/p&gt;
+&lt;p&gt;Если использовать &lt;algohref=segment_tree&gt;&lt;b&gt;дерево отрезков&lt;/b&gt;&lt;/algohref&gt;, то можно получить решение, отвечающее на запрос за &lt;b&gt;O (log (N))&lt;/b&gt; и выполняющее препроцессинг за O (N).&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;p&gt;Здесь будет приведена готовая реализация LCA с использованием дерева отрезков:&lt;/p&gt;
+&lt;code&gt;typedef vector &amp;lt; vector&amp;lt;int&gt; &gt; graph;
+typedef vector&amp;lt;int&gt;::const_iterator const_graph_iter;
+
+
+vector&amp;lt;int&gt; lca_h, lca_dfs_list, lca_first, lca_tree;
+vector&amp;lt;char&gt; lca_dfs_used;
+
+void lca_dfs (const graph &amp; g, int v, int h = 1)
+{
+	lca_dfs_used[v] = true;
+	lca_h[v] = h;
+	lca_dfs_list.push_back (v);
+	for (const_graph_iter i = g[v].begin(); i != g[v].end(); ++i)
+		if (!lca_dfs_used[*i])
+		{
+			lca_dfs (g, *i, h+1);
+			lca_dfs_list.push_back (v);
+		}
+}
+
+void lca_build_tree (int i, int l, int r)
+{
+	if (l == r)
+		lca_tree[i] = lca_dfs_list[l];
+	else
+	{
+		int m = (l + r) &gt;&gt; 1;
+		lca_build_tree (i+i, l, m);
+		lca_build_tree (i+i+1, m+1, r);
+		if (lca_h[lca_tree[i+i]] &amp;lt; lca_h[lca_tree[i+i+1]])
+			lca_tree[i] = lca_tree[i+i];
+		else
+			lca_tree[i] = lca_tree[i+i+1];
+	}
+}
+
+void lca_prepare (const graph &amp; g, int root)
+{
+	int n = (int) g.size();
+	lca_h.resize (n);
+	lca_dfs_list.reserve (n*2);
+	lca_dfs_used.assign (n, 0);
+
+	lca_dfs (g, root);
+
+	int m = (int) lca_dfs_list.size();
+	lca_tree.assign (lca_dfs_list.size() * 4 + 1, -1);
+	lca_build_tree (1, 0, m-1);
+
+	lca_first.assign (n, -1);
+	for (int i = 0; i &amp;lt; m; ++i)
+	{
+		int v = lca_dfs_list[i];
+		if (lca_first[v] == -1)
+			lca_first[v] = i;
+	}
+}
+
+int lca_tree_min (int i, int sl, int sr, int l, int r)
+{
+	if (sl == l &amp;&amp; sr == r)
+		return lca_tree[i];
+	int sm = (sl + sr) &gt;&gt; 1;
+	if (r &amp;lt;= sm)
+		return lca_tree_min (i+i, sl, sm, l, r);
+	if (l &gt; sm)
+		return lca_tree_min (i+i+1, sm+1, sr, l, r);
+	int ans1 = lca_tree_min (i+i, sl, sm, l, sm);
+	int ans2 = lca_tree_min (i+i+1, sm+1, sr, sm+1, r);
+	return lca_h[ans1] &amp;lt; lca_h[ans2] ? ans1 : ans2;
+}
+
+int lca (int a, int b)
+{
+	int left = lca_first[a],
+		right = lca_first[b];
+	if (left &gt; right)  swap (left, right);
+	return lca_tree_min (1, 0, (int)lca_dfs_list.size()-1, left, right);
+}
+
+int main()
+{
+	graph g;
+	int root;
+	... чтение графа ...
+
+	lca_prepare (g, root);
+
+	for (;;)
+	{
+		int v1, v2; // поступил запрос
+		int v = lca (v1, v2); // ответ на запрос
+	}
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

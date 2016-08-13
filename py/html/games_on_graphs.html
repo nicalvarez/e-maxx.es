@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Игры на произвольных графах. Метод ретроспективного анализа</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Игры на произвольных графах. Метод ретроспективного анализа</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Игры на произвольных графах&lt;/h1&gt;
+
+&lt;p&gt;Пусть игра ведётся двумя игроками на некотором графе G. Т.е. текущее состояние игры - это некоторая вершина графа, и из каждой вершины рёбра идут в те вершины, в которые можно пойти следующим ходом.&lt;/p&gt;
+&lt;p&gt;Мы рассматриваем самый общий случай - случай произвольного ориентированного графа с циклами. Требуется для заданной начальной позиции определить, кто выиграет при оптимальной игре обоих игроков (или определить, что результатом будет ничья).&lt;/p&gt;
+&lt;p&gt;Мы решим эту задачу очень эффективно - найдём ответы для всех вершин графа за линейное относительно количества рёбер время - &lt;b&gt;O (M)&lt;/b&gt;.&lt;/p&gt;
+&lt;h2&gt;Описание алгоритма&lt;/h2&gt;
+&lt;p&gt;Про некоторые вершины графа заранее известно, что они являются выигрышными или проигрышными; очевидно, такие вершины не имеют исходящих рёбер.&lt;/p&gt;
+&lt;p&gt;Имеем следующие &lt;b&gt;факты&lt;/b&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;если из некоторой вершины есть ребро в проигрышную вершину, то эта вершина выигрышная;&lt;/li&gt;
+&lt;li&gt;если из некоторой вершины все рёбра исходят в выигрышные вершины, то эта вершина проигрышная;&lt;/li&gt;
+&lt;li&gt;если в какой-то момент ещё остались неопределённые вершины, но ни одна из них не подходят ни под первое, ни под второе правило, то все эти вершины - ничейные.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Таким образом, уже ясен алгоритм, работающий за асимптотику O (N M) - мы перебираем все вершины, пытаемся к каждой применить первое либо второе правило, и если мы произвели какие-то изменения, то повторяем всё заново.&lt;/p&gt;
+&lt;p&gt;Однако этот процесс поиска и обновления можно значительно ускорить, доведя асимптотику до линейной.&lt;/p&gt;
+&lt;p&gt;Переберём все вершины, про которые изначально известно, что они выигрышные или проигрышные. Из каждой из них пустим следующий поиск в глубину. Этот поиск в глубину будет двигаться по обратным рёбрам. Прежде всего, он не будет заходить в вершины, которые уже определены как выигрышные или проигрышные. Далее, если поиск в глубину пытается пойти из проигрышной вершины в некоторую вершину, то её он помечает как выигрышную, и идёт в неё. Если же поиск в глубину пытается пойти из выигрышной вершины в некоторую вершину, то он должен проверить, все ли рёбра ведут из этой вершины в выигрышные. Эту проверку легко осуществить за O (1), если в каждой вершине будем хранить счётчик рёбер, которые ведут в выигрышные вершины. Итак, если поиск в глубину пытается пойти из выигрышной вершины в некоторую вершину, то он увеличивает в ней счётчик, и если счётчик сравнялся с количеством рёбер, исходящих из этой вершины, то эта вершина помечается как проигрышная, и поиск в глубину идёт в эту вершину. Иначе же, если целевая вершина так и не определена как выигрышная или проигрышная, то поиск в глубину в неё не заходит.&lt;/p&gt;
+&lt;p&gt;Итого, мы получаем, что каждая выигрышная и каждая проигрышная вершина посещается нашим алгоритмом ровно один раз, а ничейные вершины и вовсе не посещаются. Следовательно, асимптотика действительно &lt;b&gt;O (M)&lt;/b&gt;.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;p&gt;Рассмотрим реализацию поиска в глубину, в предположении, что граф игры построен в памяти, степени исхода посчитаны и записаны в degree (это будет как раз счётчиком, он будет уменьшаться, если есть ребро в выигрышную вершину), а также изначально выигрышные или проигрышные вершины уже помечены.&lt;/p&gt;
+&lt;code&gt;vector&amp;lt;int&gt; g [100];
+bool win [100];
+bool loose [100];
+bool used[100];
+int degree[100];
+
+void dfs (int v) {
+	used[v] = true;
+	for (vector&amp;lt;int&gt;::iterator i = g[v].begin(); i != g[v].end(); ++i)
+		if (!used[*i]) {
+			if (loose[v])
+				win[*i] = true;
+			else if (--degree[*i] == 0)
+				loose[*i] = true;
+			else
+				continue;
+			dfs (*i);
+		}
+}&lt;/code&gt;
+&lt;h2&gt;Пример задачи. &quot;Полицейский и вор&quot;&lt;/h2&gt;
+&lt;p&gt;Чтобы алгоритм стал более ясным, рассмотрим его на конкретном примере.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Условие задачи&lt;/b&gt;. Имеется поле размером MxN клеток, в некоторые клетки заходить нельзя. Известны начальные координаты полицейского и вора. Также на карте может присутствовать выход. Если полицейский окажется в одной клетке с вором, то выиграл полицейский. Если же вор окажется в клетке с выходом (и в этой клетке не стоит полицейский), то выиграет вор. Полицейский может ходить в 8 направлениях, вор - только в 4 (вдоль осей координат). И полицейский, и вор могут пропустить свой ход. Первым ход делает полицейский.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Построение графа&lt;/b&gt;. Построим граф игры. Мы должны формализовать правила игры. Текущее состояние игры определяется координатами полицейского P, вора T, а также булева переменная Pstep, которая определяет, кто будет делать следующий ход. Следовательно, вершина графа определена тройкой (P,T,Pstep). Граф построить легко, просто соответствуя условию.&lt;/p&gt;
+&lt;p&gt;Далее нужно определить, какие вершины являются выигрышными или проигрышными изначально. Здесь есть &lt;b&gt;тонкий момент&lt;/b&gt;. Выигрышность/проигрышность вершины помимо координат зависит и от Pstep - чей сейчас ход. Если сейчас ход полицейского, то вершина выигрышная, если координаты полицейского и вора совпадают; вершина проигрышная, если она не выигрышная и вор находится на выходе. Если же сейчас ход вора, то вершина выигрышная, если вор находится на выходе, и проигрышная, если она не выигрышная и координаты полицейского и вора совпадают.&lt;/p&gt;
+&lt;p&gt;Единственный момент, которой нужно решить - строить &lt;b&gt;граф явно или&lt;/b&gt; делать это &quot;&lt;b&gt;на ходу&lt;/b&gt;&quot;, прямо в поиске в глубину. С одной стороны, если строить граф предварительно, то будет меньше вероятность ошибиться. С другой стороны, это увеличит объём кода, да и время работы будет в несколько раз медленнее, чем если строить граф &quot;на ходу&quot;.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Реализация&lt;/b&gt; всей программы:&lt;/p&gt;
+&lt;code&gt;struct state {
+	char p, t;
+	bool pstep;
+};
+
+vector&amp;lt;state&gt; g [100][100][2];
+// 1 = policeman coords; 2 = thief coords; 3 = 1 if policeman\'s step or 0 if thief\'s.
+bool win [100][100][2];
+bool loose [100][100][2];
+bool used[100][100][2];
+int degree[100][100][2];
+
+void dfs (char p, char t, bool pstep) {
+	used[p][t][pstep] = true;
+	for (vector&amp;lt;state&gt;::iterator i = g[p][t][pstep].begin(); i != g[p][t][pstep].end(); ++i)
+		if (!used[i-&gt;p][i-&gt;t][i-&gt;pstep]) {
+			if (loose[p][t][pstep])
+				win[i-&gt;p][i-&gt;t][i-&gt;pstep] = true;
+			else if (--degree[i-&gt;p][i-&gt;t][i-&gt;pstep] == 0)
+				loose[i-&gt;p][i-&gt;t][i-&gt;pstep] = true;
+			else
+				continue;
+			dfs (i-&gt;p, i-&gt;t, i-&gt;pstep);
+		}
+}
+
+
+int main() {
+
+	int n, m;
+	cin &gt;&gt; n &gt;&gt; m;
+	vector&amp;lt;string&gt; a (n);
+	for (int i=0; i&amp;lt;n; ++i)
+		cin &gt;&gt; a[i];
+
+	for (int p=0; p&amp;lt;n*m; ++p)
+		for (int t=0; t&amp;lt;n*m; ++t)
+			for (char pstep=0; pstep&amp;lt;=1; ++pstep) {
+				int px = p/m, py = p%m, tx=t/m, ty=t%m;
+				if (a[px][py]==\'*\' || a[tx][ty]==\'*\')  continue;
+				
+				bool &amp; wwin = win[p][t][pstep];
+				bool &amp; lloose = loose[p][t][pstep];
+				if (pstep)
+					wwin = px==tx &amp;&amp; py==ty,   lloose = !wwin &amp;&amp; a[tx][ty] == \'E\';
+				else
+					wwin = a[tx][ty] == \'E\',   lloose = !wwin &amp;&amp; px==tx &amp;&amp; py==ty;
+				if (wwin || lloose)  continue;
+
+				state st = { p, t, !pstep };
+				g[p][t][pstep].push_back (st);
+				st.pstep = pstep != 0;
+				degree[p][t][pstep] = 1;
+				
+				const int dx[] = { -1, 0, 1, 0,   -1, -1, 1, 1 };
+				const int dy[] = { 0, 1, 0, -1,   -1, 1, -1, 1 };
+				for (int d=0; d&amp;lt;(pstep?8:4); ++d) {
+					int ppx=px, ppy=py, ttx=tx, tty=ty;
+					if (pstep)
+						ppx += dx[d],  ppy += dy[d];
+					else
+						ttx += dx[d],  tty += dy[d];
+					if (ppx&gt;=0 &amp;&amp; ppx&amp;lt;n &amp;&amp; ppy&gt;=0 &amp;&amp; ppy&amp;lt;m &amp;&amp; a[ppx][ppy]!=\'*\' &amp;&amp;
+						ttx&gt;=0 &amp;&amp; ttx&amp;lt;n &amp;&amp; tty&gt;=0 &amp;&amp; tty&amp;lt;m &amp;&amp; a[ttx][tty]!=\'*\')
+					{
+						g[ppx*m+ppy][ttx*m+tty][!pstep].push_back (st);
+						++degree[p][t][pstep];
+					}
+				}
+			}
+
+	for (int p=0; p&amp;lt;n*m; ++p)
+		for (int t=0; t&amp;lt;n*m; ++t)
+			for (char pstep=0; pstep&amp;lt;=1; ++pstep)
+				if ((win[p][t][pstep] || loose[p][t][pstep]) &amp;&amp; !used[p][t][pstep])
+					dfs (p, t, pstep!=0);
+
+	int p_st, t_st;
+	for (int i=0; i&amp;lt;n; ++i)
+		for (int j=0; j&amp;lt;m; ++j)
+			if (a[i][j] == \'C\')
+				p_st = i*m+j;
+			else if (a[i][j] == \'T\')
+				t_st = i*m+j;
+
+	cout &amp;lt;&amp;lt; (win[p_st][t_st][true] ? &quot;WIN&quot; : loose[p_st][t_st][true] ? &quot;LOSS&quot; : &quot;DRAW&quot;);
+
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

@@ -1,0 +1,101 @@
+\h1{Searching for bridges}
+
+Let the given undirected graph. The bridge is such an edge, the removal of which makes the graph disconnected (or, more precisely, increases the number of connected components). You want to find all bridges in a given graph.
+
+Informally, this problem is formulated as follows: you want to find on a given map of the roads all the "important" roads, i.e. roads that removing any of them will lead to the disappearance of the path between any pair of cities.
+
+Below we describe the algorithm based on \algohref=dfs{depth-first search}, and works in time $O(n+m)$, where $n$ is the number of vertices, $m$ --- edges in the graph.
+
+Note that on the website also described \algohref=bridge_searching_online{an online algorithm for searching bridges} --- in contrast to the described here algorithm, the online algorithm is able to maintain all bridges in a graph changing the graph (adding new edges).
+
+
+\h2{Algorithm}
+
+Start \algohref=dfs{depth} of any vertex of the graph; let's denote it via $\rm root$. Note the following \bf{fact} (which is easy to prove):
+
+\ul{
+\li Suppose we are in the depth-first-search, now looking through all edges from the vertex $v$. Then, if the current edge $(v,to)$ such that the vertices from $to$ and any of its descendant in the tree traversal in a depth of no return the ribs to the vertex $v$ or some of its ancestor, then this edge is a bridge. Otherwise it is not a bridge. (In fact, this condition we check whether there is no other path from $v$ to $to$, except down the edge $(v,to)$ tree depth-first.)
+}
+
+Now then, how to verify this fact for each node effectively. For this we use the "times of the input in node" computed \algohref=dfs{algorithm of depth-first search}.
+
+So, let $tin[v]$ is the set of depth-first search at vertex $v$. Now let's introduce an array $fup[v]$, which will allow us to answer the above queries. Time $fup[v]$ is equal to the minimum of sunset time at the very top, $tin[v]$, times of entering each vertex $p$, which is the end of some reverse edges $(v,p)$, and all values of $fup[to]$ for each vertex $to$ that is a direct son of the $v$ in the search tree:
+
+$$ fup[v] = \min \cases{
+tin[v] & \cr
+tin[p], & {\rm for all} (v,p){\rm\ --- back edge } \cr
+fup[to], & {\rm for all} (v,to){\rm\ --- tree edge } \cr
+} $$
+
+(here "back edge" --- return edge, "tree edge" --- the edge of the tree)
+
+Then from vertex $v$ or its descendant has a back edge to its ancestor and then only when there is a son $to$ that $fup[to] \le tin[v]$. (If $fup[to] = tin[v]$, this means that there is a back edge, coming exactly in $v$; if $fup[to] < tin[v]$, this means the presence of the reverse edge in any ancestor vertex $v$.)
+
+Thus, if for the current edge $(v,to)$ (- owned tree search) is $fup[to] > tin[v]$, then this edge is a bridge; otherwise, it is not a bridge.
+
+
+\h2{the Implementation}
+
+If to speak about the implementation, here we need to distinguish between three cases: when we are on the edge of the search tree in depth when we go on a return edge, and when trying to go over the edge of the tree in the opposite direction. It is, accordingly, if:
+
+\ul{
+\li $used[to]=false$ --- the criterion of an edge of a search tree;
+\li $used[to]=true\ \&\&\ to \ne parent$ --- criterion return fin;
+\li $to=parent$ --- the criterion of passage through the edge of the tree search in the opposite direction.
+}
+
+Thus, to implement these criteria we need to pass to the function search into the depth of the top ancestor of the current vertex.
+
+\code
+const int MAXN = ...;
+vector<int> g[MAXN];
+bool used[MAXN];
+int timer, tin[MAXN], fup[MAXN];
+
+void dfs (int v, int p = -1) {
+used[v] = true;
+tin[v] = fup[v] = timer++;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (to == p) continue;
+if (used[to])
+fup[v] = min (fup[v], tin[to]);
+else {
+dfs (to, v);
+fup[v] = min (fup[v], fup[to]);
+if (fup[to] > tin[v])
+IS_BRIDGE(v,to);
+}
+}
+}
+
+void find_bridges() {
+timer = 0;
+for (int i=0; i<n; ++i)
+used[i] = false;
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs (i);
+}
+\endcode
+
+Here the main function to call is ${\rm find\_bridges}$ --- it produces the required initialization and startup of depth for each connected components of the graph.
+
+Thus ${\rm IS\_BRIDGE}(a,b)$ is some function, which will respond to the fact that the edge $(a,b)$ is a bridge, for example, to display the edge of the screen.
+
+The constant ${\rm MAXN}$ in the very beginning of the code value must be set equal to the maximum possible number of vertices in the input graph.
+
+It is worth noting that this implementation does not work correctly if the graph \bf{multiple edges}: she is not actually paying attention, the fold edge or whether it is unique. Of course, multiple edges should not be included in the answer, so when you call $\rm IS\_BRIDGE$ you can check additionally if is not a multiple edge we want to add in response. Another way --- more accurate work with the ancestors, i.e. to pass in $\rm dfs$ is not the top ancestor, and the number of the edge through which we entered the vertex (for this you may need to store the number of all edges).
+
+
+\h2{Problem in online judges}
+
+The task list in which you want to search bridges:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=737{UVA #796 \bf{"Critical Links"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=551{UVA #610 \bf{"Street Directions"} ~~~~ [difficulty: medium]}
+
+}

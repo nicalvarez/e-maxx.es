@@ -1,0 +1,116 @@
+\h1{Lyndon Decomposition. Algorithm Of Duval. Finding the smallest cyclic shift}
+
+
+\h2{the Concept of decomposition Lyndon}
+
+We define the notion of \bf{decomposition Lyndon} (Lyndon decomposition).
+
+A string is called \bf{simple} if it is strictly \bf{less} any of your own \bf{suffix}. Examples of simple strings: $a$, $b$, $ab$, $aab$, $abb$, $ababb$, $abcd$. It can be shown that a line is simple if and only if it is strictly \bf{less} of all its non-trivial \bf{cyclic shifts}.
+
+Further, let given a string $s$. Then \bf{the Lyndon decomposition} of a string $s$ is called the decomposition $s = w_1 w_2 \ldots w_k$ where line $w_i$ is simple, and thus $w_1 \ge w_2 \ge \ldots \ge w_k$.
+
+It can be shown that for any string $s$ is a decomposition exists and is unique.
+
+
+\h2{the Algorithm of Duval}
+
+\bf{Algorithm of Duval} (Duval''s algorithm) finds the given string of length $n$ decomposition of Lindon for a time $O (n)$ using $O (1)$ additional memory.
+
+To work with strings will be in 0-indexing.
+
+We introduce the auxiliary notion of preprosti line. The line $t$ is called a \bf{preprosto}, if it has the form $t = w w w \ldots w \overline{w}$, where $w$ --- some simple string, and $\overline{w}$ --- some prefix of the string $w$.
+
+The Duval algorithm is greedy. At any moment of its operation the string S is actually divided into three lines $s = s_1 s_2 s_3$, at which $s_1$ is the Lyndon decomposition was found already and $s_1$ is no longer used by the algorithm; string $s_2$ is preprosta string (with the length of simple lines inside of it we also remember); string $s_3$ is not yet processed part of the string $s$. Each time the algorithm Duval takes the first character of the string $s_3$ and tries to append it to the string $s_2$. Thus, it is possible for any prefix of the string $s_2$, the Lyndon decomposition is known, and this part goes to the string $s_1$.
+
+Let us describe now the algorithm \bf{formally}. First, will be supported by the index $i$ at the beginning of the string $s_2$. The outer loop of the algorithm will be executed until $i < n$, i.e. until the whole string $s$ does not go into the string $s_1$. Within this series are two pointers: the pointer $j$ at the beginning of the line $s_3$ (actually a pointer to the next character candidate), and index $k$ for the current character in the string $s_2$, which will be used for comparison. Then we will be in a loop trying to append the $character s[j]$ to the string $s_2$, which is necessary to make a comparison with the $symbol s[k]$. Here we have three different cases:
+
+\ul{
+
+\li If $s[j] = s[k]$, we can append the $character s[j]$ to the string $s_2$, without violating its "predprostora". Therefore, in this case, we simply increase the indexes $j$ and $k$ by one.
+
+\li If $s[j] > s[k]$, then obviously the string $s_2 + s[j]$ will become simple. We increment $j$ per unit and $k$ to be moved back to $i$, so that the next character is compared with the first symbol of $s_2$.
+
+\li If $s[j] < s[k]$, the string $s_2+s[j]$ can not be preprosto. So we split preprosto the string $s_2$ on simple lines plus "the rest" (simple prefix string, possibly empty); a simple line added to the response (i.e., derive their position, simultaneously moving the pointer $i$), and "balance" with the symbol $s[j]$ translate back to a string $s_3$, and stop the execution of the inner loop. Thus we on the next iteration of the outer loop to re-process the rest, knowing that he could not form preprosto line with the previous simple lines. It remains only to note that in the derivation of the positions of the simple string we need to know their length; but it is, obviously, equal to $j-k$.
+
+}
+
+
+\h3{Implementation}
+
+Here is an implementation of the algorithm Duval, which will output the desired Lyndon decomposition of a string $s$:
+
+\code
+string s; // input string
+int n = (int) s.length();
+int i=0;
+while (i < n) {
+int j=i+1, k=i;
+while (j < n && s[k] <= s[j]) {
+if (s[k] < s[j])
+k = i;
+else
+k++;
+j++;
+}
+while (i <= k) {
+cout << s.substr (i, j-k) << ' ';
+i += j - k;
+}
+}
+\endcode
+
+
+\h3{Asymptotics}
+
+Note that for the algorithm of Duval is required \bf{$O (1)$ memory}, namely, three indices $i$, $j$, $k$.
+
+Now let us estimate \bf{time} algorithm.
+
+\bf{Outer loop} makes no more than $n$ iterations, because at the end of each iteration is displayed at least one character (and all characters are displayed, obviously, exactly $n$).
+
+Now let us estimate the number of iterations \bf{the first nested while loop}. Let's look at the second nested while loop --- every time it is executed it displays some number $r \ge 1$ copies of the same simple string of some length $p = j-k$. Note that the string $s_2$ is predprostora, and its simple lines have a length of just $p$, i.e. its length is at most $r p + p - 1$. Since the length of the string $s_2$ of $j-i$ and index $j$ is increased by one on each iteration of the first nested while loop, this loop will execute no more than $r p + p - 2$ iterations. Worst case is the case $r = 1$ and we get that the first nested while loop executes every time not more than $2P - 2$ iterations. Remembering that just appears $n$ characters, we get that the output of $n$ characters requires no more than $2 n - 2$ iterations of the first nested while loop.
+
+Therefore, \bf{algorithm for Duval is $O (n)$}.
+
+Easy to assess and the number of comparisons of symbols performed by the algorithm of Duval. Since each iteration of the first nested while loop performs two comparisons of characters, and one comparison is made after the last iteration of the loop (to understand that the loop must stop), the total \bf{number of comparisons of symbols} does not exceed $4 n - 3$.
+
+
+\h2{Finding the smallest cyclic shift}
+
+Given string $s$. Build the string $s+s$ decomposition Lyndon (we can do this for $O (n)$ time and $O (1)$ memory (if not to do the concatenation explicitly)). Preprosto find the block that starts at the position of the smaller $n$ (i.e., in the first instance of string $s$), and ends in a position greater than or equal to n (i.e., in the second instance). It is argued that \bf{starting position of} this block will be the beginning of the desired cyclic shift (this is easily seen using the definition of the Lyndon decomposition).
+
+Predprostora the beginning of the block to find just --- it is enough to notice that the index $i$ at the beginning of each iteration of the external loop indicates the beginning of the current predprostora block.
+
+Overall we get such \bf{implementation} (to simplify the code it uses $O (n)$ memory, explicitly appending a string to itself):
+
+\code
+min_cyclic_shift string (string s) {
+s += s;
+int n = (int) s.length();
+int i=0, ans=0;
+while (i < n/2) {
+ans = i;
+int j=i+1, k=i;
+while (j < n && s[k] <= s[j]) {
+if (s[k] < s[j])
+k = i;
+else
+k++;
+j++;
+}
+while (i <= k) i += j - k;
+}
+return s.substr (ans, n/2);
+}
+\endcode
+
+
+\h2{ Problem in online judges }
+
+A list of tasks that can be solved using the algorithm of Duval:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=660{UVA #719 \bf{"Glass Beads"} ~~~~ [difficulty: easy]}
+
+}

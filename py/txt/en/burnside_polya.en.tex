@@ -1,0 +1,192 @@
+\h1{Lemma of Burnside. Theorem Of Polya}
+
+\h2{Lemma Burnside}
+
+This Lemma was formulated and proved \bf{Burnside} (Burnside) in 1897, however, it was found that this formula has been previously opened \bf{Frobenius} (the Frobenius) in 1887, and even earlier - \bf{Cauchy} (Cauchy) in 1845, So this formula is sometimes called Burnside's Lemma and sometimes the theorem of Cauchy-Frobenius.
+
+Burnside's Lemma allows us to count the number of equivalence classes in a set based on some internal symmetry.
+
+\h3{Objects and views}
+
+Will draw a clear line between number of objects and number of views.
+
+The same objects may correspond to different views, but, of course, any view corresponds to exactly one object. Consequently, the set of all concepts is divided into equivalence classes. Our goal --- to count exactly the number of objects, or, equivalently, the number of equivalence classes.
+
+\h3{Example task: coloring of binary trees}
+
+Suppose we consider the following problem. You want to count the number of ways of coloring the root binary trees with $n$ vertices in 2 colors, if each vertex allows us to distinguish between right and left son.
+
+Many objects here --- it's a lot different in this sense colorings of trees.
+
+Now define a lot of ideas. Each of the coloring put into line specifies the function $f(v)$, where $v = 1 \ldots n$, and $f(v)=0 \ldots 1$. Then the set of representations is the many different functions of this type, and the size of it's, obviously, $2^n$. At the same time, on this set 
+representations we have introduced a splitting into equivalence classes. 
+
+For example, let $n=3$, and the tree is this: root --- the vertex 1 and vertex 2 and 3 --- her sons. Then the following functions $f_1$ and $f_2$ are equivalent to:
+
+$$ \matrix{
+f_1(1)=0 & f_2(1)=0 \cr
+f_1(2)=1 & f_2(2)=0 \cr
+f_1(3)=0 & f_2(3)=1 \cr
+} $$
+
+\h3{Invariant permutations}
+
+Why are these two functions $f_1$ and $f_2$ belong to the same equivalence class? Intuitively it is clear --- because we can swap the children of vertex 1, i.e., vertices 2 and 3, and after this transformation, the functions $f_1$ and $f_2$ coincide. But formally this means that there will be such a \bf{invariant permutation} of $\pi$ (i.e. that the statement does not change the object itself, but only its representation), such that:
+
+$$ f_2 \pi \equiv f_1 $$
+
+So, based on the conditions of the problem, we can find all permutation invariant, i.e., the use of which we do not not move from one equivalence class to another. Then, to check whether two functions $f_1$ and $f_2$ are equivalent (i.e. whether they are actually a single object), it is invariant for each permutation $\pi$ to check whether the condition that $f_2 \pi \equiv f_1$ (or, equivalently, $f_1 \pi \equiv f_2$). If at least one permutation discovered this equation, then $f_1$ and $f_2$ are equivalent, otherwise they are not equivalent.
+
+Finding all invariant permutations, for which our task invariant --- it is a key step for applications such as the Burnside Lemma and a theorem of polya. It is clear that these invariant permutations are dependent on the application, and their presence --- the process is purely heuristic, based on intuitive considerations. However, in most cases, it helps to manually find a few "basic" permutations, from which all other permutations can be obtained in various works (and this, purely mechanical, part of the work can be shifted to the computer; in more detail it will be discussed below on the example of a specific task).
+
+It is easy to see that the permutation invariant form \bf{group} --- as the product of all invariant permutations is also a permutation invariant. Let us denote \bf{group invariant permutations} via $G$.
+
+\h3{Formulation of the Lemma}
+
+For the wordings remained to remind one concept from algebra. \bf{Fixed point} of $f$ for permutations $\pi$ is called an element, which is invariant relative to this permutation: $f \equiv f \pi$. For example, in our example, the xed points will be those functions $f$ that correspond to the coloring not changing when applying the permutation $\pi$ (not changing it in the formal sense of the equality of two functions). Denote by $I(\pi)$ \bf{number of fixed points} for the permutation $\pi$.
+
+Then \bf{Lemma Burnside} is as follows: the number of classes of ekvivalentnosti equal to the sum of the number of fixed points in all permutations of the group $G$ divided by the size of this group:
+
+$$ {\rm ClassesCount} = \frac{1}{|G|} \sum_{\pi \in G} I(\pi) $$
+
+Although the Lemma of Burnside itself is not so convenient to use in practice (it's unclear how to find the value of $I(\pi)$), it most clearly reveals the essence of mathematics, which is based on the idea of counting equivalence classes.
+
+\h3{Proof of Lemma Burnside}
+
+Described here proof of the Lemma of Burnside is not so important for its understanding and application in practice, so it can be skipped on first reading.
+
+The proof is in the easiest and does not use the theory of groups. This proof was published by Bogart (Bogart) and Kenneth (Kenneth) in 1991
+
+So, we need to prove the following statement:
+
+$$ {\rm ClassesCount} |G| = \sum_{\pi \in G} I(\pi) $$
+
+The quantity on the right --- it not that other, as the number of "invariant pairs" $(f, \pi)$, i.e., pairs such that $f \pi \equiv f$. It is obvious that the formula we have the right to change the order of summation is to make the sum of the external elements f and inside it put the value of $J(f)$ --- the number of permutations for which f is invariant:
+
+$$ {\rm ClassesCount} |G| = \sum_{f} J(f) $$
+
+To prove this formula, let's create a table, columns of which will be signed by all values $f_i$, the lines --- all permutations $\pi_j$, and in the table cells will be the pieces $f_i \pi_j$. Then, if we consider the columns of this table as many, some of them may coincide, and this will mean that corresponding to each column of $f$ are also equivalent. Thus, the number of different as a number of columns equal to the value of $\rm ClassesCount$. Incidentally, from the point of view of the theory of groups column in the table, signed some element $f_i$ is the orbit of this element; for equivalent elements, obviously, of the orbit coincide, and the number of different orbits is $\rm ClassesCount$.
+
+So, the table columns themselves are split into equivalence classes; let us x now any class and look at the columns in it. First, note that in these columns can contain only the elements $f_i$ of the same equivalence class (otherwise we would obtain that the certain equivalent transformation $\pi_j$, we switched to a different equivalence class, which is impossible). Secondly, each element $f_i$ will meet the same number of times in all columns (this also follows from the fact that the columns correspond to equivalent elements). Hence it can be concluded that all columns within the same equivalence class coincide with each other as multisets.
+
+Now we fix an arbitrary element $f$. On the one hand, it occurs in its column exactly $J(f)$ time (by definition of $J(f)$). On the other hand, all columns within a single equivalence class are identical as multisets. Hence, in each column of the equivalence class of any element $g$ occurs exactly $J(g)$ time.
+
+Thus, if we take randomly from each equivalence class by one column and sum the number of elements in them, we will receive, on the one hand, ${\rm ClassesCount} |G|$ (this is obtained by simply multiplying the number of columns on their size), and on the other hand --- the sum of $J(f)$ for all $f$ (this follows from all of the previous reasons):
+
+$$ {\rm ClassesCount} |G| = \sum_{f} J(f) $$
+
+what we wanted to prove.
+
+\h2{the Theorem of polya. The simplest version}
+
+Theorem \bf{polya} (by pólya) is a generalization of the Lemma of Burnside, besides providing a more convenient tool for finding the number of equivalence classes. It should be noted that even before the polya this theorem was discovered and proved by Redfield (Redfield) in 1927, but his publication went unnoticed by mathematicians of the time. The polya independently came to the same result only in 1937, and its publication was more successful.
+
+Here we look at the formula are obtained as a special case of a theorem of polya, and that is very convenient to use for calculations in practice. A General theorem of polya this article will not be considered.
+
+Denote by $C(\pi)$ the number of cycles in the permutation $\pi$. Then the formula (\bf{a special case of a theorem of polya}):
+
+$$ {\rm ClassesCount} = \frac{1}{|G|} \sum_{\pi \in G} k^{ C(\pi) } $$
+
+where $k$ is the number of values which can take each element of the representation $f(v)$. For example, in our problem-example (coloring of the root of a binary tree in 2 colors) $k = 2$.
+
+\h3{Proof}
+
+This formula is a direct consequence of the Lemma of Burnside. To get it, we just need to find an explicit expression for the value of $I(\pi)$, appearing in the Lemma (recall that is the number of fixed points of the permutation $\pi$).
+
+So, let us consider some permutation $\pi$ and some element $f$. Under the action of the permutation $\pi$ - elements of $f$ are moved, as is known, for cycles of permutations. Note that since the result should be $f \equiv f \pi$, then within each cycle of the permutation must be the same elements of $f$. At the same time, for different cycles is no connection between the values of the elements does not occur. Thus, for each cycle of the permutation $\pi$, we choose one value (among $k$ variants), and thus we get all representations of $f$ that are invariant under this permutation, i.e.:
+
+$$ I(\pi) = k ^ {C(\pi)} $$
+
+where $C(\pi)$ --- the number of cycles of the permutation.
+
+\h2{task Example: Necklaces}
+
+The task of the "necklace" --- this is one of the classical combinatorial problems. You want to count the number of different necklaces of $n$ beads, each of which can be colored in one of $k$ colors. The comparison of the two necklaces you can rotate them but not flip (i.e. allowed to do circular shift).
+
+In this task, we can immediately find a group of invariant permutations. Obviously, it will consist of $n$ permutations:
+
+$$ \pi_0 = 1\ 2\ 3\ \ldots\ n $$
+$$ \pi_1 = 2\ 3\ \ldots\ n\ 1 $$
+$$ \pi_2 = 3\ \ldots\ n\ 1\ 2 $$
+$$ \ldots $$
+$$ \pi_{n-1} = n\ 1\ 2\ \ldots\ (n-1) $$
+
+Find an explicit formula for computing $C(\pi_i)$. First, note that the permutation looks like that in the $i$-th permutation of $j$-th position is $i+j$ (modulo $n$ if it is greater than $n$). If we consider the cyclic structure of the $i$-th permutation, we see that the unit goes to $1+i$, $1+i$ goes to $1+2i$, $1+2i$ - - - $1+3i$, etc, until you reach the number $1 + kn$; for other elements are similar allegations. From here we can understand that all cycles have the same length, equal to ${\rm lcm}(i,n) / i$, i.e. $n / {\rm gcd}(i,n)$ ("gcd" is greatest common divisor, lcm --- the least common multiple). Then the number of cycles in $i$-th permutation will be equal to just ${\rm gcd}(i,n)$.
+
+Substituting the values found in the polya theorem, we obtain \bf{solution}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{i=1}^{n} k ^ {{\rm gcd}(i,n)} $$
+
+You can leave the equation in this form, but you can minimize it even more. Let's move from the sum over all $i$ to the sum only for the divisors of $n$. Indeed, our money will be much the same terms: if $i$ is not a divisor of $n$, then such a divisor exists after computing ${\rm gcd}(i,n)$. Therefore, for each divisor $d|n$ its summand $k^{{\rm gcd}(d,n)} = k^d$ will be counted several times, i.e., the sum can be represented in the form:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d|n} C_d k^d $$
+
+where $C_d$ is the number of such $i$ that ${\rm gcd}(i,n) = d$. Find an explicit expression for this quantity. Any such number $i$ has the form $i=dj$, where ${\rm gcd}(j,n/d) = 1$ (otherwise it would be ${\rm gcd}(i,n) > d$). Remembering \algohref=euler_function{Euler's function}, we find that the number of such $j$ is the value of the Euler function $\phi(n/d)$. Thus, $C_d = \phi(n/d)$, and finally, we obtain \bf{formula}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d|n} \phi \left( \frac{n}{d} \right) k^d $$
+
+\h2{the Application of the Lemma of Burnside in conjunction with software calculations}
+
+Rarely in a purely analytical way to obtain an explicit formula for the number of equivalence classes. In many problems the number of permutations comprising the group may be too large for manual computations, and calculate analytically the number of cycles in them is not possible.
+
+In this case, to manually find a few "basic" permutations, which will be sufficient to generate the whole group $G$. You can then write a program that generates all permutations of the group $G$, consider in each one the number of cycles and substitute them in the formula.
+
+Consider, for example, \bf{the number of colorings of the torus}. There is a rectangular checkered sheet of paper of $n \times m$ $(n < m)$, some of the cells are painted black. Then from the sheet receiving cylinder, sticking together the two sides with lengths $m$. Then the cylinder to get a torus by gluing two circles (base of cylinder) without twisting. You want to count the number of different tori (the sheet was initially colored randomly), considering that the glue line is indiscernible, and the torus can be rotated and reflected.
+
+In this problem the representation can be considered as a sheet of paper an $n \times m$, some cells of which have been painted black. It is easy to see that the following types of transformations preserve equivalence class: cyclic shift of the rows of the sheet, a circular shift of the columns of the sheet, rotate the sheet 180 degrees; also it is intuitive to understand that these three types of transformations is sufficient to generate the entire group of invariant transformations. If we in any way will thenumerous cells of the field, then we can write three permutations $p_1$, $p_2$, $p_3$, corresponding to these transformations. The next step is to generate all permutations that are obtained as the product. Clearly, all such permutations are of the form $p_1^{i_1} p_2^{i_2} p_3^{i_3}$ where $i_1 = 0 \ldots m-1$, $i_2 = 0 \ldots n-1$, $i_3 = 0 \ldots 1$.
+
+Thus, we can write the implementation of this task:
+
+\code
+void mult (vector<int> & a, const vector<int> & b) {
+vector<int> aa (a);
+for (size_t i=0; i<a.size(); ++i)
+a[i] = aa[b[i]];
+}
+
+cnt_cycles int (vector<int> a) {
+int res = 0;
+for (size_t i=0; i<a.size(); ++i)
+if (a[i] != -1) {
+++res;
+for (size_t j=i; a[j]!=-1; ) {
+size_t nj = a[j];
+a[j] = -1;
+j = nj;
+}
+}
+return res;
+}
+
+int main() {
+int n, m;
+cin >> n >> m;
+
+vector<int> p (n*m), p1 (n*m), p2 (n*m), p3 (n*m);
+for (int i=0; i<n*m; ++i) {
+p[i] = i;
+p1[i] = (i % n + 1) % n + i / n * n;
+p2[i] = (i / n + 1) % m * n + i % n;
+p3[i] = (m - 1 - i / n) * n + (n - 1 - i % n);
+}
+
+int sum = 0, cnt = 0;
+set < vector<int> > s;
+for (int i1=0; i1<n; i1++) {
+for (int i2=0; i2<m; i2++) {
+for (int i3=0; i3<2; i3++) {
+if (!s.count(p)) {
+s.insert (p);
+cnt++;
+sum += 1 << cnt_cycles(p);
+}
+mult (p, p3);
+}
+mult (p, p2);
+}
+mult (p, p1);
+}
+
+cout << sum / cnt;
+}
+\endcode

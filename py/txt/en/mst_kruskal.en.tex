@@ -1,0 +1,41 @@
+the <h1>Minimal spanning tree. The Kruskal algorithm</h1>
+
+<p>Given a weighted undirected graph. You want to find a subtree of this graph which connects all vertices, and thus had the least weight (i.e. the sum of weights of edges) of all possible. This subtree is called the minimum spanning tree or minimum spanning simple.</p>
+<p>it will discuss few important facts associated with minimal skeletons, will then discuss the Kruskal algorithm in its simplest implementation.</p>
+the <h3>properties of minimal skeleton</h3>
+the <ul>
+the <li>Minimal spanning tree of a <b>unique if all edge weights are different</b>. Otherwise, there may be several minimal skeletons (specific algorithms usually get one of the possible skeletons).</li>
+the <li>Minimal spanning tree is the <b>skeleton with minimal work</b> of weights of edges.<br>(this is easily proved, it is enough to replace the weights of all edges on their logarithms)</li>
+the <li>Minimal spanning tree is the <b>skeleton with a minimum weight of the heaviest edges</b>.<br>(this statement follows from the correctness of Kruskal's algorithm)</li>
+the <li><b>Frame maximum weight</b> is searched similarly to the frame of minimum weight, enough to change the signs of all edges on the opposite and perform any of the minimal skeleton algorithm.</li>
+</ul>
+the <h3>Kruskal's Algorithm</h3>
+<p>This algorithm was described by Kruskal (Kruskal) in 1956</p>
+<p>Kruskal's Algorithm initially places each node in its tree, and then gradually merges these trees by combining at each iteration two of some tree some edge. Before starting the algorithm, all edges are sorted by weight (in nondecreasing order). Then begins the process of merging: move all edges from the first to the last (in sort order), and if the current edges of its ends belong to different subtrees, these subtrees are combined, and an edge is added to the answer. At the end iterate through all edges of all vertices will belong to one subtree, and the answer is found.</p>
+the <h3>Simple implementation</h3>
+<p>This code most directly implements the algorithm described above, and is accomplished in <b>O (M log N + N<sup>2</sup>)</b>. Sorting the edges requires O (M log N) operations. The membership of the vertices of a particular subtree is stored simply by using the array of tree_id in it each vertex stores the number of the tree it belongs to. For each edge we in O (1) determine whether the ends of different trees. Finally, the Union of two trees takes O (N) simple pass through the array of tree_id. Given that the total of join operations is N-1, we obtain the asymptotic <b>O (M log N + N<sup>2</sup>)</b>.</p>
+<code>int m;
+vector < pair < int, pair<int,int> > > g (m); // weight - top 1 - top 2
+
+int cost = 0;
+vector < pair<int,int> > res;
+
+sort (g.begin(), g.end());
+vector<int> tree_id (n);
+for (int i=0; i<n; ++i)
+tree_id[i] = i;
+for (int i=0; i<m; ++i)
+{
+int a = g[i].second.first, b = g[i].second.second, l = g[i].first;
+if (tree_id[a] != tree_id[b])
+{
+cost += l;
+res.push_back (make_pair (a, b));
+int old_id = tree_id[b], new_id = tree_id[a];
+for (int j=0; j<n; j++)
+if (tree_id[j] == old_id)
+tree_id[j] = new_id;
+}
+}</code>
+the <h3>Improved implementation</h3>
+<p>using data structures <algohref=dsu>"DSU"</algohref> you can write a faster implementation <algohref=mst_kruskal_with_dsu>Kruskal algorithm with complexity O (M log N)</algohref>.</p>

@@ -1,0 +1,59 @@
+\h1{ Encontrar la ecuación de la recta para el segmento }
+
+La tarea --- a partir de las coordenadas del punto final de la línea de construir la recta que pasa a través de él.
+
+Creemos que el segmento de невырожден, es decir, tiene una longitud mayor que cero (de lo contrario, claro, a través de él pasa un número infinito de diferentes directa).
+
+
+\h2{ Bidimensional caso }
+
+Que dan el tramo de $ue$, es decir, se conocen las coordenadas de sus extremos de $P_x$, $P_y$, $Q_x$, $Q_y$.
+
+Es necesario construir \bf{la ecuación de la recta en el plano}, pasa a través de este tramo, es decir, de encontrar los factores de $A$, $B$, $C$ en la ecuación de la recta:
+
+$$ A x + B y + C = 0. $$
+
+Tenga en cuenta que los triples $(A,B,C)$, que pasan de un segmento, \bf{infinitos}: se puede multiplicar todos los tres factores de la arbitraria de un número distinto de cero y obtener la misma recta. Por lo tanto, nuestra tarea es encontrar a uno de esos triples.
+
+Es fácil ver (sustituyendo estas expresiones y las coordenadas de un punto $P$ y $Q$ en la ecuación de la recta), que adapta el siguiente conjunto de factores:
+
+$$ A = P_y - Q_y, $$
+$$ B = Q_x - P_x, $$
+$$ C = - A P_x - B P_y. $$
+
+
+\h3{ Entero de un caso }
+
+Una ventaja importante de este método de generación directa es que si las coordenadas de los extremos estaban enteros, y los factores también se \bf{enteros}. En algunos casos, esto permite realizar operaciones geométricas, no recurrir a la real números.
+
+Sin embargo, hay un pequeño inconveniente: para una misma recta pueden resultar diferentes de la troika de los factores. Para evitar esto, pero no se alejen de enteros de los factores, se puede aplicar la siguiente técnica, a menudo llamado \bf{reglamientos}. Encontraremos \algohref=euclid_algorithm{el máximo común divisor} de números de $A$, $B$, $C$, dividiremos en él, los tres factores, a continuación, realizaremos una нормировку de la marca: si $A<0$ o $A=0, B<0$, entonces se multiplica todos los tres factores de $-1$. Finalmente llegamos a lo que para los mismos directas se van a recuperar los mismos de la troika, de los factores que permitirá comprobar fácil directos a la igualdad.
+
+
+\h3{ Вещественнозначный caso }
+
+Cuando se trabaja con números reales, debe siempre recordar de exactitud.
+
+Los factores de $A$ y $B$ se obtienen tenemos el orden de las coordenadas originales, el factor $C$ --- alrededor de un cuadrado de ellos. Esto ya puede ser lo suficientemente grandes números, y, por ejemplo, cuando \algohref=lines_intersection{intersección de rectas}, se vuelven aún más, lo que puede llevar a grandes errores de redondeo, ya con el origen de coordenadas en el orden de $10^3$.
+
+Por lo tanto, cuando se trabaja con números reales, es deseable hacer el llamado \bf{нормировку} directa: es decir, hacer los coeficientes tales que $A^2 + B^2 = 1$. Para ello, es necesario calcular el número de $Z$:
+
+$$ Z = \sqrt{ A^2 + B^2 }, $$
+
+y dividir los tres factores de $A$, $B$, $C$ a él.
+
+Por tanto, el orden de los factores de $A$ y $B$ ya no dependerá del orden de entrada de las coordenadas, y la tasa de $C$ será del mismo orden de entrada de las coordenadas. En la práctica, esto lleva a una mejora significativa en la precisión de los cálculos.
+
+Por último, mencionaremos sobre \bf{comparación} directas --- ya que después de tal нормировки para una misma recta pueden obtenerse sólo dos triples de los coeficientes: con una precisión de hasta multiplicar por $-1$. En consecuencia, si hacemos un нормировку teniendo en cuenta el signo (si $A<-\varepsilon$ o $|A|<\varepsilon, B<-\varepsilon$, entonces multiplicar $-1$), resultantes de los factores son únicos.
+
+
+\h2{ Tridimensional y multidimensional de caso }
+
+Ya en el caso tridimensional \bf{simple de la ecuación}, describe la recta (se puede definir como la intersección de dos planos, es decir, un sistema de dos ecuaciones, pero es incómodo manera).
+
+Por lo tanto, en tres dimensiones y multidimensional casos debemos utilizar \bf{criterios de los parámetros de la forma de trabajo de la recta}, es decir, en forma de un punto $p$ y el vector $v$:
+
+$$ p + v t, ~~~ t \in \cal{R}. $$
+
+Es decir, la recta --- es que todos los puntos que se puede obtener desde el punto $p$ suma del vector $v$ arbitrario factor.
+
+\bf{Construcción} de la recta en forma paramétrica por las coordenadas de los extremos del segmento --- trivial, simplemente nos tomamos un extremo del corte por el punto $p$, y el vector desde el primero hasta el segundo fin --- por el vector $v$.

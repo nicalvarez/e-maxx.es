@@ -1,0 +1,155 @@
+\h1{ Discreta логарифмирование }
+
+La tarea discreta логарифмирования es por la totalidad de $a$, $b$, $m$ resolver la ecuación:
+
+$$ a^x = b \pmod m, $$
+
+donde $a$ y $m$ --- \bf{mutuamente fáciles} (nota: si no son mutuamente simples, lo siguiente algoritmo es incorrecto; a pesar de que, supuestamente, se puede modificar, para él todavía trabajaba).
+
+Aquí se describe el algoritmo, conocido como \bf{"baby-step-giant-step algorithm"}, propuesto \bf{Шэнксом (Shanks)} en el año 1971, que trabaja en el tiempo por el $O (\sqrt{m} \log m)$. A menudo, este algoritmo se refiere simplemente como el algoritmo \bf{"meet-in-the-middle"} (porque es uno de los clásicos de los usos de la técnica de "meet-in-the-middle": "división de tareas por la mitad").
+
+
+\h2{ el Algoritmo }
+
+Así pues, tenemos la ecuación:
+
+$$ a^x = b \pmod m, $$
+
+donde $a$ y $m$ mutuamente simples.
+
+Transformamos la ecuación. Ponemos
+
+$$ x = np - q, $$
+
+donde $n$ --- pre-seleccionada constante (como se elegirá en función del $m$, veremos un poco más adelante). A veces $p$ llaman "giant step" (ya que el aumento de su unidad aumenta de $x$ en seguida a $n$), y en cambio $q$ --- "baby step".
+
+Es evidente que cualquier $x$ (de intervalo $[0;m)$ --- está claro que este rango de valores es suficiente) se puede presentar en una forma tal, y para ello será suficiente con los valores:
+
+$$ p \in \left[ 1; \left\lceil \frac{m}{n} \right\rceil \right], ~~~~~ q \in [0;n]. $$
+
+Entonces la ecuación toma la forma:
+
+$$ a^{np-q} = b \pmod m, $$
+
+de donde, aprovechando el hecho de que $a$ y $m$ mutuamente simples, obtenemos:
+
+$$ a^{np} = b a^q \pmod m. $$
+
+Para resolver la ecuación original, es necesario encontrar los valores adecuados para $p$ y $q$, para que los valores de la izquierda y la derecha partes coinciden. En otras palabras, es necesario resolver la ecuación:
+
+$$ f_1(p) = f_2(q). $$
+
+Esta tarea se resuelve mediante el método de meet-in-the-middle " de la siguiente manera. La primera fase del algoritmo que calcula los valores de la función $f_1$ para todos los valores de los argumentos de $p$, y ordenará estos valores. La segunda fase del algoritmo: vamos a escoger el valor de la segunda variable $q$, calcular la segunda función $f_2$, y buscar ese valor entre предвычисленных de los valores de la primera función con la ayuda de un binario de búsqueda.
+
+
+\h2{ Asíntotas }
+
+Primero vamos a evaluar el tiempo de cálculo para cada una de las funciones $f_1(p)$ y $f_2(q)$. Aquella, y la otra contiene los exponentes, que se puede realizar con la ayuda de \algohref=binary_pow{algoritmo de exponenciación binaria}. Entonces, estas dos funciones podemos calcular por hora $O(\log m)$.
+
+El algoritmo mismo en la primera fase incluye el cálculo de la función $f_1(p)$ de cada posible valor de $p$ y la clasificación de valores, lo que nos da la асимптотику:
+
+El $$ O\left( \left\lceil \frac{m}{n} \right\rceil \left( \log m + \log \left\lceil \frac{m}{n} \right\rceil \right) \right) = O\left( \left\lceil \frac{m}{n} \right\rceil \log m \right). $$
+
+En la segunda fase del algoritmo se produce el cálculo de la función $f_2(q)$ de cada posible valor de $q$ y binario de búsqueda de la matriz de valores de $f_1$, lo que nos da la асимптотику:
+
+El $$ O\left( n \left( \log m + \log \left\lceil \frac{m}{n} \right\rceil \right) \right) = O\left( n \log m \right). $$
+
+Ahora, cuando sumamos estas dos асимптотики, logramos $\log m$, multiplicado por la cantidad de $n$ y $m/n$, y prácticamente es evidente que el mínimo se alcanza cuando $n \approx m/n$, es decir, para el óptimo funcionamiento del algoritmo de la constante de $n$ se debe elegir:
+
+$$ n \approx \sqrt{m}. $$
+
+Entonces asíntotas algoritmo toma la forma:
+
+El $$ O\left( \sqrt{m} ~ \log m \right). $$
+
+Nota. Podríamos cambiar los roles de $f_1$ y $f_2$ (es decir, en la primera fase de calcular el valor de la función $f_2$, mientras que la segunda --- $f_1$), sin embargo, es fácil entender que el resultado no cambiaba, y асимптотику esto nosotros no mejoraremos.
+
+
+\h2{ Aplicación }
+
+
+\h3{ Simple aplicación }
+
+La función $\rm powmod$ ejecuta el binario construcción del número $a$ a la $b$ por módulo $m$, consulte \algohref=binary_pow{Binario exponenciación}.
+
+La función $\rm solve$ produce en realidad la solución de la tarea. Esta función devuelve una respuesta (el número en el intervalo $[0;m)$), o más precisamente, una de las respuestas. La función devuelve $-1$, si no hay una solución.
+
+\code
+int powmod (int a, int b, int m) {
+int res = 1;
+while (b > 0)
+if (b & 1) {
+res = res * a) % m;
+--b;
+}
+else {
+a = (a * a) % m;
+b > > a= 1;
+}
+return res % m;
+}
+
+int solve (int a, int b, int m) {
+int n = (int) sqrt (m + .0) + 1;
+map<int,int> vals;
+for (int i=n; i>=1; --i)
+vals[ powmod (a, i * n, m) ] = i;
+for (int i=0; i<=n; ++i) {
+int cur = (powmod (a, i, m) * b) % m;
+if (vals.count(cur)) {
+int ans = vals[cur] * n - i;
+if (ans < m)
+return ans;
+}
+}
+return -1;
+}
+\endcode
+
+Aquí estamos para la conveniencia de la implementación de la primera fase del algoritmo se aprovecharon de la estructura de los datos "map" (rojo-negro de madera), que para cada valor de la función $f_1(i)$ almacena el parámetro $i$, a que este valor se ha logrado. En este caso, si el mismo valor, se logró varias veces, se registra el menor de todos los argumentos. Esto se hace para que, para posteriormente, en la segunda fase del algoritmo, se ha encontrado la respuesta en el intervalo $[0;m)$.
+
+Teniendo en cuenta que el argumento de la función $f_1 ()$, en la primera fase tenemos перебирался de unidades a $n$, mientras que el argumento de la función $f_2 () a$ en la segunda fase se traslada de cero a $n$, finalmente cubrimos todo un conjunto de posibles respuestas, ya que el tramo de $[0; n^2]$ contiene el intervalo $[0;m)$. Cuando esta negativa la respuesta resultar no podía, y las respuestas, ampliación o iguales $m$ podemos ignorar --- de todos modos deben estar las respuestas de intervalo $[0;m)$.
+
+Esta función se puede cambiar en caso de que desee encontrar \bf{todas las decisiones} tareas del logaritmo discreto. Para ello, es necesario sustituir el "map" a cualquier otra estructura de datos que permite almacenar para un argumento de varios valores (por ejemplo, "multimap"), y modificar el código correspondiente a la segunda fase.
+
+
+\h3{ Mejora de la implementación }
+
+Cuando \bf{optimización de la velocidad} puede proceder de la siguiente manera.
+
+En primer lugar, de inmediato salta a la vista innecesarios binario de exponenciación en la segunda fase del algoritmo. En lugar de ello, puede tener la variable y домножать su cada vez de $a$.
+
+En segundo lugar, de la misma manera, puede deshacerse de un binario de la edificación en el grado y en la primera fase: en realidad, una vez es suficiente para calcular el valor de $a^n$, y luego simplemente домножать en ella.
+
+Por lo tanto, el logaritmo de la asíntota de la función sigue siendo, pero esto sólo sería el logaritmo relacionado con la estructura de datos $map<>$ (es decir, en términos de un algoritmo de ordenación y binarios de búsqueda de valores) --- es decir, será el logaritmo de $\sqrt{m}$, que en la práctica da una notable aceleración.
+
+\code
+int solve (int a, int b, int m) {
+int n = (int) sqrt (m + .0) + 1;
+
+int an = 1;
+for (int i=0; i<n; ++i)
+an = (an * a) % m;
+
+map<int,int> vals;
+for (int i=1, cur=an; i<=n; ++i) {
+if (!vals.count(cur))
+vals[cur] = i;
+cur = (cur * an) % m;
+}
+
+for (int i=0, cur=b; i<=n; ++i) {
+if (vals.count(cur)) {
+int ans = vals[cur] * n - i;
+if (ans < m)
+return ans;
+}
+cur = (cur * a) % m;
+}
+return -1;
+}
+\endcode
+
+Por último, si el módulo $m$ es lo suficientemente pequeño, se puede conseguir deshacerse de los logaritmos en la asíntota de la función --- simplemente mover en lugar de $map<>$ normal de la matriz.
+
+También se puede pensar sobre la tabla hash: en promedio, trabajan también por el $O(1)$, que en general da асимптотику $O (\sqrt{m})$.

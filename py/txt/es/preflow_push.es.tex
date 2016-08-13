@@ -1,0 +1,95 @@
+<h1>el Máximo flujo por el método de Empujar a la предпотока por O (N<sup>4</sup>)</h1>
+
+<p>Deje que dan el gráfico de G, en el que aparecen dos picos: la fuente S y el drenaje de la T, y el de cada aleta se define el ancho de banda de C<sub>u,v</sub>. El flujo de F se puede representar como el flujo de una sustancia que podría pasar por la red desde su nacimiento a la descarga, si se considera que el conde como una red de tuberías con algunos пропускными habilidades. Es decir, el flujo de la función F<sub>u, v</sub>, definida en el conjunto de aristas de la gráfica.</p>
+<p> </p>
+<p>la Tarea consiste en encontrar el flujo máximo. Aquí se examinará el método de Empujar a la предпотока que trabaja en O (N<sup>4</sup>), o, más exactamente, por O (N<sup>2</sup> M). El algoritmo fue propuesto Гольдбергом en 1985.</p>
+<h2>el Algoritmo de</h2>
+<p>el esquema General del algoritmo es el siguiente. En cada paso, vamos a considerar un cierto предпоток - es decir, una función que por las propiedades del fluido, pero no necesariamente se cumple la ley de conservación de flujo. En cada paso, vamos a tratar de aplicar cualquiera de los dos operaciones: empujando a través de un flujo o la elevación de la cima. Si en algún paso y no podrá aplicar cualquiera de las dos operaciones, hemos encontrado un subproceso necesario.</p>
+<p>Para cada vértice determinada por su altura H<sub>u</sub>, mientras que H<sub>S</sub> = N, H<sub>T</sub> = 0, y para cualquier residual de la aleta (u, v) tenemos H<sub>u</sub> <= H<sub>v</sub> + 1.</p>
+<p>Para cada vértice (excepto S) se puede determinar el exceso de: E<sub>u</sub> = F<sub>V, u</sub>. La cima con un exceso se llama lleno de gente.</p>
+<p>la Operación de empujar (Push (u, v) es aplicable, si la cima de la u está llena, el valor residual del ancho de banda Cf<sub>u, v</sub> > 0 y H<sub>u</sub> = H<sub>v</sub> + 1. La operación de empujar consiste en maximizar el flujo de u en v limitado por el exceso de la E<sub>u</sub> y residual de ancho de banda Cf<sub>u, v</sub>.</p>
+<p>la Operación de izado de Lift (u) plantea переполненную la cima de la u en la altura máxima permitida. Es decir, H<sub>u</sub> = 1 + min { H<sub>v</sub> }, donde (u, v) - residual de la costilla.</p>
+<p>se Quedó sólo considerar la inicialización de flujo. Es necesario inicializar los siguientes valores: F<sub>S, v</sub> = C<sub>S, v</sub>, F<sub>u, S</sub> = - C<sub>u, S</sub>, el resto de los valores de poner en cero.</p>
+<h2>Realización</h2>
+<code>const int inf = 1000*1000*1000;
+
+
+typedef vector<int> graf_line;
+typedef vector<graf_line> graf;
+
+typedef vector<int> vint;
+typedef vector<vint> vvint;
+
+
+void push (int u, int v, vvint & f, vint & e, const vvint & c)
+{
+int d = min (e[u], c[u][v] - f[u], [v]);
+f[u], [v] += d;
+f[v][u] = - f[u], [v];
+e[u] -= d;
+e[v] += d;
+}
+
+void lift (int u, vint h&, const vvint & f, const vvint & c)
+{
+int d = inf;
+for (int i = 0; i < (int)f.size(); i++)
+if (c[u][i]-f[u][i] > 0)
+d = min (d, h[i]);
+if (d == inf)
+return;
+h[u] = d + 1;
+}
+
+
+int main()
+{
+int n;
+cin >> n;
+vvint c (n, vint(n));
+for (int i=0; i<n; i++)
+for (int j=0; j<n; j++)
+cin >> c[i][j];
+// fuente - la cima de 0, stoke - la cima de la n-1
+
+vvint f (n, vint(n));
+for (int i=1; i<n; i++)
+{
+f[0][i] = c[0][i];
+f[i][0] = c[0][i];
+}
+
+vint h (n);
+h[0] = n;
+
+vint e (n);
+for (int i=1; i<n; i++)
+e[i] = f[0][i];
+
+for ( ; ; )
+{
+int i;
+for (i=1; i<n-1; i++)
+if (e[i] > 0)
+break;
+if (i == n-1)
+break;
+
+int j;
+for (j=0; j<n; j++)
+if (c[i][j]-f[i][j] > 0 && h[i]==h[j]+1)
+break;
+if (j < n)
+push (i, j, f, e, c);
+else
+lift (i, h, f, c);
+}
+
+int flow = 0;
+for (int i=0; i<n; i++)
+if (c[0][i])
+flow += f[0][i];
+
+cout << max(flow,0);
+
+}</code>

@@ -1,0 +1,73 @@
+the <h1>to Generate combinations of N elements</h1>
+the <h2>Combinations of N elements of K in lexicographical order</h2>
+<p>statement of the problem. Given positive integers N and K Consider the set of integers from 1 to N. you have to print all different subsets of the power K, and in lexicographical order.</p>
+<p>the Algorithm is very simple. The first combination will obviously be a combination of (1,2,...,K). Learn current combinations to find the lexicographically next. To do this, in this combination we find the rightmost element, not yet reached its maximum value; then increment it by one, and all subsequent elements will assign the minimum value.</p>
+<code>bool next_combination (vector<int> & a, int n) {
+int k = (int)a.size();
+for (int i=k-1; i>=0; --i)
+if (a[i] < n-k+i+1) {
+++a[i];
+for (int j=i+1; j<k; j++)
+a[j] = a[j-1]+1;
+return true;
+}
+return false;
+}</code>
+<p>From the performance perspective, this algorithm is linear (in average), if K is not close to N (i.e. if not satisfied that K = N - o(N)). It is enough to prove that the comparison "a[i] < n-k+i+1" are executed in the sum of C<sub>n+1</sub><sup>k</sup> time, i.e. in the (N+1) / (N-K+1) times more than there are combinations of N elements in K.</p>
+the <h2>Combinations of N elements in K with changes in exactly one element</h2>
+<p>you have to write down all combinations of N elements under K, but in such a manner that any two adjacent combinations will differ by exactly one element.</p>
+<p>Intuitively we can immediately notice that this problem is similar to the problem of generating all subsets of a given set in such a manner that when two adjacent subsets differ by exactly one element. This task is solved directly using <algohref=gray_code>gray Code</algohref>: if we each subset we will give a short bitmask, when generating the gray codes using the bit mask, we will get the answer.</p>
+<p>it May seem surprising, but the task of generating combinations is also directly solved by using <b>gray code</b>. Namely, generate gray codes for numbers from 0 to 2<sup>N</sup>-1, and leave only those codes that contain exactly K units. Amazing fact is that in the resulting sequence any two adjacent masks (as well as the first and last masks) are different in exactly two bits that we need.</p>
+<p><b>Prove</b> it.</p>
+<p>To prove this, let us remember the fact that the sequence G(N) gray codes can be obtained in the following way:</p>
+<formula>G(N) = 0G(N-1) ∪ 1G(N-1)<sup>R</sup></formula>
+<p>i.e. take a sequence of gray codes for N-1, appends to the beginning of each mask is 0, add it to the answer; then again take a sequence of gray codes for N-1, invert it, appends to the beginning of each mask and add 1 to the answer.</p>
+<p>Now we can produce proof.</p>
+<p>First, prove that the first and the last mask will be different in exactly two bits. It is enough to notice that the first mask will be of the form N-K zeros and K ones, and the last mask will look like: a unit, then N-K-1 zeros, then K-1 unit. It is easy to prove by induction on N, using the formula given above for the sequence of gray codes.</p>
+<p>Now let us prove that any two adjacent code will be different in exactly two bits. To do this, refer again to the formula for the sequence of gray codes. Let's get into each of the halves (formed from G(N-1)) is true, prove that it is true for the whole sequence. It is enough to prove that it's right in the place of "gluing" the two halves of G(N-1), and it is easy to show, based on what we know first and last elements of these two halves.</p>
+<p>we now Present a naive implementation that works for a 2<sup>N</sup>:</p>
+<code>int gray_code (int n) {
+return n ^ (n >> 1);
+}
+
+int count_bits (int n) {
+int res = 0;
+for (; n; n>>=1)
+res += n & 1;
+return res;
+}
+
+void all_combinations (int n, int k) {
+for (int i=0; i<(1<<n); ++i) {
+int cur = gray_code (i);
+if (count_bits (cur) == k) {
+for (int j=0; j<n; j++)
+if (cur & (1<<j))
+printf ("%d ", j+1);
+puts ("");
+}
+}
+}</code>
+<p>it is Worth noting that possible and in some sense more efficient implementation, which will build all sorts of combinations on the go, and thus working in time O (C<sub>n</sub><sup>k</sup> n). On the other hand, this implementation is a recursive function, and therefore for small n, likely, it has a large hidden constant than the previous solution.</p>
+<p>the Actual implementation itself is a direct following of the formula:</p>
+<formula>G(N,K) = 0G(N-1,K) ∪ 1G(N-1,K-1)<sup>R</sup></formula>
+<p>This formula is easily obtained from the above formula for the sequence warming - we simply choose a subsequence of elements suitable to us.</p>
+<code>bool ans[MAXN];
+
+void gen (int n, int k, int l, int r, bool rev, int old_n) {
+if (k > n || k < 0) return;
+if (!n) {
+for (int i=0; i<old_n; ++i)
+printf ("%d", (int)ans[i]);
+puts ("");
+return;
+}
+ans[rev?r:l] = false;
+gen (n-1, k, !rev?l+1:l, !rev?r:r-1, rev, old_n);
+ans[rev?r:l] = true;
+gen (n-1, k-1, !rev?l+1:l, !rev?r:r-1 !rev, old_n);
+}
+
+void all_combinations (int n, int k) {
+gen (n, k, 0, n-1, false, n);
+}</code>

@@ -1,0 +1,61 @@
+\h1{ Repaso de todos los sub-patrones de esta máscara }
+
+
+\h2{ el Exceso de sub-patrones fijos de la máscara }
+
+Dada la máscara de bits de $m$. Se requiere de manera eficiente para recorrer todos sus sub-patrón, es decir, una máscara de $s$, en los que sólo se pueden incluir los bits que se incluyeron en la máscara de $m$.
+
+En seguida examinaremos la implementación de este algoritmo, basado en trucos del mapa de bits de operaciones:
+
+\code
+int s = m;
+while (s > 0) {
+... se puede utilizar el s ...
+s = (s-1) & m;
+}
+\endcode
+
+o, con más compacto el operador $para$:
+
+\code
+for (int s=m; s; s=(s-1) y m)
+... se puede utilizar el s ...
+\endcode
+
+La única excepción para ambas opciones de código --- patrón de captura igual a cero, es tratada no se. Su tratamiento tiene que madurar de un ciclo, o utilizar la menos atractiva de diseño, por ejemplo:
+
+\code
+for (int s=m; ; s=(s-1)&m) {
+... se puede utilizar el s ...
+if (s==0) break;
+}
+\endcode
+
+Vamos a explicar por qué el código anterior se encuentra realmente todo un sub-patrón de esta máscara, sin repeticiones, O (su número), y en orden descendente.
+
+Supongamos que tenemos una actual patrón de captura de $s$, y queremos pasar a la siguiente sub-patrón. Quitaremos la máscara de $s$ la unidad, lo haremos más a la derecha de un solo bit, y todos los bits a la derecha de él поставятся en $1$. A continuación, vamos a eliminar todos los "sobrantes" de una sola unidad de los bits que no están incluidos en la máscara de $m$ y por lo tanto no pueden entrar en la máscara. La eliminación se realiza de bits de la operación de $\& m$. En consecuencia, "cortaremos" la máscara $s-1$ hasta que el mayor valor que puede tomar, es decir, a la siguiente sub-patrón después de la $s$ en orden descendente.
+
+Por lo tanto, este algoritmo genera todo un sub-patrón de esta máscara en estricto orden descendente, con cada transición de dos funciones básicas.
+
+Especialmente considere momento, cuando $s = 0$. Después de la ejecución $s-1$ obtenemos la máscara, en la que todos los bits activados (bit para la representación del número $-1$), y después de la eliminación de sobrantes de bits de operación $(s-1) \& m$ resulta no que otro, como la máscara de $m$. Por lo tanto, con la máscara $s = 0$ se debe ser cauteloso --- si el tiempo no quedarse en cero la máscara, el algoritmo puede entrar en un bucle infinito.
+
+
+\h2{ Repaso de todas las máscaras con su подмасками. La evaluación de $3^n$ }
+
+En muchos problemas, especialmente en la dinámica de la programación de máscaras, se requiere la enumeración de todas las máscaras, y para cada una de las máscaras de todos los sub-patrones:
+
+\code
+for (int m=0; m<(1<<n); ++m)
+for (int s=m; s; s=(s-1) y m)
+... el uso de la s y la m ...
+\endcode
+
+Demostramos que el bucle interior sumario realizará $O (3^n)$ iteraciones.
+
+\bf{Prueba: 1 método}. Veamos $i$el primer bit. Para él, hablando en general, hay exactamente tres opciones: no se incluye en la máscara de $m$ (y por eso en la máscara de $s$); se incluye en el $m$, pero no entra en la $s$ parte $m$ y $s$. Total de bits de $n$, por lo tanto, diferentes combinaciones de $3^n$, que se quería demostrar.
+
+\bf{Prueba: 2 método}. Tenga en cuenta que si la máscara de $m$ tiene $k$ incluidos bits, lo que será de $2^k$ sub-patrones. Dado que las máscaras de longitud $n$ con $k$ incluidos los bits de es $C_n^k$ (véase \algohref=binomial_coeff{"los coeficientes binomiales también"}), el total de combinaciones:
+
+$$ \sum_{k=0}^n C_n^k 2^k. $$
+
+Calcular esta cantidad. Para ello, tenga en cuenta que ella no es más que otro, como la descomposición en el binomio de newton de la expresión $(1+2)^n$, es decir $3^n$, que se quería demostrar.

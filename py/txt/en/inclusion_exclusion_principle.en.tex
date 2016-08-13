@@ -1,0 +1,483 @@
+\h1{ Principle of inclusions-exceptions }
+
+The principle of inclusions-exceptions --- it is an important combinatorial way to calculate the size of any set or calculate the probability of complex events.
+
+
+\h2{ the Language of principle of inclusions-exceptions }
+
+
+\h3{ Verbal formulation }
+
+The principle of inclusions-exclusions as follows:
+
+To calculate the size of join multiple sets, it is necessary to sum the sizes of these sets \bf{separately}, then subtract the sizes of all the \bf{pairwise} of the intersection of these sets, to add back the sizes of intersections of all kinds \bf{triples} of sets, subtract the sizes of the intersections \bf{fours}, and so on, up to the intersection \bf{all} sets.
+
+
+\h3{ Formulation in terms of sets }
+
+In mathematical form the above verbal formulation is as follows:
+
+$$ \left| \bigcup_{i=1}^n A_i \right| = \sum_{i=1}^n \left| A_i \right| ~~ - \sum_{i,j : \atop 1 \le i < j \le n} \left| A_i \cap A_j \right| ~~ + \sum_{i,j,k : \atop 1 \le i < j < k \le n} \left| A_i \cap A_j \cap A_k \right| ~ - ~ \ldots ~ + ~ (-1)^{n-1} \left| A_1 \cap \ldots \cap A_n \right|. $$
+
+It can be written more compactly, using the sum of the subsets. Denote by $B$ the set whose elements are $A_i$. Then the principle of inclusions-exceptions takes the form:
+
+$$ \left| \bigcup_{i=1}^n A_i \right| = \sum_{C \subseteq B} (-1)^{size(C)-1} \left| \bigcap_{e \in C} e \right|. $$
+
+This formula is attributed to a de Moivre (Abraham de Moivre).
+
+
+\h3{ Wording with the help of Venn diagrams }
+
+Let the chart shows three pieces $A$, $B$ and $C$:
+
+\img{inclusion_exclusion_1.png}
+
+Then the area of their Union $A \cup B \cup C$ is equal to the sum of the areas $A$, $B$ and $C$ minus twice the covered space, $A \cap B$, $A \cap C$, $B \cap C$, but with the addition of triple-coated square $A \cap B \cap C$:
+
+$$ S(A \cup B \cup C) = S(A) ~ + ~ S(B) ~ + ~ S(C) ~ - ~ S(A \cap B) ~ - ~ S(A \cap C) ~ - ~ S(B \cap C) ~ + ~ S(A \cap B \cap C). $$
+
+Similarly, it generalizes also to the Union of $n$ pieces.
+
+
+\h3{ Formulation in terms of probability theory }
+
+If $A_i$ $(i = 1 \ldots n)$ is the event ${\cal P}(A_i)$ --- their probability, then the probability of their Association (i.e., what will happen to at least one of these events) is:
+
+$$$ \begin{eqnarray}
+{\cal P} \left( \bigcup_{i=1}^n A_i \right) & = & \sum_{i=1}^n {\cal P} \left( A_i \right) ~~ - \sum_{i,j : \atop 1 \le i < j \le n} {\cal P} \left( A_i \cap A_j \right) ~~ + \cr
+& + & \sum_{i,j,k : \atop 1 \le i < j < k \le n} {\cal P} \left( A_i \cap A_j \cap A_k \right) ~ - ~ \ldots ~ + ~ (-1)^{n-1} {\cal P} \left( A_1 \cap \ldots \cap A_n \right). \cr
+\nonumber
+\end{eqnarray} $$$
+
+This sum can also be written as a sum on all subsets of $B$ whose elements are the events $A_i$:
+
+$$ {\cal P} \left( \bigcup_{i=1}^n A_i \right) = \sum_{C \subseteq B} (-1)^{size(C)-1} \cdot {\cal P} \left( \bigcap_{e \in C} e \right). $$
+
+
+\h2{ the Proof of principle of inclusions-exceptions }
+
+For the proof it is convenient to use the mathematical formulation in terms of set theory:
+
+$$ \left| \bigcup_{i=1}^n A_i \right| = \sum_{C \subseteq B} (-1)^{size(C)-1} \left| \bigcap_{e \in C} e \right|, $$
+
+where $B$, we recall, is the set consisting of $A_i$ ' s.
+
+We need to prove that any element contained in at least one of the sets $A_i$, the formula will be counted exactly once. (Note that other elements not contained in any $A_i$, can not be considered as absent on the right side of the formula).
+
+Consider an arbitrary element $x$ contained in exactly $k \ge 1$ the sets $A_i$. We will show that it will be calculated by the formula exactly once.
+
+Note that:
+
+\ul{
+
+\li in those summands whose $size(C) = 1$, the element $x$ will be counted exactly $k$ times, with a plus sign;
+
+\li in those summands whose $size(C) = 2$, the element $x$ will be counted (with a minus sign) exactly $C_k^2$ times --- because $x$ will be calculated only in those terms which correspond to two sets of $k$ of sets containing $x$;
+
+\li in those summands whose $size(C) = 3$, the element $x$ will be counted exactly $C_k^3$ times, with a plus sign;
+
+\li $\ldots$
+
+\li in those summands whose $size(C) = k$, the element $x$ will be counted exactly $C_k^k$ times, with the sign $(-1)^{k-1}$;
+
+\li in those summands whose $size(C) > k$, the element $x$ will be counted zero times.
+
+}
+
+Thus, we need to calculate a sum \algohref=binomial_coeff{binomial coefficients}:
+
+$$ T = C_k^1 - C_k^2 + C_k^3 - \ldots + (-1)^{i-1} \cdot C_k^i + \ldots + (-1)^{k-1} \cdot C_k^k. $$
+
+Easiest way to calculate this amount by comparing it to the decomposition of the Newton binomial expression $(1-x)^k$:
+
+$$ (1-x)^k = C_k^0 - C_k^1 \cdot x + C_k^2 \cdot x^2 - C_k^3 \cdot x^3 + \ldots + (-1)^k \cdot C_k^k \cdot x^k. $$
+
+You can see that when $x=1$ the expression $(1-x)^k$, that is, as $1 - T$. Therefore, $T = 1 - (1-1)^k = 1$, what we wanted to prove.
+
+
+\h2{ Application when solving problems }
+
+The principle of inclusions-exclusions are difficult to understand without studying the examples of its applications.
+
+We rst consider three simple tasks on paper, illustrating the application of the principle, then consider the more practical problems which are difficult to solve without using the principle of inclusions-exceptions.
+
+Of particular note the task "finding the number of ways" because it demonstrates that the principle of inclusions-exceptions can sometimes lead to polynomial solutions, but not necessarily exponential.
+
+
+\h3{ Simple problem of permutations }
+
+How many have permutations of the integers from $0$ to $9$, such that the first element greater than $1$, and the last --- less than $8$?
+
+Let's count the number of "bad" permutations, i.e., in which the first element is $\le 1$ and/or the last $\ge 8$.
+
+Denote by $X$ the set of permutations whose first element is $\le 1$, and using $Y$ --- whose last element is $\ge 8$. Then the number of "bad" permutations on the formula of inclusions-exceptions is:
+
+$$ |X| + |Y| - |X \cap Y|. $$
+
+After a simple combinatorial calculation, we obtain that it is equal to:
+
+$$ 2 \cdot 9! + 2 \cdot 9! - 2 \cdot 2 \cdot 8! $$
+
+Subtracting this number from the total number of permutations $10!$, we will get the answer.
+
+
+\h3{ Simple puzzle about the (0,1,2)-sequences }
+
+How many sequences of length $n$ consisting only of the numbers $0,1,2$, and each number occurs at least once?
+
+Again turn to the inverse problem, i.e. we will count the number of sequences in which there is at least one of the numbers.
+
+Denote by $A_i$ ($i = 0 \ldots 2$) the set of sequences that do not meets the number of $i$. Then by the formula of inclusions-exceptions the number of "bad" sequences is equal to:
+
+$$ |A_0| + |A_1| + |A_2| - |A_0 \cap A_1| - |A_0 \cap A_2| - |A_1 \cap A_2| + |A_0 \cap A_1 \cap A_2|. $$
+
+The dimensions of each of the $A_i$ is $ obviously $2^n$ (because such sequences can occur only two digits). The power of each pairwise intersection $A_i \cap A_j$ is equal to $1$ (because there is only one digit). Finally, power, the intersection of all three sets is $ $0$ (since the available figures do not remain).
+
+Remembering how we solved the inverse problem, we obtain final \bf{response}:
+
+$$ 3^n - 3 \cdot 2^n + 3 \cdot 1 - 0. $$
+
+
+\h3{ Number of integer solutions of the equation }
+
+Given the equation:
+
+$$ x_1 + x_2 + x_3 + x_4 + x_5 + x_6 = 20, $$
+
+where $0 \le x_i \le 8$ (where $i = 1 \ldots 6$).
+
+You want to count the number of solutions of this equation.
+
+Forget first about the constraint $x_i \le 8$, and just calculate the number of nonnegative solutions of this equation. This is easily done using \algohref=binomial_coeff{binomial coefficients} --- we want to break the $20$ elements in $6$ groups, i.e. to distribute $5$ "walls" separating groups $25$ places:
+
+$$ N_0 = C_{25}^5 $$
+
+Now calculate by the formula of inclusions-exceptions the number of "bad" solutions, i.e. solutions of the equation in which one or more $x_i$ over $9$.
+
+Denote by $A_k$ (where $k = 1 \ldots 6$) the set of such solutions of the equation in which $x_k \ge 9$ and all other $x_i \ge 0$ (for all $i \ne k$). To calculate the size of the sets $A_k$, note that we have essentially the same combinatorial problem that was resolved in two paragraphs above, but now $9$ elements excluded from consideration and belong to the first group. Thus:
+
+$$ | A_k | = C_{16}^5 $$
+
+Similarly, the capacity of the intersection of two sets $A_k$ and $A_p$ is equal to the number:
+
+$$ \left| A_k \cap A_p \right| = C_7^5 $$
+
+The capacity of each intersection of three or more sets is zero, since the $20$ elements will not be enough for three or more variables, greater than or equal to $9$.
+
+Combining all this into the formula of inclusions-exceptions and given that we solved the inverse problem, finally, we obtain \bf{response}:
+
+$$ C_{25}^5 - C_6^1 \cdot C_{16}^5 + C_6^2 \cdot C_7^5. $$
+
+
+\h3{ Number of mutually Prime numbers in the given range }
+
+I suppose that there are integers $n$ and $r$. You want to count the number of numbers in the interval $[1; r]$, coprime with $n$.
+
+Go straight to the inverse problem --- will count the number not coprime numbers.
+
+Consider all Prime divisors of $n$; we denote them using $p_i$ ($i = 1 \ldots k$).
+
+How many numbers are in the interval $[1;r]$ divisible by $p_i$? Their number is:
+
+$$ \left\lfloor \frac{ r }{ p_i } \right\rfloor $$
+
+However, if we simply sum these numbers, we get the wrong answer --- some numbers will be totaled several times (those who share multiple of $p_i$). Therefore it is necessary to use the formula of inclusions-exceptions.
+
+For example, for $2^k$ to iterate over a subset of the set of all $p_i$ ' s, calculate their product and add or subtract in the formula of inclusions-exceptions next term.
+
+Final \bf{implementation} to count the number of relatively Prime numbers:
+
+\code
+int solve (int n, int r) {
+vector<int> p;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+p.push_back (i);
+while (n % i == 0)
+n /= i;
+}
+if (n > 1)
+p.push_back (n);
+
+int sum = 0;
+for (int msk=1; msk<(1<<p.size()); ++msk) {
+int mult = 1,
+bits = 0;
+for (int i=0; i<(int)p.size(); ++i)
+if (msk & (1<<i)) {
+bits++;
+mult *= p[i];
+}
+
+int cur = r / mult;
+if (bits % 2 == 1)
+sum += cur;
+else
+sum -= cur;
+}
+
+return r; - sum;
+}
+\endcode
+
+Time complexity is $O (\sqrt{n})$.
+
+
+\h3{ the Number of numbers in the given range divisible by at least one of the given numbers }
+
+Given $n$ numbers $a_i$ and the number $r$. You want to count the number of numbers in the interval $[1; r]$, which is divisible by at least one of $a_i$.
+
+The solution algorithm is almost identical to the previous task --- do the formula of inclusions-exceptions on numbers $a_i$, i.e. each term in this formula is the number of numbers divisible by a given subset of numbers $a_i$ (in other words, dividing their \algohref=euclid_algorithm{least common multiple}).
+
+Thus, the solution is to ensure that $2^n$ to iterate over a subset of integers $O(n \log r)$ operations to find their least common multiple, and add or subtract from the response another value.
+
+
+\h3{ Number of rows that satisfy a given number pattern }
+
+Given $n$ patterns --- strings of the same length, consisting only of letters and question marks. Also given the number of $k$. You want to count the number of rows that match exactly $k$ patterns, or, in another formulation, at least $k$ patterns.
+
+Note rst that we can \bf{it is easy to calculate the number of rows} that satisfy all the specified patterns. To do this, just "cross" these patterns: look at the first character (whether in all patterns at the first position is the issue, or in all --- then the first character is unambiguous), the second character, etc.
+
+Learn now to solve \bf{the first variant of the task}: when search strings must satisfy exactly $k$ patterns.
+
+To do this, iterate and sapxaswul a specific subset of $X$ patterns $k$ --- now we need to count the number of rows that satisfy this set of patterns only. For this we use the formula of inclusions-exceptions: we sum over all supersets of a set $X$, and either add to the current answer, or subtracted from it the number of rows that matched the current set:
+
+$$ ans(X) = \sum_{Y \supseteq X} (-1)^{|Y|-k} \cdot f(Y), $$
+
+where $f(Y)$ denotes the number of rows matching a set of patterns $Y$.
+
+If we sum $ans(X)$ for all $X$, we get the answer:
+
+$$ ans = \sum_{X ~ : ~ |X| = k} ans(X). $$
+
+However, we have thus obtained the solution of order $O(3^k \cdot k)$.
+
+The solution can be accelerated by observing that in different $ans(X)$ summation often is conducted on the same sets of $Y$.
+
+Turn over the formula of inclusions-exceptions will be conducting the summation over $Y$. Then it is easy to understand that the set $Y$ fix in $C_{|Y|}^k$ the formula of inclusions-exceptions, everywhere with the same sign of $(-1)^{|Y|-k}$:
+
+$$ ans = \sum_{Y ~ : ~ |Y| \ge k} (-1)^{|Y|-k} \cdot C_{|Y|}^k \cdot f(Y). $$
+
+The solution turned out to be the asymptotic behavior of $O(2^k \cdot k)$.
+
+We now turn to \bf{second type of task}: when the desired row must meet at least $k$ patterns.
+
+Okay, we can just use the first variant of the exercise and summarize the responses from $k$ to $n$. However, you notice that all the arguments will still be correct, only in this version of the task, the sum of $X$ is not just for those sets whose size is equal to $k$, and all sets of size $\ge k$.
+
+Thus, in the final formula before $f(Y)$ will stand another ratio: not the only one binomial coefficient with a sign, and their sum:
+
+$$ (-1)^{|Y|-k} \cdot C_{|Y|}^k ~~ + ~~ (-1)^{|Y|-k-1} \cdot C_{|Y|}^{k+1} ~~ + ~~ (-1)^{|Y|-k-2} \cdot C_{|Y|}^{k+2} ~~ + ~~ \ldots ~~ + ~~ (-1)^{|Y|-|Y|} \cdot C_{|Y|}^{|Y|}. $$
+
+Looking at Graham (\book{Graham, Knuth, Patashnik}{"Concrete mathematics"}{1998}{graham.djvu} ), we see this famous formula for \algohref=binomial_coeff{binomial coefficients}:
+
+$$ \sum_{k=0}^m (-1)^k \cdot C_n^k = (-1)^m \cdot C_{n-1}^m. $$
+
+Applying it here, we obtain that the entire sum of binomial coefficients is minimized to:
+
+$$ (-1)^{|Y|-k} \cdot C_{|Y|-1}^{|Y|-k}. $$
+
+Thus, for this option we would have got the solution with the asymptotic behavior of $O(2^k \cdot k)$:
+
+$$ ans = \sum_{Y ~ : ~ |Y| \ge k} (-1)^{|Y|-k} \cdot C_{|Y|-1}^{|Y|-k} \cdot f(Y). $$
+
+
+\h3{ Number of ways }
+
+There is a field $n \times m$, some $k$ cells --- an impassable wall. On the field in the cell $(1,1)$ (the bottom left cell) is initially the robot. The robot can only move right or up, and eventually it needs to get into the cell $(n,m)$, avoiding all obstacles. You want to count the number of ways he can do it.
+
+Assume that the dimensions $n$ and $m$ very large (say, up to $10^9$), and the number of $k$ --- small (about $100 USD).
+
+To solve for the sake of convenience \bf{sort} the obstacles in the order in which we can get around them: i.e., for example, in the coordinate $x$, and in case of equality --- coordinate $y$.
+
+Also just learn how to solve a problem without obstacles: i.e. to compute the number of ways to walk from one cell to another. If in one coordinate we need to pass $x$ of cells, and on the other --- $y$ of cells, from simple combinatorics we get that formula through \algohref=binomial_coeff{binomial coefficients}:
+
+$$ C_{x+y}^{x} $$
+
+Now to count the number of ways to walk from one cell to another, avoiding all obstacles, you can use \bf{the formula of inclusions-exceptions}: count the number of ways to walk, stepping on at least one obstacle.
+
+For example, to iterate over a subset of those obstacles that we'll step, to count the number of ways to do this (simply multiplying the number of ways to walk from a starting cell until the first of the selected obstacles, the first obstacle to the second, and so on), and then add or subtract this number from the answer, in accordance with the standard formula of inclusions-exceptions.
+
+However, it will again be non-polynomial solution --- for complexity $O (2^k)$. We show how to obtain \bf{a polynomial solution}.
+
+To solve it we \bf{dynamic programming}: learn how to calculate the numbers $d[i][j]$ --- the number of ways to walk from the $i$th dot to the $j$-th, without stepping on any one obstacle (except $i$ and $j$, of course). We will have $k+2$ points as obstacles are added to the start and end cells.
+
+If we for a moment forget about all the obstacles and just count the number of paths from cell $i$ in cell $j$, thus we will consider some of the "bad" path, passing through obstacles. Learn how to count the number of these "bad" ways. Let's consider the first constraint $i < t < j$, on which we step, then the number of paths is equal to $d[i][t]$, multiplied by the number of arbitrary paths from $t$ in $j$. Summing this for all $t$, we count the number of "bad" ways.
+
+Thus, the value of $d[i][j]$, we have learned to believe over time $O(k)$. Therefore, the solution to the problem has complexity $O(k^3)$.
+
+
+\h3{ Number coprime quadruples }
+
+Given $n$ numbers: $a_1, a_2, \ldots, a_n$. You want to count the number of ways to choose four numbers so that their combined greatest common divisor equal to one.
+
+We will solve the inverse problem --- let's count the number of "bad" quadruples, i.e. quadruples for which all numbers can be divided by the number $d > 1$.
+
+We use the formula of inclusions-exceptions by summing the number of groups of four, divisible by the divisor $d$ (but perhaps divisible and the greater the divisor):
+
+$$ ans = \sum_{d \ge 2} (-1)^{deg(d)-1} \cdot f(d), $$
+
+where $deg(d)$ is the number of Prime in the factorization of $d$, $f(d)$ --- the number four is divisible by $d$.
+
+To calculate the function $f(d)$, we just need to count the number of numbers that are multiples of $d$, and \algohref=binomial_coeff{binomial coefficient} to count the number of ways to choose four of them.
+
+Thus, using the formula of inclusions-exceptions we sum the number of groups of four, divisible by a Prime number, then subtract the number four is divisible by the product of two primes, add four, divisible by three simple, etc.
+
+
+\h3{ Number of harmonic triplets }
+
+An integer $n \le 10^6$. Your task is to count the number of such triples of numbers $2 \le a < b < c \le n$, that they are harmonic triads, namely:
+
+\ul{
+
+\li either ${\rm gcd}(a,b) = {\rm gcd}(a,c) = {\rm gcd}(b,c) = 1$,
+\li either ${\rm gcd}(a,b) > 1$, ${\rm gcd}(a,c) > 1$, ${\rm gcd}(b,c) > 1$.
+
+}
+
+First, go straight to the inverse problem --- i.e. count the number of non-harmonic triples.
+
+Secondly, note that in any non-harmonic three exactly two of its numbers are in such a situation, what is the number of mutually simple with one number three, and not one just with a different number of triples.
+
+Thus, the number of non-harmonic triples is the sum of all numbers from $2$ to $n$ the number of mutually simple, with the current number of integers in a number not coprime numbers.
+
+Now all that is left for us to solve the problem is to learn to count for each number in the interval $[2;n]$ the number of numbers relatively Prime (or coprime) with him. Although this task has already been highlighted, this solution is not suitable here --- it will require the factorization of the integers from $2$ to $n$, and then iterate through all sorts of works of primes from the factorization.
+
+Therefore we need a faster solution which calculates the responses for all numbers from the interval $[2;n]$ directly.
+
+To do this you implement such \bf{a modification of the sieve of Eratosthenes}:
+
+\ul{
+
+\li first, we need to find all numbers in the interval $[2;n]$, there is no simple factorization which is not included twice. In addition, for the formula of inclusions-exceptions we need to know how contains a simple factorization of each number.
+
+To do this we need to have the arrays $deg[]$, holds for every integer number in its factorization, and $good[]$ --- for each number $true$ or $false$ --- all simple enter it in degree $\le 1$ or not.
+
+After this, during the sieve of Eratosthenes when processing the next Prime number we go through all the numbers that are multiples of the current number, and increase $deg []$, and all numbers that are multiples of the square of the current simple --- will deliver $good = false$.
+
+\li second, we need to calculate the answer for all integers from $2$ to $n$, i.e. an array $cnt[]$ --- number of integers not coprime with data.
+
+To do this, recall how the formula of inclusions-exceptions --- here we actually implement it, but with inverted logic: if we searched the term and look at the formula of inclusions-exceptions for numbers which this term enters.
+
+So, let's say we have the number $i$ for which $good[]=true$, i.e., the number involved in the formula of inclusions-exceptions. Iterate over all numbers that are multiples of $i$ and the response $cnt[]$ each of these numbers we must add or subtract the value $\lfloor N/i \rfloor$. Sign -a-- addition or subtraction --- depends on $deg[i]$: if $deg[i]$ is odd, then we need to add, otherwise subtract.
+
+}
+
+\bf{Implementation}:
+
+\code
+int n;
+bool good[MAXN];
+int deg[MAXN], cnt[MAXN];
+
+long long solve() {
+memset (good, 1, sizeof good);
+memset (deg, 0, sizeof deg);
+memset (cnt, 0, sizeof cnt);
+
+long long ans_bad = 0;
+for (int i=2; i<=n; ++i) {
+if (good[i]) {
+if (deg[i] == 0) deg[i] = 1;
+for (int j=1; i*j<=n; ++j) {
+if (j > 1 && deg[i] == 1)
+if (j % i == 0)
+good[i*j] = false;
+else
+++deg[i*j];
+cnt[i*j] += (n / i) * (deg[i]%2==1 ? +1 : -1);
+}
+}
+ans_bad += (cnt[i] - 1) * 1ll * (n-1 - cnt[i]);
+}
+
+return (n-1) * 1ll * (n-2) * (n-3) / 6 - ans_bad / 2;
+}
+\endcode
+
+The asymptotics of this solution is $O (n \log n)$, since for almost every number $i$ it makes about $n/i$ iterations of a nested loop.
+
+
+\h3{ Number of permutations without fixed points }
+
+Prove that the number of permutations of length $n$ without fixed points is equal to the following number:
+
+$$ n! - C_n^1 \cdot (n-1)! + C_n^2 \cdot (n-2)! - C_n^3 \cdot (n-3)! + \ldots \pm C_n^n \cdot (n-n)! $$
+
+and approximately equal to the number:
+
+$$ \frac{ n! }{ e } $$
+
+(moreover, if you round this expression to the nearest integer --- you get exactly the number of permutations without fixed points)
+
+Denote by $A_k$ the set of permutations of length $n$ with a fixed point at position $k$ ($1 \le k \le n$).
+
+Let us use now the formula of inclusions-exceptions to count the number of permutations with at least one xed point. To do this we need to learn to count sizes of sets of intersections of the $A_i$, they are as follows:
+
+$$ \left| A_p \right| = (n-1)! ~, $$
+$$ \left| A_p \cap A_q \right| = (n-2)! ~, $$
+$$ \left| A_p \cap A_q \cap A_r \right| = (n-3)! ~, $$
+$$ \ldots ~, $$
+
+because if we know that the number of fixed points is equal to $x$, thus we know the position $x$ of elements of the permutation, and all the other $(n-x)$ of elements can stand anywhere.
+
+Substituting this in the formula of inclusions-exceptions, and given that the number of ways to choose a subset of size $x$ of the $n$-element set is equal to $C_n^x$, we get a formula for the number of permutations with at least one fixed point:
+
+$$ C_n^1 \cdot (n-1)! - C_n^2 \cdot (n-2)! + C_n^3 \cdot (n-3)! - \ldots \pm C_n^n \cdot (n-n)! $$
+
+Then the number of permutations without xed points is equal to:
+
+$$ n! - C_n^1 \cdot (n-1)! + C_n^2 \cdot (n-2)! - C_n^3 \cdot (n-3)! + \ldots \pm C_n^n \cdot (n-n)! $$
+
+Simplifying this expression, we obtain \bf{exact and approximate expressions for the number of permutations without fixed points}:
+
+$$ n! \left( 1 - \frac{1}{1!} + \frac{1}{2!} - \frac{1}{3!} + \ldots \pm \frac{1}{n!} \right) \approx \frac{n!}{e}. $$
+
+(because the sum in brackets is the first $n+1$ members of the decomposition in a Taylor series $e^{-1}$)
+
+In conclusion, it is worth noting that similarly solves the problem, when you want the fixed points of this $m$ the first element of permutations (and not among all, as we just solved). The formula will work the same as the above exact formula, but it is the amount will go up to $k$, not to $n$.
+
+
+
+\h2{ Problem in online judges }
+
+The list of tasks that can be solved by using the principle of inclusions-exceptions:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1266{UVA #10325 \bf{"The Lottery"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2906{UVA #11806 \bf{"Cheerleaders"} ~~~~ [difficulty: easy]}
+
+\li \href=http://www.topcoder.com/stat?c=problem_statement&pm=10875{TopCoder SRM 477 \bf{"CarelessSecretary"} ~~~~ [difficulty: easy]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=6658&rd=10068{TopCoder TCHS 16 \bf{"Divisibility"} ~~~~ [difficulty: easy]}
+
+\li \href=http://www.spoj.pl/problems/NGM2/{SPOJ #6285 NGM2 \bf{"Another Game With Numbers"} ~~~~ [difficulty: easy]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=8470{TopCoder SRM 382 \bf{"CharmingTicketsEasy"} ~~~~ [difficulty: medium]}
+
+\li \href=http://www.topcoder.com/stat?c=problem_statement&pm=8307{TopCoder SRM 390 \bf{"SetOfPatterns"} ~~~~ [difficulty: medium]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=2013{TopCoder SRM 176 \bf{"Deranged"} ~~~~ [difficulty: medium]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=10702&rd=14144&rm=303184&cr=22697599{TopCoder SRM 457 \bf{"TheHexagonsDivOne"} ~~~~ [difficulty: medium]}
+
+\li \href=http://www.spoj.pl/problems/MSKYCODE/{SPOJ #4191 MSKYCODE \bf{"Sky Code"} ~~~~ [difficulty: medium]}
+
+\li \href=http://www.spoj.pl/problems/SQFREE/{SPOJ #4168 SQFREE \bf{"Square-free integers"} ~~~~ [difficulty: medium]}
+
+\li \href=http://www.codechef.com/JAN11/problems/COUNTREL/{CodeChef \bf{"Count Relations"} ~~~~ [difficulty: medium]}
+
+}
+
+
+
+\h2{ Literature }
+
+\ul{
+
+\li \href=http://faculty.wheelock.edu/dborkovitz/articles/ngm6.htm{Debra K. Borkovitz. \bf{"Derangements and the Inclusion-Exclusion Principle"}}
+
+}
+
+

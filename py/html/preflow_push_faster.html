@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Модификация метода Проталкивания предпотока</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Модификация метода Проталкивания предпотока</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Модификация метода Проталкивания предпотока для нахождения максимального потока за O (N&lt;sup&gt;3&lt;/sup&gt;)&lt;/h1&gt;
+
+&lt;p&gt;Предполагается, что вы уже прочитали &lt;algohref=preflow_push&gt;Метод Проталкивания предпотока нахождения максимального потока за O (N&lt;sup&gt;4&lt;/sup&gt;)&lt;/algohref&gt;.&lt;/p&gt;
+&lt;h2&gt;Описание&lt;/h2&gt;
+&lt;p&gt;Модификация чрезвычайно проста: на каждой итерации среди всех переполненных вершин мы выбираем только те вершины, которые имеют &lt;b&gt;набольшую высоту&lt;/b&gt;, и применяем проталкивание/поднятие только к этим вершинам. Более того, для выбора вершин с наибольшей высотой нам не понадобятся никакие структуры данных, достаточно просто хранить список вершин с наибольшей высотой и просто пересчитывать его, если все вершины из этого списка были обработаны (тогда в список добавятся вершины с уже меньшей высотой), а при появлении новой переполненной вершины с большей высотой, чем в списке, очищать список и добавлять вершину в список.&lt;/p&gt;
+&lt;p&gt;Несмотря на простоту, эта модификация позволяет снизить асимптотику на целый порядок. Если быть точным, асимптотика получившего алгоритма равна &lt;b&gt;O (N M + N&lt;sup&gt;2&lt;/sup&gt; sqrt (M))&lt;/b&gt;, что в худшем случае составляет &lt;b&gt;O (N&lt;sup&gt;3&lt;/sup&gt;)&lt;/b&gt;.&lt;/p&gt;
+&lt;p&gt;Эта модификация была предложена Черияном (Cheriyan) и Махешвари (Maheshvari) в 1989 г.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;p&gt;Здесь приведена готовая реализация этого алгоритма.&lt;/p&gt;
+&lt;p&gt;Отличие от обычного алгоритма проталкивания - только в наличии массива maxh, в котором будут храниться номера переполненных вершин с максимальной высотой. Размер массива указан в переменной sz. Если на какой-то итерации оказывается, что этот массив пустой (sz==0), то мы заполняем его (просто проходя по всем вершинам); если после этого массив по-прежнему пустой, то переполненных вершин нет, и алгоритм останавливается. Иначе мы проходим по вершинам в этом списке, применяя к ним проталкивание или поднятие. После выполнения операции проталкивания текущая вершина может перестать быть переполненной, в этом случае удаляем её из списка maxh. Если после какой-то операции поднятия высота текущей вершины становится больше высоты вершин в списке maxh, то мы очищаем список (sz=0), и сразу переходим к следующей итерации алгоритма проталкивания (на которой будет построен новый список maxh).&lt;/p&gt;
+&lt;code&gt;const int INF = 1000*1000*1000;
+
+int main() {
+
+	int n;
+	vector &amp;lt; vector&amp;lt;int&gt; &gt; c (n, vector&amp;lt;int&gt; (n));
+	int s, t;
+	... чтение n, c, s, t ...
+
+	vector&amp;lt;int&gt; e (n);
+	vector&amp;lt;int&gt; h (n);
+	h[s] = n-1;
+	vector &amp;lt; vector&amp;lt;int&gt; &gt; f (n, vector&amp;lt;int&gt; (n));
+
+	for (int i=0; i&amp;lt;n; ++i) {
+		f[s][i] = c[s][i];
+		f[i][s] = -f[s][i];
+		e[i] = c[s][i];
+	}
+
+	vector&amp;lt;int&gt; maxh (n);
+	int sz = 0;
+	for (;;) {
+		if (!sz)
+			for (int i=0; i&amp;lt;n; ++i)
+				if (i != s &amp;&amp; i != t &amp;&amp; e[i] &gt; 0) {
+					if (sz &amp;&amp; h[i] &gt; h[maxh[0]])
+						sz = 0;
+					if (!sz || h[i] == h[maxh[0]])
+						maxh[sz++] = i;
+				}
+		if (!sz)  break;
+		while (sz) {
+			int i = maxh[sz-1];
+			bool pushed = false;
+			for (int j=0; j&amp;lt;n &amp;&amp; e[i]; ++j)
+				if (c[i][j]-f[i][j] &gt; 0 &amp;&amp; h[i] == h[j]+1) {
+					pushed = true;
+					int addf = min (c[i][j]-f[i][j], e[i]);
+					f[i][j] += addf,  f[j][i] -= addf;
+					e[i] -= addf,  e[j] += addf;
+					if (e[i] == 0)  --sz;
+				}
+			if (!pushed) {
+				h[i] = INF;
+				for (int j=0; j&amp;lt;n; ++j)
+					if (c[i][j]-f[i][j] &gt; 0 &amp;&amp; h[j]+1 &amp;lt; h[i])
+						h[i] = h[j]+1;
+				if (h[i] &gt; h[maxh[0]]) {
+					sz = 0;
+					break;
+				}
+			}
+		}
+	}
+
+	... вывод потока f ...
+
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

@@ -1,0 +1,224 @@
+\h1{Correctas скобочные secuencia}
+
+La correcta скобочной de la secuencia se denomina una cadena sólo de los personajes de "el paréntesis" (a menudo sólo se tratan los paréntesis, pero aquí será considerado un caso de varios tipos de paréntesis), donde cada cierre de corchete se encontrará el correspondiente a la apertura (y del mismo tipo).
+
+Aquí vamos a ver los clásicos de la tarea en la correcta скобочные de la secuencia (en adelante, para abreviar, simplemente, "secuencia"): verificación de la exactitud, el número de secuencias, la generación de las secuencias, la búsqueda de un лексикографически la siguiente secuencia, el hallazgo de la $k$-oh secuencia en la lista ordenada de todas las secuencias, y, por el contrario, la definición de los números de la secuencia. Cada una de las tareas de la pondrán en los dos casos, una vez resueltos los paréntesis de un solo tipo, y cuando varios tipos.
+
+
+\h2{Comprobación de la correcta}
+
+Que primero permitidos paréntesis de un solo tipo, entonces comprobar la secuencia correcta es muy simple algoritmo. Que $\rm depth$ --- es el número de paréntesis abiertos. Inicialmente $\rm depth = 0$. Vamos a recorrer la fila de izquierda a derecha, si el corchete de apertura, aumentaremos $\rm depth$ por unidad, de lo contrario, reduciremos. Si una vez resultaba un número negativo, o al final del trabajo, el algoritmo de $\rm depth$ diferente de cero, entonces esta línea no es correcta скобочной de la secuencia, de lo contrario es.
+
+Si se permiten los paréntesis de varios tipos, el algoritmo necesita cambiar. En lugar de un contador de $\rm depth$ debe crear la pila, en la que vamos a poner los paréntesis que a medida que se disponga. Si el carácter actual de la cadena --- paréntesis de apertura, los ponemos en la pila, y si el --- lo comprobamos que la pila no está vacía, y que en su cima est corchete de cierre del mismo tipo que el actual y, a continuación, quitar este soporte de la pila. Si alguna de las condiciones que no estén satisfechos, o al final del trabajo, el algoritmo de la pila no quedó vacía, la secuencia no es la correcta скобочной, de lo contrario es.
+
+Por lo tanto, ambas cosas a la vez hemos aprendido a decidir por hora $O(n)$.
+
+
+\h2{Número de secuencia}
+
+\h3{Fórmula}
+
+El número de respuestas correctas скобочных de secuencia con el mismo tipo de paréntesis se puede calcular como \bf{\algohref=catalan_numbers{número catalana}}. Es decir, si hay $n$ pares de paréntesis (cadena de longitud $2n$), entonces el número será igual a:
+
+$$ \frac{1}{n+1} \cdot C^n_{2n}. $$
+
+Que ahora no hay uno, y $k$ tipos de paréntesis. Entonces cada uno de un par de paréntesis, independientemente de los demás puede tomar uno de $k$ tipos, y por eso recibimos esta fórmula:
+
+$$ \frac{1}{n+1} \cdot C^n_{2n} \cdot k^n. $$
+
+\h3{Dinámica de programación}
+
+Por otro lado, a esta tarea se puede abordar desde el punto de vista \bf{programación dinámica}. Que $d[n]$ --- número de respuestas correctas скобочных secuencias de $n$ pares de paréntesis. Tenga en cuenta que en la primera posición siempre va a estar el paréntesis de apertura. Claro que dentro de este par de paréntesis, vale la pena una correcta скобочная secuencia; de igual modo, después de este par de paréntesis también vale la correcta скобочная la secuencia. Ahora, para calcular $d[n]$, переберем, cuántos pares de paréntesis $i$ de pie dentro de esta primera pareja, entonces, respectivamente, $n-1-i$ de un par de paréntesis va a estar de pie después de la primera pareja. Por lo tanto, la fórmula para $d[n]$ es:
+
+$$ d[n] = \sum_{i=0}^{n-1} d[i] \cdot d[n-1-i]. $$
+
+El valor inicial de la recurrente fórmula-es $d[0] = 1$.
+
+
+\h2{Encontrar todas las secuencias}
+
+A veces es necesario buscar y mostrar todos los скобочные la secuencia que se muestra la longitud de la $n$ (en este caso $n$ --- es la longitud de la cadena).
+
+Para ello, se puede comenzar con лексикографически de la primera secuencia de $((\sum_(())\ldots))$, y luego encontrar cada vez лексикографически la siguiente secuencia con el algoritmo que se describe en la siguiente sección.
+
+Pero si los límites no son muy grandes ($n$ a $10-12$), se puede hacer mucho más fácil. Encontraremos todo tipo de permutaciones de esos corchetes (para ello es conveniente utilizar la función de next_permutation()), será de $C_{2n}^n$, y cada comprobaremos el correcto вышеописанным por el algoritmo, y en el caso de la corrección sacaremos actual de la secuencia.
+
+También en un proceso de búsqueda de las secuencias se puede formalizar en forma recursiva que revienta con отсечениями (que, en teoría, es posible llevar por la velocidad de trabajo hasta el primer algoritmo).
+
+
+\h2{Encontrar la siguiente secuencia}
+
+Aquí sólo se considera el caso de un tipo de paréntesis.
+
+De la correcta скобочной secuencia desea encontrar el correcto скобочную secuencia que se encuentra la siguiente en orden alfabético después de la actual (o extraditar "No solution", si este no existe).
+
+Claro que, en general, el algoritmo es el siguiente: vamos a encontrar esa la derecha el corchete de apertura, que tenemos el derecho de sustituir los espárragos (ya que en este lugar la corrección, no se vea afectado), y el resto a la derecha de la cadena a sustituir el лексикографически mínima: es decir, cuánto de sus paréntesis de apertura y, a continuación, el resto de paréntesis de cierre. En otras palabras, tratamos de dejar sin cambios como la más larga de prefijo de la serie original, y en el sufijo esta secuencia de la sustituimos en la лексикографически mínima.
+
+Queda aprender a buscar esta la posición de la primera de cambio. Para ello, vamos a ir por la línea de derecha a izquierda y de mantener el equilibrio $\rm depth$ corchetes abiertos y cerrados (al encuentro paréntesis vamos a reducir en $\rm depth$, y al cierre --- aumentar). Si en algún momento estamos en el paréntesis izquierdo, y el saldo después del tratamiento de este símbolo es mayor que cero, entonces hemos encontrado la derecha de la posición, de la que podemos empezar a cambiar la secuencia (en realidad, $\rm depth > 0$ significa que la izquierda no existe cerrado aún el paréntesis de cierre). Ponemos en la posición actual de un paréntesis de cierre y, a continuación, el número máximo de apertura de paréntesis, a continuación, el resto de paréntesis de cierre, --- la respuesta se ha encontrado.
+
+Si miramos toda la cadena y no han encontrado la posición adecuada, la secuencia actual --- proteccin, y no hay una respuesta.
+
+La implementación del algoritmo:
+
+\code
+string s;
+cin >> s;
+int n = (int) s.length();
+string ans = "No solution";
+for (int i=n-1, depth=0; i>=0; --i) {
+if (s[i] == '(')
+--depth;
+else
+++depth;
+if (s[i] == '(' && depth > 0) {
+--depth;
+int open = (n-i-1 - depth) / 2;
+int close = n-i-1 - open;
+ans = s.substr(0,i) + ')' + string (open, '(') + string (close, ')');
+break;
+}
+}
+cout << ans;
+\endcode
+
+Por lo tanto, hemos decidido esta tarea $O(n)$.
+
+
+\h2{Número de secuencia}
+
+Aquí vamos de $n$ --- número de pares de paréntesis en la secuencia. Se requiere de la correcta скобочной la secuencia de encontrar su número en la lista de лексикографически organizados correctas скобочных de secuencia.
+
+Aprenderemos a contar de apoyo \bf{dinámica} $d[i][j]$, donde $i$ --- longitud de la скобочной de la secuencia ("полуправильна": toda cierre de corchete hay un baño de vapor en la apertura, pero no todos los paréntesis de apertura cerradas), $j$ --- saldo (es decir, la diferencia entre el número de paréntesis de apertura y cierre), $d[i][j]$ --- cantidad de tales secuencias. Al calcular esta dinámica, creemos que los corchetes son de un solo tipo.
+
+Considerando la dinámica de la siguiente manera. Que $d[i][j]$ --- el valor que queremos calcular. Si $i=0$, entonces la respuesta es claro de inmediato: $d[0][0] = 1$, todos los demás $d[0][j] = 0$. Supongamos ahora $i > 0$, entonces mentalmente переберем, lo que fue es el último carácter de la secuencia. Si él era igual ' ('antes de que este símbolo nos encontrábamos en un estado de $(i-1,j-1)$. Si él era igual a ')', lo anterior es el estado en $(i-1,j+1)$. Por lo tanto, obtenemos la fórmula:
+
+$$ d[i][j] = d[i-1][j-1] + d[i-1][j+1] $$
+
+(se considera que todos los valores de $d[i][j]$ si es negativo $j$ son iguales a cero). Por lo tanto, esta dinámica podemos calcular por $O(n^2)$.
+
+Pasemos ahora a la decisión de la propia tarea.
+
+En primer lugar dejar que sólo se permiten paréntesis \bf{un} tipo. Podamos establecer una contador $\rm depth$ profundidad de anidamiento, en paréntesis, y vamos a seguir por la secuencia de izquierda a derecha. Si el carácter actual $s[i]$ ($i=0, \ldots 2n-1$) es igual '(', aumentamos $\rm depth$ 1 y pasar al siguiente carácter. Si el carácter actual es igual a ')', debemos agregar a la respuesta $d[2n-i-1][\rm depth+1]$, por tanto, teniendo en cuenta que en esta posición podría estar el símbolo '(' (que llevó a la лексикографически lo de la secuencia de que la actual); luego reducimos $\rm depth$ por unidad.
+
+Supongamos ahora permitidos paréntesis \bf{varios} $k$ tipos. Entonces, al examinar el símbolo actual $s[i]$ antes de la conversión de $\rm depth$ tenemos que ordenar a través de todos los paréntesis que menos del símbolo actual, intentando poner este paréntesis de cierre en la posición actual (obteniendo así un balance de $\rm ndepth = \rm depth \pm 1$), y sumar a la respuesta el número de las "colas" - finalizaciones (que tienen una longitud de $2n-i-1$, el saldo de $\rm ndepth$ y $k$ tipos de paréntesis). Se afirma que la fórmula para este número tiene la forma:
+
+$$ d[2n-i-1][{\rm ndepth}] \cdot k^{ (2n-i-1 - {\rm ndepth})/2 }. $$
+
+Esta fórmula se deriva de las siguientes consideraciones. Primero nos "olvidamos" de lo que hay entre corchetes son de varios tipos, y tomamos simplemente la respuesta de los $d[2n-i-1][{\rm ndepth}]$. Ahora contaremos cómo cambia la respuesta debido a la disponibilidad de $k$ tipos de paréntesis. Tenemos $2n-i-1$ nulos de posiciones, de los cuales $\rm ndepth$ son llaves cerrarse alguna de abiertos con anterioridad, --- que significa el tipo de tales paréntesis nos variar y no podemos. Por lo demás, los paréntesis (y sus se $a(2n-i-1 - {\rm ndepth})/2$ pares) pueden ser de cualquiera de los $k$ tipos, por lo que la respuesta se multiplica en este grado el número de $k$.
+
+
+\h2{Encontrar $k$-oh secuencia}
+
+Aquí vamos de $n$ --- número de pares de paréntesis en la secuencia. En esta tarea por un $k$ es necesario encontrar $k$n correcta скобочную la secuencia en la lista de лексикографически secuencias ordenadas.
+
+Como en la sección anterior, consideramos \bf{dinámica} $d[i][j]$ --- número de respuestas correctas скобочных de secuencias de longitud $i$ con un saldo de $j$.
+
+Que primero sólo se permiten paréntesis \bf{un} tipo.
+
+Vamos a seguir por los caracteres de una cadena, con $0$a $2n-1$de la realidad. Como en la tarea anterior, vamos a almacenar el contador de $\rm depth$ --- actual de la profundidad de anidamiento entre paréntesis. En cada posición actual vamos a iterar posible el símbolo de la llave de apertura o final. Supongamos que queremos poner aquí un paréntesis de apertura, entonces debemos mostrar a un valor de $d[i+1][\rm depth+1]$. Si $\ge k$, lo ponemos en la posición de la llave de apertura, aumentamos $\rm depth$ por unidad y pasar al siguiente carácter. De lo contrario, nos llevamos de $k$ el valor $d[i+1][\rm depth+1]$, ponemos un paréntesis de cierre y reducimos el valor de $\rm depth$. Finalmente obtendremos el que busca скобочную la secuencia.
+
+La implementación en el lenguaje Java con la larga de la aritmética:
+
+\code
+int n; BigInteger k; // datos de entrada
+
+BigInteger d[][] = new BigInteger [n*2+1][n+1];
+for (int i=0; i<=n*2; ++i)
+for (int j=0; j<=n; ++j)
+d[i][j] = BigInteger.ZERO;
+d[0][0] = BigInteger.ONE;
+for (int i=0; i<n*2; ++i)
+for (int j=0; j<=n; ++j) {
+if (j+1 <= n)
+d[i+1][j+1] = d[i+1][j+1].add( d[i][j] );
+if (j > 0)
+d[i+1][j-1] = d[i+1][j-1].add( d[i][j] );
+}
+
+String ans = new String();
+if (k.compareTo( d[n*2][0] ) > 0)
+ans = "No solution";
+else {
+int depth = 0;
+for (int i=n*2-1; i>=0; --i)
+if (depth+1 <= n && d[i][depth+1].compareTo( k ) >= 0) {
+ans += '(';
+++depth;
+}
+else {
+ans += ')';
+if (depth+1 <= n)
+k = k.subtract( d[i][depth+1] );
+--depth;
+}
+}
+\endcode
+
+Que ahora se permite no uno, sino \bf{$k$ tipos} paréntesis. Entonces el algoritmo de solución será diferente al anterior caso, sólo el hecho de que debemos домножать valor de $D[i+1][\rm ndepth]$ en la cantidad de $k^{(2n-i-1- \rm ndepth)/2}$, para tener en cuenta, que en este resto podían ser los corchetes de distintos tipos y de pares de paréntesis en este resto será sólo de $2n-i-1- \rm ndepth$, ya que $\rm ndepth$ paréntesis son cerrarse para sus paréntesis de apertura, fuera de ello, el resto (y porque sus tipos de podemos variar no podemos).
+
+Implementación en lenguaje Java para el caso de los dos tipos de paréntesis - redondas y cuadradas:
+
+\code
+int n; BigInteger k; // datos de entrada
+
+BigInteger d[][] = new BigInteger [n*2+1][n+1];
+for (int i=0; i<=n*2; ++i)
+for (int j=0; j<=n; ++j)
+d[i][j] = BigInteger.ZERO;
+d[0][0] = BigInteger.ONE;
+for (int i=0; i<n*2; ++i)
+for (int j=0; j<=n; ++j) {
+if (j+1 <= n)
+d[i+1][j+1] = d[i+1][j+1].add( d[i][j] );
+if (j > 0)
+d[i+1][j-1] = d[i+1][j-1].add( d[i][j] );
+}
+
+String ans = new String();
+int depth = 0;
+char [] stack = new char[n*2];
+int stacksz = 0;
+for (int i=n*2-1; i>=0; --i) {
+BigInteger cur;
+// '('
+if (depth+1 <= n)
+cur = d[i][depth+1].shiftLeft( (i-depth-1)/2 );
+else
+cur = BigInteger.ZERO;
+if (cur.compareTo( k ) >= 0) {
+ans += '(';
+stack[stacksz++] = '(';
+++depth;
+continue;
+}
+k = k.subtract( cur );
+// ')'
+if (stacksz > 0 && stack[stacksz-1] == '(' && depth-1 >= 0)
+cur = d[i][depth-1].shiftLeft( (i-depth+1)/2 );
+else
+cur = BigInteger.ZERO;
+if (cur.compareTo( k ) >= 0) {
+ans += ')';
+--stacksz;
+--depth;
+continue;
+}
+k = k.subtract( cur );
+// '['
+if (depth+1 <= n)
+cur = d[i][depth+1].shiftLeft( (i-depth-1)/2 );
+else
+cur = BigInteger.ZERO;
+if (cur.compareTo( k ) >= 0) {
+ans += '[';
+stack[stacksz++] = '[';
+++depth;
+continue;
+}
+k = k.subtract( cur );
+// ']'
+ans += ']';
+--stacksz;
+--depth;
+}
+\endcode

@@ -1,0 +1,98 @@
+\h1{Finding negative cycle in a graph}
+
+Given a directed weighted graph $G$ with $n$ vertices and $m$ edges. You want to find in it any \bf{a cycle of negative weight}, if any.
+
+In another formulation of the problem --- you want to find \bf{all pairs of vertices}, such that between them there is a path indefinitely short length.
+
+These two versions of the task, it is convenient to solve different algorithms, so I'll describe both of them.
+
+One of the common "life" productions of this problem --- the following: known \bf{exchange rates}, i.e. courses of translation from one currency to another. You want to know if some sequence of exchanges to benefit, i.e. starting with one unit of currency, to get in the end more than one unit of the same currency.
+
+
+\h2{the Solution using the algorithm Ford-Bellman}
+
+\algohref=ford_bellman{Algorithm Ford-Bellman} allows to check the presence or absence of a negative weight cycle in the graph, and if available --- find one of such cycles.
+
+Won't go into details here (which are described in \algohref=ford_bellman{article according to the algorithm Ford-Bellman}), and quote only the result --- then how the algorithm works.
+
+Is $n$ iterations of the algorithm Ford-Bellman, and if in the last iteration there were no changes --- then a negative cycle in the graph no. Otherwise, take a vertex, the distance of which has changed, and we will go from there ancestors until we enter the cycle; this cycle and will desired negative cycle.
+
+\bf{Implementation}:
+
+\code
+struct edge {
+int a, b, cost;
+};
+
+int n, m;
+vector<edge> e;
+const int INF = 1000000000;
+
+void solve() {
+vector<int> d (n);
+vector<int> p (n, -1);
+int x;
+for (int i=0; i<n; ++i) {
+x = -1;
+for (int j=0; j<m; ++j)
+if (d[e[j].b] > d[e[j].a] + e[j].cost) {
+d[e[j].b] = max (-INF, d[e[j].a] + e[j].cost);
+p[e[j].b] = e[j].a;
+x = e[j].b;
+}
+}
+
+if (x == -1)
+cout << "No negative cycle found.";
+else {
+int y = x;
+for (int i=0; i<n; ++i)
+y = p[y];
+
+vector<int> path;
+for (int cur=y; ; cur=p[cur]) {
+path.push_back (cur);
+if (cur == y && path.size() > 1) break;
+}
+reverse (path.begin(), path.end());
+
+cout << "Negative cycle: ";
+for (size_t i=0; i<path.size(); ++i)
+cout << path[i] << ' ';
+}
+}
+\endcode
+
+
+\h2{the Solution using the algorithm of Floyd-Warshell}
+
+\algohref=floyd_warshall_algorithm{Algorithm Floyd-Warshell} allows to solve the second formulation of the problem --- when you have to find all pairs of vertices $(i,j)$, between which the shortest path does not exist (i.e. it has infinitely small magnitude).
+
+Again, more detailed explanations are contained in \algohref=floyd_warshall_algorithm{description of the algorithm of Floyd-Warshell}, and here we give only the result.
+
+After the algorithm of Floyd-Warshell will work for the input graph, iterate over all pairs of vertices $(i,j)$, and for each such pair, check to see infinitely small shortest path from $i$ to $j$ or not. For this, consider every third vertex of $t$, and if it turned out to be $d[t][t]<0$ (i.e. it lies in a cycle of negative weight), and she herself is reachable from $i$ and reachable from $j$ --- then the path $(i,j)$ can have infinitely small length.
+
+\bf{Implementation}:
+
+\code
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; j++)
+for (int t=0; t<n; t++)
+if (d[i][t] < INF && d[t][t] < 0 && d[t][j] < INF)
+d[i][j] = -INF;
+\endcode
+
+
+\h2{Problem in online judges}
+
+The task list in which you want to look for a cycle of negative weight:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=499{UVA #499 \bf{"Wormholes"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=40{UVA #104 \bf{"Arbitrage"} ~~~~ [difficulty: medium]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=1498{UVA #10557 \bf{"XYZZY"} ~~~~ [difficulty: medium]}
+
+}

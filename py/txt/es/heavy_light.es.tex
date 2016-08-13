@@ -1,0 +1,108 @@
+\h1{ Heavy-luz de la descomposición }
+
+\bf{Heavy-luz de la descomposición} --- es genérico de una técnica que permite resolver muchas de las tareas сводящиеся a \bf{consultas en el árbol de la}.
+
+La más sencilla \bf{ejemplo} tareas de este tipo --- es la siguiente tarea. Dado un árbol, cada vértice de la cual se atribuye un cierto número. Se recibe la solicitud de la vista $(a,b)$, donde $a$ y $b$ --- los números de los vértices de un árbol, y se desea determinar el número máximo en el camino entre las cimas de $a$ y $b$.
+
+
+\h2{ Descripción del algoritmo }
+
+Por tanto, que dado un árbol de $G$ c $n$ vértices, suspendida por un poco de la raíz.
+
+La esencia de este esquema jerárquico que \bf{dividir el árbol en varias rutas} por lo tanto, para cualquier vértice $v$ resultaba que si nos vamos a subir de $v$ a la raíz, por el camino cambiemos de no más de $\log n$ de las vías. Además, todos los caminos no deben cruzarse entre sí por los bordes.
+
+Claro que si aprendemos a buscar esa estructura de desglose para cualquier árbol, esto permitirá reducir cualquier solicitud tipo "aprender algo en el camino de la $a$ a $b$" a varias de las peticiones de los tipos de "aprender algo en el intervalo $[l;r]$ $k$del camino".
+
+
+\h3{ la Construcción de heavy-light de la descomposición }
+
+Calcular para cada vértice $v$ el tamaño de su subárbol $s(v)$ (es decir, el número de vértices en el subárbol de la cima de $v$, incluida la propia cima).
+
+A continuación, veamos cada una de sus costillas, que lleva a los hijos de cualquiera de los vértices $v$. Llamaremos a la arista $(v,c)$ \bf{pesado}, si se mantiene en la cima de la $c$ tal que:
+
+$$ s(c) \ge \frac{ s(v) }{ 2 } ~~~~ \Leftrightarrow ~~~~ {\rm edge} ~ (v,c) ~ {\rm is ~ heavy}. $$
+
+El resto de la aleta de la llamaremos \bf{ligeras}. Es evidente que desde la misma cima de $v$ abajo puede venir con un máximo de una pesada borde (ya que en caso contrario, cerca de la cima de $v$, sería de dos de los hijos de tamaño $s(v)/2$, que teniendo en cuenta la cima de la $v$ da el tamaño de $2 \cdot s(v) / 2 + 1 > s(v)$, es decir, han llegado a una contradicción).
+
+Ahora construiremos la \bf{descomposición} madera en discontinuo camino. Considere todos los vértices, de los cuales no sale de abajo ni en una pesada costillas, y vamos a seguir de cada uno de ellos hacia arriba, hasta que no lleguemos a la raíz de un árbol o no pasaremos fácil arista. Como resultado obtenemos varias rutas --- mostraremos que es la búsqueda de la ruta de heavy-light de descomposición.
+
+
+\h3{ Prueba de la exactitud del algoritmo }
+
+En primer lugar, tenga en cuenta que los resultados obtenidos por el algoritmo de ruta \bf{непересекающимися}. En realidad, si dos de cualquier tipo de camino tendrían general arista, significaría que de algún viene de la cima hacia abajo de los dos pesados de la aleta, lo que no puede ser.
+
+En segundo lugar, mostraremos que bajando desde la raíz del árbol hasta arbitraria de la cima, nos \bf{cambiemos por el camino de no más de $\log n$ rutas de acceso}. En realidad, el pasaje hacia abajo por la fácil arista reduce el tamaño actual del subárbol más de la mitad:
+
+$$ s(c) < \frac{ s(v) }{ 2 } ~~~~ \Leftrightarrow ~~~~ {\rm edge} ~ (v,c) ~ {\rm is ~ light}. $$
+
+Por lo tanto, no podíamos pasar más de $\log n$ los pulmones de las costillas. Sin embargo, pasar de un camino a otro sólo podemos a través de la fácil arista (porque cada ruta, además de finalizan en la raíz, contiene fácil de borde en el extremo; y caer justo en medio del camino no podemos).
+
+Por lo tanto, por el camino de la raíz a cualquier cima no podemos cambiar más de $\log n$ de las vías que se quería demostrar.
+
+
+\h2{ Aplicación en la solución de problemas }
+
+En la solución de problemas, a veces es conveniente considerar heavy-light como el conjunto de \bf{вершинно-discontinuo} caminos (y no реберо-discontinuo). Para ello, lo suficiente de cada una de las rutas de suprimir la última costilla, si es que son de fácil aleta --- entonces ninguna de las propiedades no нарушатся, pero ahora cada vértice será el propietario de exactamente el mismo camino.
+
+A continuación veremos algunos típicos de las tareas que puede realizar con la ayuda de heavy-light de descomposición.
+
+Vale la pena prestar atención a la tarea de \bf{la suma de los números en el camino}, ya que es un ejemplo de un problema que puede ser resuelto y más simples de los técnicos.
+
+
+\h3{ el número Máximo en el camino entre dos vértices }
+
+Dado un árbol, cada vértice de la cual se atribuye un cierto número. Se recibe la solicitud de la vista $(a,b)$, donde $a$ y $b$ --- los números de los vértices de un árbol, y se desea determinar el número máximo en el camino entre las cimas de $a$ y $b$.
+
+Construir de antemano heavy-light estructura de desglose. Encima de cada una resultante mediante construiremos \algohref=segment_tree{árbol de regiones para el máximo}, que permitirá la búsqueda de la cima, con un máximo asignados un número determinado segmento de la ruta por el $O (\log n)$. Aunque el número de rutas en la heavy-light de descomposición puede llegar a $n-1$, el tamaño total de todos los caminos es la cantidad de $O(n)$, y por lo tanto, el tamaño total de los árboles de regiones también es lineal.
+
+Ahora, para responder a una petición formulada la consulta $(a,b)$ encontraremos un mínimo común antepasado $l$ de estos vértices (por ejemplo, \algohref=lca_simpler{método binario de elevación}). Ahora la tarea se tradujo a dos demandas: $(a,l)$ y $(b,l)$, en cada uno de los cuales podemos responder de una manera: la encontramos, en qué camino hay una baja cima, haremos una consulta a esta ruta, pasaremos a la cima-el final de este camino, de nuevo se determinará en qué que estamos en el camino se encontraban y haremos la consulta a él, y así sucesivamente, hasta que no lleguemos ruta de acceso que contiene $l$.
+
+Con cuidado se debe tener con el caso cuando, por ejemplo, $a$ y $de l$ se encontraban en el mismo camino --- entonces la consulta máximo de este viaje es necesario hacer no en el sufijo, y en el interior подотрезке.
+
+Por lo tanto, en el proceso de responder a una subconsulta, pasaremos por $O (\log n)$ caminos, en cada uno de ellos haciendo la solicitud de alta en el sufijo o prefijo/подотрезке (solicitud de un prefijo/подотрезке podía ser sólo una vez).
+
+Así tenemos la solución a $O (\log^2 n)$ en una sola consulta.
+
+Si, adicionalmente предпосчитать en cada ruta de acceso máximos en todos los sufijos, se obtiene una solución a $O (n \log n)$ --- ya que la consulta máximo, y no en el sufijo sucede sólo una vez, cuando llegamos a la cima de $l$.
+
+
+\h3{ la Suma de los números en el camino entre dos vértices }
+
+Dado un árbol, cada vértice de la cual se atribuye un cierto número. Se recibe la solicitud de la vista $(a,b)$, donde $a$ y $b$ --- los números de los vértices de un árbol, y se desea saber la cantidad de números en el camino entre las cimas de $a$ y $b$. Es posible la variante de esta tarea, cuando avanzadas son las solicitudes de cambio en el número asignado de una u otra cima.
+
+Aunque esta tarea se puede resolver con la ayuda de heavy-light de descomposición, construido encima de cada una mediante el árbol de regiones para la suma (o simplemente предпосчитав parciales cantidad, si la tarea no existen solicitudes de cambio), esta tarea puede ser resuelto \bf{más simples técnicas}.
+
+Si las solicitudes de modificación faltan, conocer la cantidad en el camino entre dos vértices se puede en paralelo con la búsqueda de la LCA dos vértices en \algohref=lca_simpler{el algoritmo binario de elevación} --- para esto es suficiente en el momento de препроцессинга para LCA contar no sólo de $2^k$-los antepasados de cada vértice, sino la suma de los números en el camino hasta este antepasado.
+
+Hay fundamentalmente un enfoque diferente a esta tarea --- considerar эйлеров recorrer el árbol, y construir un árbol de líneas sobre él. Este algoritmo se considera \algohref=tree_painting{artículo con la decisión de semejante tarea}. (A menos que las solicitudes de modificación faltan --- lo suficiente para pasar предпосчетом las sumas parciales, sin un árbol de regiones.)
+
+Ambos métodos permiten relativamente simples de decisión, con асимптотикой $O (\log n)$ en una sola consulta.
+
+
+\h3{ Repintado de aristas del camino entre dos vértices }
+
+Dado un árbol, de cada costilla originalmente pintado en color blanco. Se recibe la solicitud de la vista $(a,b,c)$, donde $a$ y $b$ --- los números de los vértices, $c$ --- el color, lo que significa que todas las aristas en el camino de la $a$ a $b$ es necesario pintar en un color $c$. Es necesario después de todos los перекрашиваний indicar el número en total de aristas de cada color.
+
+Solución --- simplemente hacer \algohref=segment_tree{árbol de regiones con la pintura en el tramo} en el conjunto de las vías de heavy-light de descomposición.
+
+Cada solicitud de volver a pintar en el camino de la $(a,b)$ se convertirá en dos subconsultas $(a,l)$ y $(b,l)$, donde $l$ --- el menor de los ancestro común de los vértices de $a$ y $b$ (encontrado, por ejemplo, \algohref=lca_simpler{el algoritmo binario de elevación}), y cada uno de estos subconsultas --- a $O (\log n)$ de consultas a los árboles de regiones sobre los caminos.
+
+Total se obtiene una solución con асимптотикой $O (\log^2 n)$ en una sola consulta.
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver con la heavy-light estructura de desglose:
+
+\ul{
+
+\li \href=http://acm.timus.es/problem.aspx?space=1&num=1553{TIMUS #1553 \bf{"Caves and change"} ~~~~ [dificultad media]}
+
+\li \href=http://ipsc.ksp.sk/contests/ipsc2009/real/problems/l.php{IPSC 2009 L \bf{"Let there be rainbows!"} ~~~~ [dificultad media]}
+
+\li \href=http://www.spoj.pl/problemas/QTREE3/{SPOJ #2798 \bf{"Query on a tree again!"} ~~~~ [dificultad media]}
+
+\li \href=http://codeforces.es/contest/117/problem/E{Codeforces Beta Round #88 E \bf{"Árbol o no el árbol"} ~~~~ [nivel de dificultad: alto] }
+
+}

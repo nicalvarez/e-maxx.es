@@ -1,0 +1,109 @@
+\h1{ Sieve of Eratosthenes with linear time }
+
+Given a number $n$. You want to find \bf{simple} in the interval $[2; n]$.
+
+The classic way of solving this problem --- \bf{\algohref=eratosthenes_sieve{sieve of Eratosthenes}}. This algorithm is very simple, but works in time $O (n \log \log n)$.
+
+Although at present there are known many algorithms working in sublinear time (i.e. $o(n)$), the following algorithm is interesting for its \bf{simplicity} --- it is practically not more complicated than the classic sieve of Eratosthenes.
+
+In addition, the algorithm presented here as a "side effect" actually computes \bf{factorization of all numbers} in the interval $[2; n]$, which can be useful in many practical applications.
+
+The disadvantage of the above algorithm is that it uses \bf{memory} than the classic sieve of Eratosthenes: you want to make an array of $n$ numbers, while the classic sieve of Eratosthenes need only $n$ bits of memory (that turns to $32$ times less).
+
+Thus, the described algorithm has a sense only be applied to numbers of order $10^7$, not more.
+
+The authorship of the algorithm, apparently, belongs to Grice and Misra (Gries, Misra, 1978 --- see list of references at the end). (And, strictly speaking, to call this algorithm "sieve of Eratosthenes" is incorrect: too difference between these two algorithms.)
+
+
+\h2{ algorithm Description }
+
+Our aim is to calculate for each number $i$ in the interval $[2; n]$ it \bf{minimal Prime divisor} $lp[i]$.
+
+In addition, we will need to store the list of found Prime numbers --- let's call it array - $pr[]$.
+
+Initially all values $lp[i]$ will fill with zeros, which means that we assume all numbers are simple. In the course of the algorithm this array will gradually fill.
+
+We will now iterate over the current number $i$ from $2$ to $n$. We can have two cases:
+
+\ul{
+
+\li $lp[i] = 0$ --- this means that the number $i$ is a Prime number, because he never showed other factors.
+
+Therefore, we must set the $lp[i] = i$, add $i$ to the list $pr[]$.
+
+\li $lp[i] \ne 0$ --- this means that the current number $i$ --- compound, and the minimum divisor is a simple $lp[i]$.
+
+}
+
+In both cases, then begins the process \bf{hyphenation values} in the array $lp[]$: we will take the number, \bf{multiples} of $i$, and update their value to $lp[]$. However, our goal is to learn how to do it so that in the end of each number the value to $lp[]$ would be set to no more than once.
+
+It is claimed that you can act accordingly. Consider numbers of the form:
+
+$$ x_j = i \cdot integer, $$
+
+where the sequence $integer$ --- this is all simple, not exceeding $lp[i]$ (just for this we need to store a list of all Prime numbers).
+
+All numbers of this type put the new value, $lp[x_j]$ --- obviously, it will equal $integer$.
+
+Why this algorithm is correct and why it runs in linear time --- see, now see its implementation.
+
+
+\h2{ the Implementation }
+
+The sieve is performed before specified in the constant number $N$.
+
+\code
+const int N = 10000000;
+int lp[N+1];
+vector<int> pr;
+
+for (int i=2; i<=N; ++i) {
+if (lp[i] == 0) {
+lp[i] = i;
+pr.push_back (i);
+}
+for (int j=0; j<(int)pr.size() && pr[j]<=lp[i] && i*pr[j]<=N; ++j)
+lp[i * pr[j]] = pr[j];
+}
+\endcode
+
+This implementation can speed up a bit by getting rid of the vector $pr$ (replacing it with a simple array with counter), as well as getting rid of the duplicate multiplication in the inner loop, $for$ (for which the result works you just have to remember a particular variable).
+
+
+\h2{ Proof of correctness }
+
+Let us prove \bf{correctness} of the algorithm, i.e. that it correctly puts all the values in $lp[]$, and each of them will be set exactly once. Here will follow that the algorithm works in linear time --- since all the other steps of the algorithm, obviously, work for $O (n)$.
+
+To this end, note that any number $i$ \bf{unique view} of this type:
+
+$$ i = lp[i] \cdot x, $$
+
+where $lp[i]$ --- (as before) the minimum Prime divisor of $i$ and the number $x$ has no divisors smaller than $lp[i]$, i.e.:
+
+$$ lp[i] \le lp[x]. $$
+
+Now compare this with the fact that makes our algorithm --- it's actually for every $x$ goes through all of the simple which it can multiply, i.e. simple to $lp[x]$, inclusive, to obtain the numbers in the above presentation.
+
+Therefore, the algorithm indeed will be held for each composite number exactly once, putting it the correct value, $lp[]$.
+
+This means the correctness of the algorithm and that it runs in linear time.
+
+
+\h2{ Time and memory required }
+
+Although the asymptotic behavior of $O (n)$ asymptotics is better than $O (n \log \log n)$ of the classical sieve of Eratosthenes, the difference between them is small. In practice this means only two-fold difference in speed, and optimized versions of the sieve of Eratosthenes and does not lose listed here the algorithm.
+
+Considering the cost of memory required by this algorithm --- the array $lp[]$ of length $n$ and an array of all simple $pr[]$ of length roughly $n / \ln n$ --- this algorithm seems inferior to the classical sieve on all counts.
+
+However, it saves that array $lp[]$, computed by this algorithm allows to look for a factorization of any number in the interval $[2; n]$ for the order of the size of this factorization. Moreover, the price of one extra array, you can do that in this factorization does not require a division operation.
+
+The knowledge of the factorization of all numbers --- very useful information for some tasks, and this algorithm is one of the few that allow you to look for it in linear time.
+
+
+\h2{ Literature }
+
+\ul{
+
+\li David Gries, and Jayadev Misra. \bf{A Linear Sieve Algorithm for Finding Prime Numbers} [1978]
+
+}

@@ -1,0 +1,76 @@
+\h1{Topological sorting}
+
+Given a directed graph with $n$ vertices and $m$ edges. Required \bf{renumber} of its vertices such that every edge led from a vertex with smaller number to the vertex with a large.
+
+In other words, you want to find a permutation of the vertices (\bf{in topological order}), corresponding to the order defined by all edges of the graph.
+
+Topological sort can be \bf{only} (for example, if the graph is empty; or if there are three such vertices $a$, $b$, $c$, of $a$ are paths in $b$ and $c$, but neither $b$ in $c$ or from $c$ to $b$ cannot be reached).
+
+Topological sorting can \bf{not exist} at all --- if the graph contains cycles (as in this case there is a contradiction: there is a path from one vertex to another and Vice versa).
+
+\bf{Common} for topological sorting --- this. There are $n$ variables whose values are unknown to us. We know only about some pairs of variables, that one variable is smaller than the other. You want to check, not controversial whether these inequalities, and if not, to give the variables in ascending order (if there are multiple solutions to any issue). It is easy to notice that this exactly is the task about finding a topological sorting in the graph of the $n$ vertices.
+
+
+\h2{Algorithm}
+
+To resolve use \algohref=dfs{depth}.
+
+Assume that the graph is acyclic, i.e. there is a solution. What does the depth? When starting from some vertex $v$ is trying to run it along all edges emanating from $v$. Along those edges, the ends of which have already been previously visited, it does not pass, and along all other --- goes and calls themselves from them.
+
+Thus, by the time of the call ${\rm dfs}(v)$ of all vertices reachable from $v$ as a direct (one edge), and indirectly (on the way) --- all such vertices already visited. Consequently, if we at the time of exit of ${\rm dfs}(v)$ to add our top to the beginning of a list, then finally in this list get \bf{topological sort}.
+
+These explanations can also be presented in a slightly different light, using the concept of \bf{"time"} of depth. Output time for each vertex $v$ is a point in time in which you finished calling ${\rm dfs}(v)$ of depth from her (the time when you can sanomalehti from $1$ to $n$). It is easy to understand that when the DFS recovery time from any vertex $v$ is always greater than the output of all vertices reachable from it (because they had either visited prior to calling ${\rm dfs}(v)$, or during it). Thus, the desired topological sort is sorting in descending order of exit times.
+
+
+\h2{the Implementation}
+
+Here is an implementation, assuming that the graph is acyclic, i.e., the desired topological sort exists. If necessary, check the graph on acyclicity easy to insert in the depth, as described in \algohref=dfs{article in depth -}.
+
+\code
+int n; // number of vertices
+vector<int> g[MAXN]; // count
+bool used[MAXN];
+vector<int> ans;
+
+void dfs (int v) {
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (!used[to])
+dfs (to);
+}
+ans.push_back (v);
+}
+
+void topological_sort() {
+for (int i=0; i<n; ++i)
+used[i] = false;
+ans.clear();
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs (i);
+reverse (ans.begin(), ans.end());
+}
+\endcode
+
+Here the constant $\rm MAXN$ value must be set equal to the maximum possible number of vertices in the graph.
+
+The main function of the solution is topological_sort, it initializes the marking depth, starts it, and the answer is the result is a vector in $\rm ans$.
+
+
+\h2{Problem in online judges}
+
+The task list in which you want to search for topological sorting:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1246{UVA #10305 \bf{"Ordering of Tasks"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=60{UVA #124 \bf{"Following Orders"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=136{UVA #200 \bf {a"Rare Order"} ~~~~ [difficulty: easy]}
+
+
+
+}
+

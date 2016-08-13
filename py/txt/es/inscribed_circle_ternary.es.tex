@@ -1,0 +1,95 @@
+<h1>Estar inscrito en la circunferencia en el выпуклом polígono con la ayuda de тернарного de la búsqueda</h1>
+
+<p>Dan un polígono convexo de N vértices. Es necesario encontrar las coordenadas del centro y el radio de la mayor circunferencia inscrita.</p>
+<p>Aquí se describe un método sencillo de realizar esta tarea con la ayuda de dos тернарных de búsqueda, trabaja en el <b>O (N log<sup>2</sup> C)</b>, donde C es el coeficiente definido por el valor de las coordenadas y de la precisión requerida (véase a continuación).</p>
+<h2>el Algoritmo de</h2>
+<p>Definimos la función de <b>Radius (X, Y)</b>, que devuelve el radio inscrita en el polígono de la circunferencia con centro en el punto (X;Y). Se supone que los puntos X e y se encuentran en el interior (o en el borde) de un polígono. Obviamente, esta función es fácil de implementar con асимптотикой <b>O (N)</b> es simplemente pasamos por todos los lados de un polígono, consideramos para cada distancia hasta el centro de la ciudad (y la distancia se puede tomar como la de una línea recta hasta el punto de que, no necesariamente considerarse como un trozo), y devolvemos el mínimo de las distancias encontradas - obviamente, es y será el mayor radio.</p>
+<p>por lo tanto, tenemos que maximizar esta función. Tenga en cuenta que, dado que un polígono convexo, esta función estará disponible para <b>тернарного de la búsqueda</b> en ambos argumentos: cuando se fija X<sub>0</sub> (por supuesto, tal que la recta X=X<sub>0</sub> cruza el polígono) la función de Radius(X<sub>0</sub>, Y) como una función de un argumento Y será el primero crecer, luego desplomarse (de nuevo, solo tenemos en cuenta tales Y, que el punto (X<sub>0</sub>, Y) pertenece a un polígono). Además, la función max (Y) { Radius (X, Y) } como una función de un argumento de X será el primero crecer, luego de desplomarse. Estas propiedades son claras de consideraciones geométricas.</p>
+<p>Por lo tanto, necesitamos hacer dos тернарных de la búsqueda: X y dentro de él Y, lo que maximiza el valor de la función de Radius. El único momento especial - es necesario seleccionar correctamente la frontera тернарных de las búsquedas, ya que el cálculo de la función de Radius fuera del polígono será erróneo. Para la búsqueda de X no hay ningún problema, simplemente escogemos абсциссу la más a la izquierda y la derecha del punto. Para buscar Y encontramos los segmentos del polígono, en el que se encuentra la actual X, y encontramos a la coordenada de los puntos de estas regiones cuando la abscisa X (vertical cortes no vemos).</p>
+<p>se Quedó estimar el <b>асимптотику</b>. Deje que el valor máximo que puede tomar las coordenadas de la - C<sub>1</sub> y precisión requerida es del orden de 10<sup>-C<sub>2</sub></sup>, y que C = C<sub>1</sub> + C<sub>2</sub>. Entonces el número de pasos que debe realizar cada terciario búsqueda, es la cantidad de O (log (C), y el total asíntotas se obtiene: O (N log<sup>2</sup> C).</p>
+<h2>Realización</h2>
+<p>la Constante de steps determina el número de pasos de ambos тернарных de las búsquedas.</p>
+<p>En la aplicación de la pena señalar que para cada una de las partes una vez предпосчитываются los factores en la ecuación de la recta, y de inmediato se normalizan (se dividen en sqrt(A<sup>2</sup>+B<sup>2</sup>)), para evitar el exceso de operaciones dentro de la тернарного de búsqueda.</p>
+<code>const double EPS = 1E-9;
+int steps = 60;
+
+struct pt {
+double x, y;
+};
+
+struct line {
+double a, b, c;
+};
+
+double dist (double x, double y, line & l) {
+return abs (x * l.a + y * l.b + l.c);
+}
+
+double radius (double x, double y, vector<line> & l) {
+int n = (int) l.size();
+double res = INF;
+for (int i=0; i<n; ++i)
+res = min (res, dist (x, y, l[i]));
+return res;
+}
+
+double y_radius (double x, vector<pt> & a, vector<line> & l) {
+int n = (int) a.size();
+double ly = INF, ry = -INF;
+for (int i=0; i<n; ++i) {
+int x1 = a[i].x, x2 = a[(i+1)%n].x, y1 = a[i].y, y2 = a[(i+1)%n].y;
+if (x1 == x2) continue;
+if (x1 > x2) swap (x1, x2), swap (y1, y2);
+if (x1 <= x+EPS && x-EPS <= x2) {
+double y = y1 + (x - x1) * (y2 - y1) / (x2 - x1);
+ly = min (ly, y);
+ry = max (ry, y);
+}
+}
+for (int sy=0; sy<steps; ++sy) {
+double diff = (ry - ly) / 3;
+double y1 = ly + diff, y2 = ry - diff;
+double f1 = radius (x, y1, l), f2 = radius (x, y2, l);
+if (f1 < f2)
+ly = y1;
+else
+ry = y2;
+}
+return radius (x, ly, l);
+}
+
+int main() {
+
+int n;
+vector<pt> a (n);
+... lectura a ...
+
+vector<line> l (n);
+for (int i=0; i<n; ++i) {
+l[i].a = a[i].y - a[(i+1)%n].y;
+l[i].b = a[(i+1)%n].x - a[i].x;
+double sq = sqrt (l[i].a*l[i].a + l[i].b*l[i].b);
+l[i].a /= sq, l[i].b /= sq;
+l[i].c = - (l[i].a * a[i].x + l[i].b * a[i].y);
+}
+
+double lx = INF, rx = -INF;
+for (int i=0; i<n; ++i) {
+lx = min (lx, a[i].x);
+rx = max (rx, a[i].x);
+}
+
+for (int sx=0; sx<stepsx; sx++) {
+double diff = (rx - lx) / 3;
+double x1 = lx + diff, x2 = rx - diff;
+double f1 = y_radius (x1, a, l), f2 = y_radius (x2, a, l);
+if (f1 < f2)
+lx = x1;
+else
+rx = x2;
+}
+
+double ans = y_radius (lx, a, l);
+printf ("%.7lf", ans);
+
+}</code>

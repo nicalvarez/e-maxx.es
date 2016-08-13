@@ -1,0 +1,46 @@
+<h1>Búsqueda en profundidad</h1>
+
+<p>Es uno de los principales algoritmos de las columnas.</p>
+<p>como resultado De la búsqueda en profundidad se encuentra лексикографически la primera ruta en la columna.</p>
+<p>el Algoritmo funciona de <b>O (N+M)</b>.</p>
+<h2>Uso de un algoritmo</h2>
+<ul>
+<li>Búsqueda de cualquier camino en la columna.</li>
+<li>Búsqueda de лексикографически primera ruta en la columna.</li>
+<li>Comprobar si un vértice de un árbol el antepasado de la otra:<br>al principio y Al final de la iteración de la búsqueda en profundidad se deben recordar "el tiempo" de la puesta y la salida en cada vértice. Ahora a por el O(1) se puede encontrar la respuesta: el vértice i es el antepasado de la cima j entonces, y sólo entonces, cuando start<sub>i</sub> < inicio<sub>j</sub> y end<sub>i</sub> > end<sub>j</sub>.</li>
+<li><algohref=lca>Tarea de LCA (la menor ancestro común)</algohref>.</li>
+<li><algohref=topological_sort>Топологическая ordenar</algohref>:<br>poniendo en marcha una serie de búsquedas en profundidad, para evitar todos los vértices del grafo. Ordenará a la cima de la hora de salida descendente es y será la respuesta.</li>
+<li><algohref=finding_cycle>Comprobación de conde de la ацикличность y la búsqueda de ciclo</algohref></li>
+<li><algohref=strong_connected_components>Buscar un componente fuerte de la conectividad</algohref>:<br>en primer lugar hacemos топологическую la clasificación, luego транспонируем conde y pasamos de nuevo una serie de búsquedas en profundidad en la forma que determine el topológicas de ordenación. Cada árbol de búsqueda - сильносвязная componente.</li>
+<li><algohref=bridge_searching>Buscar puentes</algohref>:<br>en primer lugar haremos el conde de centrado, haciendo una serie de búsquedas en profundidad, y orientando cada arista así, como hemos intentado pasar por él. A continuación, encontramos сильносвязные componentes. Los puentes son las costillas, los extremos de los cuales pertenecen a diferentes сильносвязным componentes.</li>
+</ul>
+<h2>Realización</h2>
+<code>vector < vector<int> > g; // el conde de
+int n; // el número de vértices
+
+vector<int> color; // color de los vértices (0, 1, o 2)
+
+vector<int> time_in, time_out; // "tiempos" de la puesta y la salida de la cima
+int dfs_timer = 0; // "timer" para la determinación de los tiempos
+
+void dfs (int v) {
+time_in[v] = dfs_timer++;
+color[v] = 1;
+for (vector<int>::iterator i=g[v].begin(); i!=g[v].end(); ++i)
+if (color[*i] == 0)
+dfs (*i);
+color[v] = 2;
+time_out[v] = dfs_timer++;
+}</code>
+<p>este Es el más común de código. En muchos casos, los tiempos de la puesta y la salida de los vértices no son importantes, así como no son importantes los colores de los vértices (pero entonces tendrá que introducir el equivalente en el sentido de la булевский matriz used). He aquí la más simple y fácil de implementar:</p>
+<code>vector < vector<int> > g; // el conde de
+int n; // el número de vértices
+
+vector<char> used;
+
+void dfs (int v) {
+used[v] = true;
+for (vector<int>::iterator i=g[v].begin(); i!=g[v].end(); ++i)
+if (!used[*i])
+dfs (*i);
+}</code>

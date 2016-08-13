@@ -1,0 +1,155 @@
+\h1{ Discrete logarithm }
+
+The discrete logarithm problem is that, according to the integer $a$, $b$, $m$ to solve the equation:
+
+$$ a^x = b \pmod m, $$
+
+where $a$ and $m$ --- \bf{coprime} (note: if they are not coprime, the algorithm described below is incorrect; although, presumably, you can modify it so that it still worked).
+
+Here is described an algorithm, known as \bf {a"baby-step-giant-step algorithm"} proposed \bf{Shanks (Shanks)} in 1971, which works in time $O (\sqrt{m} \log m)$. Often this algorithm is called algorithm \bf {a"meet-in-the-middle"} (because this is one of the classic applications of technology "meet-in-the-middle": "break the problem in half").
+
+
+\h2{ Algorithm }
+
+So, we have the equation:
+
+$$ a^x = b \pmod m, $$
+
+where $a$ and $m$ are coprime.
+
+Transform the equation. Put
+
+$$ x = np - q $$
+
+where $n$ is a pre-selected constant (how to select depending on $m$, we will see later). Sometimes $p$ is called "giant step" (since the increase in its per unit increases $x$ directly on $n$), and in contrast to $q$ --- "baby step".
+
+It is obvious that any $x$ (the interval $[0;m)$ --- it is clear that this range of values will suffice) can be represented in this form, and it will be enough values:
+
+$$ p \in \left[ 1; \left\lceil \frac{m}{n} \right\rceil \right]~~~~~ q \in [0;n]. $$
+
+Then the equation takes the form:
+
+$$ a^{np-q} = b \pmod m, $$
+
+whence, using the fact that $a$ and $m$ are coprime, we get:
+
+$$ a^{np} = b a^q \pmod m. $$
+
+To solve the original equation, need to find appropriate values for $p$ and $q$ so that the values of the left and right parts match. In other words, we must solve the equation:
+
+$$ f_1(p) = f_2(q). $$
+
+This problem is solved using the method of meet-in-the-middle as follows. The first phase of the algorithm: calculate the value of the function $f_1$ for all values of parameter $p$, and sort these values. The second phase of the algorithm: iterate over the value of the second variable $q$, calculate the second function $f_2$, and look for this value among the precomputed values of the first function using binary search.
+
+
+\h2{ Asymptotics }
+
+First rate time calculations each of the functions $f_1(p)$ and $f_2(q)$. She and the other contains an exponentiation that can be performed using \algohref=binary_pow{algorithm binary exponentiation}. Then both these functions we can compute at time $O(\log m)$.
+
+The algorithm in the first phase includes the calculation of the function $f_1(p)$ for each possible value of $p$ and further sorting of the values, which gives us the asymptotics:
+
+$$ O\left( \left\lceil \frac{m}{n} \right\rceil \left( \log m + \log \left\lceil \frac{m}{n} \right\rceil \right) \right) = O\left( \left\lceil \frac{m}{n} \right\rceil \log m \right). $$
+
+In the second phase of the algorithm is the calculation of the function $f_2(q)$ for each possible value of $q$ and binary search on the array of values $f_1$, which gives us the asymptotics:
+
+$$ O\left( n \left( \log m + \log \left\lceil \frac{m}{n} \right\rceil \right) \right) = O\left( n \log m \right). $$
+
+Now, when we add these two asymptotics, we get $\log m$ times $n$ and $m/n$, and it is quite obvious that the minimum is achieved when $n \approx m/n$, i.e. for optimal performance of the algorithm is a constant $n$ must be chosen:
+
+$$ n \approx \sqrt{m}. $$
+
+Then the asymptotic behavior of the algorithm takes the form:
+
+$$ O\left( \sqrt{m} ~ \log m \right). $$
+
+Note. We could exchange the roles of $f_1$ and $f_2$ (i.e. the first phase to calculate values of the function $f_2$, and the second --- $f_1$), but it is easy to understand that the result will not change, and the asymptotics that we will not improve.
+
+
+\h2{ the Implementation }
+
+
+\h3{ the Simplest implementation }
+
+The function $\rm powmod$ performs a binary raising a number $a$ in degree $b$ modulo $m$, see \algohref=binary_pow{Binary exponentiation}.
+
+The function $\rm solve$ produces the actual solution of the problem. This function returns the answer (the number in the interval $[0;m)$), or more precisely, one of the answers. The function returns $-1$ if there is no solution.
+
+\code
+int powmod (int a, int b, int m) {
+int res = 1;
+while (b > 0)
+if (b & 1) {
+res = (res * a) % m;
+--b;
+}
+else {
+a = (a * a) % m;
+b >>= 1;
+}
+return res % m;
+}
+
+int solve (int a, int b, int m) {
+int n = (int) sqrt (m + .0) + 1;
+map<int,int> vals;
+for (int i=n; i>=1; --i)
+vals[ powmod (a, i * n, m) ] = i;
+for (int i=0; i<=n; ++i) {
+int cur = (powmod (a, i, m) * b) % m;
+if (vals.count(cur)) {
+int ans = vals[cur] * n - i;
+if (ans < m)
+return ans;
+}
+}
+return -1;
+}
+\endcode
+
+Here we have for convenience in the implementation of the first phase of the algorithm used the data structure "map" (red-black tree), which for each value of the function $f_1(i)$ preserves $i$ at which this value was achieved. In this case, if the same value was achieved several times, recorded the lowest of all arguments. This is done in order subsequently, in the second phase of the algorithm, found the answer in the interval $[0;m)$.
+
+Given that the argument of the function $f_1()$ in the first phase we moved from one to $n$, and the argument of the function $f_2()$ of the second phase moved from zero to $n$, then in the end, we cover a whole host of possible answers, since the segment $[0; n^2]$ contains the interval $[0;m)$. This negative reply get could not, and responses greater than or equal to $m$, we can ignore --- you still need to have the corresponding answers from the interval $[0;m)$.
+
+This function can be changed in case you want to find \bf{solution} the problem of discrete logarithm. For this we need to replace "map" with some other data structure that can store for a single argument multiple values (for example, "multimap"), and accordingly modify the code of the second phase.
+
+
+\h3{ Improved implementation }
+
+\Bf{speed optimizations} we can proceed as follows.
+
+First, immediately struck by the uselessness of binary exponentiation in the second phase of the algorithm. Instead, you can just make a variable and domniate it every time on $a$.
+
+Secondly, in the same way you can get rid of binary exponentiation in the first phase: in fact, it is sufficient to calculate the value of $a^n$, and then just domniate at her.
+
+Thus, the logarithm in the asymptotic behavior will remain, but it will be only a logarithm associated with the data structure $map<>$ (i.e., in terms of algorithm, sorting and binary search values) --- i.e. it will be a logarithm of $\sqrt{m}$, which in practice gives a significant boost.
+
+\code
+int solve (int a, int b, int m) {
+int n = (int) sqrt (m + .0) + 1;
+
+int an = 1;
+for (int i=0; i<n; ++i)
+an = (an * a) % m;
+
+map<int,int> vals;
+for (int i=1, cur=an; i<=n; ++i) {
+if (!vals.count(cur))
+vals[cur] = i;
+cur = (cur * an) % m;
+}
+
+for (int i=0, cur=b; i<=n; ++i) {
+if (vals.count(cur)) {
+int ans = vals[cur] * n - i;
+if (ans < m)
+return ans;
+}
+cur = (cur * a) % m;
+}
+return -1;
+}
+\endcode
+
+Finally, if the module $m$ is small enough, it can and does get rid of the logarithm in the asymptotic behavior --- instead of just having $map<>$ normal array.
+
+Also you can remember about hash tables: on average they work for $O(1)$, which gives the asymptotic $O (\sqrt{m})$.

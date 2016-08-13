@@ -1,0 +1,81 @@
+\h1{Newton's Method (tangent) for finding roots}
+
+This is an iterative method, invented by \bf{Isaac Newton} (Isaak Newton) about 1664 However, sometimes this method is called the method of Newton-Raphson (Raphson), since Rapson invented the same algorithm some years later than Newton, but his article was published much earlier.
+
+The task is as follows. Given the equation:
+
+$$ f(x) = 0. $$
+
+You need to solve this equation, or rather, to find one of its roots (assuming a root exists). Assume that $f(x)$ is continuous and differentiable on the interval $[a;b]$.
+
+
+\h2{Algorithm}
+
+The input parameter of the algorithm, in addition to the function $f(x)$ is also \bf{initial value} --- some $x_0$, from which the algorithm starts to go.
+
+Suppose that we have computed $x_i$, compute $x_{i+1}$ as follows. Will hold tangent to the graph of the function $f(x)$ at the point $x = x_i$, find the point of intersection of this tangent with the x-axis. $x_{i+1}$ put equal to the located point, and repeat the whole process from the beginning.
+
+It is easy to obtain the following formula:
+
+$$ x_{i+1} = x_i - \frac{ f(x_i) }{ f^\prime(x_i) }. $$
+
+It is intuitively clear that if the function $f(x)$ is sufficiently "nice" (smooth) and $x_i$ is sufficiently close to the root, then $x_{i+1}$ will be even closer to the desired root.
+
+The rate of convergence is \bf{quadratic} that, relatively speaking, means that the number of accurate digits in the approximate value of $x_i$ is doubled with each iteration.
+
+
+\h2{Application for calculating a square root}
+
+Consider Newton's method on the example of computing square root.
+
+If we substitute $f(x) = \sqrt{x}$, after simplifying the expression we get:
+
+$$ x_{i+1} = \frac{ x_i + \frac{n}{x_i} }{ 2 }. $$
+
+The first typical variant of the problem --- when given a fractional number $n$, and need to calculate the root with some accuracy $\EPS rm$:
+
+\code
+double n;
+cin >> n;
+const double EPS = 1E-15;
+double x = 1;
+for (;;) {
+double nx = (x + n / x) / 2;
+if (abs (x - nx) < EPS) break;
+x = nx;
+}
+printf ("%.15lf", x);
+\endcode
+
+Another common variant of the problem --- when you want to calculate an integer root (for a given $n$ find the largest $x$ such that $x^2 \le n$). Here we have a little bit change the stop condition of the algorithm since it can happen that $x$ starts "jumping" near the answer. So we add the condition that if the value of $x$ in the previous step decreased and the current step is trying to increase, the algorithm should be stopped.
+
+\code
+int n;
+cin >> n;
+int x = 1;
+bool decreased = false;
+for (;;) {
+int nx = (x + n / x) >> 1;
+if (x == nx || nx > x && decreased) break;
+decreased = nx < x;
+x = nx;
+}
+cout << x;
+\endcode
+
+Finally, we present a third variant --- for the case of long arithmetic. Since the number $n$ can be quite large, it makes sense to pay attention to the initial approximation. Obviously, the closer it is to the root, the faster a result is obtained. Quite simple and effective way is to take as the initial approximation of the number $2^{{\rm bits}/2}$, where $\rm bits$ --- the number of bits in $n$. Here is the code in Java that demonstrates this option:
+
+\code
+BigInteger n; // input
+
+BigInteger a = BigInteger.ONE.shiftLeft (n.bitLength() / 2);
+p_dec boolean = false;
+for (;;) {
+BigInteger b = n.divide(a).add(a).shiftRight(1);
+if (a.compareTo(b) == 0 || a.compareTo(b) < 0 && p_dec) break;
+p_dec = a.compareTo(b) > 0;
+a = b;
+}
+\endcode
+
+For example, this code is executed for the number $10^{1000}$ for $60$ milliseconds, and if you remove the improved choice of the initial approximation (to just start with $1$), it will run around $120$ milliseconds.

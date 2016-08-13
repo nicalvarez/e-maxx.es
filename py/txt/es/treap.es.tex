@@ -1,0 +1,201 @@
+<h1>un producto cartesiano árbol (treap, дерамида)</h1>
+
+<p>un producto cartesiano, un árbol es una estructura de datos que combina un árbol binario de búsqueda binaria y un montón (de ahí su segundo nombre: treap (tree+heap) y дерамида (árbol+de la pirámide).</p>
+<p>Más estrictamente, es una estructura de datos que almacena los pares (X,Y) en forma de árbol binario de tal modo, que es un árbol binario de búsqueda de x y binaria de la pirámide de y. Suponiendo que todo X y todo Y son diferentes, resulta que si algún elemento de madera contiene (X<sub>0</sub>,Y<sub>0</sub>), entonces todos los elementos en el subárbol izquierdo X < X<sub>0</sub>, todos los elementos en el subárbol derecho de X > X<sub>0</sub>, y también en el de la izquierda, y en el subárbol derecho tenemos: Y < Y<sub>0</sub>.</p>
+<p>Дерамиды se han propuesto Сиделем (Siedel) y aragón (Aragon) en 1989</p>
+<h2>las Ventajas de la organización de los datos</h2>
+<p>la aplicación que nosotros consideramos (vamos a considerar дерамиды, ya que un producto cartesiano, un árbol es en realidad más común de estructura de datos), X's son las claves (y al mismo tiempo los valores almacenados en una estructura de datos), y Y'y - se denominan <b>prioridades</b>. Si las prioridades no se, sería normal árbol binario de búsqueda de X, y un conjunto de X's podría coincidir con muchos árboles, algunos de los cuales son вырожденными (por ejemplo, en forma de cadena), sino porque es extremadamente lento (operaciones básicas se habrían realizado por O (N)).</p>
+<p>Al mismo tiempo, <b>prioridad</b> permite <b>inequívocamente</b> indicar el árbol, que se construyó (por supuesto, no depende del orden de la adición de elementos) (esto se demuestra por el correspondiente teorema). Ahora es evidente que si a <b>seleccionar prioridades accidentalmente</b>, lograremos la construcción de <b>невырожденных</b> de los árboles, en promedio, el caso, que proporcionará асимптотику O (log N) en promedio. Desde aquí, y claro otro nombre de esta estructura de datos - <b>aleatorizado árbol binario de búsqueda</b>.</p>
+<h2></h2>
+<p>por lo tanto, treap proporciona las operaciones siguientes:</p>
+<ul>
+<li><b>Insert (X, Y)</b> - a O (log N) promedio<br>se utiliza para agregar en el árbol de un nuevo elemento.<br>es Posible que el valor de prioridad Y no se pasa a la función, y se selecciona de forma aleatoria (la verdad, es necesario tener en cuenta que no debe coincidir con ninguna otra Y en el árbol).</li>
+<li><b>Search (X)</b> - a O (log N) promedio<br>Busca el valor de la clave de X. se realiza absolutamente igual, como para el típico árbol binario de búsqueda.</li>
+<li><b>Erase (X)</b> - a O (log N) promedio<br>Busca y elimina el elemento de la madera.</li>
+<li><b>Build (X<sub>1</sub>, ..., X<sub>N</sub>)</b> - por O (N)<br>Construye el árbol de la lista de valores. Esta operación se puede realizar por lineal del tiempo (en el supuesto de que los valores de X<sub>1</sub>, ..., X<sub>N</sub> ordenados), pero aquí esta implementación no se considerará.<br>Aquí se usará sólo una simple aplicación en forma de llamadas consecutivas Insert, es decir, O (N log N).</li>
+<li><b>Union (T<sub>1</sub>, T<sub>2</sub>)</b> - a O (M log (N/M)), en promedio,<br>Agrupa los dos árboles, en el supuesto de que todos los elementos son diferentes (sin embargo, esta operación se puede realizar con la misma асимптотикой, si la fusión es necesario eliminar los elementos duplicados).</li>
+<li><b>Intersect (T<sub>1</sub>, T<sub>2</sub>)</b> - a O (M log (N/M)), en promedio,<br>Encuentra la intersección de dos árboles (es decir, sus elementos comunes). Aquí, la implementación de esta operación, no será considerado.</li>
+</ul>
+<p>Además, debido al hecho de que un producto cartesiano árbol es el árbol binario de búsqueda de sus valores, y a él se aplican operaciones como la de encontrar el K-ésimo mayor de un elemento, y, por el contrario, la definición de un número de elemento.</p>
+<h2>Descripción de la aplicación</h2>
+<p>Desde el punto de vista de la implementación, cada elemento contiene X, Y y los punteros a la izquierda de L derecho e R hijo.</p>
+<p>Para la realización de las operaciones que desee implementar dos auxiliares de operación: Split Merge.</p>
+<p><b>Split (T, X)</b> - se divide el árbol T en dos el árbol de L y R (que es el valor devuelto) de tal manera que L contiene todos los elementos más pequeños de la clave X, y, R contiene todos los elementos de la ampliación de X. Esta operación se realiza por O (log N). Su aplicación es bastante simple - obvio de repetición.</p>
+<p><b>Merge (T<sub>1</sub>, T<sub>2</sub>)</b> - combina dos subárbol T<sub>1</sub> y T<sub>2</sub> y devuelve es el nuevo árbol. Esta operación también se realiza a O (log N). Ella trabaja en el supuesto de que T<sub>1</sub> y T<sub>2</sub> poseen el orden (todos los valores de X en el primer menor que los valores de X en el segundo). Por lo tanto, necesitamos combinar el fin de no alterar el orden de prioridades de Y. Para ello, simplemente escogemos como la raíz de un árbol, el cual en la raíz más, y de forma recursiva llamamos a sí mismo de otro árbol, y el correspondiente hijo de árbol seleccionado.</p>
+<p>Ahora, es evidente la aplicación de <b>Insert (X, Y)</b>. Primero bajamos por el árbol (como es habitual en el árbol binario de búsqueda X), pero nos detenemos en el primer elemento, en la que el valor de la prioridad fue menor Y. Hemos encontrado la posición donde vamos a insertar nuestro elemento. Ahora llamamos Split (X) de un elemento encontrado (de un elemento, junto con todo su поддеревом), y devueltos por ella L y R de los sismógrafos como el izquierdo y el derecho del hijo agregada.</p>
+<p>También es clara y la implementación de <b>Erase (X)</b>. Descendemos por el árbol (como es habitual en el árbol binario de búsqueda X), buscando el elemento que desea eliminar. Cuando encuentre el elemento, simplemente le llamamos Merge de su derecho e izquierdo de los hijos, y el valor devuelto por la ponemos en el lugar del elemento eliminado.</p>
+<p>Operación <b>Build</b> realizamos por O (N log N) o simplemente mediante sucesivas llamadas Insert.</p>
+<p>por Último, la operación de <b>Union (T<sub>1</sub>, T<sub>2</sub>)</b>. En teoría, sus asíntotas O (M log (N/M)), sin embargo, en la práctica funciona muy bien, probablemente, con muy poca oculta una constante. Que, sin perder generalidad, T<sub>1</sub>->Y > T<sub>2</sub>->Y, es decir, la raíz de T<sub>1</sub> va a la raíz de los resultados. Para obtener un resultado, necesitamos combinar los árboles T<sub>1</sub>->L, T<sub>1</sub>->R y T<sub>2</sub> en dos de esas de madera, para que ellos puedan hacer sus hijos T<sub>1</sub>. Para ello, seleccionaremos Split (T<sub>2</sub>, T<sub>1</sub>->X), por lo tanto estamos разобъем T<sub>2</sub> en las dos mitades de la L y la R, que, a continuación, de forma recursiva a combinar con los hijos de T<sub>1</sub>: Union (T<sub>1</sub>->L, L) y de la Union (T<sub>1</sub>->R, R)así construiremos la izquierda y la derecha subárboles resultado.</p>
+<h2>Realización</h2>
+<p>Realizamos todas las operaciones descritas. Aquí para instalaciones disponen de otras denominaciones en la prioridad indica el prior, el valor de la clave.</p>
+<code>struct item {
+int key, prior;
+item * l, * r;
+item() { }
+item (int key, int prior) : key(key), prior(prior), l(NULL), r(NULL) { }
+};
+typedef item * pitem;
+
+void split (pitem t, int key, pitem & l, pitem & r) {
+if (!t)
+l = r = NULL;
+else if (key < t->key)
+split (t->l, key, l, t->l), r = t;
+else
+split (t->r, key, t->r, r), l = t;
+}
+
+void insert (pitem & t, pitem it) {
+if (!t)
+t = it;
+else if (it->prior > t->prior)
+split (t, it->key, it->l, it->r), t = it;
+else
+insert (it->key < t->key ? t->l : t->r, it);
+}
+
+void merge (pitem & t, pitem l, pitem r) {
+if (!l || !r)
+t = l ? l : r;
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l;
+else
+merge (r->l, l, r->l), t = r;
+}
+
+void erase (pitem & t, int key) {
+if (t->key == key)
+merge (t, t->l, t->r);
+else
+erase (key < t->key ? t->l : t->r, key);
+}
+
+pitem unite (pitem l, pitem r) {
+if (!l || !r) return l ? l : r;
+if (l->prior < r->prior) swap (l, r);
+pitem lt, rt;
+split (r, l->key, lt, rt);
+l->l = unite (l->l, lt);
+l->r = unite (l->r, rt);
+return l;
+}</code>
+<h2>admite tamaños de subárboles</h2>
+<p>Para ampliar la funcionalidad de la cartesianos de madera, muy a menudo es necesario para cada vértice almacenar el número de vértices en su subárbol - algún tipo de campo int cnt en la estructura de item. Por ejemplo, a través de la fácil de encontrar de O (log N) K-sima más grande el elemento de la madera, o, por el contrario, por el mismo асимптотику averiguar el número de elemento de la lista ordenada (la realización de estas operaciones no será diferente de su aplicación normal de los árboles binarios de búsqueda).</p>
+<p>Cuando se cambia el árbol (agregar o quitar un elemento, etc.) se deben cambiar y cnt algunos de los vértices. Realizamos dos funciones - función de la cnt() devolverá el valor actual de la cnt o 0, si la cima no existe, y la función de upd_cnt() actualizará el valor de la cnt para la cima, con la condición de que los hijos de l y r estos cnt correctamente actualizado. Entonces, claro, basta con añadir llamadas a la función upd_cnt() al final de cada una de las funciones de inserción, borrado, split, merge, para mantener los valores correctos de la cnt.</p>
+<code>int cnt (pitem t) {
+return t ? t->cnt : 0;
+}
+
+void upd_cnt (pitem t) {
+if (t)
+t->cnt = 1 + cnt(t->l) + cnt (t->r);
+}</code>
+<h2>Construir cartesianos madera O (N) en la línea</h2>
+<p>TODO</p>
+<h2>Implícita cartesianas los árboles</h2>
+<p>Implícita de un producto cartesiano árbol es una simple modificación de la normal cartesianos de la madera, que, sin embargo, resulta muy potente estructura de los datos. De hecho, implícitamente un producto cartesiano árbol puede verse como una matriz sobre la cual se pueden realizar las operaciones siguientes (todos de O (log N) en el modo online):</p>
+<ul>
+<li>Insertar un elemento en una matriz en cualquier posición</li>
+<li>la Eliminación arbitraria de un elemento</li>
+<li>el Importe mínimo/máximo en el tramo aleatorio, etc.</li>
+<li>el Aumento, la pintura en el tramo de la</li>
+<li>Golpe de estado (permutación de los elementos en orden inverso) en el tramo de la</li>
+</ul>
+<p>la idea Clave es que, como claves key debe usar <b>índices</b> elementos de la matriz. Sin embargo, claramente almacenar estos valores key no vamos a (de lo contrario, por ejemplo, cuando se inserta un elemento tendría que cambiar la key en O (N) de las copas de árbol).</p>
+<p>tenga en cuenta que, en realidad, en este caso, la clave para un vértice es el número de vértices, menor que ella. Cabe señalar, que los vértices inferiores a este, se encuentran no sólo en su subárbol izquierdo, y, tal vez, en el de la izquierda subárboles de sus antepasados. Más estrictamente, <b>implícito clave</b> para algunos de la cima de la t es el número de vértices de la cnt(t->l) en el subárbol izquierdo de esta cima más similares a la magnitud de la cnt(p->l)+1 para cada antepasado p de esta cima, con la condición de que t se encuentra en el subárbol derecho de p.</p>
+<p>Claro, como ahora calcular rápidamente actual de la cima de su implícita la clave. Dado que todas las operaciones llegamos a alguna cima, bajando por el árbol, podemos simplemente acumular esa cantidad, pasando sus funciones. Si nos vamos en el subárbol izquierdo - накапливаемая la suma no cambia, y si vamos a la derecha, aumenta la cnt(t->l)+1.</p>
+<p>Presentamos las nuevas implementaciones de las funciones split merge:</p>
+<code>void merge (pitem & t, pitem l, pitem r) {
+if (!l || !r)
+t = l ? l : r;
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l;
+else
+merge (r->l, l, r->l), t = r;
+upd_cnt (t);
+}
+
+void split (pitem t, pitem & l, pitem & r, int key, int add = 0) {
+if (!t)
+return void( l = r = 0 );
+int cur_key = add + cnt(t->l); // calculamos implícito clave
+if (key <= cur_key)
+split (t->l, l, t>l, key add), r = t;
+else
+split (t->r, t->r, r, key add + 1 + cnt(t->l), l = t;
+upd_cnt (t);
+}</code>
+<p>Ahora vamos a proceder a la ejecución de diversas operaciones adicionales en tácito cartesianas de los árboles:</p>
+<ul>
+<li><b>Insertar</b> del elemento.<br>Que necesitamos insertar un elemento en la posición pos. Romperemos un producto cartesiano árbol en una de las dos mitades de la matriz [0..pos-1] y la matriz [pos..sz]; para ello, basta con llamar a split (t, t1, t2, pos). Después de esto podemos unir el árbol de la t1 con un nuevo vértice; para ello, basta con llamar a merge (t1, t1, new_item) (fácil de asegurarse de que todas las condiciones previas para el merge se cumplen). Por último, combinar dos árboles t1 y t2 de nuevo en el árbol t - llamada merge (t, t1, t2).</li>
+<li><b>Eliminar</b> del elemento.<br>Aquí es todavía más fácil: basta con encontrar el elemento que desea eliminar y, a continuación, realizar el merge para sus hijos l y r, y poner el resultado de la integración en el lugar de la cima de la t. De hecho, la eliminación de la implícita декартова árbol no es diferente de la de la eliminación de la normal декартова de un árbol.</li>
+<li><b>la Cantidad mínima de</b>, etc. en el tramo.<br>En primer lugar, para cada vértice crearemos un campo f en la estructura de item, en el que se almacena el valor de la función objetivo para un subárbol de esta cima. Qué es un campo fácil de mantener, para ello, es necesario proceder de manera similar el apoyo de los tamaños de la cnt (crear una función que calcule el valor de este campo, aprovechando sus valores para los hijos, y de insertar llamadas a esta función al final de todas las funciones que cambian de un árbol).<br>En segundo lugar, tenemos que aprender a responder a la solicitud en cualquier intervalo [A;B]. Aprenderemos a distinguir de madera en su parte correspondiente al segmento [A;B]. Es fácil comprender que para ello, basta con llamar primero al split (t, t1, t2, A) y, a continuación, split (t2, t2, t3, B-A+1). En consecuencia, el árbol de la t2 y estará compuesta por todos los elementos en el intervalo [A;B], y sólo ellos. Por lo tanto, la respuesta a la solicitud tendrá que estar en el campo de f cima de la t2. Después de la respuesta a la solicitud de un árbol es necesario recuperar la llamada merge (t, t1, t2) y merge (t, t, t3).</li>
+<li><b>Aumento/pintura</b> en el intervalo.<br>Aquí hacemos las cosas de manera similar al párrafo anterior, pero en lugar de un campo de f vamos a almacenar el cuadro add, que contendrá прибавляемую el valor (o la cantidad en la que se pintan todo el subárbol de la cima). Antes de realizar cualquier operación de esta magnitud add hay que "empujar" - es decir, modifique el t-l->add y t->r->add, y el mismo valor de quitar el add. Así lograremos que en ningún cambio de un árbol que no se pierde información.</li>
+<li><b>Golpe de estado</b> en el intervalo.<br>Este párrafo es similar a la anterior - es necesario especificar un campo booleano rev que poner en true, cuando se requiere producir un golpe de estado en el subárbol actual de la cima. "Empujando a través de un" campo rev es que nosotros alquilamos asientos, los hijos de la actual a la cima, y ponemos este indicador para ellos.</li>
+</ul>
+<p><b>Realización</b>. Llevaremos para el ejemplo de la completa aplicación de los implícita декартова de madera con un golpe en el tramo. Aquí, para cada vértice también se almacena el campo value - en realidad, el valor del elemento que está en la matriz en la posición actual. Consulte también la implementación de la función output(), que muestra la matriz correspondiente a la situación actual implícita декартова de un árbol.</p>
+<code>typedef struct item * pitem;
+struct item {
+int prior, value, la cnt;
+bool rev;
+pitem l, r;
+};
+
+int cnt (pitem it) {
+return it ? it->cnt : 0;
+}
+
+void upd_cnt (pitem it) {
+if (it)
+it->cnt = cnt(it->l) + cnt(it->r) + 1;
+}
+
+void push (pitem it) {
+if (it && it->rev) {
+it->rev = false;
+swap (it->l, it->r);
+if (it->l) it->l->rev ^= true;
+if (it->r) it->r->rev ^= true;
+}
+}
+
+void merge (pitem & t, pitem l, pitem r) {
+push (l);
+push (r);
+if (!l || !r)
+t = l ? l : r;
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l;
+else
+merge (r->l, l, r->l), t = r;
+upd_cnt (t);
+}
+
+void split (pitem t, pitem & l, pitem & r, int key, int add = 0) {
+if (!t)
+return void( l = r = 0 );
+push (t);
+int cur_key = add + cnt(t->l);
+if (key <= cur_key)
+split (t->l, l, t>l, key add), r = t;
+else
+split (t->r, t->r, r, key add + 1 + cnt(t->l), l = t;
+upd_cnt (t);
+}
+
+void reverse (pitem t, int l, int r) {
+pitem t1, t2, t3;
+split (t, t1, t2, l);
+split (t2, t2, t3, r-l+1);
+t2->rev ^= true;
+merge (t, t1, t2);
+merge (t, t, t3);
+}
+
+void salida (pitem t) {
+if (!t) return;
+push (t);
+output (t->l);
+printf ("%d ", t->valor);
+output (t->r);
+}</code>

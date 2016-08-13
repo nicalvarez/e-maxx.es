@@ -1,0 +1,254 @@
+\h1{ Z es la función de la cadena y su cálculo }
+
+Que dada una cadena $s$ de longitud $n$. Entonces \bf{Z de la función} ("sein-función") de esta línea --- se trata de una matriz de longitud $n$, $i$el primer elemento que es igual a mayor número de caracteres a partir de la posición $i$, y coincidiendo con los primeros caracteres de la cadena $s$.
+
+En otras palabras, $z[i]$ --- este es el máximo común el prefijo de la cadena $s$ y su $i$del sufijo.
+
+\bf{nota}. En este artículo, a fin de evitar la incertidumbre, nos vamos a leer la cadena de 0-de indización --- es decir, el primer carácter de la cadena es el índice $0$, y el último --- $n-1$.
+
+El primer elemento de Z-función, $z[0]$, en general se considera nulo. En este artículo vamos a suponer que él es igual a cero (a pesar de que ni en el algoritmo, ni en la aplicación de esto no cambia nada).
+
+En este artículo se presenta un algoritmo para calcular Z-funciones por el tiempo $O (n)$, así como los diferentes usos de este algoritmo.
+
+
+\h2{ Ejemplos }
+
+Pondremos el ejemplo подсчитанную Z-función para varias filas:
+
+\ul{
+
+\li $"aaaaa"$:
+
+$$ z[0] = 0, $$
+$$ z[1] = 4, $$
+$$ z[2] = 3, $$
+$$ z[3] = 2, $$
+$$ z[4] = 1. $$
+
+\li $"aaabaab"$:
+
+$$ z[0] = 0, $$
+$$ z[1] = 2, $$
+$$ z[2] = 1, $$
+$$ z[3] = 0, $$
+$$ z[4] = 2, $$
+$$ z[5] = 1, $$
+$$ z[6] = 0. $$
+
+\li $"abacaba"$:
+
+$$ z[0] = 0, $$
+$$ z[1] = 0, $$
+$$ z[2] = 1, $$
+$$ z[3] = 0, $$
+$$ z[4] = 3, $$
+$$ z[5] = 0, $$
+$$ z[6] = 1. $$
+
+}
+
+
+\h2{ Trivial algoritmo }
+
+La definición formal se puede presentar en la forma siguiente elemental de la aplicación de la $O (n^2)$:
+
+\code
+vector<int> z_function_trivial (string s) {
+int n = (int) s.length();
+vector<int> z (n);
+for (int i=1; i<n; ++i)
+while (i + z[i] < n && s[z[i]] == s[i+z[i]])
+++z[i];
+return z;
+}
+\endcode
+
+Somos, simplemente, para cada posición de la $i$ перебираем respuesta para ella $z[i]$, a partir de cero, y hasta que no nos encontramos con la desalineación o no llegaremos al final de la línea.
+
+Por supuesto, esta implementación es demasiado ineficiente, pasemos ahora a la construcción efectiva de un algoritmo.
+
+
+\h2{ algoritmo de cálculo de Z de la función }
+
+Para obtener un algoritmo eficiente, vamos a calcular el valor de $z[i]$ de la cola --- de $i=1$ a $n-1$, y a tratar cuando se calcula el siguiente valor de $z[i]$ aprovechar ya los valores calculados.
+
+Llamaremos, para abreviar la subcadena coincidente con el prefijo de la cadena $s$, \bf{trozo de la coincidencia}. Por ejemplo, el valor de la Z de la función $z[i]$ --- este es длиннейший trozo de convergencia, a partir de la posición $i$ (y terminar con él, en la posición $i + z[i] - 1$).
+
+Para ello, vamos a apoyar la \bf{coordenadas $[l;r]$ el de la derecha del corte de coincidencia}, es decir, de todos los detectados líneas vamos a almacenar el que termina a la derecha de todo. En cierto sentido, el índice $r$ --- se trata de una frontera, antes de que nuestra cadena ya ha sido rastreado por el algoritmo, y todo lo demás --- todavía no se sabe.
+
+Entonces, si el índice actual, para el que queremos calcular el siguiente valor Z de la función, --- de $i$, tenemos dos opciones:
+
+\ul{
+
+\li $i > r$ --- es decir, la posición actual est \bf{fuera} de lo que ya hemos conseguido procesar.
+
+Entonces vamos a buscar $z[i]$ \bf{trivial algoritmo}, es decir, simplemente probando un valor de $z[i]=0$, $z[i]=1$, y así sucesivamente, tenga en cuenta que al final, si $z[i]$ será $>0$, entonces vamos a la obligación de actualizar las coordenadas de el de la derecha del corte $[l;r]$ --- ya que $i + z[i] - 1$ garantiza que es mayor de $r$.
+
+\li $i \le r$ --- es decir, la posición actual se encuentra dentro del segmento de la coincidencia de $[l;r]$.
+
+Entonces podemos usar ya contadas \bf{anteriores} los valores de Z de la función para inicializar el valor de $z[i]$ no de cero, y de alguna manera es posible un gran número de.
+
+Para ello, tenga en cuenta que la subcadena $s[l \ldots r]$ y $s[0 \ldots r-l]$ \bf{coinciden}. Esto significa que como el inicio de proximidad para $z[i]$ se puede tomar el valor de corte $s[0 \ldots r-l]$, es decir, el valor de $z[i-l]$.
+
+Sin embargo, el valor de $z[i-l]$ podría ser demasiado grande: por lo que cuando se aplica a una posición de $i$ es "incluidos en el" más allá de la frontera de $r$. Esto no se puede permitir que, ya sobre los caracteres de la derecha de la $r$ no sabemos nada, y que pueden diferir de las necesarias.
+
+Llevaremos \bf{ejemplo} esta situación, en la línea del ejemplo:
+
+$$ "aaaabaa" $$
+
+Cuando se trate hasta la última posición ($i=6$), actual más a la derecha, la recta será de $[5;6]$. La posición $6$ teniendo en cuenta este segmento va a coincidir con la posición de $6-5=1$, la respuesta en la que es igual a $z[1] = 3$. Es evidente que este valor inicializar $z[6]$ no se puede, de que es totalmente incorrecto. El máximo, ¿qué valor podemos inicializar --- 1$$, ya que es de la mayor importancia, que no vilazit más allá del corte de $[l;r]$.
+
+Por lo tanto, como \bf{primaria de proximidad} $z[i]$ es seguro tomar solo una expresión tal como:
+
+$$ z_0[i] = \min (r-i+1, z[i-l]). $$
+
+Проинициализировав $z[i]$ por un valor de $z_0[i]$, estamos de nuevo encendido actuamos \bf{trivial algoritmo} --- porque después de un límite de $r$, en términos generales, podría encontrar la continuación del corte de la coincidencia, prever que solamente a valores anteriores, Z-sin embargo, no hemos podido.
+
+}
+
+Por lo tanto, todo el algoritmo presenta dos casos en los que, en realidad, sólo se diferencian \bf{valor inicial} $z[i]$: en el primer caso, se supone que es cero, y en la segunda-se determina por los valores anteriores mediante la siguiente fórmula. Después de que las dos ramas del algoritmo se reducen a la aplicación de \bf{trivial algoritmo}, inició de inmediato con el valor inicial especificado.
+
+El algoritmo ha resultado muy fácil. A pesar de que cada vez que $i$ en él de un modo o de lo contrario, se ejecuta el algoritmo trivial --- hemos logrado avances significativos, habiendo recibido el algoritmo que trabaja en el lineal del tiempo. ¿Por qué es así, tenga en cuenta lo siguiente, después de que llevaremos la implementación del algoritmo.
+
+
+\h2{ Aplicación }
+
+La implementación resulta muy concisa:
+
+\code
+vector<int> z_function (string s) {
+int n = (int) s.length();
+vector<int> z (n);
+for (int i=1, l=0, r=0; i<n; ++i) {
+if (i <= r)
+z[i] = min (r-i+1, z[i-l]);
+while (i+z[i] < n && s[z[i]] == s[i+z[i]])
+++z[i];
+if (i+z[i]-1 > r)
+l = i r = i+z[i]-1;
+}
+return z;
+}
+\endcode
+
+Прокомментируем esta aplicación.
+
+La decisión de suscribir en forma de funciones, que de la cadena devuelve una matriz de longitud $n$ --- calculada Z-función.
+
+La matriz $z[]$ inicialmente se rellena con ceros. Actual más a la derecha trozo de convergencia se basa en $[0;0]$, es decir, a sabiendas de que un pequeño segmento en el que no entra ni un $i$.
+
+Dentro de un ciclo sobre $i = 1, \ldots, n-1$, lo primero por el mencionado algoritmo determinamos el valor inicial $z[i]$ --- o se quedará igual a cero, o bien evaluada en base a la fórmula.
+
+Después de esto, se trivial de un algoritmo que intenta aumentar el valor de $z[i]$ en la medida de lo posible.
+
+Al final se realiza la actualización actual, el de la derecha del corte de la coincidencia de $[l;r]$, si, por supuesto, esta actualización requiere --- es decir, si $i+z[i]-1 > r$.
+
+
+\h2{ Asíntotas algoritmo }
+
+Demostremos que el anterior algoritmo funciona de forma lineal con respecto a la longitud de línea de tiempo, es decir, $O (n)$.
+
+La prueba es muy simple.
+
+Nos interesa bucles anidados $\rm while$ --- ya que todo lo demás --- sólo constantes da lugar las operaciones realizadas por el $O (n)$ más.
+
+Mostraremos que \bf{cada iteración} de este ciclo $\rm while$ aumentará el borde derecho de la $r$ por unidad.
+
+Para ello, examinaremos ambas ramas del algoritmo:
+
+\ul{
+
+\li $i > r$
+
+En este caso, o el ciclo $\rm while$ no hará ni una sola iteración (si $s[0] \ne s[i],$), o hará que varias iteraciones, avanzando cada vez más un carácter a la derecha, a partir de la posición $i$, y después de esto --- límite derecho $r$ necesariamente se actualiza.
+
+Ya que $i > r$, obtenemos que realmente cada iteración del ciclo aumenta el valor nuevo $r$ por unidad.
+
+\li $i \le r$
+
+En este caso, estamos de acuerdo con la fórmula inicialice el valor de $z[i]$ varios $z_0$. Lo compararemos el valor inicial de $z_0$ con el valor de $r-i+1$, obtenemos tres opciones:
+
+\ul{
+
+\li $z_0 < r-i+1$
+
+Demostramos que en este caso ni una sola iteración del ciclo $\rm while$ no lo hará.
+
+Esto es fácil de demostrar, por ejemplo, a la inversa: si el ciclo $\rm while$ ha realizado al menos una iteración, significaría que un cierto nosotros un valor de $z_0$ es impreciso, menos presente de la longitud de la coincidencia. Pero ya que la cadena $s[l \ldots r]$ y $s[0 \ldots r-l]$ coinciden, significa que en la posición $z[i-l]$ valor valor incorrecto: menos de lo que debería ser.
+
+Por lo tanto, en esta variante de la corrección de valor de $z[i-l]$ y lo que es menos de $r-i+1$, se deduce que este valor coincide con buscaba un valor de $z[i]$.
+
+\li $z_0 = r-i+1$
+
+En este caso, el bucle $\rm while$ puede realizar varias iteraciones, sin embargo, cada uno de ellos dará lugar a un aumento de un nuevo valor de $r$ por unidad: porque primero su símbolo es $s[r+1]$, que vilazit más allá del corte de $[l;r]$.
+
+\li $z_0 > r-i+1$
+
+Esta opción en principio no es posible, en virtud de la definición de $z_0$.
+
+}
+
+}
+
+Por lo tanto, hemos demostrado que cada iteración del bucle anidado lleva a promover el puntero del $r$ a la derecha. Ya que $r$, no puede ser más de $n-1$, esto significa que todo este ciclo se hará no más de $n-1$ iteración.
+
+Debido a que todo el resto del algoritmo es, obviamente, funciona por $O (n)$, lo hemos demostrado, y todo el algoritmo de cálculo de Z de la función se ejecuta por lineal del tiempo.
+
+
+
+\h2{ Aplicación }
+
+Vamos a ver algunos de los usos de la Z-opciones durante la realización de tareas específicas.
+
+La aplicación de éstos son en gran medida similares a las aplicaciones de los \algohref=prefix_function{prefijo}.
+
+
+\h3{ Búsqueda de una subcadena en una cadena }
+
+Para evitar confusiones, llamaremos a una línea \bf{texto} $t$, y el otro --- \bf{ejemplo} $p$. Por lo tanto, el desafío consiste en encontrar todas las ocurrencias de un patrón de $p$ a texto $t$.
+
+Para resolver esta tarea, formamos una cadena $s = p + \# + t$, es decir, a través de un modelo припишем texto a través de un carácter separador (que no aparece en ninguna parte en las propias filas.
+
+Contaremos para la cadena recibida Z-función. Entonces para cualquier $i$ en el tramo de $[0; length(t)-1]$ por el correspondiente valor de $z[i + length(p) + 1]$ se puede entender, si la muestra de $p$ a texto $t$, a partir de la posición $i$: si el valor de Z-la función es igual a $length(p)$, entonces sí, de lo contrario, - - - no.
+
+Por lo tanto, asíntotas de la decisión resulte $O (length(t) + length(p))$. El consumo de memoria es de la misma асимптотику.
+
+
+\h3{ Número de diferentes subcadenas de una cadena }
+
+Dada una cadena $s$ de longitud $n$. Es necesario contar el número de sus diferentes cadenas.
+
+Vamos a resolver esta tarea repetidamente. A saber, aprender, saber el número actual de diferentes subcadenas que calcular es la cantidad cuando se agrega al final de un carácter.
+
+Así, que $k$ --- número actual de diferentes subcadena de la cadena $s$, y añadimos al final el símbolo $c$. Es evidente, en consecuencia, podría aparecer algunas de las nuevas cadenas, оканчивавшиеся en este nuevo símbolo $c$ (a saber, todas las subcadenas que terminan en este símbolo, pero no visto antes).
+
+Tomemos la cadena $t=s+c$ e invertir (escribir los caracteres en orden inverso). Nuestra tarea-para-el - contar el número de filas de $t$ tales prefijos que no se encuentran en ella en ningún otro lugar. Pero si pensamos que para la cadena $t$ Z-función y encontrar su valor máximo de $z_{\rm max}$, entonces, obviamente, en la línea de $t$ se encuentra (no al principio), su prefijo de longitud $z_{\rm max}$, pero no de mayor longitud. Claro, los prefijos de menor longitud ya que precisamente se encuentran en ella.
+
+Por lo tanto, tenemos que el número de subcadenas, que aparecen al дописывании el símbolo $c$ es $len - z_{\rm max}$, donde $len$ --- longitud actual de la línea después de que se cree el símbolo $c$.
+
+Por lo tanto, asíntotas soluciones para la cadena de longitud $n$ es $O (n^2)$.
+
+Vale la pena señalar que es totalmente análogo se puede calcular por $O (n)$ número de diferentes subcadenas y cuando дописывании de un carácter en principio, se elimina el carácter final o al principio.
+
+
+\h3{ Compresión de fila }
+
+Dada una cadena $s$ de longitud $n$. Es necesario encontrar el más corto de su "gesto" de la representación, es decir, de encontrar esa cadena $t$ de menor longitud que la $s$ se puede presentar en forma de concatenación de una o más copias de $t$.
+
+Para resolver calcular Z-la función de la línea de $s$, y encontraremos la primera posición de la $i$ tal que $i + z[i] = n$ y $n$ divide a $i$. Entonces la cadena $s$ se puede reducir a la línea de la longitud de la $i$.
+
+La prueba de tal decisión prácticamente no difiere de la de la prueba de solución con la ayuda de \algohref=prefix_function{prefijo}.
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver utilizando Z-función:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=396{UVA #455 \bf{"Periodic Strings"} ~~~~ [dificultad media]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1963={UVA #11022 \bf{"String Factoring"} ~~~~ [dificultad media]}
+
+}

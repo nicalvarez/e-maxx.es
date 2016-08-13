@@ -1,0 +1,224 @@
+\h1{Correct bracket sequence}
+
+A correct bracket sequence is the string of characters "brackets" (usually considered only parentheses, but here will be considered and the General case of several types of parentheses), where each close-bracket there is a corresponding opening (and of the same type).
+
+Here we consider the classical problem to the correct bracket sequence (for brevity just "sequence"): check for correctness, the number of sequences and the generation of all sequences, finding the lexicographically next sequence, finding the $k$-th sequence in the sorted list of all sequences, and, on the contrary, the definition of the sequence number. Each task is considered in two cases --- when brackets are allowed only one type, and when several types.
+
+
+\h2{Check validity}
+
+Suppose first that allowed brackets only one type, then to check the sequence on the correct can a very simple algorithm. Let $\rm depth$ --- this is the current number of open brackets. Initially $\rm depth = 0$. Will move on a line from left to right, if the current opening parenthesis, we increment $\rm depth$ per unit, otherwise reduce. If we used a negative number, or at the end of the algorithm $\rm depth$ is nonzero, this string is not a correct bracket sequence, is otherwise.
+
+If a valid brackets of several types, the algorithm needs to change. Instead of the counter $\rm depth$ should create a stack that will put the opening brace on a rolling basis. If the current character of the string --- the opening brace, we push it on the stack, but if the closing --- then check that the stack is not empty, and that at its top is a brace of the same type as the present one, and then remove the bracket from the stack. If any of these conditions are not met, or at the end of the algorithm the stack is not empty, then the sequence is not the correct bracket, is otherwise.
+
+Thus, both of these tasks we learned how to solve for time $O(n)$.
+
+
+\h2{Number of sequences}
+
+\h3{Formula}
+
+The number of regular bracket sequences with one type of brackets can be calculated as \bf{\algohref=catalan_numbers{the Catalan number}}. I.e. if there are $n$ pairs of parentheses (a string of length $2n$), the amount equal to:
+
+$$ \frac{1}{n+1} \cdot C^n_{2n}. $$
+
+Suppose now that there is not one, and $k$ types of brackets. Then each pair of brackets independently of the other can take one of $k$ types, and therefore we get the following formula:
+
+$$ \frac{1}{n+1} \cdot C^n_{2n} \cdot k^n. $$
+
+\h3{Dynamic programming}
+
+On the other hand, this task can be approached from the point of view of \bf{dynamic programming}. Let $d[n]$ --- the number of correct bracket sequences of $n$ pairs of parentheses. Note that in the first position will always be preceded by an open parenthesis. It is clear that inside this pair of brackets is some kind of a regular bracket sequence; similarly, after this pair of brackets is also correct bracket sequence. Now to calculate $d[n]$, consider how many pairs of parentheses, $i$ will stand inside of this first pair, then, respectively, $n-1-i$ pair of brackets will stand after this first pair. Therefore, the formula for $d[n]$ is:
+
+$$ d[n] = \sum_{i=0}^{n-1} d[i] \cdot d[n-1-i]. $$
+
+The initial value for this recursive formula is $d[0] = 1$.
+
+
+\h2{all sequences}
+
+Sometimes you need to find and display all correct bracket sequences of a specified length $n$ (in this case $n$ is the length of the string).
+
+You can start with lexicographically first sequence $((\ldots(())\ldots))$, then find the lexicographically each time the following sequence using the algorithm described in the next section.
+
+But if the restrictions are not very large ($n$ up to $10-12$), then we can proceed much easier. Find all possible permutations of those brackets (it is convenient to use the function next_permutation()), there will be $C_{2n}^n$, and each will check the correctness of the above algorithm, in the case of correct output the current sequence.
+
+The process of finding all sequences can be arranged in the form of recursive busting with clippings (which ideally, we can bring speed to the first algorithm).
+
+
+\h2{Finding the following sequence}
+
+Here we consider only the case of one type of brackets.
+
+Given a correct bracket sequence is required to find a correct bracket sequence that is next in lexicographical order after the current (or issue "No solution" if there is none).
+
+It is clear that the overall algorithm is as follows: find a rightmost opening parenthesis, we have the right to replace at closing (so that the correctness is not violated), and the rest of the right will replace a string in lexicographically minimum: i.e. the number of opening parentheses, then all the remaining closing brace. In other words, we try to leave without change as a longer prefix of the original sequence, and the suffix of this sequence is replaced by the lexicographically minimal.
+
+Then, how to find the position of the first change. For this we will follow the string right to left and maintain the balance of the $\rm depth$ of open and closed brackets (at the meeting, the opening bracket will reduce the $\rm depth$, and at the closing --- increase). If at some point we stand at the opening parenthesis, and the balance after the processing of this symbol is greater than zero, then we have found the rightmost position, from which we can begin to change consistency (indeed, $\rm depth > 0$ means that the left has not yet closed bracket). Put in the current position of the closing parenthesis, then the maximum possible number of opening parentheses, then all the remaining closing brackets --- the answer is found.
+
+If we looked through the line and never found a suitable position, then the current sequence is the maximum, and there is no answer.
+
+The implementation of the algorithm:
+
+\code
+string s;
+cin >> s;
+int n = (int) s.length();
+string ans = "No solution";
+for (int i=n-1, depth=0; i>=0; --i) {
+if (s[i] == '(')
+--depth;
+else
+depth++;
+if (s[i] == '(' && depth > 0) {
+--depth;
+int open = (n-i-1 - depth) / 2;
+int close = n-i-1 - open;
+ans = s.substr(0,i) + ')' + string (open, '(') + string (close, ')');
+break;
+}
+}
+cout << ans;
+\endcode
+
+Thus, we have solved this problem in $O(n)$.
+
+
+\h2{sequence Number}
+
+Here let $n$ the number of pairs of brackets in the sequence. Required for a given a correct bracket sequence to find its number in the list of lexicographically ordered regular bracket sequences.
+
+To compute auxiliary \bf{dynamics} $d[i][j]$, where $i$ --- the length of the bracket sequence (it is "semi": any closing parenthesis with a steam room opening, but not all open parenthesis are closed), $j$ --- balance (i.e. the difference between the number of opening and closing parentheses), $d[i][j]$ --- the number of such sequences. When calculating these dynamics, we believe that parentheses are only one type.
+
+To consider these dynamics as follows. Let $d[i][j]$ --- value we want to calculate. If $i=0$, then the answer is clear immediately: $d[0][0] = 1$, all other $d[0][j] = 0$. Let now $i > 0$, then mentally let's consider what was equal to the last symbol of this sequence. If it was equal to '(', before that character we were in state $(i-1,j-1)$. If it was equal to ')', that was the previous state $(i-1,j+1)$. Thus, we get the formula:
+
+$$ d[i][j] = d[i-1][j-1] + d[i-1][j+1] $$
+
+(it is considered that all values of $d[i][j]$ is negative when $j$ is equal to zero). Thus, this dynamics we can calculate the $O(n^2)$.
+
+Now we proceed to solving the task itself.
+
+First let valid only brackets \bf{one} type. Please start the meter $\rm depth$ depth of nesting in brackets, and will move in sequence from left to right. If the current symbol is $s[i]$ ($i=0 \ldots 2n-1$) is $ ' ( ' , then we increase $\rm depth$ 1 and move on to the next character. If the current character is ') ' then we have to add to the answer $d[2n-i-1][\rm depth+1]$, thus considering that in this position could stand the character '(' (which would lead to a lexicographically smaller sequence than the current); then we reduce $\rm depth$ per unit.
+
+Now suppose that parentheses are allowed \bf{short} $k$ types. Then when considering the current symbol $s[i]$ before conversion $\rm depth$ we need to iterate over all the brackets less than the current symbol, to try to put this brace on current position (thereby obtaining a new balance of $\ndepth rm = \rm depth \pm 1$), and to add to the answer number corresponding to the "tails" of completions (of length $2n-i-1$, the balance of the $\rm ndepth$ and $k$ types of brackets). It is claimed that the formula for this quantity is:
+
+$$ d[2n-i-1][{\rm ndepth}] \cdot k^{ (2n-i-1 - {\rm ndepth})/2 }. $$
+
+This formula is deduced from the following considerations. First, we "forget" about the fact that braces come in several types, and just take the response from $d[2n-i-1][{\rm ndepth}]$. Now calculate, how will the answer change because of the presence of $k$ types of brackets. We have $2n-i-1$ is undefined, $\rm ndepth$ are brackets that covers some of open earlier --- so, the type of the parentheses we can't be varied. But all the other brackets (and there will be $(2n-i-1 - {\rm ndepth})/2$ pairs) can be any of $k$ types, so the answer is multiplied by the number of degree $k$.
+
+
+\h2{finding the $k$-th sequence}
+
+Here let $n$ the number of pairs of brackets in the sequence. In this problem, given $k$ you want to find $k$-th regular bracket sequence in the lexicographically ordered list of sequences.
+
+As in the previous section, calculate \bf{dynamics} $d[i][j]$ --- the number of correct bracket sequences of length $i$ with a balance of $j$.
+
+First let valid only brackets \bf{one} type.
+
+Will move on to the characters of the string, from $0$to $2n-1$-th. As in the previous task, we will store the count $\rm depth$ --- the current depth of nesting in brackets. In each current position you iterate over all possible symbol is an opening bracket or a closing. Suppose we want to put a open brace, then we must look at the value of $d[i+1][\rm depth+1]$. If it is $\ge k$, then we put in a current position open brace increases $\rm depth$ per unit and move on to the next character. Otherwise, we take $k$ the value of $d[i+1][\rm depth+1]$, we put a closing parenthesis and decrement the value of $\rm depth$. In the end we will get the desired bracket sequence.
+
+The Java implementation is using long arithmetic:
+
+\code
+int n; BigInteger k; // input
+
+BigInteger d[][] = new BigInteger [n*2+1][n+1];
+for (int i=0; i<=n*2; ++i)
+for (int j=0; j<=n; ++j)
+d[i][j] = BigInteger.ZERO;
+d[0][0] = BigInteger.ONE;
+for (int i=0; i<n*2; ++i)
+for (int j=0; j<=n; ++j) {
+if (j+1 <= n)
+d[i+1][j+1] = d[i+1][j+1].add( d[i][j] );
+if (j > 0)
+d[i+1][j-1] = d[i+1][j-1].add( d[i][j] );
+}
+
+String ans = new String();
+if (k.compareTo( d[n*2][0] ) > 0)
+ans = "No solution";
+else {
+int depth = 0;
+for (int i=n*2-1; i>=0; --i)
+if (depth+1 <= n && d[i][depth+1].compareTo( k ) >= 0) {
+ans += '(';
+depth++;
+}
+else {
+ans += ')';
+if (depth+1 <= n)
+k = k.subtract( d[i][depth+1] );
+--depth;
+}
+}
+\endcode
+
+Let now allowed not one, but \bf{$k$ types} brackets. Then the solution algorithm will differ from the previous case only in that we must domniate the value of $D[i+1][\rm ndepth]$ with value $k^{(2n-i-1- \ndepth rm)/2}$ to take into account that this balance could be different types of brackets and paired brackets in this balance will be only $2n-i-1- \ndepth rm$, since $\rm ndepth$ are the closing parentheses for an opening parentheses, outside of this residue (and therefore their types vary, we can't).
+
+The Java implementation for the case of two types of brackets - square and round:
+
+\code
+int n; BigInteger k; // input
+
+BigInteger d[][] = new BigInteger [n*2+1][n+1];
+for (int i=0; i<=n*2; ++i)
+for (int j=0; j<=n; ++j)
+d[i][j] = BigInteger.ZERO;
+d[0][0] = BigInteger.ONE;
+for (int i=0; i<n*2; ++i)
+for (int j=0; j<=n; ++j) {
+if (j+1 <= n)
+d[i+1][j+1] = d[i+1][j+1].add( d[i][j] );
+if (j > 0)
+d[i+1][j-1] = d[i+1][j-1].add( d[i][j] );
+}
+
+String ans = new String();
+int depth = 0;
+char [] stack = new char[n*2];
+int stacksz = 0;
+for (int i=n*2-1; i>=0; --i) {
+BigInteger cur;
+// '('
+if (depth+1 <= n)
+cur = d[i][depth+1].shiftLeft( (i-depth-1)/2 );
+else
+cur = BigInteger.ZERO;
+if (cur.compareTo( k ) >= 0) {
+ans += '(';
+stack[stacksz++] = '(';
+depth++;
+continue;
+}
+k = k.subtract( cur );
+// ')'
+if (stacksz > 0 && stack[stacksz-1] == '(' && depth-1 >= 0)
+cur = d[i][depth-1].shiftLeft( (i-depth+1)/2 );
+else
+cur = BigInteger.ZERO;
+if (cur.compareTo( k ) >= 0) {
+ans += ')';
+--stacksz;
+--depth;
+continue;
+}
+k = k.subtract( cur );
+// '['
+if (depth+1 <= n)
+cur = d[i][depth+1].shiftLeft( (i-depth-1)/2 );
+else
+cur = BigInteger.ZERO;
+if (cur.compareTo( k ) >= 0) {
+ans += '[';
+stack[stacksz++] = '[';
+depth++;
+continue;
+}
+k = k.subtract( cur );
+// ']'
+ans += ']';
+--stacksz;
+--depth;
+}
+\endcode

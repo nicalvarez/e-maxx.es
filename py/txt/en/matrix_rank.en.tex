@@ -1,0 +1,28 @@
+the <h1>finding the rank of a matrix</h1>
+<p><b>Rank of a matrix</b> is the largest number of linearly independent rows/columns of the matrix. Rank is not dened only for square matrices; let the matrix is rectangular and has a size of NxM.</p>
+<p>the rank of a matrix can be defined as the greatest of the orders of the minors of the matrix are non-zero.</p>
+<p>note that if the matrix is square and its determinant is nonzero, then the rank of N(=M), otherwise it will be less. In the General case, rank of a matrix does not exceed min(N,M).</p>
+the <h2>the Algorithm</h2>
+<p>Look for grade by using the modified <algohref=linear_systems_gauss>Gaussian elimination</algohref>. Will perform exactly the same operations as in the solution of the system or finding its determinant, but if at any step in the i-th column among unselected rows before that there is no non-zero, then we skip this step, but the grade will decrease by one (initially, we believe the rank is equal to max(N,M)). Otherwise, if we found on the i-th step of the string with a non-zero element in the i-th column, we mark this row as selected, and perform the usual operations of grabbing this string from the others.</p>
+the <h2>Implementation</h2>
+<code>const double EPS = 1E-9;
+
+int rank = max(n,m);
+vector<char> line_used (n);
+for (int i=0; i<m; ++i) {
+int j;
+for (j=0; j<n; j++)
+if (!line_used[j] && abs(a[j][i]) > EPS)
+break;
+if (j == n)
+--rank;
+else {
+line_used[j] = true;
+for (int p=i+1; p<m; p++)
+a[j][p] /= a[j][i];
+for (int k=0; k<n; k++)
+if (k != j && abs (a[k][i]) > EPS)
+for (int p=i+1; p<m; p++)
+a[k][p] -= a[j][p] * a[k][i];
+}
+}</code>

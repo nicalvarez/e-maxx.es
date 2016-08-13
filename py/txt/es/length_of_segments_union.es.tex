@@ -1,0 +1,32 @@
+<h1>la Longitud de la combinación de regiones en directo por O (N log N)</h1>
+
+<p>Dados N de segmentos de línea directa, es decir, cada trozo se establece un par de coordenadas (X1, X2). Considere la combinación de estas regiones y a encontrar su longitud.</p>
+<p>el Algoritmo fue propuesto Cus (Klee) en 1977. Funciona el algoritmo de O (N log N). Se ha demostrado que este algoritmo es быстрейшим (asintóticamente).</p>
+<h2>Descripción</h2>
+<p>Pondremos todas las coordenadas de los extremos de los trozos en la matriz X y ordenará por el valor de las coordenadas. Una condición adicional a la hora de ordenar - en caso de empate, las coordenadas de los primeros deben ir a la izquierda de los extremos. Además, para cada elemento de la matriz vamos a almacenar, se refiere a él, a la izquierda o a la derecha de final del corte. Ahora vamos a hacer un recorrido por todo el cuerpo, teniendo el contador C superposición de regiones. Si C es diferente de cero, entonces el resultado añadimos la diferencia X<sub>i</sub> - X<sub>i-1</sub>. Si el elemento actual se refiere a la izquierda finales, incrementamos el contador C, de lo contrario, reducimos la de él.</p>
+<h2>Realización</h2>
+<code>unsigned segments_union_measure (const vector <pair <int,int> > a & a)
+{
+unsigned n = a.size();
+vector <pair <int,bool> > x (n*2);
+for (unsigned i=0; i<n; i++)
+{
+x[i*2] = make_pair (a[i].first, false);
+x[i*2+1] = make_pair (a[i].second, true);
+}
+
+sort (x.begin(), x.end());
+
+unsigned result = 0;
+unsigned c = 0;
+for (unsigned i=0; i<n*2; i++)
+{
+if (c && i)
+result += unsigned (x[i].first - x[i-1].first);
+if (x[i].second)
+++c;
+else
+--c;
+}
+return result;
+}</code>

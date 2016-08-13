@@ -1,0 +1,106 @@
+\h1{Encontrar caminos más cortos desde un determinado vértice a todos los demás vértices de un algoritmo Дейкстры dispersas de los condes}
+
+La creación de la tarea, el algoritmo y su prueba, \algohref=dijkstra{artículo sobre el total de algoritmo Дейкстры}.
+
+\h2{el Algoritmo}
+
+Recordemos que la complejidad del algoritmo Дейкстры es la suma de las dos operaciones principales: el tiempo de permanencia de la cima con el menor valor de la distancia $d[v]$, y el tiempo de la realización de la relajación, es decir, el tiempo de cambio de la cantidad de $d[to]$.
+
+La forma más simple de la aplicación de estas operaciones requerirán de, respectivamente, $O(n)$ e $O(1)$ de tiempo. Teniendo en cuenta que la primera operación de todo el se $O(n)$ veces, y la segunda --- $O(m)$, obtenemos асимптотику la simple implementación de un algoritmo de Дейкстры: $O(n^2+m)$.
+
+Está claro que esta asíntotas es la mejor para el densas de grafos, es decir, cuando el $m \approx n^2$. Cuanto más разрежен conde (es decir, cuanto menos $m$, en comparación con el máximo número de aristas $n^2$), menos óptimo se convierte en esta evaluación, y por culpa del primer término. Por lo tanto, hay que mejorar el tiempo de ejecución de las operaciones del primer tipo, no es mucho lo que perjudica al tiempo de ejecución de las operaciones del segundo tipo.
+
+Para ello, es necesario utilizar diferentes estructuras de apoyo de datos. Los más atractivos son \bf{Фибоначчиевы de la pila}, que permiten la operación del primer tipo por $O(\log n)$ y la segunda a --- a $O(1)$. Por lo tanto, cuando se utiliza Фибоначчиевых de los montones de tiempo de funcionamiento del algoritmo de Дейкстры $O(n \log n + m)$, que es prácticamente de carácter teórico mínimo para el algoritmo de búsqueda de la ruta más corta. Por cierto, esta evaluación es óptimo para los algoritmos basados en el algoritmo de Дейкстры, es decir, Фибоначчиевы de la pila son óptimas desde este punto de vista (es el argumento de la alternativa de la realidad se basa en la imposibilidad de la existencia de ese "ideal" de la estructura de datos --- si existiera, se podría ordenar por lineal del tiempo, que, como se sabe, en general, no; sin embargo, es interesante observar que existe un algoritmo de Торупа (Thorup), que busca el camino más corto con el mejor, lineal, асимптотикой, pero, se basará en la muy diferente de la idea de que el algoritmo de Дейкстры, por lo tanto, ninguna contradicción). Sin embargo, Фибоначчиевы de la pila son bastante difíciles de implementar (y hay que señalar, tienen un gran valor constante, oculta en la asíntota de la función).
+
+Como compromiso, se pueden utilizar estructuras de datos que permiten realizar \bf{ambos tipos de operaciones} (de hecho, es la obtención de mínimos y la actualización de un elemento) a $O(\log n)$. Entonces el tiempo de funcionamiento del algoritmo de Дейкстры será:
+$$ O(n \log n + m \log n) = O (m \log n) $$
+
+Como esta estructura de datos a los programadores de C++ conveniente tomar un contenedor estándar de $\rm set$ o $\rm priority\_queue$. La primera se basa en rojo y negro, el árbol, la segunda --- binaria montón. Por lo tanto, $\rm priority\_queue$ tiene menos constante, escondida en el асимпотике, sin embargo, tiene el inconveniente de que no es compatible con la operación de eliminación de un elemento, por lo que tiene que hacer una "solución alternativa", que en realidad lleva a la sustitución de la asíntota de la función $\log n$ en $\log m$ (desde el punto de vista de la асимптотики en realidad no cambia nada, pero oculta una constante aumenta).
+
+\h2{Aplicación}
+
+\h3{set}
+
+Comencemos con el contenedor de $\rm set$. Ya en el contenedor necesitamos almacenar la cima, ordenados de acuerdo a sus valores $d[]$, lo conveniente en un recipiente colocar las parejas: el primer elemento del par -a-distancia - y el segundo --- número de vértices. En consecuencia, en $\rm set$ se almacenarán de la pareja, automáticamente ordenados por la distancia que necesitamos.
+
+\code
+const int INF = 1000000000;
+
+int main() {
+int n;
+... la lectura de la n ...
+vector < vector < pair<int,int> > > g (n);
+... lectura del conde ...
+int s = ...; // inicio de la cima
+
+vector<int> d (n, INF), p (n);
+d[s] = 0;
+set < pair<int,int> > q;
+q.insert (make_pair (d[s], s)));
+while (!q.empty()) {
+int v = q.begin()->second;
+q.erase (q.begin());
+
+for (size_t j=0; j<g[v].size(); ++j) {
+int to = g[v][j].first,
+len = g[v][j].second;
+if (d[v] + len < d[to]) {
+q.erase (make_pair (d[to], to));
+d[to] = d[v] + len;
+p[to] = v;
+q.insert (make_pair (d[to], to));
+}
+}
+}
+}
+\endcode
+
+A diferencia del algoritmo de Дейкстры, se hace innecesario el array $u[]$. Su función, como la función de encontrar el vértice con menor distancia, realiza $\rm set$. Inicialmente, en ella ponemos la plataforma de lanzamiento de la cima de la $s$ con su distancia. El bucle principal del algoritmo se ejecuta hasta en la cola hay un vértice. De la cola, se recupera la cima con la menor distancia, y luego de ella se realizan de relajación. Antes de realizar cada éxito de la relajación, lo primero que eliminamos de $\rm set$ el par, y luego, después de la ejecución de la relajación, añadimos de nuevo la nueva pareja (con la nueva distancia $d[to]$).
+
+\h3{priority_queue}
+
+En principio aquí las diferencias entre $\rm set$ no, a excepción de aquel momento, que elimine de $\rm priority\_queue$ arbitrarias de elementos es imposible (aunque en teoría de la pila apoyan esta operación, en la biblioteca estándar de ella no se ha implementado). Por lo que tenemos que hacer "solución alternativa": la relajación simplemente no vamos a eliminar los vapores de la cola. En consecuencia, en la cola, que pueden estar simultáneamente varios pares para la misma cima (pero con diferentes distancias de visión). Entre estas parejas nos interesa sólo una, para la cual el elemento de $\rm first$ es $d[v]$, y todos los demás son falsos. Por eso, hay que hacer una pequeña modificación: al principio de cada iteración, cuando aprendemos de la cola de otro par, vamos a comprobar que, ficticia o no, (para ello basta con comparar $\rm first$ y $d[v]$). Cabe destacar que esta importante modificación: si no lo hace, que dará lugar a un deterioro significativo de la асимптотики (a $O(nm)$).
+
+Sin embargo hay que recordar que $\rm priority\_queue$ organiza los elementos en orden descendente y no ascendente, como de costumbre. La forma más fácil de superar esta característica de la no indicación de su operador de comparación, y colocando simplemente como elementos de $\rm first$ la distancia con signo negativo. En consecuencia, en la raíz de la pila brindará los elementos con la menor distancia de la que necesitamos.
+
+\code
+const int INF = 1000000000;
+
+int main() {
+int n;
+... la lectura de la n ...
+vector < vector < pair<int,int> > > g (n);
+... lectura del conde ...
+int s = ...; // inicio de la cima
+
+vector<int> d (n, INF), p (n);
+d[s] = 0;
+priority_queue < pair<int,int> > q;
+q.push (make_pair (0, s,));
+while (!q.empty()) {
+int v = q.top().second, cur_d = -q.top().first;
+q.pop();
+if (cur_d > d[v]) continue;
+
+for (size_t j=0; j<g[v].size(); ++j) {
+int to = g[v][j].first,
+len = g[v][j].second;
+if (d[v] + len < d[to]) {
+d[to] = d[v] + len;
+p[to] = v;
+q.push (make_pair (-d[to], to));
+}
+}
+}
+}
+\endcode
+
+Como regla general, en la práctica, la versión con $\rm priority\_queue$ resulta un poco más rápido la versión con $\rm set$.
+
+\h3{Liberación de pair}
+
+Todavía se puede mejorar un poco el rendimiento, si en los contenedores los guarda, no de la pareja, y sólo los números de los vértices. Con esto, claro, es necesario sobrecargar el operador de comparación para los vértices: comparar dos picos necesario por la distancia hasta ellos $d[]$.
+
+Como resultado de la relajación de la magnitud de la distancia de un vértice cambia, es necesario entender que "de por sí" estructura de datos no cambiar de orientación. Por lo tanto, aunque pueda parecer que eliminar/añadir elementos en el contenedor en el proceso de relajación no es necesario, esto dará lugar a la destrucción de la estructura de datos. Aún antes de relajación, debemos eliminar de la estructura de datos cima de $\rm to$, y después de la relajación de pegar su espalda --- entonces ninguna relación entre los elementos de la estructura de datos no нарушатся.
+
+Y ya que eliminar los elementos de $\rm set$, pero no de $\rm priority\_queue$, resulta que esta técnica sólo es aplicable a $\rm set$. En la práctica, se aumenta considerablemente la productividad, especialmente cuando para almacenar las distancias se utilizan ampliación de los tipos de datos (como $\rm long\ long$ o $\rm double$).

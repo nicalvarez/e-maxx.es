@@ -1,0 +1,94 @@
+\h1{la Búsqueda de puntos de articulación}
+
+Que dan coherente неориентированный conde. \bf{Punto de articulación} (o punto de articulación, angl. "cut vertex" o "articulation point") es un vértice, la eliminación de la que hace el conde de несвязным.
+
+Describir un algoritmo basado en la búsqueda en profundidad, trabaja en el $O(n+m)$, donde $n$ --- número de vértices, $m$ --- de las costillas.
+
+
+\h2{el Algoritmo}
+
+Ejecutar un rastreo en la profundidad de la arbitraria de vértices del grafo; se denota por $\rm root$. Tenga en cuenta el siguiente \bf{hecho} (que es fácil de probar):
+
+\ul{
+
+\li Que estamos en rastrear en profundidad, viendo ahora todas las aristas de la cima de $v \ne {\rm root}$. Entonces, si la arista $(v,a)$ es tal, que desde la cima de $to$ y desde cualquier descendiente en el árbol de la solución en la profundidad de la devolución de las costillas en ningún antepasado de la cima de $v$, entonces la cima de $v$ es el punto de articulación. En caso contrario, es decir, si se rastrea en la profundidad de las ha visto todas las costillas de la parte superior $v$, y no he encontrado satisfaga вышеописанным las condiciones de la aleta, la cima de $v$, no es el punto de articulación. (En realidad, esta condición se comprueba si no hay otro camino desde $v$ a $to$)
+
+\li Veamos ahora el caso restante: $v = {\rm root}$. Entonces esta cima es el punto de articulación entonces, y sólo entonces, cuando esta cima tiene más de un hijo en el árbol de la solución en profundidad. (En realidad, lo que significa que, pasando de $\rm root$ arbitraria, una arista, no podemos pasar por todo el gráfico, donde inmediatamente se deduce que $\rm root$ --- punto de articulación).
+
+}
+
+(Cf. la formulación de este criterio con la redacción de los criterios para \algohref=bridge_searching{el algoritmo de búsqueda de puentes}.)
+
+Ahora queda aprender a comprobar este hecho para cada vértice de manera eficiente. Para eso utilizaremos "las edades de inicio de sesión en la cima", calculados \algohref=dfs{el algoritmo de búsqueda en profundidad}.
+
+Así, que de $tin[v]$ --- es la hora de la puesta de búsqueda en profundidad en la cima de la $v$. Ahora introducimos la matriz $fup[v]$, que es la que nos permitirá responder a estas solicitudes. $Fup[v]$ es igual a un mínimo de tiempo de la puesta en la cima de $tin[v]$, de los tiempos de la puesta en cada cima de $p$, que es el final de algún devolución de la costilla $(v,p)$, así como de todos los valores de $fup[to]$ para cada vértice $to$, que es hijo directo de la $v$ en el árbol de búsqueda:
+
+$$ fup[v] = \min \cases{
+tin[v], & \cr
+tin[p], & {\rm for all} (v,p){\rm\ --- back edge } \cr
+fup[to], & {\rm for all} (v,a){\rm\ --- tree edge } \cr
+} $$
+
+(aquí "back edge" --- lo contrario de la costilla, "tree edge" --- el borde de la madera)
+
+Entonces, desde la cima de $v$ o su descendiente es lo contrario de la costilla en su antecesor entonces, y sólo entonces, cuando hay un hijo de $to$ que $fup[to] < tin[v]$.
+
+Por lo tanto, si para el estado actual de la aleta $(v,a)$ (de propiedad de un árbol de búsqueda) se $fup[to] \ge tin[v]$, entonces la cima de $v$ es el punto de articulación. Para el inicio de la cima de $v = {\rm root}$ el criterio de la otra, para de esta cima es necesario calcular el número de directos de los hijos en el árbol de la solución en profundidad.
+
+
+\h2{Aplicación}
+
+Si hablamos de la aplicación, tenemos que ser capaces de distinguir tres casos: cuando vamos por la arista del árbol de búsqueda en profundidad, cuando vamos por la devolución de una arista, y cuando tratamos de ir por el eje de la madera en la dirección opuesta. Son, respectivamente, los casos de $used[to]=false$, $used[to]=true ~ \&\& ~ to \ne parent$, e $to=parent$. Por lo tanto, tenemos que transmitir a la función de búsqueda en profundidad de la cima de la antecesor, el actual de la cima.
+
+\code
+vector<int> g[MAXN];
+bool used[MAXN];
+int timer, tin[MAXN], fup[MAXN];
+
+void dfs (int v, int p = -1) {
+used[v] = true;
+tin[v] = fup[v] = timer++;
+int children = 0;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (a == p) continue;
+if (used[to])
+fup[v] = min (fup[v], tin[to]);
+else {
+dfs (a, v);
+fup[v] = min (fup[v], fup[to]);
+if (fup[to] >= tin[v] && p != -1)
+IS_CUTPOINT(v);
+++children;
+}
+}
+if (p == -1 && children > 1)
+IS_CUTPOINT(v);
+}
+
+int main() {
+int n;
+... la lectura de n y g ...
+
+timer = 0;
+for (int i=0; i<n; ++i)
+used[i] = false;
+dfs (0);
+}
+\endcode
+
+Aquí la constante de $\rm MAXN$ debe tener un valor igual al máximo número de vértices en la entrada de la columna.
+
+La función ${\rm IS\_CUTPOINT}(v)$ en el código --- esto es una característica que va a reaccionar a lo que la punta de la $v$ es el punto de articulación, por ejemplo, la salida este de la cima de la pantalla (hay que tener en cuenta que para la misma cima de esta función se puede llamar varias veces).
+
+
+\h2{Tareas en línea judges}
+
+La lista de tareas en las que es necesario buscar un punto de articulación:
+
+\ul{
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=13&page=show_problem&problem=1140{UVA #10199 \bf{"Tourist Guide"} ~~~~ [dificultad: baja]}
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=5&page=show_problem&problem=251{UVA #315 \bf{"Network"} ~~~~ [dificultad: baja]}
+}
+
+

@@ -1,0 +1,81 @@
+\h1{Método de newton (tangentes) para la búsqueda de las raíces}
+
+Es un método iterativo, inventado \bf{isaac newton} (Isaak Newton) alrededor de 1664 sin Embargo, a veces este método se conoce como método de newton-raphson (Raphson), ya que Рафсон inventó el mismo algoritmo unos años más tarde de newton, sin embargo, su artículo fue publicado mucho antes.
+
+La tarea consiste en lo siguiente. Dada la ecuación:
+
+$$ f(x) = 0. $$
+
+Es necesario resolver esta ecuación, más precisamente, encontrar uno de sus raíces (se supone que la raíz existe). Se supone que $f(x)$ es continua y дифференцируема en el intervalo $[a, b]$.
+
+
+\h2{el Algoritmo}
+
+El parámetro de entrada del algoritmo, además de la función $f(x)$, es también \bf{inicial de aproximación} --- un $x_0$, de los cuales el algoritmo comienza a caminar.
+
+Que se ha calculado ya $x_i$, calcularemos $x_{i+1}$ de la siguiente manera. Pasaremos la tangente al gráfico de la función $f(x)$ en el punto $x = x_i$, y encontrar el punto de intersección de la tangente con el eje de abscisas. $x_{i+1}$ pondremos igual a la encontrada punto, y repetir todo el proceso desde el principio.
+
+Es fácil obtener la siguiente fórmula:
+
+$$ x_{i+1} = x_i - \frac{ f(x_i) }{ f^\prime(x_i) }. $$
+
+Intuitivamente es claro que si la función $f(x)$ es lo suficientemente "buena" (suave), y $x_i$ se encuentra lo suficientemente cerca de la raíz, $x_{i+1}$ va a estar aún más cerca de la искомому la raíz.
+
+La velocidad de convergencia es \bf{cuadrática}, que, convencionalmente hablando, significa que el número de decimales exactos en más o menos el valor en $x_i$ se duplica con cada iteración.
+
+
+\h2{Aplicación para calcular la raíz cuadrada}
+
+Considere el método de newton en el ejemplo de cálculo de una raíz cuadrada.
+
+Si sustituir $f(x) = \sqrt{x}$, entonces después de simplificar la expresión obtenemos:
+
+$$ x_{i+1} = \frac{ x_i + \frac{n}{x_i} }{ 2 }. $$
+
+El primer típica de la tarea --- cuando se les da un número fraccionario $n$, y la necesidad de calcular su raíz con una cierta exactitud $\rm EPS de$:
+
+\code
+double n;
+cin >> n;
+const double EPS = 1E-15;
+double x = 1;
+for (;;) {
+double nx = (x + n / x) / 2;
+if (abs (x - nx) < EPS); break;
+x = nx;
+}
+printf ("%.15lf", x);
+\endcode
+
+Otro uso común de la tarea --- cuando se desea calcular el entero de la raíz (para este $n$ encontrar el mayor de $x$ tal que $x^2 \le n$). Aquí tenemos un poco de modificar la condición de parada del algoritmo, ya que puede suceder que $x$ comenzará a "saltar" cerca de la respuesta. Por lo tanto, añadimos la condición de que si el valor de $x$ en el paso anterior se ha disminuido, y en el paso actual está tratando de aumentar el algoritmo es necesario parar.
+
+\code
+int n;
+cin >> n;
+int x = 1;
+bool decreased = false;
+for (;;) {
+int nx = (x + n / x) >> 1;
+if (x == nx || nx > x && decreased); break;
+decreased = nx < x;
+x = nx;
+}
+cout << x;
+\endcode
+
+Por último, veamos la tercera opción --- para el caso de la larga de la aritmética. Dado que el número de $n$ puede ser bastante grande, tiene sentido prestar atención a la inicial de aproximación. Es evidente que cuanto más cerca de la raíz, más rápido se logre el resultado. Simple y eficaz de tomar como punto de partida de aproximación el número de $2^{{\rm bits}/2}$, donde $\rm bits de$ a --- el número de bits de entre $n$. Aquí está el código de Java que muestra esta opción:
+
+\code
+BigInteger n; // datos de entrada
+
+BigInteger a = BigInteger.ONE.shiftLeft (n.bitLength() / 2);
+boolean p_dec = false;
+for (;;) {
+BigInteger b = n.divide(a).add(a).shiftRight(1);
+if (a.compareTo(b) == 0 || a.compareTo(b) < 0 && p_dec); break;
+p_dec = a.compareTo(b) > 0;
+a = b;
+}
+\endcode
+
+Por ejemplo, esta opción de código se realiza para el número de $10^{1000}$ $60$ milisegundos, y si quitamos superior de la elección de la primera aproximación (simplemente comenzar con $1$), se ejecutará alrededor de $120$ milisegundos.

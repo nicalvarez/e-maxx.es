@@ -1,0 +1,155 @@
+\h1{ el Algoritmo de kuhn encontrar la mayor паросочетания en двудольном columna }
+
+Dan двудольный el conde de $G$ que contiene a $n$ vértices y $m$ costillas. Es necesario encontrar el mayor паросочетание, es decir, elegir lo más posible de los bordes, para que ninguno tiene la arista no tenía el vértice compartido con ninguna otra seleccionado el borde.
+
+
+\h2{ Descripción del algoritmo }
+
+
+\h3{ las definiciones }
+
+\bf{Паросочетанием} $M$ es un conjunto de pares contiguos de las costillas del conde (en otras palabras, cualquier cima del conde debe ser инцидентно no más aristas de una de las muchas $M$). La potencia de паросочетания llamaremos el número de aletas en él. El mayor (o máximos) паросочетанием llamaremos паросочетание, cuya potencia es de proteccin de entre todas las posibles паросочетаний en este apartado. Todos los vértices tienen contiguo, el borde de паросочетания (es decir, los que tienen un grado de exactamente una en punto, formado por $M$), llamaremos saturados este паросочетанием.
+
+\bf{Cadena} longitud de la $k$ llamaremos algo de una manera sencilla, es decir, no contiene duplicados de vértices o aristas) que contiene $k$ de las costillas.
+
+\bf{Rotatoria de la cadena} (en двудольном la columna, respecto a algún паросочетания) llamaremos cadena, en la que las costillas alternativamente pertenece/no pertenece паросочетанию.
+
+\bf{Amplificada de la cadena} (en двудольном la columna, respecto a algún паросочетания) llamaremos чередующуюся la cadena, el cual de inicio y final de la cima no pertenecen паросочетанию.
+
+
+\h3{ Teorema de Бержа }
+
+\bf{Redacción}. Паросочетание es el máximo entonces, y sólo entonces, cuando no existe aumentan con respecto a ella circuitos.
+
+\bf{Prueba de la necesidad de}. Mostraremos que si паросочетание $M$ máximo, no hay amplificada respecto a ella de la cadena. Prueba de ello será constructiva: vamos a mostrar como aumentar mediante el uso de esta amplificada de la cadena $P$ potencia паросочетания $M$ por unidad.
+
+Para ello, vamos a realizar el llamado rotación de паросочетания lo largo de la cadena $P$. Recordamos que, por definición, la primera arista de la cadena $P$ no pertenece паросочетанию, la segunda --- pertenece a la tercera --- de nuevo, no pertenece a la cuarta --- pertenece, y así sucesivamente, Vamos a cambiar el estado de todos los bordes a lo largo de la cadena $P$: las costillas, que no entraban en el паросочетание (la primera, la tercera y así sucesivamente hasta la última) pagaremos en паросочетание y las costillas, que antes estaban en паросочетание (la segunda, la cuarta, y así sucesivamente hasta la penúltima) --- eliminaremos de él.
+
+Está claro que la potencia de паросочетания cuando este ha aumentado en una unidad (ya que se ha añadido a un borde más que eliminado). Queda comprobar que hemos construido correcta паросочетание, es decir, que ninguna cima de la columna no tiene dos bordes adyacentes de este паросочетания. Para todos los vértices de чередующей de la cadena $P$, excepto el primero y el último, es el propio algoritmo de rotación: primero vamos a cada uno de los vértices eliminado contiguo, un borde, luego ha añadido. Para el primer y el último vértice de la cadena $P$ así que no podía fallar, ya que antes de la alternancia tenían que ser ácidos grasos. Por último, para todos los demás vértices, --- no pertenecientes a la cadena $P$, --- es evidente que nada ha cambiado. Por lo tanto, estamos en realidad construyeron паросочетание, y en la unidad de mayor potencia que el viejo, que completa la prueba de la necesidad.
+
+\bf{Prueba de suficiencia}. Demostramos que si respecto a algún паросочетания $M$ no aumentan las vías, lo que --- como sea posible.
+
+La prueba de la pasaremos de lo contrario. Dispone de паросочетание $M^\prime$, tiene más potencia, más $M$. Veamos симметрическую diferencia $Q$ de estos dos паросочетаний, es decir, dejemos a un lado todas las aristas que entran en $M$ o en $M^\prime$, pero no en ambos a la vez.
+
+Está claro que muchas de las costillas $Q$ --- ya seguramente no паросочетание. Considere qué tipo es el conjunto de aristas tiene; para la comodidad vamos a considerar como el conde. En este apartado cada vértice, obviamente, tiene un grado de no más de 2 (porque cada vértice puede tener un máximo de dos adyacentes de la aleta --- de un паросочетания y de otro). Es fácil de entender, que el conde es sólo de los ciclos o de las vías, y los otros no se cruzan entre sí.
+
+Ahora tenga en cuenta, que el camino en este apartado $Q$ no pueden ser cualesquiera, sino sólo par de longitud. En realidad, en cualquier ruta en el recuadro $Q$ costillas se alternan: una vez que las costillas de $M$ va borde de $M^\prime$, y viceversa. Ahora, si nos fijamos en un camino de longitud impar, en la columna de $Q$, resulta que en el apartado G $$ será amplificada de la cadena o para паросочетания $M$ o $M^\prime$. Pero esto no podría ser, porque en el caso de паросочетания $M$ esto se contradice con la condición de que, en el caso de $M^\prime$ --- con su максимальностью (ya que hemos demostrado la necesidad de teoremas, de lo que se deduce que la existencia de lo que la cadena de паросочетание no puede ser máxima).
+
+Demostremos ahora similar a la aprobación y para los ciclos: los ciclos en el grafo de $Q$ pueden tener sólo será par de longitud. Probarlo es muy simple y sencilla: está claro que en el ciclo de la aleta también deben alternarse (pertenecer a la cola de lo $M$, entonces $M^\prime$), pero es una condición que no puede resultar en un ciclo de longitud impar --- en él necesariamente habrá dos vecinos de la aleta de un паросочетания, lo que contradice la definición de паросочетания.
+
+Por lo tanto, todas las rutas y los ciclos del conde $Q = M \oplus M^\prime$ tienen será par de longitud. Por lo tanto, el conde $Q$ contiene igual número de aristas de $M$ y $M^\prime$. Pero, teniendo en cuenta que $Q$ contiene todas las aristas $M$ y $M^\prime$, a excepción de sus aristas compartidas, se desprende que la potencia $M$ y $M^\prime$ coinciden. Hemos llegado a una contradicción: por supuesto паросочетание $M$ no era máxima, entonces el teorema demostrado.
+
+
+\h3{ el Algoritmo de kuhn }
+
+El algoritmo de kuhn --- la aplicación directa del teorema de Бержа. Su se puede resumir así: primero tomemos en blanco паросочетание, y luego --- mientras que en el gráfico se puede encontrar más de la cadena, --- vamos a realizar la rotación de паросочетания a lo largo de esta cadena, y repetir el proceso de búsqueda, lo que aumenta la cadena. Como sólo esa cadena no puede encontrar el --- el proceso de pare, la actual паросочетание y hay un máximo.
+
+Queda por precisar la manera de encontrar aumentan las cadenas. \bf{el Algoritmo de kuhn} --- sólo en busca de cualquier tipo de circuitos con ayuda de \bf{\algohref=dfs{rastreo en profundidad}} o \bf{\algohref=bfs{ancho}}. El algoritmo de kuhn recorre todos los vértices del grafo de la cola, la ejecución de cada una de rastreo, intenta encontrar mejoran la cadena que comienza en la cima.
+
+Es más conveniente describir el algoritmo, teniendo en cuenta que el conde ya dividido en dos fracciones (aunque, en realidad, el algoritmo se puede implementar y así, para que no se daba en la entrada de el conde, claramente articulada en dos fracciones).
+
+El algoritmo recorre todos los vértices $v$ de la primera cuota del conde: $v = 1 \ldots n_1$. Si la cima de $v$ ya saciada actual паросочетанием (es decir, ya se ha seleccionado algún conexo a ella el borde), la cima de la saltamos. De lo contrario, - - - el algoritmo intenta saciar esta cima, para lo cual se inicia la búsqueda de lo que la cadena que comienza con esta cima.
+
+La búsqueda de lo que el circuito se realiza a través de un rastreo en la profundidad o ancho (generalmente con el propósito de la facilidad de su implementación usan el rastreo de profundidad). Inicialmente, el rastreo en la profundidad de la pena en el actual poco la cima de $v$ de la primera parte. Revisa todas las aristas de esta cima, que la actual arista --- es el borde de $(v,a)$. Si la cima de $to$ aún no saciada паросочетанием, entonces, hemos sido capaces de encontrar mejoran la cadena: consiste en el único de la aleta $(v,a)$; en este caso, sólo incluimos es el borde en паросочетание y dejamos de buscar lo que aumenta el circuito de la cima de $v$. De lo contrario, --- si $to$ ya harta de alguna costilla $(p,to)$, entonces trataremos de pasar a lo largo de este costillas: lo intentaremos encontrar aumenta el circuito, pasando a través de los bordes de $(v,a)$, $(a,p)$. Para ello, simplemente pasaremos en nuestro rastreo en la cima de $p$ --- ahora ya estamos tratando de encontrar aumenta el circuito de esta cima.
+
+Se puede entender que como resultado de este recorrido, lanzada desde la cima de $v$, o encontrará más de la cadena, y por lo tanto насытит cima $v$, o tal amplificada de la cadena no se encuentra (y, por lo tanto, esta cima $v$ ya no puede llegar a ser intenso).
+
+Después de que todos los vértices $v = 1 \ldots n_1$ consideran que el actual паросочетание será el máximo.
+
+
+\h3{ horario }
+
+Así, el algoritmo de kuhn se puede representar como una serie de $n$ lanzamientos de rastreo en profundidad/ancho de todo el recuadro. Por lo tanto, este algoritmo cumple por hora $O (n m)$, que en el peor de los casos es $O (n^3)$.
+
+Sin embargo, esta evaluación puede ser un poco de \bf{mejorar}. Resulta que para el algoritmo de kuhn es importante entonces, ¿qué proporción de la elegida por la primera, y que --- para la segunda. En realidad, descrita anteriormente, la aplicación de los inicios de la solución en la profundidad, la anchura se producen sólo de las cimas de la primera cuota, por lo que todo el algoritmo ejecuta por hora $O (n_1 m)$, donde $n_1$ --- el número de vértices de la primera parte. En el peor caso, esto equivale a $O (n_1^2 n_2)$ (donde $n_2$ --- el número de vértices de la segunda parte). De aquí se ve, que es más barato, cuando la primera fracción contiene un menor número de vértices que la segunda. Muy desequilibrio en las columnas (cuando $n_1$ y $n_2$ son muy diferentes) esto se traduce en una diferencia considerable de los tiempos de trabajo.
+
+
+\h2{ Aplicación }
+
+Aquí la aplicación de lo anterior algoritmo, basado en el rastreo de profundidad, y el anfitrión двудольный conde en forma explícita roto en dos fracciones de la columna. Esta aplicación es muy conciso, y, tal vez, vale la pena recordar.
+
+Aquí $n$ --- el número de vértices en la primera fracción, $k$ --- en la segunda fracción, $g[v]$ --- la lista de los bordes de la parte superior $v$ de la primera cuota (es decir, una lista de los números de los vértices, en el que llevan estas costillas de $v$). La cima en dos fracciones de занумерованы independientemente, es decir, la primera cuota --- con los números de $1 \ldots, n$, la segunda --- con los números de 1 $\sum_ k$.
+
+Allá van dos auxiliares de la matriz: $\rm mt$ y $\rm used$. La primera --- $\rm mt$ --- contiene información acerca de la actual паросочетании. Para facilitar la programación, la información que esta contiene sólo para los vértices de la segunda cuota: $mt[i]$ --- este es el número de vértices de la primera proporción el borde de la cima de la $i$ de la segunda fracción (o $-1$, si no hay costillas паросочетания de $i$ no entra). La segunda matriz --- $\rm used$ --- normal matriz посещенностей" vértices a rastrear en profundidad (que es, simplemente para que la desviación en profundidad no entraba en una cima de dos veces).
+
+La función $\rm try\_kuhn$ --- y hay un rastreo en profundidad. Devuelve $\rm true$, si logró encontrar aumenta el circuito de la cima de $v$, se considera que esta función ya ha hecho la rotación de паросочетания encontrada a lo largo de la cadena.
+
+Dentro de sus funciones se ven todas las costillas salientes de la cima de $v$ de la primera cuota, y luego se verifica si la arista que conduce a ненасыщенную cima de $to$ o si esta cima de $to$ saciada, pero se puede encontrar mejoran la cadena recursiva de ejecutar de $\rm mt[to]$, entonces decimos que hemos encontrado más de la cadena, y antes de volver de la función con el resultado de $\rm true$ fabricantes de la alternancia en el actual borde: перенаправляем arista, conexo con $to$, en la cima de la $v$.
+
+En el programa principal, primero se indica que la actual паросочетание --- en blanco (lista $\rm mt$ se llena de números de $-1$). Luego se traslada la cima de $v$ de la primera cuota, y de ella se inicia un rastreo en la profundidad de $\rm try\_kuhn$, previamente обнулив la matriz $\rm used$.
+
+Vale la pena señalar que el tamaño de la паросочетания fácil de conseguir como el número de llamadas de $\rm try\_kuhn$ en el programa principal, вернувших el resultado de $\rm true$. La propia búsqueda de la máxima паросочетание figura en el array $\rm mt$.
+
+\code
+int n, k;
+vector < vector<int> > g;
+vector<int> mt;
+vector<char> used;
+
+bool try_kuhn (int v) {
+if (used[v]) return false;
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (mt[to] == -1 || try_kuhn (mt[to])) {
+mt[to] = v;
+return true;
+}
+}
+return false;
+}
+
+int main() {
+... lectura del conde ...
+
+mt.assign (k, -1);
+for (int v=0; v<n; ++v) {
+used.assign (n, false);
+try_kuhn (v);
+}
+
+for (int i=0; i<k; i++)
+if (mt[i] != -1)
+printf ("%d %d\n", mt[i]+1, i+1);
+}
+\endcode
+
+Una vez más, que el algoritmo de kuhn es fácil de realizar y así, para que funcione en las columnas, se sabe que son dicotiledóneas, pero explícito de su división en dos partes no se encuentra. En este caso, tiene que negarse conveniente dividir en dos fracciones, y toda la información se almacena para todos los vértices de la gráfica. Para ello, la matriz de las listas de $g$ ahora se hace no sólo para los vértices de la primera cuota, y para todos los vértices del grafo (claro, ahora la cima de ambas fracciones de занумерованы en común de numeración --- desde $1 a$ a $n$). Las matrices $\rm mt$ y $\rm used$ ahora también se definen para los vértices de ambas fracciones, y, por tanto, debe mantenerse en este estado.
+
+
+\h2{ Mejora de la implementación }
+
+Modificamos el algoritmo de la siguiente manera. Hasta el bucle principal del algoritmo encontraremos algún mediante un simple algoritmo \bf{arbitraria паросочетание} (simple \bf{эвристическим el algoritmo}), y sólo a continuación, vamos a realizar un ciclo con las llamadas a la función kuhn(), que tratará de mejorar este паросочетание. En consecuencia, el algoritmo de funcionará mucho más rápido aleatorias de las columnas --- porque en la mayoría de los gráficos pueden marcar fácilmente паросочетание peso bastante grande con la ayuda de la heurística, para luego mejorar encontrado паросочетание hasta un máximo de ya un algoritmo de kuhn. Así que para ahorrarnos muchos arranques de rastreo en la profundidad de los vértices que hemos incluido con la ayuda de la heurística en la actual паросочетание.
+
+\bf{por Ejemplo}, sólo se puede recorrer todos los vértices de la primera cuota, y para cada uno de ellos a buscar arbitraria de la arista, que se puede agregar en паросочетание, y agregarlo. Incluso un simple heurística es capaz de acelerar el algoritmo de kuhn en varias veces.
+
+Tenga en cuenta que el bucle principal tendrá que modificar ligeramente. Porque cuando se llama a la función $\rm try\_kuhn$ en el bucle principal se supone que la cima no está todavía en паросочетание, es necesario agregar una inspección.
+
+En la aplicación de solo cambia el código de la función main():
+
+\code
+int main() {
+... lectura del conde ...
+
+mt.assign (k, -1);
+vector<char> used1 (n);
+for (int i=0; i<n; ++i)
+for (size_t j=0; j<g[i].size(); ++j)
+if (mt[g[i][j]] == -1) {
+mt[g[i][j]] = i;
+used1[i] = true;
+break;
+}
+for (int i=0; i<n; ++i) {
+if (used1[i]) continue;
+used.assign (n, false);
+try_kuhn (i);
+}
+
+for (int i=0; i<k; i++)
+if (mt[i] != -1)
+printf ("%d %d\n", mt[i]+1, i+1);
+}
+\endcode
+
+\bf{Otra buena heurística} es la siguiente. En cada paso será buscar la cima de la menor medida (pero no aislado), de ella seleccionar cualquier arista y añadir паросочетание y, a continuación, quitando estos dos vértices con todos инцидентными les nervios de la columna. Esta codicia funciona muy bien en aleatorio casillas, incluso en la mayoría de los casos, construye un máximo de паросочетание (a pesar de y en contra de ella es una prueba en la que se encuentra паросочетание significativamente menor magnitud que la máxima).

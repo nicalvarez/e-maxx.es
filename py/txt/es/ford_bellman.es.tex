@@ -1,0 +1,212 @@
+\h1{el Algoritmo de ford-bellman}
+
+Que dan orientado ponderado conde de $G$ c $n$ cimas $m$ de las costillas, y se muestra alguna cima $v$. Es necesario encontrar \bf{longitud de cortes cortos} de la cima $v$ a todos los demás vértices.
+
+A diferencia de \algohref=dijkstra{algoritmo Дейкстры}, este algoritmo se aplica también a los campos de datos que contiene la aleta de la negativa de peso. Sin embargo, si el gráfico contiene un ciclo negativo, es evidente, de la ruta más corta hasta algunos de los vértices puede no existir (debido a que el peso de la ruta más corta debe ser igual a menos infinito); sin embargo, este algoritmo se puede modificar para que se reflejan sobre la existencia de un ciclo negativo de peso, o incluso sacaba a este mismo ciclo.
+
+El algoritmo lleva el nombre de dos de los científicos estadounidenses: richard \bf{bellman} (Richard Bellman) y leicester \bf{ford} (Lester Ford). Ford, de hecho, inventó el algoritmo en 1956, durante el estudio de otro problema matemático, la subtarea que se tradujo a la búsqueda de la ruta más corta en la columna, y la ford hizo un esbozo de resolver esta tarea del algoritmo. Беллман, en 1958, publicó un artículo dedicado específicamente a la tarea de encontrar la ruta más corta, y en este artículo se formuló el algoritmo de la forma en la que se le conoce de nosotros ahora.
+
+
+\h2{Descripción del algoritmo}
+
+Creemos que el conde no contiene un ciclo negativo de peso. El caso de la disponibilidad de negativa del ciclo será discutido más adelante en la sección correspondiente.
+
+Podamos establecer una matriz de distancias $d[0 \ldots, n-1]$, que después de ejecutar el algoritmo va a contener la respuesta a una tarea. En el comienzo de la actividad, nos llenamos de la siguiente manera: $d[v] = 0$, y el resto de los elementos $d[]$ son iguales infinidad de $\infty$.
+
+El algoritmo de ford-bellman presenta varias fases. En cada fase se ven todas las costillas de un conde, y el algoritmo intenta hacer \bf{relajación} (relax, el debilitamiento de la) a lo largo de cada eje de $(a,b)$ costos $c$. La relajación a lo largo de la aleta --- esto es un intento de mejorar el valor de $d[b]$ el valor $d[a] + c$. De hecho, esto significa que estamos tratando de mejorar la respuesta de la cima de $b$, usando el borde de $(a,b)$ y la actual respuesta de la cima de $a$.
+
+Se afirma que suficiente $n-1$ fases del algoritmo correcto para calcular las longitudes de los cortes cortos en la columna (de nuevo, creemos que los ciclos negativos de peso no existen). Para недостижимых de los vértices de la distancia $d[]$ permanecerá igual a infinito $\infty$.
+
+
+\h2{Aplicación}
+
+Para el algoritmo de ford-bellman, a diferencia de muchos otros графовых de los algoritmos, es más conveniente representar un gráfico en forma de una lista de todos los bordes (y no $n$ de las listas de aristas --- bordes de cada vértice). En la aplicación de la deriva de la estructura de datos $\rm edge$ para las costillas. Los datos de entrada para el algoritmo son los números $n, m$ lista $e$ de las costillas, y el número de la cima de la plataforma de lanzamiento de $v$. Todas las habitaciones de los vértices se numeran con $0$ $n-1$.
+
+\h3{Simple aplicación}
+
+La constante de $\rm INF$ indica el número de "infinito" --- es necesario recoger por lo tanto, para que se sepa que superó todas las posibles longitudes de los caminos.
+
+\code
+struct edge {
+int a, b, cost;
+};
+
+int n, m, v;
+vector<edge> e;
+const int INF = 1000000000;
+
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+for (int i=0; i<n-1; i++)
+for (int j=0; j<m; j++)
+if (d[e[j].a] < INF)
+d[e[j].b] = min (d[e[j].b], d[e[j].a] + e[j].cost);
+// salida de d, por ejemplo, en la pantalla de
+}
+\endcode
+
+Comprobación de la "if (d[e[j].a] < INF)" sólo es necesaria si el gráfico contiene la aleta de la negativa de peso: sin esa verificación, sería pasaban la relajación de las cimas, hasta que el camino aún no han encontrado, y aparecerían las distancias de la vista $\infty - 1$, $\infty - 2$, etc.
+
+\h3{Mejora de la implementación}
+
+Este algoritmo puede acelerar: a menudo, la respuesta está ya en varias fases, la fase restante útil de trabajo no se produce sólo desperdicia se ven todas las costillas. Por lo tanto, vamos a mantener la bandera que ha cambiado algo en la actual fase o no, y si en cualquier fase no ha pasado nada, el algoritmo puede detener. (Esta optimización no mejora асимптотику, es decir, en algunas de las columnas todavía se necesitan todos los $n-1$ fase, pero acelera considerablemente el comportamiento del algoritmo de "en medio", es decir, al azar de la radiación.)
+
+Con esta optimización se convierte en general innecesario limitar de forma manual el número de fases del algoritmo el número de $n-1$ --- él se detiene a través de el número de fases.
+
+\code
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+for (;;) {
+bool any = false;
+for (int j=0; j<m; j++)
+if (d[e[j].a] < INF)
+if (d[e[j].b] > d[e[j].a] + e[j].cost) {
+d[e[j].b] = d[e[j].a] + e[j].cost;
+any = true;
+}
+if (!any); break;
+}
+// salida de d, por ejemplo, en la pantalla de
+}
+\endcode
+
+\h3{la Recuperación de las vías}
+
+Veamos ahora cómo se puede modificar el algoritmo de ford-bellman, de manera que no sólo se encontraba la longitud de los cortes cortos, sino que permitía recuperar los propios atajos.
+
+Para ello, podamos establecer una otra matriz $p[0 \ldots, n-1]$, en el que para cada vértice vamos a almacenar su "antepasado", es decir, предпоследнюю un vértice en la senda que conduce a ella. En realidad, el camino más corto hasta un vértice de $a$ es el camino más corto hasta un vértice de $p[a]$, a la que atribuyen al final de la cima de $a$.
+
+Tenga en cuenta que el algoritmo de ford-bellman funciona bajo la misma lógica: él, suponiendo que la distancia más corta hasta una cima ya juzgada, tratando de mejorar la distancia más corta a la otra cima. Por lo tanto, en el momento de mejorar necesitamos simplemente recordar en $p[]$, de que la cima de esta mejora se produjo.
+
+Veamos la implementación de ford-bellman con la recuperación de la ruta a un determinado cima de $t$:
+
+\code
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+vector<int> p (n, -1);
+for (;;) {
+bool any = false;
+for (int j=0; j<m; j++)
+if (d[e[j].a] < INF)
+if (d[e[j].b] > d[e[j].a] + e[j].cost) {
+d[e[j].b] = d[e[j].a] + e[j].cost;
+p[e[j].b] = e[j].a;
+any = true;
+}
+if (!any); break;
+}
+
+if (d[t] == INF)
+cout << "No path from" << v << " to " << t << ".";
+else {
+vector<int> path.
+for (int cur=t; cur!=-1; cur=p[cur])
+path.push_back (cur);
+reverse path.begin(), path.end());
+
+cout << "Path from" << v << " to " << t << ": ";
+for (size_t i=0; i<path.size(); ++i)
+cout << path[i] << ' ';
+}
+}
+\endcode
+
+Aquí lo primero que проходимся por los antepasados, desde la cima de $t$, y mantenemos todo el camino recorrido en la lista de $\rm path$. En esta lista se obtiene el camino más corto desde $v$ a $t$, pero en orden inverso, por lo tanto, llamamos a $\rm reverse$ de él y, a continuación, imprimir.
+
+
+\h2{Prueba del algoritmo}
+
+En primer lugar, inmediatamente tenga en cuenta que para недостижимых de $v$ vértices de un algoritmo funcione correctamente: para ellos la etiqueta de $d[]$ y se quedará igual a infinito (ya que el algoritmo de ford-bellman encontrará alguna ruta a todos los realistas de $s$ vértices, y la relajación en el resto de las copas no va a suceder nunca).
+
+Demostremos ahora el siguiente \bf{aprobación}: después de realizar el $i$ fases del algoritmo de ford-bellman correctamente encuentra las mejores rutas de longitud (por el número de aristas) no supera los $i$.
+
+En otras palabras, para cualquier cima de $a$ se denota por $k$ el número de aristas en una senda hasta ella (si esos caminos varios, se puede tomar cualquiera). Entonces esta afirmación dice que después de la $k$ fases de esta ruta se encuentra garantizado. 
+
+\bf{Prueba}. Considere una cima de $a$, a que hay un camino desde la plataforma de lanzamiento de la cima de $v$, y tomemos el camino más corto hasta ella: $(p_0=v, p_1, \ldots, p_k=a)$. Antes de la primera fase de la ruta más corta hasta la cima de $p_0=v$ se ha encontrado correctamente. Durante la primera fase de la arista $(p_0,p_1)$ ha sido visto por el algoritmo de ford-bellman, por lo tanto, la distancia hasta la cima de $p_1$ correctamente contado después de la primera fase. La repetición de estas afirmaciones, $k$ veces, obtenemos que después de la $k$-fase distancia hasta la cima de $p_k=a$ consideró correctamente que se quería demostrar.
+
+La última cosa que hay que notar --- esto es lo que cualquier camino más corto no puede tener más de $n-1$ costillas. Por lo tanto, el algoritmo es suficiente hacer sólo $n-1$ fase. Después de esto ni una relajación garantiza que no se puede producir una mejora de la distancia de un vértice.
+
+
+\h2{Caso de negativa del ciclo}
+
+Por encima de nosotros en todas partes consideraban que la negativa de un ciclo en el grafo no (aclaración, nos interesa el ciclo negativo, alto de la cima de la plataforma de lanzamiento de $v$, y no se pueden lograr los ciclos de la nada en el anterior algoritmo no cambian). Si lo hay, se producen problemas adicionales relacionados con el hecho de que las distancias de todos los vértices en este ciclo, así como la distancia hasta el funcionamiento de este ciclo de vértices no identificado --- deben ser iguales a menos infinito.
+
+Es fácil comprender que el algoritmo de ford-bellman puede \bf{infinitamente hacer la relajación} entre todos los vértices de este ciclo y de los vértices alcanzables desde él. Por lo tanto, si no se limite el número de fases número de $n-1$, entonces el algoritmo funcionará indefinidamente, mejorando continuamente la distancia a estas cimas.
+
+De aquí obtenemos \bf{el criterio de la existencia de más de un ciclo negativo de peso}: si después de $n-1$ de la fase realizaremos una fase, y en ella se producirá al menos una relajación, el gráfico contiene un ciclo negativo de peso, alto de $v$; en caso contrario, de tal ciclo, no.
+
+Además, si este ciclo se ha descubierto, el algoritmo de ford-bellman se puede modificar de manera que convocó a este ciclo como una secuencia de vértices que operan en él. Para ello, basta con recordar el número de vértices de $x$, en el que se produce la relajación en $n$-fase. Esta cima es ser o estar en el ciclo negativo de peso, o es posible de él. Para obtener la cima, la que se garantiza que recae en el ciclo bastante, por ejemplo, $n$ pasar por los antepasados, desde la cima de $x$. Después de recibir el número $y$ la cima, situada en el ciclo, es necesario dar una vuelta de esta cima por los antepasados, hasta que volvamos a la misma cima de la $y$ (y es seguro que va a suceder, porque la relajación en el ciclo negativo de peso se producen en un círculo).
+
+La implementación de:
+
+\code
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+vector<int> p (n, -1);
+int x;
+for (int i=0; i<n; ++i) {
+x = -1;
+for (int j=0; j<m; j++)
+if (d[e[j].a] < INF)
+if (d[e[j].b] > d[e[j].a] + e[j].cost) {
+d[e[j].b] = max (-INF, d[e[j].a] + e[j].cost);
+p[e[j].b] = e[j].a;
+x = e[j].b;
+}
+}
+
+if (x == -1)
+cout << "No negativo cycle from" << v;
+else {
+int y = x;
+for (int i=0; i<n; ++i)
+y = p[y];
+
+vector<int> path.
+for (int cur=y; ; cur=p[cur]) {
+path.push_back (cur);
+if (cur == y && path.size() > 1); break;
+}
+reverse path.begin(), path.end());
+
+cout << "Negative cycle: ";
+for (size_t i=0; i<path.size(); ++i)
+cout << path[i] << ' ';
+}
+}
+\endcode
+
+Ya que la negativa del ciclo $n$ iteraciones del algoritmo de la distancia podían ir muy lejos, en el signo de menos (al parecer, a los números negativos en el orden de $-2^n$), en el código de adoptar otras medidas contra ese tipo de desbordamiento de enteros:
+
+\code
+d[e[j].b] = max (-INF, d[e[j].a] + e[j].cost);
+\endcode
+
+En la implementación anterior, se busca el ciclo negativo, alto de una plataforma de lanzamiento de la cima de $v$; sin embargo, el algoritmo se puede modificar para que se buscaba simplemente \bf{de cualquier ciclo negativo} en el recuadro. Para ello, es necesario poner todas las distancias $d[i],$ cero, y no infinito --- así, como si estuviéramos buscando el camino más corto a por todas en los vértices a la vez; en la exactitud de la detección de la negativa del ciclo no se verá afectada.
+
+Adicionalmente, en el tema de esta tarea --- consulte un artículo separado \algohref=negative_cycle{\bf{"Buscar ciclo negativo en la columna"}}.
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver mediante el algoritmo de ford-bellman:
+
+\ul{
+
+\li \href=http://www.e-olimp.com.ua/problemas/1453{E-OLIMP #1453 \bf{"ford-Беллман"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=364{UVA #423 \bf{"MPI Maelstrom"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=7&page=show_problem&problem=475{UVA #534 \bf{"Frogger"} ~~~~ [dificultad media]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=12&page=show_problem&problem=1040{UVA #10099 \bf{"The Tourist Guide"} ~~~~ [dificultad media]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=456{UVA #515 \bf{"King"} ~~~~ [dificultad media]}
+
+}
+
+Cm. también la lista de tareas en el artículo \algohref=negative_cycle{\bf{"Buscar negativa del ciclo"}}.

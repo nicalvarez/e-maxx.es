@@ -1,0 +1,59 @@
+\h1{ finding the equation of the line to cut }
+
+Task --- given the coordinates of the endpoint of the line segment we draw a straight line passing through it.
+
+We believe that the cut is non-degenerate, i.e. has a length greater than zero (otherwise, of course, passes through infinitely many different straight).
+
+
+\h2{ the two-Dimensional case }
+
+Let the given line segment $PQ$, i.e. the known coordinates of its ends, $P_x$, $P_y$ and $Q_x$, $Q_y$.
+
+You want to build \bf{the equation of a line in the plane}, passing through this cut, i.e. to find coefficients $A$, $B$, $C$ in the equation of a line:
+
+$$ A x + B y + C = 0. $$
+
+Note that the desired triples $(A,B,C)$ that passes through the given segment, \bf{infinitely many}: you can multiply all three ratios to an arbitrary nonzero number and get the same line. Therefore, our task is to find one of these triples.
+
+It is easy to verify (by substitution of these expressions and the coordinates of points $P$ and $Q$ in the equation of a line) that fits the following set of coefficients:
+
+$$ A = P_y - Q_y, $$
+$$ B = Q_x - P_x, $$
+$$ C = - A P_x - P_y B. $$
+
+
+\h3{ case Integer }
+
+An important advantage of this method of construction direct is that if all coordinates are integers, then the resulting coefficients will also be \bf{integer}. In some cases, it allows geometric operations, generally without resorting to real numbers.
+
+However, there is a small drawback: for the same line can have different three ratios. To avoid this, but not to leave integer coefficients, you can apply the following method, often referred to as \bf{valuation}. Find \algohref=euclid_algorithm{greatest common divisor} number $|A|$, $|B|$, $|C|$, divide all three factors, and then perform the normalization: if $A<0$ or $A=0, B<0$, then multiply all three of the coefficient $-1$. In the end, we arrive at the conclusion that for the same direct will have the same three factors that will allow you to easily check out straight for equality.
+
+
+\h3{ real-valued case }
+
+When working with real numbers should always be mindful of the errors.
+
+The coefficients $A$ and $B$ we get the order of the source coordinates, the coefficient $C$ --- for the order of the square from them. It may already be enough large numbers and, for example, when \algohref=lines_intersection{straight} they will be even greater, which can lead to large rounding errors when the source coordinate is $10^3$.
+
+Therefore, when working with real numbers, it is desirable to produce so-called \bf{normalization} is a line: namely, to make the coefficients such that $A^2 + B^2 = 1$. For this we need to calculate the number of $Z$:
+
+$$ Z = \sqrt{ A^2 + B^2 }, $$
+
+and to share all three of the coefficient $A$, $B$, $C$ on it.
+
+Thus, the order of the coefficients $A$ and $B$ does not depend on the order of the input coordinate, and the coefficient $C$ will be of the same order as the input coordinates. In practice, this leads to a significant improvement of the accuracy of calculations.
+
+Finally, it is worth mentioning the \bf{comparison} direct --- in fact, after this normalization for the same line can have only two triples of coefficients: accurate to multiplication by $-1$. Accordingly, if we perform an additional normalization considering the sign (if $A<-\varepsilon$ or $|A|<\varepsilon, B<-\varepsilon$, then multiply by $-1$), then the resulting coefficients will be unique.
+
+
+\h2{ three-Dimensional and multidimensional case }
+
+In the three-dimensional case \bf{simple equation} describing the direct (it can be set as the intersection of two planes, i.e. a system of two equations, but it is inconvenient way).
+
+Therefore, in three-dimensional and multidimensional cases we have to use \bf{a parametric approach to defining the direct}, i.e. in the form of a point $p$ and vector $v$:
+
+$$ p + v t, ~~~ t \in \cal{R}. $$
+
+E. T. direct --- all the points you can get from point $p$ by adding vectors $v$ with an arbitrary coefficient.
+
+\bf{Construction} of a line in parametric form the coordinates of the endpoints --- trivial, we just take one end of the segment at the point $p$, and the vector from the first to the second end of the --- for the vector $v$.

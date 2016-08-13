@@ -1,0 +1,46 @@
+\h1{Óptima selección de trabajos conocidos los tiempos de finalización y duraciones de ejecución}
+
+Que dado un conjunto de tareas, cada tarea se conoce el momento al que esta tarea debe terminar, y la duración de la ejecución de este trabajo. El proceso de ejecución de alguna tarea no se puede interrumpir antes de su finalización. Desea confeccionar el horario para realizar el mayor número de trabajos.
+
+\h2{para Decisión}
+
+El algoritmo de solución --- \bf{voraz} (greedy). Ordenará a todas las tareas de su fecha, y vamos a considerar uno a uno, en orden descendente de la fecha límite. También vamos a crear la cola de $q$, en la que vamos a colocar el trabajo, y extraer de la cola de trabajo con el mínimo de tiempo de ejecución (por ejemplo, puede utilizar el set o priority_queue). Inicialmente $q$ vacía.
+
+Que consideramos que $i$de la tarea. Primero pondremos en $q$. Considere el intervalo de tiempo transcurrido entre el tiempo de finalización $i$del trabajo y la fecha de finalización $i-1$-de trabajo --- este es el trozo de cierta longitud $T$. Vamos a extraer de $q$ trabajo (en orden creciente de tiempo restante de su ejecución) y poner en ejecución en este tramo, hasta completar todo el tramo de $T$. Un punto importante --- si en algún momento en el tiempo, el siguiente extraída de la estructura de la tarea se puede llegar a cumplir parcial en el tramo de $T$, lo llevamos a cabo esta tarea parcial --- a saber, en la medida de lo posible, es decir, en el plazo de $T$ unidades de tiempo, y el resto de la tarea ponemos de nuevo en $q$.
+
+Al final de este algoritmo, vamos a elegir la solución óptima (o, por lo menos, por uno o varios de decisiones). Asíntotas de la decisión --- $O (n \log n)$.
+
+
+\h2{Aplicación}
+
+
+\code
+int n;
+vector < pair<int,int> > a; // el trabajo en pares, con fecha, duración)
+... la lectura de n y a ...
+
+sort (a.begin(), a.end());
+
+la definición de tipo set < pair<int,int> > t_s;
+t_s s;
+vector<int> result;
+for (int i=n-1; i>=0; --i) {
+int t = a[i].first - i ? a[i-1].first : 0);
+s.insert (make_pair (a[i].segunda, i));
+while (t && !s.empty()) {
+t_s::iterator it = s.begin();
+if (it->primer <= t) {
+t -= it->first;
+result.push_back (it->second);
+}
+else {
+s.insert (make_pair (it->first - t, it->second));
+t = 0;
+}
+s.erase (it);
+}
+}
+
+for (size_t i=0; i<result.size(); ++i)
+cout << result[i] << ' ';
+\endcode

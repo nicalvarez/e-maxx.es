@@ -1,0 +1,191 @@
+\h1{ el Algoritmo de aho-Корасик }
+
+Que dan un conjunto de filas en el alfabeto de tamaño $k$ la longitud combinada de $m$. El algoritmo de aho-Корасик construye para este conjunto de filas de la estructura de datos de "el bosque" y, a continuación, en este bosque está construyendo una máquina expendedora, todo por $O (m)$ tiempo $O (m k)$ de memoria. Obtenido expendedora ya se puede utilizar en una variedad de tareas, la más simple de las cuales es encontrar todas las apariciones de cada fila del conjunto en el texto por lineal del tiempo.
+
+Este algoritmo fue propuesto por el científico alfred aho (Alfred Vaino Aho) y los científicos margaret Корасик (Margaret John Corasick) en 1975
+
+
+\h2{ Boro. La construcción de boro }
+
+Formalmente, \bf{boro} --- es un árbol con raíz en cierta cima de $\rm Root$, y cada arista de un árbol firmado alguna letra. Si nos fijamos en la lista de aristas que salen de ese vértice. (excepto las costillas, líder del antepasado), todos los bordes deben tener diferentes etiquetas.
+
+Veamos en bora cualquier camino desde la raíz; daremos el consecutivo de la etiqueta de aristas de este camino. Como resultado obtenemos un poco de la línea que corresponde a este camino. Si examinamos cualquier cima de boro, y le pondremos en el cumplimiento de la fila correspondiente a la ruta desde la raíz hasta la cima.
+
+Cada vértice de boro también tiene una bandera de $\rm leaf$, que es igual a $\rm true$, si en esta parte superior termina en alguna línea del conjunto.
+
+En consecuencia, \bf{construir boro} en este conjunto de filas --- significa construir el boro, que de cada $\rm leaf$-la parte superior habrá de coincidir con alguna cadena de conjunto, y, por el contrario, cada fila del conjunto de coincidirá con algo de $\rm leaf$-la cima.
+
+Describiremos ahora, \bf{cómo construir boro} en un conjunto de filas era el momento lineal con respecto a su capacidad total de la longitud.
+
+Introducimos la estructura correspondiente a las cimas de boro:
+
+\code
+struct vertex {
+int next[K];
+bool leaf;
+};
+
+vertex t[NMAX+1];
+int sz;
+\endcode
+
+Es decir, vamos a almacenar el boro en forma de matriz $t$ (número de elementos en la matriz es sz) de las estructuras de $\rm vertex$. La estructura de la $\rm vertex$ contiene la bandera de $\rm leaf$, y de la aleta en forma de matriz $\rm next[]$, donde $\rm next[i]$ --- puntero a la cima, en la que lleva el borde por el símbolo $i$ o $-1$, si esa costilla no.
+
+Al principio, el boro consta de un solo vértice --- de la raíz (de acuerdo en que la raíz tiene siempre en el array $t$ índice de de $0$). Por lo tanto, \bf{inicialización} bora es la siguiente:
+
+\code
+memset (t[0].next, 255, sizeof t[0].next);
+sz = 1;
+\endcode
+
+Ahora realizamos la función que se \bf{agregar en el bosque} una cadena $s$. La implementación es muy simple: nos levantamos en la raíz de boro, miramos si hay de la raíz de la transición de la letra $s[0]$: si la transición es, simplemente pasamos por él en la otra cima, de lo contrario, creamos una nueva cima y añadimos la transición en esta cima de la letra $s[0]$. A continuación, vamos, de pie en algún cima, repetimos el proceso para las letras $s[1]$, y así sucesivamente, una vez finalizado el proceso помечаем la última visitada cima la bandera de $\rm leaf = true$.
+
+\code
+void add_string (const string & s) {
+int v = 0;
+for (size_t i=0; i<s.length (); i++) {
+char c = s[i]-'a'; // en función de la escritura
+if (t[v].next[c] == -1) {
+memset (t[sz].next, 255, sizeof t[sz].next);
+t[v].next[c] = sz++;
+}
+v = t[v].next[c];
+}
+t[v].leaf = true;
+}
+\endcode
+
+Lineal del tiempo de trabajo, y lineal, el número de vértices en bora son evidentes. Ya que en cada vértice representa $O (k)$ de la memoria, es el uso de la memoria es $O (n k)$.
+
+El consumo de memoria puede reducir hasta el nivel de línea ($O (n)$), pero por el aumento de la асимптотики de trabajo de hasta $O (n \log k)$. Para ello es suficiente para almacenar las transiciones $\rm next$ no es una matriz, y la visualización de $\rm map<char,int>$.
+
+
+\h2{ la Construcción de la máquina de ranura }
+
+Supongamos que hemos construido boro para un determinado conjunto de filas. Veamos ahora un poco con el otro. Si nos fijamos en cualquier punto, la línea, que corresponde a ella, es el prefijo de una o varias filas de un conjunto; es decir, cada cima de boro puede entenderse como una posición en una o varias filas de un conjunto.
+
+De hecho, la cima de boro puede entenderse como un estado de \bf{finito determinista de la máquina de ranura}. Estando en cualquier estado, estamos bajo la influencia de algún tipo de entrada de la letra pasamos de un estado a otro --- es decir, en una posición distinta en el conjunto de filas. Por ejemplo, si en bora está sólo $"abc"$ y nos encontramos en el estado $de$ 2 (que corresponde a la línea $"ab"$), bajo el influjo de las letras $"c"$ nos adentramos en el estado de $3$.
+
+Es decir, podemos entender que la aleta de boro como las transiciones de la máquina de la correspondiente a la letra. Sin embargo, solamente las costillas de boro no puede limitarse. Si tratamos de pasar por alguna de la letra, y el de la aleta en el bora no lo es, sin embargo, deben ir a alguna condición.
+
+Más estrictamente, que estamos en un estado de $p$, que corresponde a una cierta línea de $t$, y queremos explorar por el símbolo $c$. Si en el conjunto de la cima de $p$ es la transición de la letra $c$, lo que simplemente nos pasamos por la arista y se meten en la cima, la que corresponde a la línea $ct$. Si con tal de aleta no, entonces tenemos que encontrar un наидлиннейшему propio con el sufijo de la cadena $t$ (наидлиннейшему de los bora), y tratar de seguir al pie de la letra $c$ de él.
+
+Por ejemplo, supongamos que el boro construido por filas $"ab"$ o $"bc"$, y estamos bajo el influjo de la cadena $"ab"$ pasaron a un estado, que es la hoja de cálculo. Entonces, bajo la influencia de las letras $"c"$ nos vemos obligados a entrar en el estado, correspondiente a la línea, a $"b"$, y sólo desde allí seguir al pie de la letra $"c"$.
+
+\bf{Суффиксная referencia} para cada vértice $p$ --- es la cumbre, en la que termina наидлиннейший propio sufijo de la cadena correspondiente a la cima de $p$. El único caso especial --- la raíz de boro; para la comodidad de суффиксную referencia de él realizaremos en sí mismo. Ahora podemos reformular la aprobación de la navegación en la máquina así: mientras que los de la cima de boro no de la transición correspondiente a la letra (o hasta que no lleguemos a la raíz de boro), debemos pasar por суффиксной enlace.
+
+Por lo tanto, hemos reducido la tarea de construir la máquina de ranura a la tarea de encontrar суффиксных de referencia para todos los vértices de boro. Sin embargo, construir estos суффиксные enlaces tendremos, por extraño que parezca, por el contrario, con la ayuda de los construidos en la máquina de exploración.
+
+Tenga en cuenta que si queremos saber si суффиксную referencia para algunos de la cima de $v$, podemos ir a un antepasado de $p$ actual de la cima (que $c$ --- la letra por la que de $p$ es la transición en $v$), y luego ir por su суффиксной enlace y, a continuación, a partir de ella realizar la transición en la máquina de la letra $c$.
+
+Por lo tanto, la tarea de encontrar la transición se tradujo a la tarea de encontrar суффиксной de la referencia, y la tarea de encontrar суффиксной referencia --- a la tarea de encontrar суффиксной enlaces y la transición, pero ya para los más cercanos a la raíz de los vértices. Hemos recibido una dependencia, pero no infinito, y, además, permitir que por lineal del tiempo.
+
+Pasemos ahora a \bf{aplicación}. Tenga en cuenta que nosotros ahora necesitará para cada vértice almacenar su antecesor $\rm p$, así como el símbolo $\rm pch$, por que de un antepasado es una transición en nuestra cima. También en cada vértice vamos a almacenar $\rm int~link de$ --- суффиксная un enlace (o $-1$, si aún no se ha calculado), y la matriz $\rm int~go[k]$ --- transiciones en la máquina de cada uno de los caracteres (de nuevo, si el elemento de la matriz es igual a $-1$, entonces todavía no ha sido evaluado). Veamos ahora la plena aplicación de todas las funciones necesarias:
+
+\code
+struct vertex {
+int next[K];
+bool leaf;
+int p;
+char pch;
+int link;
+int go[K];
+};
+
+vertex t[NMAX+1];
+int sz;
+
+void init() {
+t[0].p = t[0].link = -1;
+memset (t[0].next, 255, sizeof t[0].next);
+memset (t[0].go, 255, sizeof t[0].go);
+sz = 1;
+}
+
+void add_string (const string & s) {
+int v = 0;
+for (size_t i=0; i<s.length (); i++) {
+char c = s[i]-'a';
+if (t[v].next[c] == -1) {
+memset (t[sz].next, 255, sizeof t[sz].next);
+memset (t[sz].go, 255, sizeof t[sz].go);
+t[sz].link = -1;
+t[sz].p = v;
+t[sz].pch = c;
+t[v].next[c] = sz++;
+}
+v = t[v].next[c];
+}
+t[v].leaf = true;
+}
+
+int go (int v, char c);
+
+int get_link (int v) {
+if (t[v].link == -1)
+if (v == 0 || t[v].p == 0)
+t[v].link = 0;
+else
+t[v].link = go (get_link (t[v].p), t[v].pch);
+return t[v].link;
+}
+
+int go (int v, char c) {
+if (t[v].go[c] == -1)
+if (t[v].next[c] != -1)
+t[v].go[c] = t[v].next[c];
+else
+t[v].go[c] = v==0 ? 0 : go (get_link (v), c);
+return t[v].go[c];
+}
+\endcode
+
+Es fácil comprender que, gracias a la memorización encontrados суффиксных enlaces y transiciones, el tiempo total de permanencia de todos los суффиксных enlaces y transiciones es lineal.
+
+
+\h2{ Aplicación }
+
+\h3{ Buscar todas las filas de un conjunto dado en el texto }
+
+Dado un conjunto de filas, y dan texto. Es necesario sacar todas las apariciones de todas las filas de un conjunto en el texto actual por el tiempo $O ({\rm Len + Ans})$, donde $\rm Len$ --- la longitud del texto, $\rm Ans$ --- tamaño de la respuesta.
+
+Construiremos sobre este conjunto de filas de boro. Ahora vamos a tratar el texto de una letra, moviéndose consecuencia de un árbol, en realidad --- de los estados de la máquina. Inicialmente nos encontramos en la raíz del árbol. Supongamos que la próxima vez que paso que estamos en un estado de $v$, y la letra siguiente texto $c$. Entonces debe pasar a un estado de ${\rm go} (v, c)$, reduciendo o aumentando en $1$ la longitud actual de la subcadena coincidente, o reduciendo, pasando por суффиксной enlace.
+
+Como ahora a averiguar sobre el estado actual de $v$, si existe una coincidencia con alguna filas del conjunto? En primer lugar, está claro que si estamos en la marcada de punta ($\rm leaf=true$), hay una coincidencia con un patrón, que en bora termina en la cima de $v$. Sin embargo, esto no es el único posible caso de lograr la coincidencia de que si estamos pasando por суффиксным enlaces, podemos alcanzar uno o varios vértices marcados, la coincidencia también se, pero ya para las muestras terminadas en estos estados. Un ejemplo de esta situación --- cuando el conjunto de filas --- es $\{ "dabce", "abc", "bc" \}$, y el texto - - - $"dabc"$.
+
+Por lo tanto, si en cada una marcada la cima de almacenar el número de la muestra, оканчивающегося en ella (o una lista de números, si se permiten duplicados de las muestras), entonces podemos para el estado actual de la $O (n)$ de encontrar todos los números de las muestras, para las cuales han sido coincidencia, sólo después de pasar por суффиксным enlaces, desde la cima hasta la raíz. Sin embargo, esto no es suficiente una solución eficaz, ya que en la suma de asíntotas resultará $O (n \cdot {\rm Len})$. Sin embargo, se puede observar que el movimiento de суффиксным enlaces puede соптимизировать, preliminarmente habiendo contado para cada vértice más cercano a ella marcada cima, factible de lograr en суффиксным enlaces (esto se denomina "función de salida"). Este valor se puede considerar perezosa dinámica por lineal del tiempo. Entonces para la cima podemos por $O (1)$ de encontrar en la siguiente суффиксном de la ruta marcada la cima, es decir, la coincidencia siguiente. Por lo tanto, cada coincidencia se empleará $O (1)$ de acción, y en la suma de resultar asíntotas $O ({\rm Len + Ans})$.
+
+En más de un caso simple, cuando es necesario encontrar por sí mismos no aparición y sólo su cantidad, se puede, en lugar de la función de salida de contar perezosa la dinámica del número de marcado de los vértices alcanzables desde el actual cima de $v$ суффиксным enlaces. Este valor se puede juzgar por $O (n)$ en total, y entonces el estado actual $v$ podemos $O (1)$ de encontrar el número de apariciones de todos los ejemplos en el texto, que terminan en la posición actual. Por tanto, la tarea de encontrar la cantidad total de repeticiones puede ser resuelto por nosotros por $O ({\rm Len})$.
+
+
+\h3{ Encontrar лексикографически menor a la longitud de la cadena que no contiene ninguno de los datos de las muestras }
+
+Dado un conjunto de muestras, y dada la longitud de la $L$. Es necesario buscar una cadena de longitud $L$, no contiene ninguna de las muestras, y de todas esas cadenas de sacar лексикографически menor.
+
+Construiremos sobre este conjunto de filas de boro. Recordemos ahora que los vértices de los cuales, por суффиксным enlaces se puede lograr marcados de los vértices (y las cimas se puede encontrar por $O (n)$, por ejemplo, perezosa dinámica), puede entenderse como la aparición de alguna de filas del conjunto en el texto especificado. Dado que en esta tarea necesitamos evitar repeticiones, esto se puede entender como el hecho de que en las cimas de nosotros no se puede entrar. Por otro lado, en el resto de la cima nos podemos ir. Por lo tanto, los eliminamos de la máquina de ranura de todos los "malos" de la cima, mientras que en el resto de la columna de ranura es necesario encontrar лексикографически menor de la longitud de la ruta $L$. Esta tarea ya se puede resolver en $O (L)$, por ejemplo, \algohref=dfs{búsqueda en profundidad}.
+
+
+\h3{ Encontrar la recta de la línea que contiene aparición al mismo tiempo de todas las muestras }
+
+De nuevo usamos la misma idea. Para cada vértice vamos a almacenar la máscara que representa a las muestras para las que se produjo el ingreso en esta cima. Entonces la tarea se puede reformular así: inicialmente en el estado de $(v={\rm Root},~{\rm Msk}=0)$, es necesario llegar hasta el estado de $(v,~{\rm Msk}=2^n-1)$, donde $n$ --- número de muestras. Las transiciones de estado en el estado se constituirá en la adición de una letra al texto, es decir, la transición de una arista de ranura en la otra cima con el cambio de la máscara. La ejecución \algohref=bfs{rastreo de ancho} en este apartado, vamos a encontrar el camino hasta el estado de $(v,~{\rm Msk}=2^n-1)$ de menor longitud, que nos justamente necesario.
+
+
+\h3{ Encontrar лексикографически menor de la longitud de la cadena, $L$ que contiene los datos de las muestras en la suma de $k$ veces }
+
+Como en los anteriores objetivos, calcular para cada vértice número de apariciones, que se corresponde con el de ella (es decir, el número de admiración de los vértices alcanzables desde ella суффиксным enlaces). Переформулируем la tarea, por lo tanto: el estado actual se define un trío de números $(v,~{\rm Len~Cnt})$, y se requiere de un estado de $({\rm Root},~0,~0)$ venir en el estado de $(v,~L,~k)$, donde $v$ --- cualquier vértice. Las transiciones entre los estados --- esto es simplemente transiciones por los bordes de ranura de la cima. Por lo tanto, es suficiente para encontrar \algohref=dfs{omisión en profundidad} camino entre estos dos estados (si se rastrea en la profundidad de ver las letras en su orden natural, encontrada la ruta automáticamente se лексикографически menor).
+
+
+
+\h2{ Tareas en línea judges }
+
+Las tareas que puede resolver utilizando el boro o el algoritmo de aho-Корасик:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2637{UVA #11590 ciudad de \bf{"Prefix Lookup"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2112{UVA #11171 \bf{"SMS"} ~~~~ [dificultad media]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1620{UVA #10679 \bf{"I Love Strings!!!"} ~~~~ [nivel de dificultad: medio]}
+
+}

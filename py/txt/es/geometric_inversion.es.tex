@@ -1,0 +1,278 @@
+\h1{ la Transformación geométrica de la inversión }
+
+La transformación geométrica de inversión (inversive geometry) --- es un tipo especial de conversión de puntos en el plano. La utilidad de esta transformación, en la que, muchas veces, se permite reducir la solución de un problema geométrico \bf{con círculos} a la solución de la tarea \bf{directos}, que normalmente tiene una solución mucho más simple.
+
+Al parecer, el fundador de esta dirección de matemáticas fue ludwig Иммануэль magnus (Ludwig Immanuel Magnus), que en 1831 publicó un artículo sobre инверсных transformaciones.
+
+
+\h2{ Definición }
+
+Introduzcamos una circunferencia con centro en el punto $O$ el radio de la $r$. Entonces \bf{inversión} punto $P$ respecto a esta circunferencia se llama este punto $P^\prime$, que se encuentra en el haz de $OP$, y en la distancia que impuso una condición:
+
+$$ OP \cdot OP^\prime = r^2. $$
+
+\img{inversion_3.png}
+
+Si se considera que el centro de la $O$ de la circunferencia coincide con el comienzo de las coordenadas, se puede decir que el punto $P^\prime$ tiene el mismo ángulo polar que $P$, y la distancia se calcula utilizando la fórmula anterior.
+
+En términos de \bf{números complejos} conversión de la inversión se expresa simplemente, si se considera que el centro de la $O$ de la circunferencia coincide con el comienzo de las coordenadas:
+
+$$ z^\prime = r^2 \cdot \frac{ z }{ |z|^2 }. $$
+
+Mediante la combinación de un elemento $\overline{z}$ se puede obtener más de una forma sencilla:
+
+$$ z^\prime = \frac{ r^2 }{ \overline{z} }. $$
+
+La aplicación de la inversión (en el punto medio de la tabla) a la imagen de un tablero de ajedrez da una interesante imagen (a la derecha):
+
+\img{inversion_9.png}
+
+
+\h2{ Propiedades }
+
+Obviamente, cualquier punto que est \bf{a de la circunferencia}, respecto al cual se realiza la conversión de la inversión, cuando se muestra entra en sí mismo. Cualquier punto que est \bf{dentro de} de la circunferencia que pasa en \bf{exterior} área, y viceversa. Se considera que el centro de la circunferencia que pasa en el punto de "infinito" $\infty$, y el punto de "infinito" --- por el contrario, en el centro de la circunferencia:
+
+$$ (O)^\prime = \infty, $$
+$$ (\infty)^\prime = O. $$
+
+Es evidente que la aplicación de la conversión de la inversión de \bf{llama} la primera aplicación --- todos los puntos de regreso:
+
+$$ \left( P^\prime \right) ^\prime \equiv P. $$
+
+
+\h3{ Resumida de la circunferencia }
+
+Resumen de la circunferencia --- o es la circunferencia o recta (se cree que esto también es una circunferencia, pero con un radio infinito).
+
+La propiedad clave de la conversión de la inversión --- que en su aplicación generalizada de la circunferencia de un \bf{siempre entra en la recopilación de la circunferencia} (es decir, la conversión de la inversión de píxel a píxel se aplica a todos los puntos de la figura).
+
+Ahora vamos a ver qué es lo que ocurre con las rectas y las circunferencias cuando la conversión de la inversión.
+
+
+\h3{ la Inversión de la recta que pasa por el punto $O$ }
+
+Se afirma que cualquier recta que pasa por el $O$, después de la conversión de la inversión de las \bf{no cambia}.
+
+En realidad, cualquier punto de esta recta, además de los $O$ y $\infty$, pasa por definición, también en un punto de la recta (y eventualmente los puntos de llenar toda la recta entera, ya que la transformación de la inversión de las reversible). Siguen siendo el punto de $O$ y $\infty$, pero si la inversión se pasan de unos a otros, por lo que la prueba se ha completado.
+
+
+\h3{ Inversión directa, no pasa por el punto $O$ }
+
+Se afirma que dicha recta pasará \bf{en la circunferencia}, pasa a través de la $O$.
+
+\img{inversion_4.png}
+
+Considere cualquier punto $P$ de esta recta, y tenga en cuenta también el punto de $Q$ --- cercano a $O$ el punto de la recta. Está claro que el segmento $co$ es perpendicular a la recta, y por eso obrazuemyj les ángulo $\angle PQO$ --- recta.
+
+Usaremos ahora \bf{леммой sobre la igualdad de las esquinas}, que demostramos un poco más tarde, este lema nos da la igualdad:
+
+$$ \angle PQO = \angle Q^\prime P^\prime O. $$
+
+Por lo tanto, el ángulo $\angle Q^\prime P^\prime O$ también directa. Ya que hemos estado en el punto $P$ cualquiera, resulta que el punto $P^\prime$ recae en la circunferencia construida en $O Q^\prime$ como en diámetro. Es fácil de entender que, al final, todos los puntos de la recta cubrir toda la circunferencia completa, por lo tanto, la afirmación de la probada.
+
+
+\h3{ Inversión de la circunferencia que pasa por el punto $O$ }
+
+Dicha circunferencia pasará \bf{en la recta}, no pasa por el punto $O$.
+
+En realidad, esto es, inmediatamente en el punto anterior, si recordamos acerca de la reversibilidad de la conversión de la inversión.
+
+
+\h3{ Inversión de la circunferencia, no pasa por el punto $O$ }
+
+Dicha circunferencia pasará \bf{en la circunferencia}, todavía no pasa a través de un punto de $O$.
+
+\img{inversion_5.png}
+
+En realidad, considere cualquier circunferencia $Z$ con centro en el punto $O_2$. Conectar los centros de la $O$ y $O_2$ círculos directo; esta recta cruza el círculo $Z$ en dos puntos $S$ y $T$ (obviamente, $ST$ --- de diámetro $Z$).
+
+Consideremos ahora cualquier punto $P$, лежающую en la circunferencia $Z$. El ángulo $\angle SPT$ directo para cualquier punto, pero por el efecto de \bf{леммы sobre la igualdad de las esquinas} también directa debe ser el ángulo $\angle S^\prime P^\prime T^\prime$, de donde se deduce que el punto $P^\prime$ recae en la circunferencia, construida en el tramo $S^\prime T^\prime$ como en diámetro. Una vez más, es fácil de entender, que todas las imágenes de $P^\prime$ finalmente cubrirán este círculo.
+
+Está claro que esta nueva circunferencia no puede pasar a través de un $O$: de otro modo el punto de $\infty$ tendría que pertenecer a la vieja de la circunferencia.
+
+
+\h3{ lemma sobre la igualdad de las esquinas }
+
+Es un auxiliar de la propiedad, que fue utilizado anteriormente en el análisis de los resultados de la conversión de la inversión.
+
+\h4{ Redacción }
+
+Consideremos dos puntos cualesquiera $P$ y $Q$, y a ellos se refiere la conversión de la inversión, se obtiene un punto $P^\prime$ y $Q^\prime$. Entonces estos ángulos son iguales:
+
+$$ \angle PQO = \angle Q^\prime P^\prime O, $$
+$$ \angle QPO = \angle P^\prime Q^\prime O. $$
+
+\h4{ Prueba }
+
+Demostramos que los triángulos $\triangle PQO$ y $\triangle Q^\prime P^\prime O$ semejantes (el orden de los vértices importante!).
+
+\img{inversion_1.png}
+
+En realidad, por definición, la conversión de la inversión tenemos:
+
+$$ OP \cdot OP^\prime = r^2, $$
+$$ OQ \cdot co^\prime = r^2, $$
+
+de donde obtenemos la igualdad:
+
+$$ OP \cdot OP^\prime = OQ \cdot co^\prime $$
+$$ \frac{ OP }{ co } = \frac{ co^\prime }{ OP^\prime }. $$
+
+Por lo tanto, los triángulos $\triangle PQO$ y $\triangle Q^\prime P^\prime O$ tienen el mismo ángulo, y dos vecinas de la parte proporcional, por lo tanto, los triángulos son semejantes, sino porque los ángulos son iguales.
+
+\h4{ Consecuencia de леммы }
+
+Si se dan cualquiera de las tres punto $P$, $Q$, $R$, con un punto de $R$ recae en el tramo de la $co$, entonces se cumple:
+
+$$ \angle QPR = \angle Q^\prime P^\prime R^\prime $$
+
+y estos ángulos se centran en las partes diferentes (es decir, si tenemos en cuenta estos dos ángulos basadas, son diferentes de la marca).
+
+\img{inversion_2.png}
+
+Para que la prueba tenga en cuenta que $\angle QPR$ --- es la diferencia de dos ángulos de $\angle QPO$ y $\angle RPO$, cada uno de los cuales se puede aplicar лемму sobre la igualdad de las esquinas:
+
+$$ \angle QPR = \angle QPO - \angle RPO = \angle P^\prime Q^\prime O - \angle P^\prime R^\prime O = \angle R^\prime P^\prime Q^\prime = \angle Q^\prime P^\prime R^\prime. $$
+
+En la aplicación de la última transición, hemos cambiado el orden de los puntos, lo que significa que hemos cambiado la orientación de la esquina a la opuesta.
+
+
+\h3{ la conformidad }
+
+La conversión de la inversión es конформным, es decir, \bf{conserva los ángulos en los puntos de intersección de las curvas}. En este caso, si los ángulos de considerarse como orientadas, por lo que la orientación de las esquinas de la aplicación de la inversión varía en sentido contrario.
+
+\img{inversion_6.png}
+
+Para \bf{prueba} de este considere dos arbitrarias de las curvas que se cruzan en el punto $P$ y con ella de las tangentes. Que en la primera curva de ir de un punto $Q$, por la segunda --- punto de $R$ (hemos устремим en el límite de $P$).
+
+Es evidente que después de la aplicación de la inversión de las curvas siguen una intersección (si, por supuesto, que no pasaban por el punto $O$, pero en este caso no vemos a) y el punto de intersección será de $P^\prime$.
+
+Teniendo en cuenta que el punto de $R$ recae en la línea que une el $O$ y $Q$, obtenemos que podemos aplicar la consecuencia de леммы sobre la igualdad de las esquinas, de donde obtenemos:
+
+$$ \angle QPR = - \angle Q^\prime P^\prime R^\prime $$
+
+donde bajo el signo de "menos" entendemos entonces, que las esquinas están orientadas en diferentes direcciones.
+
+Dejar que el punto de $Q$ y $R$ en el punto $P$, estamos en el límite de la recibimos, que es la igualdad --- la expresión del ángulo entre los que se superponen las curvas que se quería demostrar.
+
+
+\h3{ la Propiedad de reflexión de la }
+
+Si $M$ --- resumen de la circunferencia, la transformación de la inversión de las se \bf{guarda} entonces, y sólo entonces, cuando $M$ \bf{ортогональна} de la circunferencia $C$, con respecto al cual se realiza la inversión ($M$ y $C$ se consideran diferentes).
+
+La prueba de esta propiedad es interesante el hecho de que se \bf{demuestra} la aplicación de la geometría de la inversión para la atención de las circunferencias y simplificar la tarea.
+
+El primer paso \bf{prueba} será la indicación del hecho de que $M$ y $C$ son como mínimo dos puntos de intersección. En realidad, la conversión de la inversión de sobre $C$ muestra el interior de la circunferencia en su apariencia, y viceversa. Más $M$ después de la conversión no ha cambiado, lo que significa que contiene un punto como el interior, y de la apariencia de la circunferencia $C$. Y que, por consiguiente, que los puntos de intersección de las dos (una de ella no puede ser --- esto significa tacto de dos círculos, pero en este caso, obviamente, ser por la condición de que no se puede; coincidir la circunferencia y no pueden, por definición).
+
+Se denota un punto de cruce a través de $A$, y el otro --- a través de la $B$. Consideremos una circunferencia con centro en el punto de $A$, y realice la conversión de la inversión de la relación con ella. Tenga en cuenta que entonces la circunferencia $C$, y la síntesis de la circunferencia $M$ debe pasan en las rectas. Teniendo en cuenta la conformidad de conversión de la inversión, obtenemos que $M$ y $M^\prime$ coincidían entonces, y sólo entonces, cuando el ángulo entre las dos rectas superpuestas de la recta (en realidad, la primera conversión de inversión, --- con respecto a $C$ - - - cambia la dirección del ángulo entre círculos en el opuesto, por lo tanto, si la circunferencia coincide con el de su inversión, los ángulos entre rectas superpuestas con ambas partes deben coincidir, y son iguales de $\frac{ 180 }{ 2 } = 90$ grados).
+
+
+\h2{ aplicación Práctica }
+
+Vale la pena señalar que, cuando se aplica en los cálculos se debe tener en cuenta la mayor \bf{error}, introducida conversión de la inversión: pueden aparecer fraccional de un número muy pequeño de órdenes, y por lo general debido a la alta incertidumbre de un método de inversión de sólo funciona bien relativamente pequeños coordenadas.
+
+
+\h3{ la Construcción de las figuras después de la inversión }
+
+En el software de cálculos a menudo es más conveniente y segura de no utilizar fórmulas predefinidas para las coordenadas y de los radios de un préstamo de síntesis círculos, y recuperar cada vez más directos/de la circunferencia en dos puntos. Si para la recuperación de la recta, basta con tomar dos puntos cualesquiera y calcular sus imágenes y conectar directo, con círculos, es mucho más difícil.
+
+Si queremos encontrar la circunferencia resultante como consecuencia de la inversión directa, de acuerdo a la anterior выкладкам, es necesario encontrar la más cercana al centro de la inversión de un punto de $Q$ en directo, de aplicar a la inversión (habiendo recibido algún punto $Q^\prime$), y entonces la circunferencia buscada tendrá un diámetro $O Q^\prime$.
+
+Supongamos ahora que queremos encontrar la circunferencia resultante como consecuencia de la inversión de la otra circunferencia. En general, el centro de la nueva circunferencia --- no coincide con el centro antiguo de la circunferencia. Para determinar el centro de un nuevo círculo, puede utilizar tal recepción: de pasar a través del centro de inversión y el centro antiguo de la circunferencia a la recta, mostrar su punto de intersección con la circunferencia de la antigua, --- que esto será el punto de $S$ y $T$. El tramo de $ST$ forma el diámetro de la circunferencia de la vieja, y fácil de entender, que después de la inversión de este segmento seguirá formar diámetro. Por lo tanto, el centro de la nueva circunferencia se puede encontrar la media aritmética de los puntos $S^\prime$ y $T^\prime$.
+
+
+\h3{ la Configuración de la circunferencia después de la inversión }
+
+Se requiere de la circunferencia (conocido con las coordenadas de su centro $(x_0,y_0)$ y el radio $r_0$) determinar en qué círculo se pasará después de la conversión de la inversión de la relación de la circunferencia con centro en $(x_c,y_c)$ y radio $r$.
+
+Es decir, abordamos la tarea descrita en el párrafo anterior, pero queremos obtener una solución analítica.
+
+La respuesta se ve en la forma de fórmulas:
+
+$$ x^\prime = x_c + s (x_0 - x_c), $$
+$$ y^\prime = y_c + s (y_0 - y_c), $$
+$$ r^\prime = |s| \cdot r_0, $$
+
+donde
+
+$$ s = \frac{ r^2 }{ (x_0 - x_c)^2 + (y_0 - y_c)^2 - r_0^2 }. $$
+
+Мнемонически estas fórmulas se pueden recordar: el centro de la circunferencia que pasa "casi" como por la transformación de la inversión, sólo en el denominador además de los $|z|^2 = (x_0 - x_c)^2 + (y_0 - y_c)^2$ ha вычитаемое $r_0^2$.
+
+Se muestran estas fórmulas exactamente por el descrito en el párrafo anterior, el algoritmo: se encuentran expresiones para dos диаметральных de puntos de $S$ y $T$ y, a continuación, aplica la inversión, y luego se toma la media aritmética de sus coordenadas. Igualmente, se puede calcular el radio como la mitad de la longitud del segmento $ST$.
+
+
+\h3{ Aplicación de las pruebas: el problema de la ruptura de los puntos de la circunferencia }
+
+Dado $2n$ diferentes puntos en el plano, así como el punto $O$, diferente de todas las demás. Demostrar que hay de la circunferencia que pasa por el punto $O$, de tal manera que dentro y fuera de ella se encuentran el mismo número de puntos del conjunto, es decir, de $n$ de las piezas.
+
+Para \bf{prueba}, realizaremos la conversión de la inversión respecto a un punto seleccionado en un $O$ (con cualquier radio, por ejemplo, $r=1$). Entonces la circunferencia de la coincidirá con una recta que no pasa por el punto $O$. Y a un lado de la recta est полуплоскость, correspondiente a las entrañas de la circunferencia, y por otra --- correspondiente a la apariencia. Está claro que siempre habrá esa recta que divide la multitud de $2n$ puntos en dos mitades de $n$ de puntos, y si no pasa por el punto $O$ (por ejemplo, la recta se puede obtener, girando toda la imagen, en cualquier ángulo, para ninguna de las $2n+1$ de puntos no coinciden con las coordenadas de $x,$ y, a continuación, simplemente tomando la vertical de la recta entre $n$ó $n+1$-oh puntos). Esta recta corresponde a la circunferencia, pasando por el punto $O$ y, por tanto, la aprobación se ha demostrado.
+
+
+\h3{ Aplicación para resolver problemas de geometría computacional }
+
+Maravillosa propiedad geométrica de la inversión --- en el hecho de que en muchos casos se puede simplificar el objetivo de la tarea geométrica, reemplazando a la consideración de los círculos sólo el examen directa.
+
+Es decir, si la tarea es compleja vistas diferentes operaciones con círculos, entonces tiene sentido aplicar a la entrada de los datos de la conversión de la inversión, para tratar de resolver recibida modificada de la tarea sin círculos (o con menor número) y, a continuación, volver a la aplicación de la inversión de obtener la solución de la tarea original.
+
+Un ejemplo de esta tarea se describe en la siguiente sección.
+
+
+\h3{ Cadena de steiner }
+
+Se dan las dos de la circunferencia $C$ y $D$, uno está estrictamente dentro de la otra. A continuación, se dibuja una tercera circunferencia $E$, sobre estos dos círculos, después de lo cual se inicia un proceso iterativo: cada vez que se dibuja un nuevo círculo para que \bf{refería} anterior dibujada, y de los dos primeros. Tarde o temprano ordinario de dibujar una circunferencia cruzar con alguno de los ya establecidos, o por lo menos toque.
+
+El caso de la intersección:
+
+\img{inversion_8.png}
+
+Caso del tacto:
+
+\img{inversion_7.png}
+
+Por tanto, nuestra tarea --- poner \bf{más} círculos de manera que la intersección (es decir, la primera de las ponencias de los casos) no fue. Los dos primeros de la circunferencia (interna y externa) se han fijado, sólo podemos variar la posición de la primera relativa a la circunferencia, entonces todo sobre la circunferencia se someterán expresamente.
+
+En el caso del tacto recibe una cadena de círculos se llama \bf{cadena de steiner}.
+
+Con esta cadena se debe a la denominada \bf{la afirmación de steiner} (Steiner's porism): si hay una sola cadena de steiner (es decir, hay una disposición correspondiente de la plataforma de lanzamiento sobre la circunferencia, dando lugar a una cadena de steiner), cualquier otra selección de la plataforma de lanzamiento sobre la circunferencia también salga la cadena de steiner, y el número de círculos en ella es el mismo.
+
+De esta afirmación se deduce que la solución de la tarea de maximizar el número de círculos que la respuesta no depende de la posición de la primera meta de la circunferencia.
+
+\bf{Prueba} y constructivo algoritmo de resolución de estos. Tenga en cuenta que la tarea tiene una solución muy simple en el caso de que, cuando los centros interior y el exterior de los círculos son iguales. Está claro que, en este caso el número de sus círculos no dependerá de la primera meta. En este caso, toda la circunferencia tienen el mismo radio y el número de ellas y las coordenadas de los centros que se puede contar de forma sencilla y fórmulas.
+
+Para acceder a esta simple situación de cualquier tonalidad de la entrada, se aplica la conversión de la inversión de la relación cierta de la circunferencia. Necesitamos, para que el centro de la circunferencia interior ha pasado y ha coincidido con el centro de la externa, por lo tanto, buscar el punto respecto al cual vamos a tomar la inversión, es necesario solamente en la línea que une los centros de las circunferencias. Usando las fórmulas para las coordenadas del centro de la circunferencia después de la aplicación de la inversión, puede escribir la ecuación de la posición del centro de inversión, y resolver esta ecuación. Por tanto, hemos de arbitraria de la situación podemos pasar a la simple, симметрическому caso, y, con la decisión de la tarea para él, de nuevo se aplica la conversión de la inversión, y obtenemos la solución de la tarea original.
+
+
+\h3{ Aplicación de la técnica: прямило Липкина-Поселье }
+
+Durante mucho tiempo la tarea de conversión de ida y vuelta (de rotación) movimiento rectilíneo se mantuvo muy compleja en la industria de la ingeniería, capaces de encontrar en el mejor de los casos, aproximaciones de la solución. Y sólo en el año 1864, el oficial de ingeniería de la carcasa del ejército francés charles nicola Поселье (Charles-Nicolas Peaucellier) y en 1868, el estudiante Чебышева lipman Липкин (Lipman Lipkin) inventaron este dispositivo, basado en una idea geométrica de la inversión. El dispositivo recibió el nombre de \bf{"прямило Липкина-Поселье"} (Peaucellier–Lipkin linkage).
+
+\img{inversion_10.gif}
+
+Para entender el funcionamiento de la unidad, se nota en él varios puntos:
+
+\img{inversion_11.png}
+
+El punto $B$ comete el movimiento de rotación de la circunferencia (de color rojo) y, en consecuencia, el punto de $D$ es necesario se mueve en línea recta (de color azul). Nuestra tarea-para-el - demostrar que el punto de $D$ --- la esencia de la inversión de un punto de $B$ con respecto al centro del $O$ con un cierto radio de $r$.
+
+Formalizamos la condición de la tarea: que el punto de $O$ montado fijamente, trozos de $OA$ y $OC$ coinciden, y también coincide cuatro trozos $AB$, $BC$, $CD$, $DA$. El punto $B$ se mueve a lo largo de la circunferencia que pasa por el punto $O$.
+
+Para \bf{prueba} tenga en cuenta, primero, que el punto de $O$, $B$ y $D$ se encuentran en la misma recta (esto se deduce de la igualdad de los triángulos). Se denota por $P$ punto de intersección de las líneas $AC$ y $BD$. Vamos a introducir la notación:
+
+$$ OB=x,~~~BP=y~~~AP=h. $$
+
+Tenemos que mostrar que el valor de $OB \cdot OD = {\rm const}$:
+
+$$ OB \cdot OD = x(x+2y) = x^2 + 2xy. $$
+
+Por el teorema de pitágoras obtenemos:
+
+$$ OA^2 = (x+y)^2 + h^2, $$
+$$ AD^2 = y^2 + h^2. $$
+
+Tomemos la diferencia de estos dos valores:
+
+$$ OA^2 - AD^2 = x^2 + 2xy = OB \cdot OD. $$
+
+Por lo tanto, hemos demostrado que el $OB \cdot OD = {\rm const}$, lo que significa que $D$ --- inversión de un punto de $B$.
+

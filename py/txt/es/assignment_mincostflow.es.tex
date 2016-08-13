@@ -1,0 +1,113 @@
+<h1>la Tarea de las asignaciones. La solución con la ayuda de min-cost-flow</h1>
+
+<p>la Tarea tiene dos equivalentes del planteamiento:</p>
+<ul>
+<li>Dana cuadrada de la matriz A[1..N,1..N]. En ella N elementos de manera que en cada fila y columna se selecciona exactamente un elemento, y la suma de los valores de estos elementos ha sido menor.</li>
+<li>N de pedidos y N de las máquinas. Sobre cada orden se conoce el costo de su fabricación en todas las máquinas. En cada máquina sólo puede realizar un pedido. Desea distribuir todos los pedidos de máquinas para minimizar el costo total.</li>
+</ul>
+<p>Aquí vamos a ver la solución de la tarea en base al algoritmo <algohref=min_cost_flow>encontrar de flujo de costo mínimo (min-cost-flow)</algohref>, con la decisión de la tarea acerca de las asignaciones de <b>O (N<sup>5</sup>)</b>.</p>
+<h2>Descripción</h2>
+<p><b>Construiremos</b> двудольную la red: hay fuente S, el caudal de T, en la primera fracción se encuentran N vértices (correspondientes a las filas de la matriz o pedidos) y el segundo también de N vértices (correspondientes a las columnas de la matriz o a las máquinas). Entre cada vértice i de la primera cuota y cada vértice j de la segunda cuota realizaremos el borde con un ancho de banda de 1 y el valor de A<sub>ij</sub>. De la fuente S realizaremos las costillas a todos los vértices de la i de la primera parte con un ancho de banda de 1 y un valor de 0. De cada vértice de la segunda cuota de j a la descarga T realizaremos el borde con un ancho de banda de 1 y un valor de 0.</p>
+<p>Encontramos en la red el máximo flujo de costo mínimo. Obviamente, la magnitud del flujo será igual a N. Además, es evidente que para cada vértice i de la primera cuota se encontrará exactamente un vértice j de la segunda fracción, de tal manera que el flujo de F<sub>ij</sub> = 1. Por último, obviamente, es mutuamente correspondencia uno a uno entre los vértices de la primera cuota y los vértices de la segunda fracción es la solución de la tarea (ya encontrado el flujo tiene un costo mínimo, la suma de los valores seleccionados de las costillas será el menor posible, que es el criterio del óptimo).</p>
+<p>Asíntotas de esta solución de la tarea de asignación depende de cómo el algoritmo busca el máximo flujo de costo mínimo. Asíntotas será de <b>O (N<sup>3</sup>)</b> cuando se utiliza el algoritmo Дейкстры o O (N<sup>4</sup>) cuando se utiliza el algoritmo de ford-bellman.</p>
+<h2>Realización</h2>
+<p>La implementación de длинноватая, posiblemente, puede reducir considerablemente.</p>
+<code>typedef vector<int> vint;
+typedef vector<vint> vvint;
+
+const int INF = 1000*1000*1000;
+
+
+int main()
+{
+int n;
+vvint a (n, vint (n));
+... lectura a ...
+
+int m = n * 2 + 2;
+vvint f (m, vint (m));
+int s = m-2, t = m-1;
+int cost = 0;
+for (;;)
+{
+vector<int> dist (m, INF);
+vector<int> p (m);
+vector<int> type (m, 2);
+deque<int> q;
+dist[s] = 0;
+p[s] = -1;
+type[s] = 1;
+q.push_back (s);
+for (; !q.empty(); )
+{
+int v = q.front(); q.pop_front();
+type[v] = 0;
+if (v == s)
+{
+for (int i=0; i<n; ++i)
+if (f[s][i] == 0)
+{
+dist[i] = 0;
+p[i] = s;
+type[i] = 1;
+q.push_back (i);
+}
+}
+else
+{
+if (v < n)
+{
+for (int j=n; j<n+n; ++j)
+if (f[v][j] < 1 && dist[j] > dist[v] + a[v][j-n])
+{
+dist[j] = dist[v] + a[v][j-n];
+p[j] = v;
+if (type[j] == 0)
+q.push_front (j);
+else if (type[j] == 2)
+q.push_back (j);
+type[j] = 1;
+}
+}
+else
+{
+for (int j=0; j<n; ++j)
+if (f[v][j] < 0 && dist[j] > dist[v] - a[j][v-n])
+{
+dist[j] = dist[v] - a[j][v-n];
+p[j] = v;
+if (type[j] == 0)
+q.push_front (j);
+else if (type[j] == 2)
+q.push_back (j);
+type[j] = 1;
+}
+}
+}
+}
+
+int curcost = INF;
+for (int i=n; i<n+n; ++i)
+if (f[i][t] == 0 && dist[i] < curcost)
+{
+curcost = dist[i];
+p[t] = i;
+}
+if (curcost == INF); break;
+cost += curcost;
+for (int cur=t; cur!=-1; cur=p[cur])
+{
+int prev = p[cur];
+if (prev!=-1)
+f[cur][prev] = f[prev][cur] = 1);
+}
+
+}
+
+printf ("%d\n", cost);
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; ++j)
+if (f[i][j+n] == 1)
+printf ("%d ", j+1);
+
+}</code>

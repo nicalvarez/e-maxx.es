@@ -1,0 +1,196 @@
+\h1{ diofantovy las ecuaciones Lineales con dos variables }
+
+Диофантово una ecuación con dos incógnitas tiene la forma:
+
+$$ a \cdot x + b \cdot y = c, $$
+
+donde $a, b, c$ --- definidas enteros, $x$ y $y$ --- desconocidos enteros.
+
+A continuación se describen varios de los clásicos de tareas en estas ecuaciones: encontrar cualquier decisión, la obtención de todas las decisiones, la búsqueda de un número de decisiones y las soluciones en un determinado tramo de encontrar una solución con la menor suma de desconocidos.
+
+
+
+\h2{ un caso de degeneración }
+
+Uno de un caso de degeneración de inmediato nos excluiremos a partir de la revisión: cuando $a = b = 0$. En este caso, claro, la ecuación tiene una o un número infinito de las soluciones arbitrarias, o que no tiene soluciones en absoluto (dependiendo de $c = 0$ o no).
+
+
+
+\h2{ Encontrar una solución }
+
+Encontrar una solución диофантова ecuaciones con dos incógnitas mediante el \algohref=extended_euclid_algorithm{del algoritmo Extendido de euclides}. Supongamos, primero, que el número de $a$ y $b$ неотрицательны.
+
+Un avanzado algoritmo de euclides a partir de un valor no negativo números de $a$ y $b$ encuentra el máximo común divisor de $g$, así como los factores de $x_g$ y $y_g$ que:
+
+$$ a \cdot x_g + b \cdot y_g = g. $$
+
+Se afirma que si $c$ divide a $g = {\rm mcd} (a,b)$, entonces диофантово la ecuación $a \cdot x + b \cdot y = c$ tiene la solución; en caso contrario, диофантово la ecuación de decisiones no tiene. La prueba debe de hecho obvio de que la combinación lineal de dos números todavía tiene que compartir su común divisor.
+
+Supongamos que $c$ divide a $g$, entonces, obviamente, se realiza:
+
+$$ a \cdot x_g \cdot (c/g) + b \cdot y_g \cdot (c/g) = c, $$
+
+es decir, una de las soluciones диофантова de la ecuación son los números:
+
+$$ \cases{
+x_0 = x_g \cdot (c / g), \cr
+y_0 = y_g \cdot (c / g).
+} $$
+
+Hemos descrito la decisión en el caso, cuando el número de $a$ y $b$ неотрицательны. Si uno de ellos o ambos son negativos, entonces se puede proceder de esta manera: tomar por el módulo y aplicar el algoritmo de euclides, como se ha descrito anteriormente y, a continuación, cambiar el signo de los encontrados en $x_0$ y $y_0$ de conformidad con la presente el signo de los números $a$ y $b$, respectivamente.
+
+La implementación de la (recordemos aquí creemos que los datos de entrada $a=b=0$ no válidas):
+
+\code
+int mcd (int a, int b, int & x, int & y) {
+if (a == 0) {
+x = 0; y = 1;
+return b;
+}
+int x1, y1;
+int d = gcd (b%a, a, x1, y1);
+x = y1 - (b / a) * x1;
+y = x1;
+return d;
+}
+
+bool find_any_solution (int a, int b, int c, int & x 0, int & y0, int & g) {
+g = gcd (abs(a), abs(b), (x0, y0);
+if (c % g != 0)
+return false;
+x0 *= c / g;
+y0 *= c / g;
+if (a < 0) x0 *= -1;
+if (b < 0) y0 *= -1;
+return true;
+}
+\endcode
+
+
+
+\h2{ Obtener todas las soluciones }
+
+Le mostraremos cómo obtener el resto de la solución (y sus infinitas) диофантова de la ecuación, sabiendo que una de las soluciones de $(x_0,y_0)$.
+
+Así, que $g = {\rm mcd}(a,b)$, y la cantidad de $x_0, y_0$ cumplen la condición:
+
+$$ a \cdot x_0 + b \cdot y_0 = c. $$
+
+Entonces tenga en cuenta que, añadiendo a $x_0$ número $b/g$ y al mismo tiempo destruyendo $a/g$ de $y_0$ no violaremos de la igualdad:
+
+$$ a \cdot (x_0 + b/g) + b \cdot (y_0 - a/g) = a \cdot x_0 + b \cdot y_0 + a \cdot b/g - b \cdot a/g = c. $$
+
+Es evidente que este proceso se puede repetir todo lo que quieras, es decir, todos los números de la especie:
+
+$$ \cases{
+x = x_0 + k \cdot b/g, \cr
+y = y_0 - k \cdot a/g,
+} ~~~~ k \in Z $$
+
+son soluciones de диофантова de la ecuación.
+
+Además, sólo en el número de este tipo y son las soluciones, es decir, describimos el conjunto de todas las soluciones диофантова de la ecuación (que ha resultado infinito, si no se imponen condiciones adicionales).
+
+
+
+\h2{ Encontrar el número de decisiones y las soluciones en un determinado tramo }
+
+Que dados dos segmentos de $[min_x;max_x]$ y $[min_y;max_y]$, y es necesario encontrar el número de soluciones de $(x,y)$ диофантова las ecuaciones subyacentes en los datos de los segmentos, respectivamente.
+
+Tenga en cuenta que si uno de los números de $a,$ b es igual a cero, significa que la tarea no tiene más de una solución, por lo tanto, estos casos estamos en esta sección excluye de la consideración.
+
+Primero encontraremos la solución con un mínimo adecuado de $x$, es decir $x \ge min_x$. Para ello, primero encontraremos cualquier decisión диофантова la ecuación (véase el párrafo 1). A continuación, la recibiremos de él la solución con el menor $x \ge min_x$ --- para eso utilizaremos el procedimiento descrito en el párrafo anterior, y vamos a reducir/aumentar de $x$, mientras que no sea $\ge min_x$, y el mínimo. Esto se puede hacer por $O(1)$, considerando con qué factor debe aplicar esta transformación, para obtener el número mínimo mayor o igual a $min_x$. Se denota encontrado $x$ $lx1$.
+
+De manera similar se puede encontrar una solución con la máxima adecuado $x=rx1$, es decir $x \le max_x$.
+
+A continuación, desplácese a la satisfacción de las restricciones de $y$, es decir, a la revisión del corte de $[min_y;max_y]$. El modo descrito más arriba, encontraremos la solución con un mínimo de $y \ge min_y$, así como la decisión de, con un máximo de $y \le max_y$. Se denota $x$-factores de estas soluciones a través de $lx2$ y $rx2$, respectivamente.
+
+Recorren tramos de $[lx1;rx1]$ y $[lx2;rx2]$; denota el tramo de vía $[lx;rx]$. Se afirma que cualquier decisión que $x$es el factor está en $[lx;rx]$ --- esa decisión es el adecuado. (Esto es cierto en vigor de la construcción de este segmento: primero hemos separado satisfecho restricciones en $x$ y $y$, obteniendo dos tintas, y luego cruzaron, habiendo recibido el ámbito en el que se satisfacen las dos condiciones.)
+
+Por lo tanto, la cantidad de decisiones será igual a la longitud de este segmento dividido por $|b|$ (ya que $x$es el coeficiente puede variar sólo en $\pm b$), y más uno.
+
+Presentamos la aplicación (que resultó bastante complicado, ya que es necesario considerar cuidadosamente los casos positivos y negativos de los factores de $a$ y $b$):
+
+\code
+void shift_solution (int & x, int & y, int a, int b, int cnt) {
+x += cnt * b;
+ y -= cnt * a;
+}
+
+int find_all_solutions (int a, int b, int c, int minx, int maxx, int miny, int maxy) {
+int x, y, g;
+if (! find_any_solution (a, b, c, x, y, g))
+return 0;
+a /= g; b /= g;
+
+int sign_a = a>0 ? +1 : -1;
+int sign_b = b>0 ? +1 : -1;
+
+shift_solution (x, y, z, a, b, (minx - x) / b);
+if (x < minx)
+shift_solution (x, y, z, a, b, sign_b);
+if (x > maxx)
+return 0;
+int lx1 = x;
+
+shift_solution (x, y, z, a, b, (maxx - x) / b);
+if (x > maxx)
+shift_solution (x, y, z, a, b, -sign_b);
+int rx1 = x;
+
+shift_solution (x, y, z, a, b, - (miny - y) / a);
+if (y < miny)
+shift_solution (x, y, z, a, b, -sign_a);
+if (y > maxy)
+return 0;
+int lx2 = x;
+
+shift_solution (x, y, z, a, b, - (maxy - y) / a);
+if (y > maxy)
+shift_solution (x, y, z, a, b, sign_a);
+int rx2 = x;
+
+if (lx2 > rx2)
+swap (lx2, rx2);
+int lx = max (lx1, lx2);
+int rx = min (rx1, rx2);
+
+return (rx - lx) / abs(b) + 1;
+}
+\endcode
+
+También es fácil de añadir a la aplicación de la retirada de todas las soluciones identificadas para ello, basta con recorrer la $x$ en el tramo de $[lx;rx]$ con un incremento de $|b|$, encontrando para cada uno de ellos correspondiente a $y$ directamente de la ecuación $ax+by=c$.
+
+
+\h2{ de Encontrar una solución en un tramo con la menor suma de x+y }
+
+Aquí en $x$ y $y$ también se deberían imponer ningún límite, de lo contrario, la respuesta casi siempre es menos infinito.
+
+La idea de la solución es la misma que en el párrafo anterior: primero encontramos cualquier decisión диофантова de la ecuación y, a continuación, aplicando el descrito en el párrafo anterior procedimiento, llegar a la mejor solución.
+
+Realmente, tenemos el derecho de realizar la siguiente conversión (véase el apartado anterior):
+
+$$ \cases{
+x^\prime = x + k \cdot (b/g), \cr
+y^\prime = y - k \cdot (a/g),
+} ~~~~ k \in Z.$$
+
+Tenga en cuenta que la suma de $x+y$ varía de la siguiente manera:
+
+$$x^\prime + y^\prime = x + y + k \cdot b/g a a/g) = x + y + k \cdot (b - a) / g.$$
+
+Es decir, si $a < b$, debe elegir el menor valor de $k$, si $a > $ b, debe seleccionar un valor de $k$.
+
+Si $a = b$, entonces nosotros no podemos mejorar la solución --- todas las decisiones tendrán la misma cantidad.
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden dar en el tema de la диофантовых de ecuaciones con dos incógnitas:
+
+\ul{
+
+\li \href=http://acm.sgu.es/problem.php?contest=0&problem=106{SGU #106 \bf{"The Equation} ~~~~ [dificultad media]}
+
+}

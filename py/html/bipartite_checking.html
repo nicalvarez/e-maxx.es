@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Проверка графа на двудольность и разбиение на две доли</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Проверка графа на двудольность и разбиение на две доли</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Проверка графа на двудольность и разбиение на две доли&lt;/h1&gt;
+
+&lt;p&gt;Пусть дан неориентированный граф. Требуется проверить, является ли он двудольным, т.е. можно ли разделить его вершины на две доли так, чтобы не было рёбер, соединяющих две вершины одной доли. Если граф является двудольным, то вывести сами доли.&lt;/p&gt;
+&lt;p&gt;Решим эту задачу с помощью &lt;algohref=bfs&gt;поиска в ширину&lt;/algohref&gt; за O (M).&lt;/p&gt;
+&lt;h2&gt;Признак двудольности&lt;/h2&gt;
+&lt;p&gt;Теорема. Граф является двудольным тогда и только тогда, когда все его простые циклы имеют чётную длину.&lt;/p&gt;
+&lt;p&gt;Впрочем, с практической точки зрения искать все простые циклы неудобно. Намного проще проверять граф на двудольность следующим алгоритмом:&lt;/p&gt;
+&lt;h2&gt;Алгоритм&lt;/h2&gt;
+&lt;p&gt;Произведём серию поисков в ширину. Т.е. будем запускать поиск в ширину из каждой непосещённой вершины. Ту вершину, из которой мы начинаем идти, мы помещаем в первую долю. В процессе поиска в ширину, если мы идём в какую-то новую вершину, то мы помещаем её в долю, отличную от доли текущей вершину. Если же мы пытаемся пройти по ребру в вершину, которая уже посещена, то мы проверяем, чтобы эта вершина и текущая вершина находились в разных долях. В противном случае граф двудольным не является.&lt;/p&gt;
+&lt;p&gt;По окончании работы алгоритма мы либо обнаружим, что граф не двудолен, либо найдём разбиение вершин графа на две доли.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;code&gt;int n;
+vector &amp;lt; vector&amp;lt;int&gt; &gt; g;
+... чтение графа ...
+
+vector&amp;lt;char&gt; part (n, -1);
+bool ok = true;
+vector&amp;lt;int&gt; q (n);
+for (int st=0; st&amp;lt;n; ++st)
+	if (part[st] == -1) {
+		int h=0, t=0;
+		q[t++] = st;
+		part[st] = 0;
+		while (h&amp;lt;t) {
+			int v = q[h++];
+			for (size_t i=0; i&amp;lt;g[v].size(); ++i) {
+				int to = g[v][i];
+				if (part[to] == -1)
+					part[to] = !part[v],  q[t++] = to;
+				else
+					ok &amp;= part[to] != part[v];
+			}
+		}
+	}
+
+puts (ok ? &quot;YES&quot; : &quot;NO&quot;);&lt;/code&gt;</textarea></td></tr></table></body></html>

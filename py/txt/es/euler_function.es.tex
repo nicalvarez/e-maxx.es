@@ -1,0 +1,98 @@
+\h1{ la Función de euler }
+
+
+\h2{ Definición }
+
+\bf{la Función de euler} $\phi (n)$ (a veces indicado mediante $\varphi(n)$ o ${\it phi}(n)$) --- este es el número de números de $1 a$ a $n$, mutuamente simples con $n$. En otras palabras, es la cantidad de números en el tramo de $[1, n]$, \algohref=euclid_algorithm{el máximo común divisor} que con $n$ es igual a uno.
+
+Los primeros valores de esta función (\href=http://oeis.org/A000010{A000010 en la enciclopedia de la OEIS}):
+
+$$ \phi (1)=1, $$
+$$ \phi (2)=1, $$
+$$ \phi (3)=2, $$
+$$ \phi (4)=2, $$
+$$ \phi (5)=4. $$
+
+
+\h2{ Propiedades }
+
+Los siguientes tres simples propiedades de la función de euler --- suficientes para aprender a calcular para cualquier tipo de números:
+
+\ul{
+
+\li Si $p$ --- un número primo, entonces $\phi (p)=p-1$.
+
+(Esto es obvio, ya que cualquier número, excepto el $p$, mutuamente simplemente con él.)
+
+\li Si $p$ --- simple, $a$ --- un número natural, entonces $\phi (p^a)=p^a-p^{a-1}$.
+
+(Ya que con el número de $p^a$ no mutuamente fácil, sólo los números de la vista $pk$ $k \in \mathcal{N})$, donde $p^a / p = p^{a-1}$ de las piezas.)
+
+\li Si $a$ y $b$ son mutuamente simples, entonces $\phi(ab) = \phi(a) \phi(b)$ ("мультипликативность" de la función de euler).
+
+(Este hecho debe de \algohref=chinese_theorem{internacional del teorema de los residuos}. Considere un número arbitrario de $z \le ab$. Se denota por $x$ y $y$ los restos de dividir $z$ a $a$ y $b$, respectivamente. Entonces $z$ mutuamente simplemente con $ab$ entonces, y sólo entonces, cuando $z$ mutuamente simplemente con $a$ y $b$ por separado, o lo que es lo mismo, $x$ mutuamente simplemente con $a$ y $y$ mutuamente simplemente con $b$. Aplicando el teorema chino de los restos, obtenemos que para cualquier par de números de $x$ y $y$ $(x \le a, ~ y \le b)$ mutuamente corresponder el número $z$ $(z \le ab)$, que completa la prueba.)
+
+}
+
+De aquí se puede obtener la función de euler para cualquier $\it n$ a través de su \bf{factorización} (descomposición $n$ simples сомножители):
+
+si
+
+$$ n = p_1^{a_1} \cdot p_2^{a_2} \cdot \ldots \cdot p_k^{a_k} $$
+
+(donde todos los $p_i$ --- simples), 
+
+$$ \phi(n) = \phi(p_1^{a_1}) \cdot \phi(p_2^{a_2}) \cdot \ldots \cdot \phi(p_k^{a_k}) = $$
+$$ = (p_1^{a_1} - p_1^{a_1-1}) \cdot (p_2^{a_2} - p_2^{a_2-1}) \cdot \ldots \cdot (p_k^{a_k} - p_k^{a_k-1}) = $$
+$$ = n \cdot \left( 1-{1\over p_1} \right) \cdot \left( 1-{1\over p_2} \right) \cdot \ldots \cdot \left( 1-{1\over p_k} \right). $$
+
+
+\h2{ Aplicación }
+
+Simple código que calcula la función de euler, факторизуя número atómico método por el $O (\sqrt n)$:
+
+\code
+int phi (int n) {
+int result = n;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+while (n % i == 0)
+n /= i;
+result: = result / i;
+}
+if (n > 1)
+result: = result / n;
+return result;
+}
+\endcode
+
+Un lugar clave para el cálculo de la función de euler --- es encontrar \bf{факторизации} número de $n$. Se puede lograr de la noche a la hora que es significativamente menor $O(\sqrt{n})$: vea \algohref=factorization{los algoritmos Eficaces факторизации}.
+
+
+\h2{ Aplicación de la función de euler }
+
+Más conocido e importante de la función de euler se expresa en \bf{teorema de euler}:
+$$ a^{\phi(m)} \equiv 1 \pmod m, $$
+donde $\it a$ y $\it m$ mutuamente simples.
+
+En el caso particular, cuando $\it m$ simple, el teorema de euler se convierte en la llamada \bf{pequeño teorema de la Granja}:
+$$ a^{m-1} \equiv 1 \pmod m $$
+
+El teorema de euler son muy habituales en las aplicaciones prácticas, por ejemplo, ver \algohref=reverse_element{elemento de vuelta en el campo de módulo}.
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas, en los que se desea calcular la función de euler,o utilizar el teorema de euler, o por el valor de la función de euler restaurar el original, el número de:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1120{UVA #10179 \bf{"Irreducible Basic Fractions"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1240{UVA #10299 \bf{"Relatives"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2302{UVA #11327 \bf{"Enumerating Rational Numbers"} ~~~~ [dificultad media]}
+
+\li \href=http://acm.timus.es/problem.aspx?space=1&num=1673{TIMUS #1673 \bf{"la Admisión a examen"} ~~~~ [nivel de dificultad: alto]}
+
+}

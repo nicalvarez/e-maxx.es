@@ -1,0 +1,218 @@
+\h1{Encontrar todas las caras, la exterior de la cara планарного conde}
+
+Dan планарный, echada en el plano de conde de $G$ c $n$ vértices. Es necesario encontrar todas las facetas. La cara es la parte del plano limitada por las costillas de este recuadro.
+
+Una de las facetas será diferente de los demás, ya que tendrá un sinfin de tamaño, esta cara se llama el exterior de la arista. En algunas tareas es necesario encontrar exterior de la cara, el algoritmo de encontrar el que, como veremos, en realidad no es diferente de un algoritmo para todas las caras.
+
+
+\h2{Teorema de euler}
+
+Aquí el teorema de euler y varias consecuencias de ella, de donde se seguiría que el número de aristas y caras планарного simple (sin bisagras y de múltiples aristas) del conde son los valores en el orden de $O(n)$.
+
+Que планарный el conde de $G$ es un conectan. Se denota por $n$ el número de vértices en el grafo de la $m$ --- número de aristas, $f$ --- número de caras. Entonces es justo \bf{teorema de euler}:
+$$ f + n - m = 2 $$
+Demostrar esta fórmula fácilmente de la siguiente manera. En el caso de la madera ($m=n-1$) fórmula fácil de comprobar. Si el conde --- no es un árbol, lo eliminaremos cualquier arista que pertenece a ningún ciclo; mientras que el valor de $f+n-m$ no cambia. Vamos a repetir este proceso hasta que no lleguemos a un árbol, para que la identidad de la $f+n-m=2$ ya está instalado. Por lo tanto, el teorema demostrado.
+
+\bf{Resultado}. Para arbitrario планарного conde que $k$ --- el número de componente de conectividad. Entonces se cumple:
+$$ f + n - m = 1 + k $$
+
+\bf{Resultado}. El número de aristas $m$ simple планарного conde es el valor de $O(n)$.
+
+Prueba. Deje que el conde de $G$ es coherente. y $n \ge 3$ (en el caso de la $n < 3$ la aprobación recibimos automáticamente). Entonces, por un lado, cada cara es limitada, como mínimo, de tres de las costillas. Por otro lado, cada arista limita con un máximo de dos caras. Por lo tanto, $3f \le 2m$, de donde, sustituyendo esto en la fórmula de euler, obtenemos:
+$$ f + n - m = 2\ \ \Leftrightarrow\ \ 3f = 6 - 3n + 3m\ \ \Leftrightarrow\ \ 6 - 3n + 3m \le 2m\ \ \Leftrightarrow\ \ m \le 3n - 6 $$
+Es decir, $m = O(n)$.
+
+Si el conde no es coherente., por la suma de las estimaciones de los componentes de la conectividad, de nuevo recibimos $m = O(n)$, que se quería demostrar.
+
+\bf{Resultado}. El número de caras de $f$ un simple планарного conde es el valor de $O(n)$.
+
+Esta consecuencia se deriva de la anterior, la investigación y la comunicación de $f = 2 - n + m$.
+
+
+\h2{Rastrear todas las caras}
+
+Siempre vamos a considerar que el conde, si no es coherente., echada en el plano de tal manera que ningún componente de la conectividad no se encuentra dentro de la otra (por ejemplo, un cuadrado con la mentira estrictamente dentro de ella el trozo --- incorrecto para nuestro algoritmo de la prueba).
+
+Por supuesto, se considera que el conde correctamente suelo en el plano, es decir, ninguna de las dos vértices no coinciden, y los bordes no se cruzan en el "no autorizados" puntos. Si en la entrada de la columna, se permiten tales intersección de la aleta, previamente es necesario deshacerse de ellos, introduciendo en cada punto de intersección de un vértice (hay que notar que como resultado de este proceso, en lugar de $n$ de puntos podemos obtener del orden de $n^2$ puntos). Para más detalles sobre este proceso, consulte la sección correspondiente más abajo.
+
+Supongamos que para cada vértice todos salen de la costilla se organizan por la polar a la esquina. Si no es así, debe organizar, completar la ordenación de cada uno de la lista de adyacencia (porque $m = O(n)$, es necesario $O (n \log n)$ de operaciones).
+
+Ahora seleccionamos arbitraria de la arista $(a,b)$ y пустим el rastreo. Llegando a una cima $v$ a cierto eje, salir de esta cima tenemos el siguiente en el orden de la arista.
+
+Por ejemplo, en el primer paso, estamos en la cima de $b$, y deben encontrar la cima de $a$ en la lista de adyacencia de la cima de $b$, entonces se denota por $c$ la siguiente cima en la lista de adyacencia (si $a$ era la última, como $c$ tomaremos la primera cima), y pasamos por una arista $(b,c)$.
+
+Repitiendo este proceso muchas veces, nosotros, tarde o temprano, llegaremos de nuevo y volveremos a una arista $(a,b)$, después de lo cual deberá detenerse. Es fácil notar que, en este rastreo de nosotros nos perderemos exactamente una cara. Y la dirección de rastreo se agujas para el exterior de la cara y en sentido de las agujas del reloj --- para las caras internas. En otras palabras, con tal de rastrear el interior de la cara siempre por el lado derecho de la aleta.
+
+Así, hemos aprendido a eludir una sola cara, empezando con la de cualquier costillas en su frontera. Queda aprender a elegir de inicio de la aleta por lo tanto, de manera que la cara no se repitan. Tenga en cuenta que cada costilla se diferencian dos áreas en las que puede recibir todo el año: en cada uno de ellos, se van a recuperar sus caras. Por otro lado, está claro que una orientada hacia la arista pertenece a exactamente la misma cara. Por lo tanto, si nos marcará todas las aristas de cada una de las mutaciones de la cara de alguna matriz $\rm used$, y no iniciar el rastreo de las ya marcadas costillas de nosotros, entonces nos perderemos todas las caras (incluyendo el exterior), correspondiendo exactamente una vez.
+
+Llevaremos inmediatamente \bf{aplicación} de este rastreo. Vamos a suponer que en la columna G $$ listas de adyacencia ya están organizados por la derecha, y múltiples costillas y el lazo que faltan.
+
+La primera opción de la aplicación simplificada de la siguiente cima en la lista de adyacencia se busca con una simple búsqueda. Esta implementación en teoría funciona por $O(n^2)$, aunque en la práctica en muchas pruebas funciona muy rápido (con una constante, bastante inferior a la unidad).
+
+\code
+int n; // el número de vértices
+vector < vector<int> > g; // el conde de
+
+vector < vector<char> > used (n);
+for (int i=0; i<n; ++i)
+used[i].resize (g[i].size());
+for (int i=0; i<n; ++i)
+for (size_t j=0; j<g[i].size(); ++j)
+if (!used[i][j]) {
+used[i][j] = true;
+int v = g[i][j], pv = i;
+vector<int> facet;
+for (;;) {
+facet.push_back (v);
+vector<int>::iterator it = find (g[v].begin(), g[v].end(), pv);
+if (++it == g[v].end()) it = g[v].begin();
+if (used[v][it-g[v].begin ()]); break;
+used[v][it-g[v].begin()] = true;
+pv = v, v = *it;
+}
+... la salida de facet - actual caras ...
+}
+\endcode
+
+El otro, más optimizado la opción de la aplicación --- disfruta el hecho de que la cima en la lista de adyacencia se organizan por la derecha. Si implementa la función $\rm cmp\_ang$ de la comparación de dos puntos de polar a derecha sobre el tercer punto (por ejemplo, presentando en forma de clase, como en el ejemplo a continuación), en la búsqueda de un punto en la lista de adyacencia puede utilizar el binario de búsqueda. Como resultado obtenemos la aplicación por $O(n \log n)$.
+
+\code
+class cmp_ang {
+int center;
+public:
+cmp_ang (int center) : centro(center)
+{ }
+bool operator() (int a, int b) const {
+... debe devolver true si el punto a tiene
+menor que b polar, ángulo respecto center ...
+}
+};
+
+
+int n; // el número de vértices
+vector < vector<int> > g; // el conde de
+
+vector < vector<char> > used (n);
+for (int i=0; i<n; ++i)
+used[i].resize (g[i].size());
+for (int i=0; i<n; ++i)
+for (size_t j=0; j<g[i].size(); ++j)
+if (!used[i][j]) {
+used[i][j] = true;
+int v = g[i][j], pv = i;
+vector<int> facet;
+for (;;) {
+facet.push_back (v);
+vector<int>::iterator it = lower_bound (g[v].begin(), g[v].end(),
+pv, cmp_ang(v));
+if (++it == g[v].end()) it = g[v].begin();
+if (used[v][it-g[v].begin ()]); break;
+used[v][it-g[v].begin()] = true;
+pv = v, v = *it;
+}
+... la salida de facet - actual caras ...
+}
+\endcode
+
+Es posible que la opción basada en el contenedor de $map$, ya que sólo es necesario aprender rápidamente de la posición de los números en la matriz. Por supuesto, esta implementación también funcionará $O(n \log n)$.
+
+Cabe señalar que el algoritmo no funciona correctamente con \bf{aislados} vértices --- las cimas simplemente no lo detecta como las caras individuales, aunque, desde el punto de vista matemático, deben ser los componentes individuales de la conectividad y de la cara.
+
+Además, el especial de la arista es \bf{externa de la cara}. Cómo distinguir entre "normal" de las caras, se describe en la siguiente sección. Tenga en cuenta que si el conde no es coherente., el exterior de la cara se compone de varios circuitos, y cada uno de estos circuitos se ha encontrado un algoritmo por separado.
+
+
+\h2{Selección externa de la cara}
+
+El código anterior muestra todas las caras, no haciendo diferencias entre la cara y las caras internas. En la práctica, normalmente, por el contrario, es necesario encontrar o sólo el exterior de la cara, o sólo para uso interno. Hay varias técnicas de selección externa de la cara.
+
+Por ejemplo, se puede definir de la plaza --- externa de la cara debe tener la mayor superficie (sólo debe tener en cuenta que la cara interna puede tener la misma superficie exterior). Este método no funcionará si el планарный el conde de $G$, no es coherente..
+
+Otro más fiable de criterio --- por la dirección de rastreo. Como ya se ha señalado anteriormente, todas las caras excepto la que pasan en la dirección de las agujas del reloj. Externa de la cara, incluso si consta de varios circuitos, pasar por el algoritmo en contra de las agujas del reloj. Determinar la dirección de rastreo, puede, simplemente, encontrar \algohref=polygon_area{la histórica plaza del polígono}. La plaza se puede leer directamente de la marcha del bucle interno. Sin embargo, este método tiene la finura --- procesamiento de las caras de cero de la plaza. Por ejemplo, si el gráfico está compuesto por una sola aleta, el algoritmo encuentra una sola cara, tamaño de la que será cero. Al parecer, si la cara tiene una área, lo que es el exterior de la arista.
+
+En algunos casos, es posible que se aplica dicho criterio, como el número de vértices. Por ejemplo, si el gráfico es un polígono convexo con el llevadas a cabo en él непересекающимися en las diagonales, su exterior una cara contendrá todos los vértices. Pero, de nuevo, hay que ser cuidadoso con el caso, cuando el exterior, y el interior de la cara tienen el mismo número de vértices.
+
+Por último, hay el siguiente método para encontrar el exterior de la cara: puede iniciarse de esa costilla que la encontrada en el resultado de la cara externa. Por ejemplo, se puede tomar a la izquierda la cima (si más de un cualquiera) y seleccionar de ella la arista que va el primero en el orden de clasificación. En consecuencia, el rastreo de este costillas encontrará exterior de la cara. Este método puede aplicarse en el caso de la inconexo conde: es necesario en cada componente de la conectividad de encontrar la izquierda de la cima y ejecutar un rastreo de la primera costilla de ella.
+
+Presentamos la aplicación más simple, un método basado en el signo de la plaza (el rastreo yo para el ejemplo tomado por $O(n^2)$, aquí eso no importa). Si el conde no coherente, el código de "... la cara es el exterior ..." se realizará por separado para cada circuito, que constituye el exterior de la cara.
+
+\code
+... el código normal de detección de caras ...
+... inmediatamente después de un ciclo, descubre otra faceta ...
+
+// consideramos el tamaño de la
+double area = 0;
+// añadimos un punto para facilitar el recuento de la plaza
+facet.push_back (facet[0]);
+for (size_t k=0; k+1<facet.size(); ++k)
+area += (p[facet[k]].first + p[facet[k+1]].first)
+* (p[facet[k]].second - p[facet[k+1]].second);
+if (area < EPS)
+ ... la cara es exterior ...
+}
+\endcode
+
+
+\h2{la Construcción de планарного conde}
+
+Anteriores algoritmos importante es que de entrada el conde es correctamente echadas планарным conde. Sin embargo, en la práctica, a menudo en la entrada el programa se sirve de un conjunto de regiones, pueden superponerse entre sí, "no autorizados" puntos de venta, y de la necesidad de estas regiones construir планарный conde.
+
+Implementar la construcción de планарного conde de la siguiente manera. Introduzcamos alguna entrada de linea. Ahora recorren este tramo con el resto de líneas. Encontrados punto de intersección, así como de los extremos del segmento pondremos en un vector, y ordenará la forma estándar (es decir, el primero de una coordenada, en caso de empate, - - - por el otro). Luego de hacer un recorrido por este vector y añadir las aristas entre vecinos en este vector de puntos (por supuesto, teniendo cuidado de no añadir bucles). Siguiendo este proceso para todos los segmentos, es decir, $O(n^2 \log n)$ construiremos correspondiente планарный conde (en el que se $O(n^2)$ puntos).
+
+La implementación de:
+
+\code
+const double EPS = 1E-9;
+
+struct point {
+double x, y;
+bool operator< (const point & p) const {
+return x < p.x - EPS || abs (x - p.x) < EPS && y < p.y - EPS;
+}
+};
+
+map<point,int> ids;
+vector<point> p;
+vector < vector<int> > g;
+
+int get_point_id (point pt) {
+if (!ids.count(pt)) {
+ids[pt] = (int)p.size();
+p.push_back (pt);
+g.resize (g.size() + 1);
+}
+return ids[p];
+}
+
+void intersect (pair<point,point> a, pair<point,point> b, vector<point> & res) {
+... procedimiento estándar, cruza dos líneas a y b y tira el resultado en el res ...
+... si los trozos se superponen, lo tira los extremos, que penetre en el interior de la primera línea ...
+}
+
+int main() {
+// datos de entrada
+int m;
+vector < pair<point,point> > a (m);
+... lectura ...
+
+// generar el grafo de
+for (int i=0; i<m; i++) {
+vector<point> cur;
+for (int j=0; j<m; j++)
+intersect (a[i], a[j], cur);
+sort (cur.begin(), cur.end());
+for (size_t j=0; j+1<cur.size(); ++j) {
+int x = get_id (cur[j]), y = get_id (cur[j+1]);
+if (x != y) {
+g[x].push_back (y);
+g[y].push_back (x);
+}
+}
+}
+int n = (int) g.size();
+// ordenar por derecha y eliminación de múltiples aristas
+for (int i=0; i<n; ++i) {
+sort (g[i].begin(), g[i].end(), cmp_ang (i));
+g[i].erase (unique (g[i].begin(), g[i].end()), g[i].end());
+}
+}
+\endcode

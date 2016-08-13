@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Метод Проталкивания предпотока нахождения максимального потока</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Метод Проталкивания предпотока нахождения максимального потока</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Максимальный поток методом Проталкивания предпотока за O (N&lt;sup&gt;4&lt;/sup&gt;)&lt;/h1&gt;
+
+&lt;p&gt;Пусть дан граф G, в котором выделены две вершины: исток S и сток T, а у каждого ребра определена пропускная способность C&lt;sub&gt;u,v&lt;/sub&gt;. Поток F можно представить как поток вещества, которое могло бы пройти по сети от истока к стоку, если рассматривать граф как сеть труб с некоторыми пропускными способностями. Т.е. поток - функция F&lt;sub&gt;u, v&lt;/sub&gt;, определённая на множестве рёбер графа.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Задача заключается в нахождении максимального потока. Здесь будет рассмотрен метод Проталкивания предпотока, работающий за O (N&lt;sup&gt;4&lt;/sup&gt;), или, точнее, за O (N&lt;sup&gt;2&lt;/sup&gt; M). Алгоритм был предложен Гольдбергом в 1985 году.&lt;/p&gt;
+&lt;h2&gt;Алгоритм&lt;/h2&gt;
+&lt;p&gt;Общая схема алгоритма такова. На каждом шаге будем рассматривать некоторый предпоток - т.е. функцию, которая по свойствам напоминает поток, но не обязательно удовлетворяет закону сохранения потока. На каждом шаге будем пытаться применить какую-либо из двух операций: проталкивание потока или поднятие вершины. Если на каком-то шаге станет невозможно применить какую-либо из двух операций, то мы нашли требуемый поток.&lt;/p&gt;
+&lt;p&gt;Для каждой вершины определена её высота H&lt;sub&gt;u&lt;/sub&gt;, причём H&lt;sub&gt;S&lt;/sub&gt; = N, H&lt;sub&gt;T&lt;/sub&gt; = 0, и для любого остаточного ребра (u, v) имеем H&lt;sub&gt;u&lt;/sub&gt; &amp;lt;= H&lt;sub&gt;v&lt;/sub&gt; + 1.&lt;/p&gt;
+&lt;p&gt;Для каждой вершины (кроме S) можно определить её избыток: E&lt;sub&gt;u&lt;/sub&gt; = F&lt;sub&gt;V, u&lt;/sub&gt;. Вершина с положительным избытком называется переполненной.&lt;/p&gt;
+&lt;p&gt;Операция проталкивания Push (u, v) применима, если вершина u переполнена, остаточная пропускная способность Cf&lt;sub&gt;u, v&lt;/sub&gt; &gt; 0 и H&lt;sub&gt;u&lt;/sub&gt; = H&lt;sub&gt;v&lt;/sub&gt; + 1. Операция проталкивания заключается в максимальном увеличении потока из u в v, ограниченном избытком E&lt;sub&gt;u&lt;/sub&gt; и остаточной пропускной способностью Cf&lt;sub&gt;u, v&lt;/sub&gt;.&lt;/p&gt;
+&lt;p&gt;Операция поднятия Lift (u) поднимает переполненную вершину u на максимально допустимую высоту. Т.е. H&lt;sub&gt;u&lt;/sub&gt; = 1 + min { H&lt;sub&gt;v&lt;/sub&gt; }, где (u, v) - остаточное ребро.&lt;/p&gt;
+&lt;p&gt;Осталось только рассмотреть инициализацию потока. Нужно инициализировать только следующие значения: F&lt;sub&gt;S, v&lt;/sub&gt; = C&lt;sub&gt;S, v&lt;/sub&gt;, F&lt;sub&gt;u, S&lt;/sub&gt; = - C&lt;sub&gt;u, S&lt;/sub&gt;, остальные значения положить равными нулю.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;code&gt;const int inf = 1000*1000*1000;
+
+
+typedef vector&amp;lt;int&gt; graf_line;
+typedef vector&amp;lt;graf_line&gt; graf;
+
+typedef vector&amp;lt;int&gt; vint;
+typedef vector&amp;lt;vint&gt; vvint;
+
+
+void push (int u, int v, vvint &amp; f, vint &amp; e, const vvint &amp; c)
+{
+	int d = min (e[u], c[u][v] - f[u][v]);
+	f[u][v] += d;
+	f[v][u] = - f[u][v];
+	e[u] -= d;
+	e[v] += d;
+}
+
+void lift (int u, vint &amp; h, const vvint &amp; f, const vvint &amp; c)
+{
+	int d = inf;
+	for (int i = 0; i &amp;lt; (int)f.size(); i++)
+		if (c[u][i]-f[u][i] &gt; 0)
+			d = min (d, h[i]);
+	if (d == inf)
+		return;
+	h[u] = d + 1;
+}
+
+
+int main()
+{
+	int n;
+	cin &gt;&gt; n;
+	vvint c (n, vint(n));
+	for (int i=0; i&amp;lt;n; i++)
+		for (int j=0; j&amp;lt;n; j++)
+			cin &gt;&gt; c[i][j];
+	// исток - вершина 0, сток - вершина n-1
+
+	vvint f (n, vint(n));
+	for (int i=1; i&amp;lt;n; i++)
+	{
+		f[0][i] = c[0][i];
+		f[i][0] = -c[0][i];
+	}
+
+	vint h (n);
+	h[0] = n;
+
+	vint e (n);
+	for (int i=1; i&amp;lt;n; i++)
+		e[i] = f[0][i];
+
+	for ( ; ; )
+	{
+		int i;
+		for (i=1; i&amp;lt;n-1; i++)
+			if (e[i] &gt; 0)
+				break;
+		if (i == n-1)
+			break;
+
+		int j;
+		for (j=0; j&amp;lt;n; j++)
+			if (c[i][j]-f[i][j] &gt; 0 &amp;&amp; h[i]==h[j]+1)
+				break;
+		if (j &amp;lt; n)
+			push (i, j, f, e, c);
+		else
+			lift (i, h, f, c);
+	}
+
+	int flow = 0;
+	for (int i=0; i&amp;lt;n; i++)
+		if (c[0][i])
+			flow += f[0][i];
+
+	cout &amp;lt;&amp;lt; max(flow,0);
+
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

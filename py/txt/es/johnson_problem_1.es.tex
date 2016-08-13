@@ -1,0 +1,79 @@
+\h1{ Tarea de johnson con una máquina }
+
+Esta es la tarea de elaboración de una óptima programación del procesamiento de $n$ de piezas en una máquina, si $i$-aja detalle es tratado en él por el tiempo $t_i$, y $t$ de segundos de espera antes de la elaboración de esta pieza, se cobrará una multa de $f_i(t)$.
+
+Por lo tanto, la tarea consiste en la búsqueda de ese reorganizar las piezas que el siguiente valor (importe de la multa) es mínima. Si nos denota por $\pi$ permutación de las piezas ($\pi_1$ --- el primer número de la pieza, $\pi_2$ --- la segunda, y así sucesivamente), el tamaño de la multa de $f(\pi)$ es igual a:
+
+$$ F(\pi) = f_{\pi_1}(0) + f_{\pi_2}(t_{\pi_1}) + f_{\pi_3}(t_{\pi_1} + t_{\pi_2}) + \ldots + f_{\pi_n}\left(\sum_{i=1}^{n-1} t_{\pi_i}\right). $$
+
+A veces esta tarea se llama objetivo monoprocesador apropiado mantenimiento de la gran cantidad de solicitudes.
+
+
+\h2{ la Solución de la tarea en algunos casos particulares }
+
+
+\h3{ Primera privada de caso: lineal de la función de la multa }
+
+Aprenderemos a hacer esta tarea, cuando todos los $f_i(t)$ son lineales, es decir, tienen la forma:
+
+$$ f_i(t) = c_i \cdot t, $$
+
+donde $c_i$ --- número no negativo. Tenga en cuenta que en estas lineales de las funciones de miembro libre es igual a cero, ya que en caso contrario, a la respuesta de inmediato se puede añadir a este miembro libre, y abordar la tarea de cero en un miembro gratis.
+
+Introduzcamos algunos horarios --- permutación de $\pi$. Introduzcamos un número $i=1, \ldots, n-1$, y dejar que la transposición de $\pi^\prime$ es un movimiento de $\pi$, en el que cotizan $i$-ro y $i+1$de la realidad los elementos. Vamos a ver, ¿cuánto se si este ha cambiado la multa:
+
+$$ F(\pi^\prime) - F(\pi) = $$
+
+es fácil de entender, que los cambios se han producido con sólo $i$en la primera y $i+1$en la primera ingredientes básicos para lograr buenos:
+
+$$ = c_{\pi^\prime_i} \cdot \sum_{k=1}^{i-1} t_{\pi^\prime_k} + c_{\pi^\prime_{i+1}} \cdot \sum_{k=1}^{i} t_{\pi^\prime_k} - c{\pi_i} \cdot \sum_{k=1}^{i-1} t_{\pi_k} - c_{\pi_{i+1}} \cdot \sum_{k=1}^{i} t_{\pi_k} = $$
+$$ = c_{\pi_{i+1}} \cdot \sum_{k=1}^{i-1} t_{\pi^\prime_k} + c_{\pi_i} \cdot \sum_{k=1}^{i} t_{\pi_k^\prime} - c{\pi_i} \cdot \sum_{k=1}^{i-1} t_{\pi_k} - c{\pi_{i+1}} \cdot \sum_{k=1}^{i} t_{\pi_k} = $$
+$$ = c_{\pi_i} \cdot t_{\pi_{i+1}} - c{\pi_{i+1}} \cdot t_{\pi_i}. $$
+
+Está claro que si la programación de $\pi$ es el óptimo, cualquier cambio provoca un aumento de la multa (o a la conservación del valor anterior), por lo tanto, para optimizar el plan, puede grabar la condición:
+
+$$ \forall i=1, \ldots, n-1 ~~~:~~ c_{\pi_i} \cdot t_{\pi_{i+1}} - c{\pi_{i+1}} \cdot t_{\pi_i} \ge 0. $$
+
+Convirtiendo, obtenemos:
+
+$$ \forall i=1, \ldots, n-1 ~~~:~~ \frac{ c{\pi_i} }{ t_{\pi_i} } \ge \frac{ c{\pi_{i+1}} }{ t_{\pi_{i+1}} }. $$
+
+Por lo tanto, \bf{óptima de programación} se puede obtener simplemente \bf{ordenando} todos los detalles en relación con $c_i$ a $t_i$ en orden inverso.
+
+Cabe señalar que hemos recibido este algoritmo llamado \bf{перестановочным recepción}: tratamos de cambiar asientos y dos vecinos elemento de programación, se han calculado, en la medida de si este ha cambiado la multa, y de ahí han sacado el algoritmo de búsqueda de la óptima programación.
+
+
+\h3{ el Segundo caso especial: exponencial de la función de la multa }
+
+Que ahora, la función de la multa tienen la forma:
+
+$$ f_i(t) = c_i \cdot e^{\alpha \cdot t}, $$
+
+donde todos los números $c_i$ неотрицательны, la constante $\alpha$ positiva.
+
+Entonces, aplicando de manera similar aquí перестановочный la recepción, fácil de obtener que los detalles es necesario ordenar en orden descendente de magnitud:
+
+$$ v_i = \frac{ 1 - e^{ \alpha \cdot t_i } }{ c_i }. $$
+
+
+\h3{ el Tercer caso particular: la misma monótona de la función de la multa }
+
+En este caso, se considera que de los $f_i(t)$ coinciden con alguna función $\phi(t)$, que es creciente.
+
+Está claro que, en este caso de forma óptima colocación de las piezas en orden creciente de tiempo de procesamiento de $t_i$.
+
+
+\h2{ Teorema de livshitsa-Кладова }
+
+El teorema de livshitsa-Кладова establece que перестановочный recepción sólo se aplica a los anteriores tres casos particulares, y sólo ellos, es decir:
+
+\ul{
+\li caso Lineal: $f_i(t) = c_i \cdot t + d_i$, donde $c_i$ --- no negativo de la constante,
+\li Exponencial de caso: $f_i(t) = c_i \cdot e^{\alpha \cdot t} + d_i$, donde $c_i$ y $\alpha$ --- una constante positiva,
+\li Idéntico caso: $f_i(t) = \phi(t)$, donde $\phi$ --- de incremento de la función.
+}
+
+Este teorema es demostrado en el supuesto de que la función de la multa son lo suficientemente suaves (existen terceros derivados).
+
+En los tres casos se aplica перестановочный recepción, gracias a la cual la búsqueda de la óptima programación se puede encontrar fácil de ordenación y, por lo tanto, por el tiempo $O (n \log n)$.
+

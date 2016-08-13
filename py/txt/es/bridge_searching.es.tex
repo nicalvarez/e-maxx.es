@@ -1,0 +1,101 @@
+\h1{la Búsqueda de puentes}
+
+Que dan неориентированный conde. El puente se llama esta arista, la eliminación de la que hace el conde de несвязным (o, más exactamente, aumenta el número de componente de conectividad). Es necesario encontrar todos los puentes en un recuadro.
+
+De manera informal, esta tarea se plantea de la siguiente manera: es necesario encontrar a un mapa de carreteras de todos los "importantes" de la carretera, es decir, como la carretera, que la eliminación de cualquiera de ellos dará lugar a la desaparición de camino entre un par de ciudades.
+
+A continuación describiremos el algoritmo basado en la \algohref=dfs{búsqueda en profundidad}, y que trabaja por hora $O(n+m)$, donde $n$ --- número de vértices, $m$ --- aristas en el grafo.
+
+Tenga en cuenta que en el sitio también se describe \algohref=bridge_searching_online{en línea, el algoritmo de búsqueda de puentes} --- a diferencia de la que aquí se describe un algoritmo un algoritmo es capaz de mantener todos los puentes del conde cambiante de la columna (se refiere a la adición de nuevas aristas).
+
+
+\h2{el Algoritmo}
+
+Ejecutamos \algohref=dfs{rastreo en profundidad} arbitraria de vértices del grafo; se denota por $\rm root$. Tenga en cuenta el siguiente \bf{hecho} (que es fácil de probar):
+
+\ul{
+\li Que estamos en rastrear en profundidad, viendo ahora todas las aristas de la cima de $v$. Entonces, si la arista $(v,a)$ es tal, que desde la cima de $to$ y desde cualquier descendiente en el árbol de la solución en la profundidad de la devolución de las costillas en la cima de la $v$, o de alguno de sus antepasado, es el borde es un puente. En caso contrario, que el puente no es. (En realidad, esta condición se comprueba si no hay otro camino desde $v$ a $to$, excepto el descenso por la arista $(v,a)$ árbol de rastreo de profundidad.)
+}
+
+Ahora queda aprender a comprobar este hecho para cada vértice de manera eficiente. Para eso utilizaremos "las edades de inicio de sesión en la cima", calculados \algohref=dfs{el algoritmo de búsqueda en profundidad}.
+
+Así, que de $tin[v]$ --- es la hora de la puesta de búsqueda en profundidad en la cima de la $v$. Ahora introducimos la matriz $fup[v]$, que es la que nos permitirá responder a estas solicitudes. $Fup[v]$ es igual a un mínimo de tiempo de la puesta en la cima de $tin[v]$, de los tiempos de la puesta en cada cima de $p$, que es el final de algún devolución de la costilla $(v,p)$, así como de todos los valores de $fup[to]$ para cada vértice $to$, que es hijo directo de la $v$ en el árbol de búsqueda:
+
+$$ fup[v] = \min \cases{
+tin[v], & \cr
+tin[p], & {\rm for all} (v,p){\rm\ --- back edge } \cr
+fup[to], & {\rm for all} (v,a){\rm\ --- tree edge } \cr
+} $$
+
+(aquí "back edge" --- lo contrario de la costilla, "tree edge" --- el borde de la madera)
+
+Entonces, desde la cima de $v$ o su descendiente es lo contrario de la costilla en su antecesor entonces, y sólo entonces, cuando hay un hijo de $to$ que $fup[to] \le tin[v]$. (Si $fup[to] = tin[v]$, esto significa, que hay de lo contrario el borde, que llega exactamente en $v$ si $fup[to] < tin[v]$, lo que significa la presencia de la devolución de las costillas en ningún antepasado de la cima de $v$.)
+
+Por lo tanto, si para el estado actual de la aleta $(v,a)$ (de propiedad de un árbol de búsqueda) se $fup[to] > tin[v]$, que es el borde es un puente; en caso contrario, que el puente no es.
+
+
+\h2{Aplicación}
+
+Si hablamos de la aplicación, tenemos que ser capaces de distinguir tres casos: cuando vamos por la arista del árbol de búsqueda en profundidad, cuando vamos por la devolución de una arista, y cuando tratamos de ir por el eje de la madera en la dirección opuesta. Son, respectivamente, los casos de:
+
+\ul{
+\li $used[to]=false$ --- el criterio de la costilla de un árbol de búsqueda;
+\li $used[to]=true\ \&\&\ to \ne parent$ --- el criterio de la devolución de las costillas;
+\li $to=parent$ --- el criterio del paso por la arista del árbol de búsqueda en la dirección opuesta.
+}
+
+Por lo tanto, para la aplicación de estos criterios debemos transmitir en la función de búsqueda en profundidad de la cima de la antecesor, el actual de la cima.
+
+\code
+const int MAXN = ...;
+vector<int> g[MAXN];
+bool used[MAXN];
+int timer, tin[MAXN], fup[MAXN];
+
+void dfs (int v, int p = -1) {
+used[v] = true;
+tin[v] = fup[v] = timer++;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (a == p) continue;
+if (used[to])
+fup[v] = min (fup[v], tin[to]);
+else {
+dfs (a, v);
+fup[v] = min (fup[v], fup[to]);
+if (fup[to] > tin[v])
+IS_BRIDGE(v,a);
+}
+}
+}
+
+void find_bridges() {
+timer = 0;
+for (int i=0; i<n; ++i)
+used[i] = false;
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs (i);
+}
+\endcode
+
+Aquí la función principal de la llamada - - - ${\rm find\_bridges}$ --- se produce a cabo la inicialización y ejecución de la solución en profundidad para cada uno de los componentes de conectividad de grafo.
+
+Cuando este ${\rm IS\_BRIDGE}(a,b)$ --- esto es una característica que va a reaccionar a lo que el borde de $(a,b)$ es un puente, por ejemplo, la salida es el borde de la pantalla.
+
+La constante de ${\rm MAXN}$ en el principio, el código debe establecer un valor igual al máximo número de vértices en la entrada de la columna.
+
+Vale la pena señalar que esta aplicación no funciona correctamente si hay en el recuadro \bf{múltiplos de las costillas}: en realidad, no llama la atención, que es un múltiplo de si la arista o es la única. Por supuesto, los múltiplos de la aleta no se deben incluir en la respuesta, por lo tanto, cuando se llama a $\rm IS\_BRIDGE$ se puede comprobar que además, no es un múltiplo de si la arista queremos añadir en la respuesta. Otra forma de --- más cuidadoso trabajo con los antepasados, es decir, transferir $\rm dfs$ no la cima de la antecesor, y el número de costillas, por el que hemos entrado en la parte superior (para ello, será además de almacenar los números de todas las aristas).
+
+
+\h2{Tareas en línea judges}
+
+La lista de tareas en las que es necesario buscar los puentes:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=737{UVA #796 \bf{"Critical Links"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=551{UVA #610 \bf{"Street Directions"} ~~~~ [dificultad media]}
+
+}

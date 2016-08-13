@@ -1,0 +1,75 @@
+<h1>el Algoritmo de la Levita de encontrar caminos más cortos desde un determinado vértice a todos los demás vértices</h1>
+
+<p>Deje que dan el conde con N vértices y M de las costillas, para cada uno de los cuales se especifica el peso de L<sub>i</sub>. También dan la cima de la plataforma de lanzamiento de V<sub>0</sub>. Es necesario encontrar el camino más corto desde el vértice V<sub>0</sub> a todos los demás vértices.</p>
+<p>el Algoritmo de la Levita se encarga de esta tarea es muy eficaz (sobre асимптотики y la velocidad de trabajo ver más abajo).</p>
+<h2>Descripción</h2>
+<p>Deje que la matriz D[1..N] contendrá actual de la menor longitud de las vías, es decir, D<sub>i</sub> es la longitud de la ruta más corta desde el vértice V<sub>0</sub> hasta el vértice i. Inicialmente la matriz D lleno de valores "infinito", además de la D<sub>V<sub>0</sub></sub> = 0. Después de terminar el trabajo de un algoritmo de esta matriz contendrá finales de la menor de las distancias.</p>
+<p>Deje que la matriz P[1..N] contiene actuales de los antepasados, es decir, P<sub>i</sub> - es la que precede a la cima de la i en la senda de vértices V<sub>0</sub> a i. Así como la matriz D, la matriz P se cambia poco a poco de la marcha del algoritmo y al final de su toma los valores finales.</p>
+<p> </p>
+<p>Ahora, en realidad el algoritmo de Levita. En cada paso se admite tres conjuntos de vértices:</p>
+<ul>
+<li>M<sub>0</sub> - la cima, la distancia a la que se ha calculado ya (pero probablemente no definitivamente);</li>
+<li>M<sub>1</sub> - la cima, la distancia a la que se evalúa;</li>
+<li>M<sub>2</sub> - la cima, la distancia a la que aún no ha sido calculado.</li>
+</ul>
+<p>la Cima de un conjunto de M<sub>1</sub> se almacenan en forma bidireccional de la cola (deque).</p>
+<p> </p>
+<p>Inicialmente, todos los vértices se sitúan en el conjunto M<sub>2</sub>, además de vértices V<sub>0</sub>, que se coloca en el conjunto M<sub>1</sub>.</p>
+<p>En cada paso del algoritmo tomamos la cima de la multitud M<sub>1</sub> (quitar el primer elemento de la cola). Supongamos que V es seleccionada la cima. Traducimos esta cima en el conjunto M<sub>0</sub>. A continuación, revisa todas las aristas que salen de esta cima. Supongamos que T es la segunda final del borde (es decir, no es igual a V), y L es la longitud actual de las costillas.</p>
+<ul>
+<li>Si T pertenece a M<sub>2</sub>, T movemos en un conjunto de M<sub>1</sub> al final de la cola. D<sub>T</sub> creemos igual D<sub>V</sub> + l</li>
+<li>Si T pertenece a M<sub>1</sub>, tratando de mejorar el valor de D<sub>T</sub>: D<sub>T</sub> = min (D<sub>T</sub>, D<sub>V</sub> + L). En sí la cima de la T no se mueve en la cola.</li>
+<li>Si T pertenece a M<sub>0</sub>, y si D<sub>T</sub> se puede mejorar (D<sub>T</sub> > D<sub>V</sub> + L), lo mejoramos D<sub>T</sub> y, a la cima de la T devolvemos el conjunto M<sub>1</sub>, colocando en el comienzo de la cola.</li>
+</ul>
+<p>por Supuesto, con cada actualización de la matriz D se debe actualizar y valor de la matriz P.</p>
+<h2>Detalles de implementación</h2>
+<p>vamos a crear una matriz de ID[1..N], en el que para cada vértice vamos a almacenar, qué multitud pertenece: 0 si M<sub>2</sub> (es decir, una distancia igual a infinito), 1 - si M<sub>1</sub> (es decir, el vértice se encuentra en la cola), y 2 - si M<sub>0</sub> (de cierta manera ya se ha encontrado, la distancia es inferior a infinito).</p>
+<p>la Cola de procesamiento, puede implementar una estructura estándar de los datos deque. Sin embargo, hay una manera más eficaz. En primer lugar, obviamente, en la cola en cualquier momento va a almacenar un máximo de N elementos. Pero, en segundo lugar, podemos añadir elementos, y en el comienzo y en el final de la cola. Por lo tanto, podemos organizar la cola en la matriz de tamaño N, sin embargo, es necesario repetir. Es decir, hacemos la matriz Q[1..N], punteros (int) en el primer elemento de la QH y después de la última QT. La cola está vacía, cuando QH == QT. Añadir al final - es simplemente un registro en Q[QT] y el aumento de la QT en 1; si QT después de eso, más allá de los límites de la cola (QT == N), entonces hacemos QT = 0. Agregar al principio de la cola - reducimos la QH en 1, si ha salido fuera de la cola (QH == -1), hacemos QH = N-1.</p>
+<p>El algoritmo de ejecución de la precisión en la descripción de arriba.</p>
+<h2>Asíntotas</h2>
+<p>no Me conoce más-menos buen quebrada la evaluación de este algoritmo. He visto solo la evaluación de O (N M) el algoritmo similar.</p>
+<p>sin Embargo, en la práctica, el algoritmo ha funcionado muy bien: el tiempo de su trabajo estimo como <b>O (M log N)</b>, aunque, repito, es exclusivamente <b>experimental</b> puntuación.</p>
+<h2>Realización</h2>
+<code>typedef pair<int,int> rib;
+typedef vector < vector<rib> > graph;
+
+const int inf = 1000*1000*1000;
+
+
+int main()
+{
+int n, v1, v2;
+graph g (n);
+
+... lectura del conde ...
+
+vector<int> d (n, inf);
+d[v1] = 0;
+vector<int> id (n);
+deque<int> q;
+q.push_back (v1);
+vector<int> p (n, -1);
+
+while (!q.empty())
+{
+int v = q.front(), q.pop_front();
+id[v] = 1;
+for (size_t i=0; i<g[v].size(); ++i)
+{
+int to = g[v][i].first, len = g[v][i].second;
+if (d[to] > d[v] + len)
+{
+d[to] = d[v] + len;
+if (id[to] == 0)
+q.push_back (to);
+else if (id[to] == 1)
+q.push_front (to);
+p[to] = v;
+id[to] = 1;
+}
+}
+}
+
+... resultado de salida ...
+
+}</code>

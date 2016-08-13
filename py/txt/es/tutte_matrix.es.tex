@@ -1,0 +1,182 @@
+\h1{ Matriz Татта }
+
+Matriz de Татта --- es un enfoque a la solución del problema de \bf{паросочетании} arbitrario (no necesariamente двудольном) la columna. La verdad, de una manera sencilla, el algoritmo no emite mismos de la aleta de la bandeja de entrada en паросочетание, y sólo el tamaño máximo de паросочетания en el recuadro.
+
+A continuación nos veamos primero el resultado obtenido Таттом (Tutte) para comprobar la existencia de perfecto паросочетания (es decir, паросочетания, contiene $n/2$ de las costillas, y porque насыщающего todo $n$ vértices). Después de esto veremos el resultado, más tarde Ловасом (Lovasz), que ya permite buscar el tamaño máximo de паросочетания, y no sólo se limita a la ocasión perfecta паросочетания. A continuación, se presenta el resultado de rabin (Rabin) y Вазирани (Vazirani), que indica el algoritmo de recuperación del паросочетания (como conjunto de las aristas).
+
+
+\h2{ Definición }
+
+Que dan el conde de $G$ c $n$ vértices ($n$ --- uniforme).
+
+Entonces \bf{matriz Татта} (Tutte) se llama la siguiente matriz $n \times n$:
+
+$$ \pmatrix{
+0 & x_{12} & x_{13} & \ldots & x_{1(n-1)} & x_{1n} \cr
+-x_{12} & 0 & x_{23} & \ldots & x_{2(n-1)} & x_{2n} \cr
+-x_{13} & -x_{23} & 0 & \ldots & x_{3(n-1)} & x_{3n} \cr
+\vdots & \vdots & \vdots & \ddots & \vdots & \vdots \cr
+-x_{1(n-1)} & -x_{2(n-1)} & -x_{3(n-1)} & \ldots & 0 & x_{(n-1)n} \cr
+-x_{1n} & -x_{2n} & -x_{3n} & \ldots & -x_{(n-1)n} & 0 \cr
+} $$
+
+donde $x_{ij}$ ($1 \le i < j \le n$) --- o es la variable independiente, correspondiente a una arista entre los vértices de las $i$ y $j$, o idéntico a cero si las aristas entre estos vértices no.
+
+Por lo tanto, en el caso del conde de $n$ los vértices de la matriz de Татта contiene $n (n-1) / 2$ de las variables independientes, si en el recuadro alguna costilla faltan, los elementos correspondientes de la matriz de Татта se convierten en ceros. En general, el número de variables en la matriz de Татта coincide con el número de aristas de la gráfica.
+
+Matriz de Татта антисимметрична (кососимметрична).
+
+
+\h2{ Teorema de Татта }
+
+Considere el determinante de $\det(A)$ matriz Татта. En general, un polinomio respecto a las variables $x_{ij}$.
+
+\bf{Teorema de Татта} dice: en la columna de $G$, existe perfecta паросочетание entonces, y sólo entonces, cuando el polinomio $\det(A)$ a no es igual a cero es igual a (es decir, tiene al menos un término con un coeficiente distinto de cero). Recordemos que паросочетание se llama perfecto si se alimenta de todos los vértices, es decir, su potencia es igual a $n/a 2$.
+
+El canadiense, el matemático william thomas Татт (William Thomas Tutte) en primer lugar, señaló la estrecha relación entre la паросочетаниями en las columnas y определителями de las matrices (1947). Más simple vista este respecto, más tarde descubrió edmonds (Edmonds) en el caso de dicotiledóneas de los condes (1967). Aleatorizados algoritmos para calcular la magnitud de la máxima паросочетания y los bordes de este паросочетания se han propuesto más tarde, respectivamente, Ловасом (Lovasz) (en 1979), y Рабином (Rabin) y Вазирани (Vazirani) (en 1984).
+
+
+\h3{ aplicación Práctica: algoritmo aleatorio }
+
+Aplicar directamente el teorema de Татта incluso en la tarea de validar la existencia de un perfecto паросочетания no es práctico. La razón de esto es que, cuando los caracteres calcular el identificador (es decir, en forma de polinomios sobre las variables $x_{ij}$), los resultados intermedios son многочленами que contengan $O(n^2)$ variables. Por lo tanto, el cálculo del determinante de la matriz de Татта en una forma simbólica requeriría demasiado tiempo.
+
+El matemático húngaro laszlo Ловас (Laszlo Lovasz) fue el primero en указавшим la posibilidad de aplicar aquí \bf{aleatorizado} algoritmo para simplificar los cálculos.
+
+La idea es muy simple: sustituir todas las variables $x_{ij}$ con números aleatorios:
+
+$$ x_{ij} = {\rm rand}(). $$
+
+Entonces, si el polinomio $\det(A)$ era es igual a cero, después de un reemplazo de él y seguirá siendo cero; si él era diferente de cero, si tales aleatorio numérico de la sustitución de la probabilidad de que se convierte en cero, es lo suficientemente pequeño.
+
+Está claro que este tipo de prueba (sustitución de valores aleatorios y el cálculo de identificador de $\det(A)$) y si se equivoca, sólo en una dirección: se puede informar acerca de la falta cometida паросочетания, cuando en realidad existe.
+
+Podemos repetir esta prueba varias veces, sustituyendo los valores de las variables de números aleatorios, y con cada uno de volver a iniciar la recibimos una creciente convicción de que la prueba ha dado la respuesta correcta. En la práctica, en la mayoría de casos, basta con una sola prueba, para determinar si en el punto perfecto de la паросочетание o no; varias de estas pruebas dan ya muy alta probabilidad.
+
+Para la evaluación de la \bf{probabilidad de error} se puede utilizar лемму schwartz-Зиппеля (Schwartz–Zippel), que establece que la probabilidad de conversión en cero distinto polinómica $P$ $k$-segundo grado, al sustituir los valores de las variables de números aleatorios, cada uno de los cuales puede tomar $s$ opciones, los valores, --- la probabilidad de que satisface la desigualdad:
+
+$$ {\rm Pr}[P(r_1,\ldots,r_k)=0] \le \frac{k}{s}. $$
+
+Por ejemplo, cuando se utiliza la función estándar de números aleatorios en C++ $\rm rand()$ obtenemos que la probabilidad de que si $n=300$ es de aproximadamente por ciento.
+
+\bf{Asíntotas} solución resulta igual a $O(n^3)$ (utilizando, por ejemplo, \algohref=determinant_gauss{el algoritmo de gauss}), multiplicado por el número de iteraciones de la prueba. Vale la pena señalar que de la asíntota de la función es una solución muy por detrás de la decisión de la \algohref=matching_edmonds{el algoritmo Эдмондса compresión de las flores}, sin embargo, en algunos casos, es preferible debido a la facilidad de su implementación.
+
+\bf{Recuperar} sí una паросочетание como el conjunto de aristas es la tarea más compleja. La manera más sencilla, aunque lenta, es la opción de restauración de este паросочетания de una arista: перебираем primer borde de la respuesta, elige de modo que en el resto de la columna había cometido паросочетание, etc.
+
+
+\h3{ demostración del teorema de Татта }
+
+Para entender bien la prueba de este teorema, primero echemos un vistazo más de un resultado simple --- obtenido Эдмондсом para el caso de dicotiledóneas de los condes.
+
+
+\h4{ Teorema de Эдмондса }
+
+Veamos двудольный conde, en cada porcentaje que de $n$ vértices. Preparamos la matriz $B$ $n \times n$, en la que, por analogía con la matriz de Татта, $b_{ij}$ es independiente de la variable independiente, si la arista $(i,j)$ está presente en la columna, y es idéntica a cero en caso contrario.
+
+Esta matriz es similar a la matriz de Татта, sin embargo, la matriz de Эдмондса tiene la mitad inferior de la diferencia, y cada eje se corresponde con sólo una celda de la matriz.
+
+Probaremos el siguiente \bf{teorema}: el determinante de $\det(B)$ es distinto de cero entonces, y sólo entonces, cuando en двудольном la columna hay un perfecto паросочетание.
+
+\bf{Prueba}. Escribimos el determinante de acuerdo a su definición, como la suma de todos traiga significativos cambios:
+
+$$ \det(B) = \sum_{\pi \in S_n} {\rm sgn}(\pi) \cdot b_{1,\pi_1} \cdot b_{2,\pi_2} \cdot \ldots \cdot b_{n,\pi_n}. $$
+
+Tenga en cuenta que dado que todos los elementos distintos de cero de la matriz $B$ --- las diferentes variables independientes, la suma de todos distintos de cero de sumandos son diferentes, y porque ninguna de las reducciones en el proceso de totalización no se produce. Queda por señalar que cualquier distinto de cero el término de esta cantidad significa непересекающийся de los vértices de un conjunto de aristas, es decir, un perfecto паросочетание. Y viceversa, todo perfecto паросочетанию corresponde a un valor distinto de cero el término de esta cantidad. Junto con lo antedicho, esto demuestra el teorema.
+
+
+\h4{ Propiedades антисимметричных matrices }
+
+Para la prueba del teorema de Татта es necesario utilizar varios los hechos conocidos álgebra lineal sobre las propiedades de антисимметричных de las matrices.
+
+\bf{primero}, si антисимметричная la matriz tiene un número impar de tamaño, entonces su determinante es siempre cero (teorema de jacobi (Jacobi)). Para ello, basta con observar que антисимметричная matriz satisface la igualdad entre $A^T = -A$, y ahora recibimos la cadena de igualdades:
+
+$$ \det(A) = \det(A^T) = \det(-A) = (-1)^n \det(A), $$
+
+de donde se sigue que cuando impares $n$ el determinante debe debe ser igual a cero.
+
+\bf{En segundo lugar}, resulta que en el caso de антисимметричных de las matrices de un tamaño de sus determinante siempre se puede escribir como el cuadrado de un polinómica respecto a las variables de los elementos de esta matriz (el polinomio se llama пфаффианом (pfaffian), y el resultado pertenece Мьюру (Muir)):
+
+$$ \det(A) = {\rm Pf}^2(A). $$
+
+\bf{En tercer lugar}, este пфаффиан no es un polinomio arbitrario, y la suma de vista:
+
+$$ {\rm Pf}(A) = \frac{ 1 }{ 2^n n! } \sum_{\pi \in S_n} {\rm sgn(\pi)} \cdot a_{\pi_1,\pi_2} \cdot a_{\pi_3,\pi_4} \cdot \ldots \cdot a_{\pi_{n-1},\pi_n}. $$
+
+Por lo tanto, cada término en пфаффиане --- es la obra de esos $n/2$ de los elementos de la matriz, que sus índices constituyen una ruptura de la multitud de $n$ $n/2$ pares. Antes de cada слагаемым hay un factor, pero su tipo de los que estamos aquí no interesa.
+
+
+\h4{ demostración del teorema de Татта }
+
+Utilizando el segundo y el tercero de la propiedad en el punto anterior, tenemos que el determinante de $\det(A)$ matriz Татта representa el cuadrado de la suma de los términos de este tipo, que cada término --- la obra de los elementos de la matriz cuyos índices no se repiten y que abarcan todas las habitaciones desde $1 a$ a $n$. Por lo tanto, de nuevo, como en la prueba del teorema de Эдмондса, cada uno distinto de cero el término de esta suma corresponde a la perfecta паросочетанию en el recuadro, y viceversa.
+
+
+\h2{ Teorema de Ловаса: síntesis de búsqueda para tamaño máximo de паросочетания }
+
+
+\h3{ Redacción }
+
+\bf{Grado} de la matriz de Татта coincide con el doble de la magnitud de \bf{máximo паросочетания} en este apartado.
+
+
+\h3{ Aplicación }
+
+Para la aplicación de este teorema, en la práctica, se puede utilizar el mismo de la recepción de la aleatorización, que en el anterior algoritmo para la matriz de Татта, a saber: sustituir las variables de valores aleatorios, y encontrar el grado de recibida numérico de la matriz. El rango de la matriz, una vez más, es buscado por el $O (n^3)$ con la ayuda de una modificación del algoritmo de gauss, consulte \algohref=matrix_rank{aquí}.
+
+Sin embargo, cabe señalar que la lemma schwartz-Зиппеля no se aplica de forma explícita, y de manera intuitiva, parece que la probabilidad de error es mayor. Sin embargo, se afirma (véase el trabajo de Ловаса (Lovasz)), que tiene la probabilidad de error (es decir, que el grado de información recibida de la matriz será menor que el doble del tamaño máximo de la паросочетания) no excede de $\frac{n}{s}$ (donde $s$, como arriba, representa el tamaño de la multitud, de la cual se seleccionan números aleatorios).
+
+
+\h3{ Prueba }
+
+La prueba saldrá el teorema de álgebra lineal, conocida como \bf{teorema de Фробениуса} (Frobenius). Que dan антисимметричная la matriz $A$ el tamaño de la $n \times n$, y que la multitud de $S$ y $T$ --- cualquiera de los dos subconjuntos de $\{ 1, \ldots, n \}$, y el tamaño de los conjuntos coinciden y son iguales a el rango de la matriz $A$. Se denota por $A_{XY}$ la matriz obtenida de la matriz $A$ sólo las filas con números de la multitud de $X$ y las columnas con los números de la multitud de $Y$ (donde $X$ y $Y$ --- algunos subconjuntos de $\{ 1, \ldots, n \}$). Entonces se cumple:
+
+$$ \det(A_{SS}) \cdot \det(A_{TT}) = \det(A_{ST}) \cdot \det(A_{TS}). $$
+
+Mostraremos cómo esta propiedad permite establecer \bf{cumplimiento} entre el rango de la matriz $A$ Татта y el valor máximo de la паросочетания.
+
+Por un lado, examinaremos en el apartado de $G$ un máximo de паросочетание, y se denota el conjunto de насыщаемых les vértices a través de $U$. Entonces, según el teorema de Татта, el determinante de $\det(A_{au})$ es distinto de cero. El juez de instrucción, el rango de la matriz de Татта --- como mínimo $2|U|$, es decir, no menor que el doble de la magnitud de la máxima паросочетания.
+
+Mostraremos ahora inversa de la desigualdad. Se denota el rango de la matriz $A$ través $r$. Esto significa que se ha encontrado esta подматрица $A_{ST}$, donde $|S| = |T| = r$, el determinante es distinto de cero. Es fácil notar que $A_{TS}$ será diferente de cero. Pero por el anterior teorema de Фробениуса esto significa que tanto la matriz $A_{SS}$ y $A_{TT}$ son cero el determinante. De aquí se sigue que $r$ uniforme (porque, como se ha señalado anteriormente, антисимметричная matriz de dimensión impar siempre tiene cero el determinante). Por lo tanto, podemos aplicar a подматрице $A_{SS}$ (o $A_{TT}$) el teorema de Татта. Por lo tanto, en el punto, индуцированном muchos de los vértices de $S$ (o varios vértices $T$), hay un perfecto паросочетание (y la magnitud de su es $r/2$). Por lo tanto, el rango de la matriz de Татта no puede ser mayor que el doble de la magnitud de la máxima паросочетания.
+
+Combinando dos de reservas comprobadas de la desigualdad, tenemos la aprobación del teorema: el rango de la matriz de Татта coincide con el doble de la magnitud de la máxima паросочетания.
+
+
+\h2{ el Algoritmo de rabin-Вазирани encontrar el máximo паросочетания }
+
+Este algoritmo es una mayor síntesis de los dos teoremas anteriores, y permite, a diferencia de ellos, emitir no sólo el valor máximo de la паросочетания, sino que ellos mismos la aleta de la bandeja de entrada en él.
+
+
+\h3{ Enunciado del teorema }
+
+Que en el gráfico hay un perfecto паросочетание. Entonces su matriz Татта невырождена, es decir, $\det(A) \ne 0$. Generaremos por ella, como se describe anteriormente, el recurrente numérica de la matriz $B$. Entonces, con una alta probabilidad, $B^{-1})_{ji} \ne 0$ entonces, y sólo entonces, cuando la arista $(i,j)$ entra en cualquier perfecta паросочетание.
+
+(Aquí a través de $B^{-1}$ es designada la matriz inversa de a $B$. Se supone que el determinante de la matriz $B$ es distinto de cero, por lo tanto, la inversa de la matriz existe.)
+
+
+\h3{ Aplicación }
+
+Este teorema se puede aplicar para la recuperación de los mismos bordes máximo паросочетания. Primero tendrás que seleccionar подграф, en el que se solicita la máxima паросочетание (esto se puede hacer en paralelo con el algoritmo de búsqueda rango de la matriz).
+
+Después de esto, la tarea se reduce a encontrar el perfecto паросочетания de este numérico de la matriz obtenida a partir de la matriz de Татта. Aquí ya hemos aplicamos el teorema de rabin-Вазирани, --- encontramos la matriz inversa de una (lo que se puede hacer modificada por el algoritmo de gauss $O (n^3)$), encontramos en ella cualquier elemento distinto de cero, borrar de un conde, y repetimos el proceso. Asíntotas de esta decisión no será el más rápido --- $O (n^4)$, pero a cambio obtenemos la simplicidad de la solución (en comparación, por ejemplo, con \algohref=matching_edmonds{el algoritmo Эдмондса compresión de las flores}).
+
+
+\h3{ la Prueba del teorema }
+
+Recordemos la conocida fórmula de los elementos de la inversa de la matriz $B^{-1}$:
+
+$$ (B^{-1})_{ji} = \frac{ {\rm adj}(B)_{i,j} }{ \det(B) }, $$
+
+donde a través de ${\rm adj}(B)_{i,j}$ es designado алгебраическое además, es decir, el número de $(-1)^{i+j}$, multiplicado por el determinante de la matriz obtenida a partir de los $B$ la eliminación de $i$-ésima fila y $j$del de la columna.
+
+De aquí en seguida, encontramos que el elemento $(B^{-1})_{ji}$ es distinto de cero entonces, y sólo entonces, cuando la matriz a $B$ c eliminados $i$-ésima fila y $j$en la primera columna tiene determinante distinto de cero, lo que, aplicando el teorema de Татта, significa que con una alta probabilidad de que en la columna sin vértices $i$ y $j$ todavía existe perfecta паросочетание.
+
+
+\h2{ Literatura }
+
+\ul{
+\li \book{William Thomas Tutte}{The Factorization of Linear Graphs}{1946}{tutte.pdf}
+\li \book{Laszlo Lovasz}{On Determinants, Matchings and Random Algorithms}{1979}
+\li \book{Laszlo Lovasz, M. D. Plummer}{Matching de la teoría de la}{1986}{lovasz_plummer.pdf}
+\li \book{Michael Oser Rabin, Vijay V. Vazirani}{Maximum matchings in general de salud through randomization}{1989}
+\li \book{Allen B. Tucker}{Computer Science Handbook}{2004}{tucker.pdf}
+\li \book{Rajeev Motwani, Prabhakar Raghavan}{Aleatorios Algorithms}{1995}{motwani.djvu}
+\li \book{A. C. Aitken}{Determinants and matrices}{1944}{aitken.pdf}
+}

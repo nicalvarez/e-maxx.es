@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Обратная задача MST (inverse-MST - обратная задача минимального остова)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Обратная задача MST (inverse-MST - обратная задача минимального остова)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Обратная задача MST (inverse-MST - обратная задача минимального остова) за O (N M&lt;sup&gt;2&lt;/sup&gt;)&lt;/h1&gt;
+
+&lt;p&gt;Дан взвешенный неориентированный граф G с N вершинами и M рёбрами (без петель и кратных рёбер). Известно, что граф связный. Также указан некоторый остов T этого графа (т.е. выбрано N-1 ребро, которые образуют дерево с N вершинами). Требуется изменить веса рёбер таким образом, чтобы указанный остов T являлся минимальным остовом этого графа (точнее говоря, одним из минимальных остовов), причём сделать это так, чтобы суммарное изменение всех весов было наименьшим.&lt;/p&gt;
+&lt;h2&gt;Решение&lt;/h2&gt;
+&lt;p&gt;&lt;b&gt;Сведём&lt;/b&gt; задачу inverse-MST к задаче min-cost-flow, точнее, &lt;b&gt;к задаче, двойственной min-cost-flow&lt;/b&gt; (в смысле двойственности задач линейного программирования); затем решим последнюю задачу.&lt;/p&gt;
+&lt;p&gt;Итак, пусть дан граф G с N вершинами, M рёбрами. Вес каждого ребра обозначим через C&lt;sub&gt;i&lt;/sub&gt;. Предположим, не теряя общности, что рёбра с номерами с 1 по N-1 являются рёбрами T.&lt;/p&gt;
+&lt;h3&gt;1. Необходимое и достаточное условие MST&lt;/h3&gt;
+&lt;p&gt;Пусть дан некоторый остов S (не обязательно минимальный).&lt;/p&gt;
+&lt;p&gt;Введём сначала одно обозначение. Рассмотрим некоторое ребро j, не принадлежащее S. Очевидно, в графе S имеется единственный путь, соединяющий концы этого ребра, т.е. единственный путь, соединяющий концы ребра j и состоящий только из рёбер, принадлежащих S. &lt;b&gt;Обозначим через P[j]&lt;/b&gt; множество рёбер, образующих этот путь для j-го ребра.&lt;/p&gt;
+&lt;p&gt;Для того, чтобы некоторый остов S являлся минимальным, &lt;b&gt;необходимо и достаточно&lt;/b&gt;, чтобы:&lt;/p&gt;
+&lt;formula&gt;C&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= C&lt;sub&gt;j&lt;/sub&gt; для всех j &amp;notin; S и каждого i &amp;isin; P[j]&lt;/formula&gt;
+&lt;p&gt;Можно заметить, что, поскольку &lt;b&gt;в нашей задаче&lt;/b&gt; остову T принадлежат рёбра 1..N-1, то мы можем записать это условие таким образом:&lt;/p&gt;
+&lt;formula&gt;C&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= C&lt;sub&gt;j&lt;/sub&gt; для всех j = N..M и каждого i &amp;isin; P[j]
+(причём все i лежат в диапазоне 1..N-1)&lt;/formula&gt;
+&lt;h3&gt;2. Граф путей&lt;/h3&gt;
+&lt;p&gt;Понятие графа путей непосредственно связано с предыдущей теоремой.&lt;/p&gt;
+&lt;p&gt;Пусть дан некоторый остов S (не обязательно минимальный).&lt;/p&gt;
+&lt;p&gt;Тогда &lt;b&gt;графом путей H&lt;/b&gt; для графа G будет следующий граф:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Он содержит M вершин, каждая вершина в H взаимно однозначно соответствует некоторому ребру в G.&lt;/li&gt;
+&lt;li&gt;Граф H двудольный. В первой его доле находятся вершины i, которые соответствуют рёбрам в G, принадлежащим остову S. Соответственно, во второй доле находятся вершины j, которые соответствуют рёбрам, не принадлежащим S.&lt;/li&gt;
+&lt;li&gt;Ребро проводится из вершины i в вершину j тогда и только тогда, когда i принадлежит P[j].&lt;br&gt;Иными словами, для каждой вершины j из второй доли в неё входят рёбра из всех вершин первой доли, соответствующих множеству рёбер P[j].&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;В случае &lt;b&gt;нашей задачи&lt;/b&gt; мы можем немного упростить описание графа путей:&lt;/p&gt;
+&lt;formula&gt;ребро (i,j) существует в H, если i &amp;isin; P[j],  j = N..M, i = 1..N-1&lt;/formula&gt;
+&lt;h3&gt;3. Математическая формулировка задачи&lt;/h3&gt;
+&lt;p&gt;Чисто формально &lt;b&gt;задача inverse-MST&lt;/b&gt; записывается таким образом:&lt;/p&gt;
+&lt;formula&gt;найти массив A[1..M] такой, что
+C&lt;sub&gt;i&lt;/sub&gt; + A&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= C&lt;sub&gt;j&lt;/sub&gt; + A&lt;sub&gt;j&lt;/sub&gt; для всех j = N..M и каждого i &amp;isin; P[j] (i в 1..N-1),
+и минимизировать сумму |A&lt;sub&gt;1&lt;/sub&gt;| + |A&lt;sub&gt;2&lt;/sub&gt;| + ... + |A&lt;sub&gt;m&lt;/sub&gt;|&lt;/formula&gt;
+&lt;p&gt;здесь под искомым массивом A мы подразумеваем те значения, которые нужно добавить к весам рёбер (т.е., решив задачу inverse-MST, мы заменяем вес C&lt;sub&gt;i&lt;/sub&gt; каждого ребра i на величину C&lt;sub&gt;i&lt;/sub&gt; + A&lt;sub&gt;i&lt;/sub&gt;).&lt;/p&gt;
+&lt;p&gt;Очевидно, что нет смысла увеличивать вес рёбер, принадлежащих T, т.е.&lt;/p&gt;
+&lt;pre&gt;A&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= 0,  i = 1..N-1&lt;/pre&gt;
+&lt;p&gt;и нет смысла укорачивать рёбра, не принадлежащие T:&lt;/p&gt;
+&lt;formula&gt;A&lt;sub&gt;i&lt;/sub&gt; &gt;= 0,  i = N..M&lt;/formula&gt;
+&lt;p&gt;(поскольку в противном случае мы только ухудшим ответ)&lt;/p&gt;
+&lt;p&gt;Тогда мы можем немного &lt;b&gt;упростить&lt;/b&gt; постановку задачи, убрав из суммы модули:&lt;/p&gt;
+&lt;formula&gt;найти массив A[1..M] такой, что
+C&lt;sub&gt;i&lt;/sub&gt; + A&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= C&lt;sub&gt;j&lt;/sub&gt; + A&lt;sub&gt;j&lt;/sub&gt; для всех j = N..M и каждого i &amp;isin; P[j] (i в 1..N-1),
+A&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= 0,  i = 1..N-1,
+A&lt;sub&gt;i&lt;/sub&gt; &gt;= 0,  i = N..M,
+и минимизировать сумму A&lt;sub&gt;n&lt;/sub&gt; + ... + A&lt;sub&gt;m&lt;/sub&gt; - (A&lt;sub&gt;1&lt;/sub&gt; + ... + A&lt;sub&gt;n-1&lt;/sub&gt;)&lt;/formula&gt;
+&lt;p&gt;Наконец, просто изменим &quot;минимизацию&quot; на &quot;максимизацию&quot;, а в самой сумме изменим все знаки на противоположные:&lt;/p&gt;
+&lt;formula&gt;найти массив A[1..M] такой, что
+C&lt;sub&gt;i&lt;/sub&gt; + A&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= C&lt;sub&gt;j&lt;/sub&gt; + A&lt;sub&gt;j&lt;/sub&gt; для всех j = N..M и каждого i &amp;isin; P[j] (i в 1..N-1),
+A&lt;sub&gt;i&lt;/sub&gt; &amp;lt;= 0,  i = 1..N-1,
+A&lt;sub&gt;i&lt;/sub&gt; &gt;= 0,  i = N..M,
+и максимизировать сумму A&lt;sub&gt;1&lt;/sub&gt; + ... + A&lt;sub&gt;n-1&lt;/sub&gt; - (A&lt;sub&gt;n&lt;/sub&gt; + ... + A&lt;sub&gt;m&lt;/sub&gt;)&lt;/formula&gt;
+&lt;h3&gt;4. Сведение задачи inverse-MST к задаче, двойственной задаче о назначениях&lt;/h3&gt;
+&lt;p&gt;Формулировка задачи inverse-MST, которую мы только что дали, является формулировкой задачи &lt;b&gt;линейного программирования&lt;/b&gt; с неизвестными A&lt;sub&gt;1&lt;/sub&gt;..A&lt;sub&gt;m&lt;/sub&gt;.&lt;/p&gt;
+&lt;p&gt;Применим классический приём - рассмотрим &lt;b&gt;двойственную&lt;/b&gt; ей задачу.&lt;/p&gt;
+&lt;p&gt;По определению, чтобы получить двойственную задачу, нужно каждому неравенству сопоставить двойственную переменную X&lt;sub&gt;ij&lt;/sub&gt;, поменять ролями целевую функцию (которую нужно было минимизировать) и коэффициенты в правых частях неравенств, поменять знаки &quot;&amp;lt=&quot; на &quot;&gt;=&quot; и наоборот, поменять максимизацию на минимизацию.&lt;/p&gt;
+&lt;p&gt;Итак, &lt;b&gt;двойственная к inverse-MST&lt;/b&gt; задача:&lt;/p&gt;
+&lt;formula&gt;найти все X&lt;sub&gt;ij&lt;/sub&gt; для каждого (i,j) &amp;isin; H, такие что:
+все X&lt;sub&gt;ij&lt;/sub&gt; &gt;= 0,
+для каждого i=1..N-1 &amp;sum; X&lt;sub&gt;ij&lt;/sub&gt; по всем j: (i,j) &amp;isin; H &amp;lt= 1,
+для каждого j=N..M &amp;sum; X&lt;sub&gt;ij&lt;/sub&gt; по всем i: (i,j) &amp;isin; H &amp;lt= 1,
+и минимизировать &amp;sum; X&lt;sub&gt;ij&lt;/sub&gt; (C&lt;sub&gt;j&lt;/sub&gt; - C&lt;sub&gt;i&lt;/sub&gt;) для всех (i,j) &amp;isin; H&lt;/formula&gt;
+&lt;p&gt;Последняя задача является &lt;b&gt;задачей о назначениях&lt;/b&gt;: нам нужно в графе путей H выбрать несколько рёбер так, чтобы ни одно ребро не пересекалось с другим в вершине, а сумма весов рёбер (вес ребра (i,j) определим как C&lt;sub&gt;j&lt;/sub&gt; - C&lt;sub&gt;i&lt;/sub&gt;) должна быть наименьшей.&lt;/p&gt;
+&lt;p&gt;Таким образом, &lt;b&gt;двойственная задача inverse-MST эквивалентна задаче о назначениях&lt;/b&gt;. Если мы научимся решать двойственную задачу о назначениях, то мы автоматически решим задачу inverse-MST.&lt;/p&gt;
+&lt;h3&gt;5. Решение двойственной задачи о назначениях&lt;/h3&gt;
+&lt;p&gt;Сначала уделим немного внимания тому частному случаю задачи о назначениях, который мы получили. Во-первых, это несбалансированная задача о назначениях, поскольку в одной доле находится N-1 вершин, а в другой - M вершин, т.е. в общем случае число вершин во второй доле больше на целый порядок. Для решения такой двойственной задачи о назначениях есть специализированный алгоритм, который решит её за O (N&lt;sup&gt;3&lt;/sup&gt;), но здесь этот алгоритм рассматриваться не будет. Во-вторых, такую задачу о назначениях можно назвать задачей о назначениях с взвешенными вершинами: веса рёбер положим равными 0, вес каждой вершины из первой доли положим равным -C&lt;sub&gt;i&lt;/sub&gt;, из второй доли - равным C&lt;sub&gt;j&lt;/sub&gt;, и решение полученной задачи будет тем же самым.&lt;/p&gt;
+&lt;p&gt;Мы будем решать задачу двойственную задачу о назначениях с помощью &lt;b&gt;модифицированного алгоритма min-cost-flow&lt;/b&gt;, который будет находить поток минимальной стоимости и одновременно решение двойственной задачи.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Свести&lt;/b&gt; задачу о назначениях к задаче min-cost-flow очень легко, но для полноты картины мы опишем этот процесс.&lt;/p&gt;
+&lt;p&gt;Добавим в граф исток s и сток t. Из s к каждой вершине первой доли проведём ребро с пропускной способностью = 1 и стоимостью = 0. Из каждой вершины второй доли проведём ребро к t с пропускной способностью = 1 и стоимостью = 0. Пропускные способности всех рёбер между первой и второй долями также положим равными 1.&lt;/p&gt;
+&lt;p&gt;Наконец, чтобы модифицированный алгоритм min-cost-flow (описанный ниже) работал, нужно &lt;b&gt;добавить ребро из s в t&lt;/b&gt; с пропускной способностью = N+1 и стоимостью = 0.&lt;/p&gt;
+&lt;h3&gt;6. Модифицированный алгоритм min-cost-flow для решения задачи о назначениях&lt;/h3&gt;
+&lt;p&gt;Здесь мы рассмотрим &lt;b&gt;алгоритм последовательных кратчайших путей с потенциалами&lt;/b&gt;, который напоминает обычный алгоритм min-cost-flow, но использует также понятие &lt;b&gt;потенциалов&lt;/b&gt;, которые к концу работы алгоритма будут содержать &lt;b&gt;решение двойственной задачи&lt;/b&gt;.&lt;/p&gt;
+&lt;p&gt;Введём обозначения. Для каждого ребра (i,j) обозначим через U&lt;sub&gt;ij&lt;/sub&gt; его пропускную способность, через C&lt;sub&gt;ij&lt;/sub&gt; - его стоимость, через F&lt;sub&gt;ij&lt;/sub&gt; - поток вдоль этого ребра.&lt;/p&gt;
+&lt;p&gt;Также введём понятие потенциалов. Каждая вершина обладает своим потенциалом PI&lt;sub&gt;i&lt;/sub&gt;. Остаточная стоимость ребра CPI&lt;sub&gt;ij&lt;/sub&gt; определяется как:&lt;/p&gt;
+&lt;formula&gt;CPI&lt;sub&gt;ij&lt;/sub&gt; = C&lt;sub&gt;ij&lt;/sub&gt; - PI&lt;sub&gt;i&lt;/sub&gt; + PI&lt;sub&gt;j&lt;/sub&gt;&lt;/formula&gt;
+&lt;p&gt;В любой момент работы алгоритма &lt;b&gt;потенциалы таковы&lt;/b&gt;, что выполняются условия:&lt;/p&gt;
+&lt;formula&gt;если F&lt;sub&gt;ij&lt;/sub&gt; = 0, то CPI&lt;sub&gt;ij&lt;/sub&gt; &gt;= 0
+если F&lt;sub&gt;ij&lt;/sub&gt; = U&lt;sub&gt;ij&lt;/sub&gt;, то CPI&lt;sub&gt;ij&lt;/sub&gt; &amp;lt;= 0
+иначе CPI&lt;sub&gt;ij&lt;/sub&gt; = 0&lt;/formula&gt;
+&lt;p&gt;Алгоритм начинает с нулевого потока, и нам нужно найти некоторые начальные значения потенциалов, которые бы удовлетворяли указанным условиям. Нетрудно проверить, что такой способ является одним из возможных решений:&lt;/p&gt;
+&lt;formula&gt;PI&lt;sub&gt;j&lt;/sub&gt; = 0   для j = N..M
+PI&lt;sub&gt;i&lt;/sub&gt; = min C&lt;sub&gt;ij&lt;/sub&gt;, где (i,j) &amp;isin; H
+PI&lt;sub&gt;s&lt;/sub&gt; = min PI&lt;sub&gt;i&lt;/sub&gt;, где i = 1..N-1
+PI&lt;sub&gt;t&lt;/sub&gt; = 0&lt;/formula&gt;
+&lt;p&gt;Собственно сам алгоритм min-cost-flow состоит из нескольких итераций. &lt;b&gt;На каждой итерации&lt;/b&gt; мы находим кратчайший путь из s в t в остаточной сети, причём в качестве весов рёбер используем остаточные стоимости CPI. Затем мы увеличиваем поток вдоль найденного пути на единицу, и обновляем потенциалы следующим образом:&lt;/p&gt;
+&lt;formula&gt;PI&lt;sub&gt;i&lt;/sub&gt; -= D&lt;sub&gt;i&lt;/sub&gt;&lt;/formula&gt;
+&lt;p&gt;где D&lt;sub&gt;i&lt;/sub&gt; - найденное кратчайшее расстояние от s до i (повторимся, в остаточной сети с весами рёбер CPI).&lt;/p&gt;
+&lt;p&gt;Рано или поздно мы найдём тот путь из s в t, который состоит из единственного ребра (s,t). Тогда после этой итерации нам следует &lt;b&gt;завершить&lt;/b&gt; работу алгоритма: действительно, если мы не остановим алгоритм, то дальше уже будут находиться пути с неотрицательной стоимостью, и добавлять их в ответ не надо.&lt;/p&gt;
+&lt;p&gt;К концу работы алгоритма мы получим решение задачи о назначениях (в виде потока F&lt;sub&gt;ij&lt;/sub&gt;) и решение двойственной задачи о назначениях (в массиве PI&lt;sub&gt;i&lt;/sub&gt;).&lt;/p&gt;
+&lt;p&gt;(с PI&lt;sub&gt;i&lt;/sub&gt; надо будет провести небольшую модификацию: от всех значений PI&lt;sub&gt;i&lt;/sub&gt; отнять PI&lt;sub&gt;s&lt;/sub&gt;, поскольку его значения имеют смысл только при PI&lt;sub&gt;s&lt;/sub&gt; = 0)&lt;/p&gt;
+&lt;h3&gt;6. Итог&lt;/h3&gt;
+&lt;p&gt;Итак, мы решили двойственную задачу о назначениях, а, следовательно, и задачу inverse-MST.&lt;/p&gt;
+&lt;p&gt;Оценим &lt;b&gt;асимптотику&lt;/b&gt; получившегося алгоритма.&lt;/p&gt;
+&lt;p&gt;Сначала мы должны будем построить граф путей. Для этого просто для каждого ребра j &amp;notin; T обходом в ширину по остову T найдём путь P[j]. Тогда граф путей мы построим за O (M) * O (N) = O (N M).&lt;/p&gt;
+&lt;p&gt;Затем мы найдём начальные значения потенциалов за O (N) * O (M) = O (N M).&lt;/p&gt;
+&lt;p&gt;Затем мы будем выполнять итерации min-cost-flow, всего итераций будет не более N (поскольку из истока выходит N рёбер, каждое с пропускной способностью = 1), на каждой итерации мы ищем в графе путей кратчайшие пути от истока до всех остальных вершин. Поскольку вершин в графе путей равно M+2, а число рёбер - O (N M), то, если реализовать поиск кратчайших путей простейшим вариантом алгоритма Дейкстры, каждая итерация min-cost-flow будет выполнять за O (M&lt;sup&gt;2&lt;/sup&gt;), а весь алгоритм min-cost-flow выполнится за O (N M&lt;sup&gt;2&lt;/sup&gt;).&lt;/p&gt;
+&lt;p&gt;Итоговая асимптотика алгоритма равна &lt;b&gt;O (N M&lt;sup&gt;2&lt;/sup&gt;)&lt;/b&gt;.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;p&gt;Реализуем весь вышеописанный алгоритм. Единственное изменение - вместо &lt;algohref=dijkstra&gt;алгоритма Дейкстры&lt;/algohref&gt; применяется &lt;algohref=levit_algorithm&gt;алгоритм Левита&lt;/algohref&gt;, который на многих тестах должен работать несколько быстрее.&lt;/p&gt;
+&lt;code&gt;const int INF = 1000*1000*1000;
+
+struct rib {
+	int v, c, id;
+};
+
+struct rib2 {
+	int a, b, c;
+};
+
+int main() {
+
+	int n, m;
+	cin &gt;&gt; n &gt;&gt; m;
+	vector &amp;lt; vector&amp;lt;rib&gt; &gt; g (n); // граф в формате списков смежности
+	vector&amp;lt;rib2&gt; ribs (m); // все рёбра в одном списке
+	... чтение графа ...
+
+	int nn = m+2,  s = nn-2,  t = nn-1;
+	vector &amp;lt; vector&amp;lt;int&gt; &gt; f (nn, vector&amp;lt;int&gt; (nn));
+	vector &amp;lt; vector&amp;lt;int&gt; &gt; u (nn, vector&amp;lt;int&gt; (nn));
+	vector &amp;lt; vector&amp;lt;int&gt; &gt; c (nn, vector&amp;lt;int&gt; (nn));
+	for (int i=n-1; i&amp;lt;m; ++i) {
+		vector&amp;lt;int&gt; q (n);
+		int h=0, t=0;
+		rib2 &amp; cur = ribs[i];
+		q[t++] = cur.a;
+		vector&amp;lt;int&gt; rib_id (n, -1);
+		rib_id[cur.a] = -2;
+		while (h &amp;lt; t) {
+			int v = q[h++];
+			for (size_t j=0; j&amp;lt;g[v].size(); ++j)
+				if (g[v][j].id &gt;= n-1)
+					break;
+				else if (rib_id [ g[v][j].v ] == -1) {
+					rib_id [ g[v][j].v ] = g[v][j].id;
+					q[t++] = g[v][j].v;
+				}
+		}
+		for (int v=cur.b, pv; v!=cur.a; v=pv) {
+			int r = rib_id[v];
+			pv = v != ribs[r].a ? ribs[r].a : ribs[r].b;
+			u[r][i] = n;
+			c[r][i] = ribs[i].c - ribs[r].c;
+			c[i][r] = -c[r][i];
+		}
+	}
+	u[s][t] = n+1;
+	for (int i=0; i&amp;lt;n-1; ++i)
+		u[s][i] = 1;
+	for (int i=n-1; i&amp;lt;m; ++i)
+		u[i][t] = 1;
+
+	vector&amp;lt;int&gt; pi (nn);
+	pi[s] = INF;
+	for (int i=0; i&amp;lt;n-1; ++i) {
+		pi[i] = INF;
+		for (int j=n-1; j&amp;lt;m; ++j)
+			if (u[i][j])
+				pi[i] = min (pi[i], ribs[j].c-ribs[i].c);
+		pi[s] = min (pi[s], pi[i]);
+	}
+
+	for (;;) {
+		vector&amp;lt;int&gt; id (nn);
+		deque&amp;lt;int&gt; q;
+		q.push_back (s);
+		vector&amp;lt;int&gt; d (nn, INF);
+		d[s] = 0;
+		vector&amp;lt;int&gt; p (nn, -1);
+		while (!q.empty()) {
+			int v = q.front();  q.pop_front();
+			id[v] = 2;
+			for (int i=0; i&amp;lt;nn; ++i)
+				if (f[v][i] &amp;lt; u[v][i]) {
+					int new_d = d[v] + c[v][i] - pi[v] + pi[i];
+					if (new_d &amp;lt; d[i]) {
+						d[i] = new_d;
+						if (id[i] == 0)
+							q.push_back (i);
+						else if (id[i] == 2)
+							q.push_front (i);
+						id[i] = 1;
+						p[i] = v;
+					}
+				}
+		}
+		for (int i=0; i&amp;lt;nn; ++i)
+			pi[i] -= d[i];
+		for (int v=t; v!=s; v=p[v]) {
+			int pv = p[v];
+			++f[pv][v],  --f[v][pv];
+		}
+		if (p[t] == s)  break;
+	}
+
+	for (int i=0; i&amp;lt;m; ++i)
+		pi[i] -= pi[s];
+	for (int i=0; i&amp;lt;n-1; ++i)
+		if (f[s][i])
+			ribs[i].c += pi[i];
+	for (int i=n-1; i&amp;lt;m; ++i)
+		if (f[i][t])
+			ribs[i].c += pi[i];
+
+	... вывод графа ...
+	
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

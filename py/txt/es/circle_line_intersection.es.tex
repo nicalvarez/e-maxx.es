@@ -1,0 +1,59 @@
+<h1>Intersección de la circunferencia y la recta</h1>
+
+<p>Dada la circunferencia (las coordenadas de su centro y radio) y la recta (su ecuación). Es necesario encontrar el punto de intersección (una, dos, o ninguna de ellas).</p>
+<h2>Solución</h2>
+<p>en Lugar de una decisión formal de un sistema de dos ecuaciones nos acercaremos a la tarea de <b>geométrica de la parte</b> (y, con ello, conseguimos más exacta de la solución desde el punto de vista numérico de la sostenibilidad).</p>
+<p>Supongamos, sin perder generalidad, que el centro de la circunferencia está en el punto de origen (si no es así, lo llevaremos allá, después es conveniente la constante C en la ecuación de la recta). Es decir, tenemos una circunferencia con centro en (0,0) y radio r y la recta de ecuación Ax + By + C = 0.</p>
+<p>en primer lugar encontramos la <b>la más cercana al centro de punto</b> directa de un punto con algunas de las coordenadas de <b>(x<sub>0</sub>,y<sub>0</sub>)</b>. En primer lugar, este punto debe encontrarse a una distancia del origen de coordenadas:</p>
+<formula> |C|
+----------
+sqrt(A<sup>2</sup>+B<sup>2</sup>)</formula>
+<p>En segundo lugar, dado que el vector (A,B) es perpendicular a la recta, entonces las coordenadas de este punto deben ser proporcionales a las coordenadas de este vector. Teniendo en cuenta que la distancia del origen de coordenadas hasta el punto inicial sabemos, simplemente tenemos que racionar el vector (A,B) a esta longitud, y obtenemos:</p>
+<formula> A C
+x<sub>0</sub> = - -----
+A<sup>2</sup>+B<sup>2</sup>
+
+B C
+y<sub>0</sub> = - -----
+A<sup>2</sup>+B<sup>2</sup></formula>
+<p>(aquí no son evidentes sólo los caracteres \'menos\', pero estas fórmulas es fácil comprobar la sustitución en la ecuación de la recta - debería ser de cero)</p>
+<p>Saber más cercana al centro de la circunferencia el punto, ya podemos determinar cuántos puntos va a contener la respuesta, e incluso dar la respuesta, si estos puntos de 0 o 1.</p>
+<p>Realmente, si la distancia de (x<sub>0</sub>, y<sub>0</sub>) hasta el origen de coordenadas (que ya hemos expresado con la fórmula - véase más arriba) mayor que el radio, <b>respuesta - cero puntos</b>. Si esta distancia es igual al radio, <b>la respuesta es un punto de</b> a x<sub>0</sub>,y<sub>0</sub>). Y aquí, en el resto de los puntos será de dos, y sus coordenadas, tenemos que encontrar.</p>
+<p>por lo tanto, sabemos que el punto (x<sub>0</sub>, y<sub>0</sub>) se encuentra en el interior de un círculo. Los puntos (ax,ay) y (bx,by), además de que debe pertenecer a la recta, deben estar en la misma distancia d del punto (x<sub>0</sub>, y<sub>0</sub>), y es la distancia fácil de encontrar:</p>
+<formula> C<sup>2</sup>
+d = sqrt ( r<sup>2</sup> - ----- )
+A<sup>2</sup>+B<sup>2</sup></formula>
+<p>tenga en cuenta que el vector (-B,A) коллинеарен directo, sino porque los puntos (ax,ay) y (bx,by) se puede obtener mediante la adición al punto (x<sub>0</sub>,y<sub>0</sub>) el vector (-B,A), normalizada a la longitud d (recibamos una que busca un punto, y si se resta el mismo vector (recibamos la segunda busca el punto).</p>
+<p>la decisión Final es la siguiente:</p>
+<formula> d<sup>2</sup>
+mult = sqrt ( ----- )
+A<sup>2</sup>+B<sup>2</sup>
+
+ax = x<sub>0</sub> + B mult
+ay = y<sub>0</sub> - A mult
+bx = x<sub>0</sub> - B mult
+by = y<sub>0</sub> + A mult</formula>
+<p>Si hemos decidido esta tarea puramente алгебраически, lo más probable es que hubiera recibido la decisión de otra forma, que le da un gran margen de error. Por lo tanto, "geométrico" el método descrito aquí, además de la visibilidad, aún y es más preciso.</p>
+<h2>Realización</h2>
+<p>Como se ha indicado al principio de la descripción, se supone que la circunferencia está en el punto de origen.</p>
+<p>Por lo tanto, los parámetros de entrada es el radio de la circunferencia y los coeficientes A,B,C de la ecuación de la recta.</p>
+<code>double r, a, b, c; // datos de entrada
+
+double x 0 = -a*c/(a*a+b*b), y0 = -b*c/(a*a+b*b);
+if (c*c > r*r*(a*a+b*b)+EPS)
+puts ("no points");
+else if (abs (c*c - r*r*(a*a+b*b)) < EPS) {
+puts ("1 point");
+cout << x0 << \' \' << y0 << \'\n\n';
+}
+else {
+double d = r*r - c*c/(a*a+b*b);
+double mult = sqrt (d) / (a*a+b*b));
+double ax,ay,bx,by;
+ax = x0 + b * mult;
+bx = x0 - b * mult;
+ay = y0 - a * mult;
+by = y0 + a * mult;
+puts ("2 points");
+cout << ax << \' \' << ay << \'\n\ n' << bx << \' \' << by << \'\n\n';
+}</code>

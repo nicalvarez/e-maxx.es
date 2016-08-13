@@ -1,0 +1,175 @@
+\h1{ Encontrar la circunferencia inscrita en el выпуклом polígono el método de la compresión de las partes" ("shrinking sides") por $O (n \log n)$ }
+
+
+Dado un polígono convexo con $n$ vértices. Es necesario encontrar вписанную en él una circunferencia de radio máximo: es decir, de encontrar el radio y las coordenadas del centro. (Si esta radio hay varias opciones de centros, lo suficiente para encontrar cualquiera de ellos.)
+
+A diferencia del descrito \algohref=inscribed_circle_ternary{aquí} el método de doble тернарного de búsqueda, asíntotas de este algoritmo --- $O (n \log n)$ --- no depende de las restricciones de las coordenadas y de la precisión requerida, y por lo tanto, este algoritmo es adecuado cuando mucho mayores $n$ y grandes limitaciones en la cantidad de coordenadas.
+
+Gracias \bf{\href=http://acm.los rayos uva.es/board/memberlist.php?mode=viewprofile&u=4424{iván Красильникову (mf)}} por la descripción de este hermoso algoritmo.
+
+
+\h2{ el Algoritmo }
+
+Así, dado un polígono convexo. Empezamos a la vez y con la misma velocidad \bf{mover} todos sus lados en paralelo a nosotros mismos en el interior de un polígono:
+
+\img{inscribed_circle_shrinking.jpg}
+
+Supongamos, para mayor comodidad, este movimiento se produce con una velocidad de 1 de coordenadas del marco de la unidad por segundo (es decir, el tiempo en cierto sentido, igual a la distancia: más tarde por unidad de tiempo cada punto recorre una distancia igual a la unidad).
+
+En este proceso, el movimiento de los lados del polígono poco a poco va a desaparecer (ponerse en el punto). Tarde o temprano todo el polígono contracción en un punto o una línea, y de este punto en el tiempo $t$ será \bf{la respuesta a la tarea} --- relacionado con un radio (y el centro de la circunferencia se encuentran en este tramo). En realidad, si nos agarraron un polígono en el espesor de $t$ en todos los ámbitos, y se convirtió en el punto/tramo, esto significa que hay un punto, отстоящая de todos los lados de un polígono, a una distancia de $t$, y para grandes distancias --- a un punto en el que ya no existe.
+
+Así que necesitamos aprender de forma efectiva modelar este proceso de compresión. Para ello, aprenderemos a cada lado \bf{determinar el tiempo de} a través de la cual se disminuirá de tamaño en un punto.
+
+Para ello, considere cuidadosamente el proceso de movimiento de las partes. Tenga en cuenta que los vértices del polígono siempre se mueven por биссектрисам de las esquinas (esto se deduce de la igualdad de los correspondientes de los triángulos). Pero entonces la cuestión del tiempo, a través de la cual la parte contracción, se reduce a la cuestión de la definición de la altura de la $H$ de un triángulo, en el que se conoce la longitud de los lados de $L$, y los dos adyacentes a ella ángulo $\alpha$ y $\beta$. Aprovechando, por ejemplo, el teorema de los senos, obtenemos la fórmula:
+
+$$ H = L \cdot \frac{ \sin \alpha \cdot \sin \beta }{ \sin (\alpha + \beta) }. $$
+
+Ahora sabemos por $O(1)$ de determinar el tiempo para que la cara de la contracción en el punto.
+
+Занесем estos tiempos para cada una de las partes en un \bf{la estructura de los datos para extraer un mínimo}, por ejemplo, rojo y negro de un árbol ($\rm set$ en el lenguaje C++).
+
+Ahora, si nosotros aprendemos de lado con \bf{mínimo de tiempo $H$}, esa parte de la primera contracción en el punto --- en el momento $H$. Si el polígono todavía no se ha apretado en un punto/tramo, este lado es necesario \bf{borrar} de un polígono, y continuar el algoritmo para el resto de las partes. Cuando elimina un lado tenemos a \bf{conectar} el uno con el otro a su izquierda y derecha de un vecino, \bf{prolongando} hasta el punto de su intersección. Será necesario encontrar este punto de intersección, calcular la longitud de dos lados y sus tiempos de extinción.
+
+La aplicación para cada una de las partes tendrá que almacenar el número de la derecha y a la izquierda de un vecino (así como construyendo двусвязный la lista de los lados del polígono). Esto permite la eliminación de las partes y la vinculación de sus dos vecinos por $O(1)$.
+
+Si se quitan las partes, resulta que, por su lado, vecinos \bf{paralelas}, entonces esto significa que el polígono después de la compresión degenera en un punto/tramo, por lo que podemos empezar a detener el algoritmo y devolver como respuesta el tiempo de исчезнования actual de lado (por lo que los problemas con lados paralelos no se produce).
+
+Si esta situación con lados paralelos no se produce, entonces el algoritmo mejorará hasta el momento en el que el polígono se quedará sólo dos partes --- y entonces la respuesta a la tarea, será el momento de la eliminación de la anterior parte.
+
+Obviamente, asíntotas de este algoritmo es de $O (n \log n)$, debido a que el algoritmo es de $n$ de pasos, en cada uno de los cuales se elimina por un lado (para lo cual se realiza varias operaciones con $\rm set$ por hora $O (n \log n)$).
+
+
+\h2{ Aplicación }
+
+Presentamos la aplicación de lo descrito anteriormente, el algoritmo. Esta aplicación sólo devuelve el radio de la circunferencia; sin embargo, la adición de salida del centro de la circunferencia no es fácil.
+
+Este algoritmo es elegante, porque de geometría computacional requiere sólo de encontrar el ángulo entre las dos partes, la intersección de dos rectas y la verificación de dos rectas en el paralelismo.
+
+Nota. Se supone que la suministrada a la entrada de un polígono --- \bf{estrictamente convexa}, es decir, ninguno de los tres puntos no se encuentran en la misma recta.
+
+\code
+const double EPS = 1E-9;
+const double PI = ...;
+
+struct pt {
+double x, y;
+pt() { }
+pt (double x, double y) : x(x) y(y) { }
+pt operator- (const pt & p) const {
+return pt (x-p.x, y-p.y);
+}
+};
+
+double dist (const pt & a, const pt & b) {
+return sqrt ((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+}
+
+double get_ang (const pt & a, const pt & b) {
+double ang = abs (atan2 (a.y, a.x) atan2 (b.y, b.x));
+return min (ang, 2*PI de ang);
+}
+
+struct line {
+double a, b, c;
+line (const pt & p, const pt & q) {
+a = p.y - q.y;
+ b = q.x - p.x;
+c = - a * p.x - b * p.y;
+double z = sqrt (a*a + b*b);
+a/=z, b/=z, c/=z;
+}
+};
+
+double det (double a, double b, double c, double d) {
+return a * d - b * c;
+}
+
+pt intersect (const line & n, const line & m) {
+double zn = det (n.a, n.b, m.a, m.b);
+return pt (
+- det (n.c, n.b, m.c, m.b) / zn,
+- det (n.a, n.c, m.a, m.c) / zn
+);
+}
+
+bool parallel (const line & n, const line & m) {
+return abs (det (n.a, n.b, m.a, m.b)) < EPS;
+}
+
+double get_h (const pt & p1, const pt & p2,
+const pt & l1, const pt & l2, const pt & r1, const pt & r2)
+{
+pt q1 = intersect (line (p1, p2), line (l1, l2));
+pt q2 = intersect (line (p1, p2), line (r1, r2));
+double l = dist (q1, q2);
+double alpha = get_ang (l2 - l1, p2 - p1) / 2;
+double beta = get_ang (r2 - r1, p1 - p2) / 2;
+return l * sin(alpha) * sin(beta) / sin(alpha+beta);
+}
+
+struct cmp {
+bool operator() (const pair<double,int> & a, const pair<double,int> & b) const {
+if (abs (a.first - b.first) > EPS)
+return a.first < b.first;
+return a.second < b.second;
+}
+};
+
+int main() {
+int n;
+vector<pt> p;
+... la lectura de n y p ...
+
+vector<int> next (n), prev (n);
+for (int i=0; i<n; ++i) {
+next[i] = (i + 1) % n;
+prev[i] = (i - 1 + n) % n;
+}
+
+set < pair<double,int>, cmp > q;
+vector<double> h (n);
+for (int i=0; i<n; ++i) {
+h[i] = get_h (
+p[i], p[next[i]],
+p[i], p[prev[i]],
+p[next[i]], p[next[siguiente[i]]]
+);
+q.insert (make_pair (h[i], i));
+}
+
+double last_time;
+while (q.size() > 2) {
+last_time = q.begin()->first;
+int i = q.begin()->second;
+q.erase (q.begin());
+
+next[prev[i]] = next[i];
+prev[next[i]] = prev[i];
+int nxt = next[i], nxt1 = (nxt+1)%n,
+prv = prev[i], prv1 = (prv+1)%n;
+if (parallel line (p[nxt], p[nxt1]), line (p[prv], p[prv1])))
+break;
+
+q.erase (make_pair (h[nxt], nxt));
+q.erase (make_pair (h[prv], prv));
+
+h[nxt] = get_h (
+p[nxt], p[nxt1],
+p[prv1], p[prv],
+p[next[nxt]], p[(next[nxt]+1)%n]
+);
+h[pv] = get_h (
+p[prv], p[prv1],
+p[(prev[prv]+1)%n], p[prev[prv]],
+p[nxt], p[nxt1]
+);
+
+q.insert (make_pair (h[nxt], nxt));
+q.insert (make_pair (h[prv], prv));
+}
+
+cout << last_time << endl;
+}
+\endcode
+
+La función principal aquí - - - $get\_h()$, que de un lado y la de su izquierda y derecha vecinos calcula el tiempo de la desaparición de esa parte. Para ello, se busca el punto de intersección de esta parte de los vecinos, y luego por la fórmula anterior se calcule el original de tiempo.

@@ -1,0 +1,76 @@
+\h1{Топологическая ordenar}
+
+Dan orientado hacia el conde con $n$ cimas $m$ las costillas. Es necesario \bf{numerar} su cima por lo tanto, para cada arista llevó desde un vértice con menor número en la cima con el grande.
+
+En otras palabras, es necesario encontrar una permutación de vértices (\bf{топологический pedido}), correspondiente a la orden, especifica todos los bordes de la gráfica.
+
+Топологическая la ordenación puede ser \bf{no la única} (por ejemplo, si el conde --- en blanco; o si hay tres cimas de $a$, $b$, $c$, que de $a$ es el camino a $b$ y $c$, pero ni de $b$ a $c$ ni $c$ a $b$ no se puede llegar).
+
+Topológicas de ordenación puede \bf{no existir} en absoluto --- si el gráfico contiene ciclos, debido a que se produce una contradicción: hay un camino y de una cima a otra, y viceversa).
+
+\bf{Común de la tarea} en топологическую ordenación --- siguiente. Es $n$ de las variables, los valores que nos son desconocidos. Sólo se sabe acerca de algunos pares de variables una variable es menor que otro. Desea comprobar, no son contradictorios si estas desigualdades, y si no, emitir las variables en orden ascendente (si las decisiones de varios --- dar el todo). Es fácil observar que es en la precisión y tienen la tarea de búsqueda de topológicas de ordenación en la columna de $n$ vértices.
+
+
+\h2{el Algoritmo}
+
+Para resolver usaremos \algohref=dfs{omisión en la profundidad de la}.
+
+Supongamos que el conde de ацикличен, es decir, existe una solución. Lo que hace un rastreo en profundidad? Cuando se ejecuta desde un vértice $v$ se inicia a lo largo de todos los bordes de salida de $v$. A lo largo de los bordes, extremos de los que ya había visitado anteriormente, no pasa, y a lo largo de todas las demás --- pasa y llama a sí mismo de sus extremos.
+
+Por lo tanto, al momento de salir de la llamada ${\rm dfs}(v)$ todos los vértices alcanzables desde $v$, directamente (uno por eje), como indirectamente (por el camino) --- todas las cimas ya visitados por omisión. Por lo tanto, si vamos a estar en el momento de la salida de ${\rm dfs}(v)$ añadir a nuestra cima en el comienzo de una especie de la lista, al fin y al cabo en esta lista resultar \bf{топологическая ordenar}.
+
+Estas explicaciones se pueden presentar en una luz diferente, utilizando el concepto de \bf{"hora de salida"} solución en profundidad. La hora de la salida para cada vértice $v$ --- este es el momento en que había terminado la llamada ${\rm dfs}(v)$ de rastreo en la profundidad de la misma (la época de la salida se puede занумеровать de $1 a$ a $n$). Es fácil de entender, que cuando se rastrea en la profundidad de la hora de la salida de alguno de los vértices $v$ es siempre mayor que el tiempo de salida de todos los vértices alcanzables desde ella (ya que ellos fueron visitados o antes de la llamada ${\rm dfs}(v)$, o durante la misma). Por lo tanto, la instrucción топологическая ordenación --- este es ordenar en orden descendente de los tiempos de salida.
+
+
+\h2{Aplicación}
+
+Presentamos la aplicación, lo que implica que el conde de ацикличен, es decir, buscando топологическая ordenar existe. Si es necesario, la verificación de la columna en ацикличность fácil de insertar en el rastreo de profundidad, como se describe en la \algohref=dfs{artículo de eludir en la profundidad de la}.
+
+\code
+int n; // el número de vértices
+vector<int> g[MAXN]; // el conde de
+bool used[MAXN];
+vector<int> ans;
+
+void dfs (int v) {
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (!used[to])
+dfs (to);
+}
+ans.push_back (v);
+}
+
+void topological_sort() {
+for (int i=0; i<n; ++i)
+used[i] = false;
+ans.clear();
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs (i);
+reverse (ans.begin(), ans.end());
+}
+\endcode
+
+Aquí la constante de $\rm MAXN$ debe establecer un valor igual al máximo número de vértices en el grafo.
+
+La función principal de la decisión --- este es topological_sort, se inicializa la marca de rastreo en profundidad, lo ejecuta, y la respuesta en el resultado en el vector $\rm ans$.
+
+
+\h2{Tareas en línea judges}
+
+La lista de tareas en las que es necesario buscar топологическую ordenación:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1246{UVA #10305 \bf{"Ordering Tasks"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=60{UVA #124 \bf{"Following Orders"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=136{UVA #200 \bf{"Rare Order"} ~~~~ [dificultad: baja]}
+
+
+
+}
+

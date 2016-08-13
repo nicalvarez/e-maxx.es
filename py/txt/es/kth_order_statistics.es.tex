@@ -1,0 +1,64 @@
+<h1>K-ésimo порядковая estadísticas de O (N)</h1>
+
+<p>Deje que dada una matriz A de longitud N y que dado el número de K. la Tarea consiste en encontrar en la matriz K-ésimo más grande el número, es decir, el K-ésimo ordinal estadísticas.</p>
+<p> </p>
+<p>la idea Principal es utilizar las ideas de un algoritmo de ordenación rápida. En realidad, el algoritmo sencillo, es más difícil de demostrar, que funciona en un promedio de O (N), a diferencia de la ordenación rápida.</p>
+<p> </p>
+<p>la Implementación en forma de нерекурсивной funciones:</p>
+<code>template <class T>
+T order_statistics (std::vector<T> a, unsigned n, unsigned k)
+{
+using std::swap;
+for (unsigned i=1, r=n; ; )
+{
+
+if (r <= l+1)
+{
+// la parte actual se compone de 1 o 2 elementos -
+// fácilmente podemos encontrar la respuesta
+if (r == l+1 && a[r] < a[l])
+swap (a[l], a[r]);
+retorno a[k];
+}
+
+// упорядочиваем a[l], a[l+1], a[r]
+unsigned mid = (l + r) >> 1;
+swap (a[mid], a[l+1]);
+if (a[l] > a[r])
+swap (a[l], a[r]);
+if (a[i+1] > a[r])
+swap (a[i+1], a[r]);
+if (a[l] > a[l+1])
+swap (a[l], a[l+1]);
+
+// realizamos la separación de
+// es una barrera a[l+1], es decir, la mediana entre a[l], a[l+1], a[r]
+unsigned
+i = l+1,
+j = r;
+const T
+cur = a[i+1];
+for (;;)
+{
+while (a [i++] < cur) ;
+while (a[--j] > cur) ;
+if (i > j)
+break;
+swap (a[i], a[j]);
+}
+
+// ponemos la barrera
+a[l+1] = a[j];
+a[j] = cur;
+
+// seguimos en la parte de la
+// que debe contener el elemento
+if (j >= k)
+r = j-1;
+if (j <= k)
+l = i;
+
+}
+}</code>
+<p> </p>
+<p>tenga en cuenta que la biblioteca estándar de C++, este algoritmo ya se ha implementado se llama nth_element.</p>

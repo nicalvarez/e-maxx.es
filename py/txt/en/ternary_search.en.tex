@@ -1,0 +1,61 @@
+\h1{Ternary search}
+
+\h2{problem Statement}
+
+Let the given function $f(x)$, \bf{unimodal} on some interval $[l;r]$. Under unimodality refers to one of two options. First: function strictly increases first, then reaches a maximum (at a single point or the whole segment), then strictly decreases. The second option is symmetric: the function decreases first decreases, reaches a minimum, increases. In the future, we will consider the first option, the second will be absolutely symmetrical to it.
+
+Required \bf{find max} function $f(x)$ on the segment $[l;r]$.
+
+\h2{Algorithm}
+
+Take any two points $m_1$ and $m_2$ in this section: $l < m_1 < m_2 < r$. Calculate the value of the function $f(m_1)$ and $f(m_2)$. Next we have three options:
+
+\ul{
+
+\li If $f(m_1) < f(m_2)$, then the required maximum can not be in the left part, i.e. in the part of $[l;m_1]$. This is easily seen: if the left point of the function is less than right, then either the two points are in the "lift" function, or only the left point is there. In any case, this means that the maximum further makes sense to look only in the interval $[m_1;r]$.
+
+\li If $f(m_1) > f(m_2)$, then the situation is similar to the previous one up to some symmetry. Now, the required maximum can not be in the right part, i.e. in the part of $[m_2, r]$, so go to the segment $[l;m_2]$.
+
+\li If $f(m_1) = f(m_2)$, then either both points are the maximum, either left point is in region of increasing, and right --- in the descending order (here it is essentially used that the increment/decrement strict). Thus, it makes sense to produce in the interval $[m_1;m_2]$, but (to simplify code) this case can be attributed to any of the previous two.
+}
+
+Thus, the comparison result of the function values at two interior points, we instead search the current segment $[l;r]$ we find the interval $[l^\prime, r^\prime]$. Now repeat all actions for this new cut, again will receive a new, strictly smaller, cut, etc.
+
+Sooner or later the length of the segment become small, smaller pre-defined constants-precision, and the process can be stopped. This method is numerical, so after stopping the algorithm can be approximately assumed that all the points of the line segment $[l;r]$ attains its maximum; as an answer can take, for example, the point $l$.
+
+It remains to note that we do not impose any restrictions on the choice of the points $m_1$ and $m_2$. From this method, of course, will depend on the speed of convergence (and encountered the error). The most common method is to choose points so that the segment $[l;r]$ divided them into 3 equal parts:
+$$ m_1 = l + \frac{r-l}{3} $$
+$$ m_2 = r - \frac{r-l}{3} $$
+
+However, with another choice, when $m_1$ and $m_2$ are closer to each other, the convergence rate will increase slightly.
+
+\h3{Case integer argument}
+
+If the argument of the function $f$ is an integer, then the segment $[l;r]$ is also discrete, however, since we do not impose any restrictions on the choice of the points $m_1$ and $m_2$, then the correctness of the algorithm is not affected. You can still choose $m_1$ and $m_2$ so that they divide the segment $[l;r]$ into 3 parts, but only approximately equal.
+
+The second different point --- the stopping criterion of the algorithm. In this case, a ternary search should be stopped, when it becomes $r-l<3$, because in this case it will be impossible to choose points $m_1$ and $m_2$ so that there were various and different from $l$ and $r$, and this can cause an infinite loop. After the algorithm ternary search will stop and will become $r-l<3$, the remaining few points-candidates $(l,l+1,\ldots,r)$ we need to choose a point with maximum function value.
+
+\h2{the Implementation}
+
+The implementation for the continuous case (i.e. the function $f$ is: $\rm double\ f\ (double\ x)$):
+
+\code
+double l = ..., r = ..., EPS = ...; // input
+while (r - l > EPS) {
+double m1 = l + (r - l) / 3,
+m2 = r - (r - l) / 3;
+if (f (m1) < f (m2))
+l = m1;
+else
+r = m2;
+}
+\endcode
+
+Here $\rm EPS$ --- actually, \bf{absolute error} reply (not counting errors due to the inaccurate calculation of the function).
+
+Instead of the criterion of "while (r - l > EPS)" can be selected and the stop criterion:
+\code
+for (int it=0; it<iterations; ++it)
+\endcode
+
+On the one hand, you have to pick up a constant $\rm iterations to provide the required accuracy (typically a few hundred to achieve maximum accuracy). But, on the other hand, the number of iterations does not depend on the absolute values of $l$ and $r$, i.e. we are actually using the $\rm iterations$ specify \bf{relative error}.

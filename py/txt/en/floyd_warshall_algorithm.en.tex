@@ -1,0 +1,108 @@
+\h1{ Algorithm Floyd-Warshell finding shortest paths between all pairs of vertices }
+
+Given a directed or an undirected weighted graph $G$ with $n$ vertices. You want to find the values of all the quantities $d_{ij}$ --- the length of the shortest path from vertex $i$ to vertex $j$.
+
+It is assumed that the graph contains no cycles of negative weight (then answer between some pairs of vertices may simply not exist --- it will be infinitely small).
+
+This algorithm was simultaneously published in articles by Robert Floyd (Robert Floyd) and Stephen Wartella (Marshalla) (Stephen warshall algorithm) in 1962, on whose behalf this algorithm and is called at the present time. However, in 1959, Bernard Roy (Roy Bernard) published almost the same algorithm, but his publication went unnoticed.
+
+
+\h2{ algorithm Description }
+
+The key idea of the algorithm --- the breaking of the process of finding shortest paths in \bf{phase}.
+
+Before $k$-th phase ($k = 1 \ldots n$) under the constraint that the distance matrix $d[][]$ stored the lengths of these shortest paths that contain internal vertices only vertices from the set $\{ 1, 2, \ldots, k-1 \}$ (the vertices of the graph we enumerate, beginning with one).
+
+In other words, $k$-th phase, the value of $d[i][j]$ is equal to the length of the shortest path from vertex $i$ to vertex $j$ if this path is allowed to go only in the vertices with numbers less than $k$ (the beginning and the end of the path are not considered).
+
+It is easy to verify that the property was executed for the first phase, quite in the distance matrix $d[][]$ write down the adjacency matrix of the graph: $d[i][j] = g[i][j]$ --- cost of edges from vertex $i$ to vertex $j$. Also, if between some vertices no edges, we need to record the value of "infinity" $\infty$. From a vertex to itself should always record the value $0$, it is critical for the algorithm.
+
+Now suppose we are on $k$-th phase, and I want \bf{count} matrix $d[][]$ so that it matches the requirements already for $k+1$-th phase. Fix some vertex $i$ and $j$. We have two completely different cases:
+
+\ul{
+
+\li the Shortest path from vertex $i$ to vertex $j$, which is allowed to further pass through the vertices $\{ 1, 2, \ldots, k \}$, \bf{coincides} with the shortest route, which is allowed to pass through the vertices of the set $\{ 1, 2, \ldots, k-1 \}$.
+
+In this case, the value of $d[i][j]$ will not change $k$-th $k+1$-th phase.
+
+\li a "New" shortest path was \bf {} "old" ways.
+
+This means that the "new" shortest path passes through a vertex of $k$. Just note that we will not lose generality by considering further only the simple paths (i.e. paths not passing through any vertex twice).
+
+Then note that if we divide this "new" path vertex $k$ into two halves (one going $i \Rightarrow k$, and the other is the $k \Rightarrow j$), then each of these halves already cant get into the top $k$. But then it turns out that the length of each of these halves was calculated by $k-1$-th phase or even earlier, and it is enough to just take $d[i][k] + d[k][j]$, and it will give the length of the ' new ' shortest path.
+
+}
+
+\bf{Combining} these two cases, we obtain that $k$-th phase is required to recalculate the length of the shortest paths between all pairs of vertices $i$ and $j$ as follows:
+
+\code
+new_d[i][j] = min (d[i][j], d[i][k] + d[k][j]);
+\endcode
+
+Thus, all the work that is required to produce $k$-th phase is to iterate over all pairs of vertices and recalculate the length of the shortest path between them. As a result, after performing the $n$-th phase in the matrix of distances $d[i][j]$ to be written length of the shortest path between $i$ and $j$, or $\infty$ if the paths between these vertices does not exist.
+
+The last point that you want to do --- what can \bf{not to create a separate matrix} $\rm new\_d[][]$ for a temporary matrix of shortest paths on $k$-th phase: all changes can be done in the matrix $d[][]$. In fact, if we have improved (decreased) some value in the distance matrix, we could not affect the length of the shortest path for some other pairs of vertices that are processed later.
+
+\bf{Asymptotics} of algorithm is obviously $O (n^3)$.
+
+
+\h2{ the Implementation }
+
+The input to the program is supplied graph, given in adjacency matrix --- two-dimensional array $d[][]$ of size $n \times n$ in which each element specifies the length of an edge between the corresponding vertices.
+
+Required that the inequality $d[i][i] = 0$ for all $i$.
+
+\code
+for (int k=0; k<n; k++)
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; j++)
+d[i][j] = min (d[i][j], d[i][k] + d[k][j]);
+\endcode
+
+It is assumed that if between two any vertices \bf{no edge}, then the adjacency matrix was recorded a large number (large enough so that it is greater than the length of any path in this graph), then this edge will always be unprofitable to take, and the algorithm will work correctly.
+
+However, if you do not take special measures, in the presence of edges in the graph \bf{negative weights}, the resulting matrix can appear a number of the form $\infty-1$, $\infty-2$, etc., which, of course, still mean that between corresponding nodes at all no way. Therefore, if you have the graph of negative edges algorithm Floyd's better to write so that he did not perform the transitions from those States that already there is "no way":
+
+\code
+for (int k=0; k<n; k++)
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; j++)
+if (d[i][k] < INF && d[k][j] < INF)
+d[i][j] = min (d[i][j], d[i][k] + d[k][j]);
+\endcode
+
+
+\h2{ Restore themselves ways }
+
+It is easy to maintain additional information --- the so-called "ancestors", for which it will be possible to recover the shortest path between any two given vertices \bf{a sequence of vertices}.
+
+It is enough in addition to the distance matrix $d[][]$ to support also \bf{matrix ancestors} $p [] []$ that for every pair of vertices will contain a number of phases, which obtained the shortest distance between them. It is clear that this number of phases is nothing more than the "middle" vertex of the desired shortest path, and now we just need to find the shortest path between vertices $i$ and $p[i][j]$ and between $p[i][j]$ and $j$. It gives a simple recursive algorithm for reconstructing the shortest path.
+
+
+\h2{ the Case of real-valued weights }
+
+If the weights of the graph edges is not integer, but real, you should take into account the errors that inevitably arise when working with floating-point types.
+
+With respect to the algorithm of Floyd unpleasant effects of these errors is that are found by the algorithm, the distances can go much in the negative because \bf{accumulated errors}. In fact, if the first phase had the error $\Delta$, then at the second iteration, this error can turn into $2 \Delta$, the third - - - $4 \Delta$, and so on.
+
+To avoid this, the comparison in Floyd's algorithm should be done taking into account the error:
+
+\code
+if (d[i][k] + d[k][j] < d[i][j] - EPS)
+d[i][j] = d[i][k] + d[k][j];
+\endcode
+
+
+\h2{ the Case of negative cycles }
+
+If the graph has negative weight cycles, then formally, the algorithm of Floyd-Warshell not applicable to this graph.
+
+In fact, for those pairs of vertices $i$ and $j$, between which it is impossible to go into a cycle of negative weight, the algorithm will work correctly.
+
+For the same pair of vertices, the answer to which does not exist (due to the presence of a negative cycle in the path between them), the Floyd algorithm will find answer as a number (perhaps highly negative, but not necessarily). Nevertheless, it is possible to improve the algorithm of Floyd, so he carefully treated such pairs of vertices and brought to them, for example, $- \infty$.
+
+This can be done, for example, the following \bf{criteria} "not the existence of the way." So, let this graph worked the usual algorithm of Floyd. Then between vertices $i$ and $j$ does not exist shortest path if and only when there is a vertex $t$ is reachable from $i$ and which is reachable from $j$ being $d[t][t] < 0$.
+
+In addition, when using Floyd's algorithm for graphs with negative cycles, you should remember that arise in the process of working distance can be very go minus, exponentially with each phase. Therefore, measures should be taken against integer overflow by limiting the distance below some value (e.g. $- {\rm INF}$).
+
+Learn more about this task, see separate article: \algohref=negative_cycle{\bf{"finding a negative cycle in the graph"}}.

@@ -1,0 +1,112 @@
+<h1>Estar Эйлерова el camino de O (M)</h1>
+
+<p>Эйлеров la ruta de acceso es la ruta de acceso en la columna, pasa a través de todas sus aristas. Эйлеров ciclo es эйлеров camino, que es el ciclo.</p>
+<p>la Tarea consiste en encontrar эйлеров la ruta en <b>неориентированном мультиграфе con bisagras de acero inoxidable</b>.</p>
+<h2>el Algoritmo de</h2>
+<p>en primer lugar comprobaremos si existe эйлеров la ruta. A continuación, encontraremos todos los ciclos simples y combinar en una sola, es эйлеровым ciclo. Si el gráfico es que эйлеров la ruta de acceso no es un ciclo, entonces, añadimos el borde, encontraremos эйлеров ciclo, luego eliminaremos el exceso de borde.</p>
+<p>Para comprobar si existe эйлеров la ruta, es necesario utilizar el siguiente teorema. Эйлеров ciclo existe entonces, y sólo entonces, cuando el grado de todos los vértices четны. Эйлеров existe la ruta de entonces, y sólo entonces, cuando el número de vértices con alguna grados es igual a dos (o cero, en el caso de la existencia de эйлерова ciclo).</p>
+<p>Además, por supuesto, el conde debe ser lo suficientemente coherente. (es decir, eliminar todos aislados de la cima, debe resultar coherente conde).</p>
+<p>Buscar en todos los ciclos y combinarlos vamos a un procedimiento recursivo:</p>
+<pre>procedure FindEulerPath (V)
+1. recorrer todas las aristas que salen de vértices V;
+cada arista eliminamos de un conde, y
+llamamos FindEulerPath de la segunda final de este costillas;
+2. añadimos la cima de la V en la respuesta.</pre>
+<p>la Complejidad de este algoritmo es, obviamente, es lineal respecto al número de aristas.</p>
+<p>Pero el mismo algoritmo podemos escribir en <b>нерекурсивном</b> opción:</p>
+<pre>stack St;
+en St ponemos cualquier cima (plataforma de lanzamiento de la cima);
+hasta que el St no está vacío
+supongamos que V es un valor en la cima de la St;
+si el grado(V) = 0, entonces
+añadimos V a la respuesta;
+rodando V desde la cima de la St;
+de lo contrario,
+encontramos cualquier arista que sale de V;
+eliminamos de conde;
+el segundo fin de este costillas ponemos en St;
+</pre>
+<p>es Fácil comprobar la equivalencia de estas dos formas de algoritmo. Sin embargo, la segunda forma es, obviamente, más rápido, y el código no será no más.</p>
+<h2>la Tarea de dominó</h2>
+<p>aquí la clásica tarea de la эйлеров ciclo de la tarea de fichas de dominó.</p>
+<p>Hay un N доминошек, como se sabe, en los dos extremos de la доминошки se registra un número (normalmente de 1 a 6, pero en nuestro caso no es importante). Es necesario poner todos los доминошки en una serie para cualquiera de los dos países vecinos доминошек número de grabados en común lado, coinciden. Доминошки se permite dar la vuelta.</p>
+<p>Переформулируем la tarea. Que el número grabado en el донимошках, - vértices del grafo, y доминошки - el borde este del conde (cada доминошка con números (a,b) es la aleta (a,b) y (b,a)). Entonces nuestra tarea <b>se reduce a</b> la tarea de encontrar la <b>эйлерова el camino</b> en este apartado.</p>
+<h2>Realización</h2>
+<p>el siguiente programa busca y muestra эйлеров urbano o la ruta de acceso en la columna, o muestra -1 si no existe.</p>
+<p>en primer lugar, el programa comprueba el grado de los vértices: si los vértices con grado impar no, en el recuadro que hay эйлеров ciclo, si hay 2 vértices de grado impar, entonces en la columna sólo hay эйлеров ruta (эйлерова ciclo no), si tales cimas de más de 2, en la columna no tiene ni эйлерова ciclo, ni эйлерова camino. Para encontrar эйлеров la ruta (no urbano), haremos de esta manera: si V1 y V2 son dos vértices de grado impar, entonces simplemente añadimos la arista (V1,V2), en el apartado encontraremos эйлеров ciclo (que, obviamente, va a existir) y, a continuación, eliminamos la respuesta de "prueba" en la arista (V1,V2). Эйлеров ciclo vamos a buscar exactamente como se describe anteriormente (нерекурсивной versión), y al mismo tiempo al final de este algoritmo comprobaremos, conectado el conde hubo o no (si el conde no era coherente, al final del algoritmo en la columna de la permanecerán algunos bordes, y en este caso, tenemos que sacar -1). Por último, el programa tiene en cuenta que en la columna pueden ser aislados de la cima.</p>
+<code>int main() {
+
+int n;
+vector < vector<int> > g (n, vector<int> (n));
+... la lectura de la gráfica de la matriz de adyacencia ...
+
+vector<int> deg (n);
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; ++j)
+deg[i] += g[i][j];
+
+int first = 0;
+while (!deg[first]) ++first;
+
+int v1 = -1, v2 = -1;
+bool bad = false;
+for (int i=0; i<n; ++i)
+if (deg[i] & 1)
+if (v1 == -1)
+v1 = i;
+else if (v2 == -1)
+v2 = i;
+else
+bad = true;
+
+if (v1 != -1)
+++g[v1][v2] ++g[v2][v1];
+
+pila<int> st;
+st.push (first);
+vector<int> res;
+while (!st.empty())
+{
+int v = st.top();
+int i;
+for (i=0; i<n; ++i)
+if (g[v][i])
+break;
+if (i == n)
+{
+res.push_back (v);
+st.pop();
+}
+else
+{
+--g[v][i];
+--g[i][v];
+st.push (i);
+}
+}
+
+if (v1 != -1)
+for (size_t i=0; i+1<res.size(); ++i)
+if (res[i] == v1 && res[i+1] == v2 || res[i] == v2 && res[i+1] == v1)
+{
+vector<int> res2;
+for (size_t j=i+1; j<res.size(); ++j)
+res2.push_back (res[j]);
+for (size_t j=1; j<=i; j++)
+res2.push_back (res[j]);
+res = res2;
+break;
+}
+
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; ++j)
+if (g[i][j])
+bad = true;
+
+if (bad)
+puts ("-1");
+else
+for (size_t i=0; i<res.size(); ++i)
+printf ("%d ", res[i]+1);
+
+}</code>

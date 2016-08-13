@@ -1,0 +1,45 @@
+<h1>Mínimo остовное árbol. El algoritmo de kruskal-con el sistema de conjuntos disjuntos</h1>
+
+<p>la creación de la tarea y la descripción del algoritmo de kruskal-véase <algohref=mst_kruskal>aquí</algohref>.</p>
+<p>Aquí se pondrán de aplicación con el uso de estructuras de datos <algohref=dsu>"sistema de conjuntos disjuntos" (DSU)</algohref>, lo que permitirá alcanzar асимптотики <b>O (M log N)</b>.</p>
+<h3>Descripción</h3>
+<p>de la misma manera, como en una versión sencilla del algoritmo de kruskal -, ordenará todas las aristas de неубыванию de peso. A continuación, colocaremos cada cima en su árbol (es decir, su multitud) con una llamada a la función DSU MakeSet - esto llevará a la suma de O (N). Перебираем todas las aristas (en orden de clasificación) y para cada una de las costillas de O (1) para determinar si pertenecen sus fines diferentes a los árboles (con dos llamadas FindSet por O (1)). Finalmente, la combinación de dos árboles se realizará la llamada Union - por O (1). En total recibimos асимптотику O (M log N + N + M) = O (M log N).</p>
+<h3>Realización</h3>
+<p>Para reducir la cantidad de código, realizamos todas las operaciones no en la forma de las funciones individuales y directamente en el código del algoritmo de kruskal -.</p>
+<p>Aquí se utilizará рандомизированная versión DSU.</p>
+<code>vector<int> p (n);
+
+int dsu_get (int v) {
+return (v == p[v]) ? v : (p[v] = dsu_get (p[v]));
+}
+
+void dsu_unite (int a, int b) {
+a = dsu_get (a);
+b = dsu_get (b);
+if (rand() & 1)
+swap (a, b);
+if (a != b)
+p[a] = b;
+}
+
+... en la función main(): ...
+
+int m;
+vector < pair < int, pair<int,int> > > g; // peso - la cima de la 1 - la cima de la 2
+... lectura del conde ...
+
+int cost = 0;
+vector < pair<int,int> > res;
+
+sort (g.begin () g.end());
+p.resize (n);
+for (int i=0; i<n; ++i)
+p[i] = i;
+for (int i=0; i<m; i++) {
+int a = g[i].segunda.first, b = g[i].segunda.segunda, l = g[i].first;
+if (dsu_get(a) != dsu_get(b)) {
+cost += l;
+res.push_back (g[i].second);
+dsu_unite (a, b);
+}
+}</code>

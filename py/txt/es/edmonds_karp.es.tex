@@ -1,0 +1,82 @@
+<h1>el Máximo flujo por el método de Эдмондса-la Carpa de O (N M<sup>2</sup>)</h1>
+
+<p style="color:red">Atención: este artículo no está actualizado y tiene errores y no se recomienda a la lectura. Después de algún tiempo, el artículo será completamente reescrito.</p>
+
+<p>Deje que dan el gráfico de G, en el que aparecen dos picos: la fuente S y el drenaje de la T, y el de cada aleta se define el ancho de banda de C<sub>u,v</sub>. El flujo de F se puede representar como el flujo de una sustancia que podría pasar por la red desde su nacimiento a la descarga, si se considera que el conde como una red de tuberías con algunos пропускными habilidades. Es decir, el flujo de la función F<sub>u, v</sub>, definida en el conjunto de aristas de la gráfica.</p>
+<p> </p>
+<p>la Tarea consiste en encontrar el flujo máximo. Aquí se examinará el método Эдмондса-la Carpa que trabaja en O (N M<sup>2</sup>), o (otra evaluación) O (F M), donde F es el valor deseado de flujo. El algoritmo fue propuesto en el año 1972.</p>
+<h2>el Algoritmo de</h2>
+<p><b>Residual de ancho de banda</b> se denomina ancho de banda de la aleta, menos el flujo de corriente a lo largo de esta aleta. Es necesario recordar que si algún flujo pasa de centrado eje, se produce el llamado inversa de la arista (dirigida en la dirección opuesta), que tendrá cero el ancho de banda, y por el que transcurrirá la misma por la cantidad de flujo, pero con signo negativo. Si la arista es неориентированным, es como si se descompone en dos orientados a la arista con el mismo ancho de banda, y cada una de estas aristas es el inverso para el otro, si uno pasa el flujo de F, por el otro, pasa -F).</p>
+<p>el esquema General de la <b>algoritmo Эдмондса-la Carpa</b> es la siguiente. Primero consideramos el flujo de cero. A continuación, buscamos que complementa la ruta, es decir, el camino fácil de la S en T por los bordes, en los cuales el valor residual del ancho de banda estrictamente positiva. Si complementa se ha encontrado el camino, se produce un aumento del caudal a lo largo de este camino. Si la ruta no se encuentra, entonces el flujo de corriente es máxima. Para la búsqueda de complementar la ruta se puede utilizar como <algohref=bfs>Rastreo de ancho</algohref> y <algohref=dfs>Rastreo en profundidad</algohref>.</p>
+<p>Considere más exactamente procedimiento para aumentar el flujo. Supongamos que hemos encontrado un cierto complementa la ruta, entonces C es la más baja de los residuos de puntos de control de las capacidades de las costillas de este camino. El procedimiento de aumento de flujo es el siguiente: para cada aleta (u, v) complementa el camino cumpliremos: F<sub>u, v</sub> += C y F<sub>v, u</sub> = - F<sub>u, v</sub> (o lo que es lo mismo, F<sub>v, u</sub> -= C).</p>
+<p>el Valor de flujo será la suma de todas las cantidades no negativas F<sub>S, v</sub>, donde v es cualquier vértice, unida a la fuente.</p>
+<h2>Realización</h2>
+<code>const int inf = 1000*1000*1000;
+
+
+typedef vector<int> graf_line;
+typedef vector<graf_line> graf;
+
+typedef vector<int> vint;
+typedef vector<vint> vvint;
+
+
+int main()
+{
+int n;
+cin >> n;
+vvint c (n, vint(n));
+for (int i=0; i<n; i++)
+for (int j=0; j<n; j++)
+cin >> c[i][j];
+// fuente - la cima de 0, stoke - la cima de la n-1
+
+vvint f (n, vint(n));
+for (;;)
+{
+
+vint from (n, -1);
+vint q (n);
+int h=0, t=0;
+q[t++] = 0;
+from[0] = 0;
+for (int cur; h<t;)
+{
+cur = q[h++];
+for (int v=0; v<n; v++)
+if (from[v] == -1 &&
+c[cur][v]-f[cur][v] > 0)
+{
+q[t++] = v;
+from[v] = cur;
+}
+}
+
+if (from[n-1] == -1)
+break;
+int cf = inf;
+for (int cur=n-1; cur!=0; )
+{
+int prev = from[cur];
+cf = min (cf, c[prev][cur]-f[prev][cur]);
+cur = prev;
+}
+
+for (int cur=n-1; cur!=0; )
+{
+int prev = from[cur];
+f[prev][cur] += cf;
+f[cur][prev] -= cf;
+cur = prev;
+}
+
+}
+
+int flow = 0;
+for (int i=0; i<n; i++)
+if (c[0][i])
+flow += f[0][i];
+
+cout << flow;
+
+}</code>

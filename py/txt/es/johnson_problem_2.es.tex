@@ -1,0 +1,113 @@
+\h1{ Tarea de johnson con dos máquinas }
+
+Hay $n$ de piezas y dos de la máquina. Cada detalle debe primero someterse a un tratamiento en la primera máquina y, a continuación, - - - en el segundo. Al $i$-aja detalle es tratado en la primera máquina por $a_i$ la hora, y la segunda - - - $b_i$ la hora. Cada máquina en cada momento sólo puede trabajar con una pieza.
+
+Es necesario establecer un orden de presentación de las piezas en las máquinas, para un total al tiempo de procesamiento de todas las piezas, sería mínimo.
+
+Esta tarea se denomina a veces la tarea de двухпроцессорного servicio de las tareas, o la tarea de johnson (bajo el nombre de S. M. Johnson, que en 1954 propuso un algoritmo para su solución).
+
+Vale la pena señalar que cuando el número de máquinas de más de dos, esto es NP-completo (como ha demostrado gary (Garey en 1976).
+
+
+\h2{ la Construcción de un algoritmo }
+
+Tenga en cuenta, primero, que se puede considerar que el orden de procesamiento de las piezas \bf{en el primer y segundo máquinas debe coincidir}. En realidad, ya que los detalles para la segunda máquina sólo están disponibles después del tratamiento en la primera, y si hay varios disponibles para el segundo de la máquina de piezas el tiempo de procesamiento será igual a la suma de los $b_i$ independientemente de su orden --- es más rentable a enviar en la segunda máquina de la pieza de la que antes ha sido tratado en la primera máquina.
+
+Veamos el orden de presentación de las piezas en las máquinas, coincidiendo con su entrada en el orden de: $1, 2, \ldots, n$.
+
+Se denota por $x_i$ \bf{el tiempo de inactividad} segundo de la máquina justo antes de la tramitación de $i$-oh detalles (después del tratamiento $i-1$-oh de la pieza). Nuestro objetivo --- \bf{minimizar la suma simple}:
+
+$$ F(x) = \sum x_i \longrightarrow \min. $$
+
+Para la primera pieza tenemos:
+
+$$ x_1 = a_1. $$
+
+Para la segunda --- ya que se convierte listo para el envío en la segunda máquina en el momento $a_1+a_2$, y el segundo, la máquina se libera en el momento $x_1 + b_1$, entonces tenemos:
+
+$$ x_2 = \max \Big( (a_1+a_2) - (x_1+b_1), 0 \Big). $$
+
+La tercera pieza se convierte en disponible para la segunda de la máquina en el momento de la $a_1+a_2+a_3$, y la máquina se libera en $x_1+b_1+x_2+b_2$, por lo tanto:
+
+$$ x_3 = \max \Big( (a_1+a_2+a_3) - (x_1+b_1+x_2+b_2), 0 \Big). $$
+
+Por lo tanto, el aspecto general de $x_i$ se ve así:
+
+$$ x_k = \max \left( \sum_{i=1}^{k} a_i - \sum_{i=1}^{k-1} b_i - \sum_{i=1}^{k-1} x_i, 0 \right). $$
+
+Consideramos ahora \bf{la suma simple} $F(x)$. Se afirma que él es:
+
+$$ F(x) = \max_{k=1 \ldots, n} K_i, $$
+
+donde
+
+$$ K_i = \sum_{i=1}^{k} a_i - \sum_{i=1}^{k-1} b_i. $$
+
+(En esto se puede ver en la inducción, sucesivamente encontrar una expresión para la suma de los primeros dos, tres, y así sucesivamente $x_i$.)
+
+Usaremos ahora \bf{перестановочным recepción}: vamos a tratar de canjear alguno de los dos vecinos de un elemento $j$ y $j+1$ y ver cómo cambia la suma simple.
+
+Por la forma de la función de las expresiones de $K_i$ claro que cambiarán sólo $K_j$ y $K_{j+1}$; daremos el nombre de los nuevos valores a través de $K_j^\prime$ y $K_{j+1}^\prime$.
+
+Por lo tanto, para pieza $j$ iba a pieza $j+1$, suficiente (aunque no necesario), para:
+
+$$ \max \left( K_j, K_{j+1} \right) \le \max \left( K_j^\prime, K_{j+1}^\prime \right). $$
+
+(es decir, hemos ignorado el resto, no han cambiado, los argumentos máximo en la expresión para $F(x)$, obteniendo lo suficiente, pero no es una condición necesaria, que el viejo $F(x)$ es menor o igual que el valor nuevo)
+
+Restando $ \sum_{i=1}^{j+1} a_i - \sum_{i=1}^{j-1} b_i $ de ambas partes de la desigualdad, obtenemos:
+
+$$ \max (-a_{j+1}, -b_j) \le \max (-b_{j+1}, -a_j), $$
+
+o deshacerse de los números negativos, se obtiene:
+
+$$ \min (a_j, b_{j+1}) \le \min (b_j, a_{j+1}). $$
+
+Así, hemos recibido \bf{comparador}: ordenando la pieza de él, de nosotros, de acuerdo con la anterior выкладкам, llegamos a una óptima orden de las piezas, en la que no se puede intercambiar ninguna de las dos piezas, mejorando así el tiempo final.
+
+Sin embargo, la mayor \bf{simplificar} la clasificación, si se mira en el comparador con la otra parte. De hecho, él nos dice que si un mínimo de cuatro números $(a_j, a_{j+1}, b_{j}, b_{j+1})$ se logra en un elemento de la matriz $a$, la pieza debe ir antes, y si en el elemento de la matriz $b$ --- más tarde. Así que tenemos otra forma de algoritmo que ordenar las piezas de un mínimo de $(a_i, b_i)$, y si el actual piezas mínimo es de $a_i$, entonces este artículo es necesario tratar la primera de las restantes, de otro modo --- de la última de las restantes.
+
+De un modo o de otro, resulta que la tarea de johnson con dos máquinas se reduce a ordenar las piezas con una función de comparación de elementos. Por lo tanto, asíntotas de la solución es de $O (n \log n)$.
+
+
+\h2{ Aplicación }
+
+Realizamos la segunda opción se describe el algoritmo anterior, cuando las piezas se ordenan por un mínimo de $(a_i, b_i)$, y luego se envían al inicio o al final de la lista actual.
+
+\code
+struct item {
+int a, b, id;
+
+bool operator< (item p) const {
+return min(a,b) < min(p.a,p.b);
+}
+};
+
+
+sort (v.begin(), v.end());
+vector<item> a, b;
+for (int i=0; i<n; ++i)
+(v[i].a<=v[i].b ? a : b) .push_back (v[i]);
+a.insert (a.end(), b.rbegin(), b.rend());
+
+int t1=0 y t2=0;
+for (int i=0; i<n; ++i) {
+t1 += a[i].a;
+t2 = max(t2,t1) + a[i].b;
+}
+\endcode
+
+Aquí todos los detalles se almacenan en forma de estructuras de $\rm item$, cada uno de los cuales contiene un valor de $a$ y $b$ y el número original de la pieza.
+
+Las piezas se ordenan y, a continuación, se distribuyen en las listas de $a$ (estos son los detalles que se han enviado al principio de la cola) y $b$ (aquellos que fueron enviados a la final). Después de esto, dos de la lista se combinan (y de la segunda lista se toma en el orden inverso), y luego de ubicación del orden se calcula la búsqueda de tiempo mínimo: se admiten dos variables $t_1$ y $t_2$ --- tiempo de la liberación de la primera y de la segunda máquina, respectivamente.
+
+
+\h2{ Literatura }
+
+\ul{
+
+\li \href=http://www.rand.org/pubs/papers/2008/P402.pdf{S. M. Johnson. \bf{Optimal two - and three-stage production schedules with setup times included} [1954]}
+
+\li M. R. Garey. \bf{The Complexity of Flowshop and Jobshop Scheduling} [1976]
+
+}

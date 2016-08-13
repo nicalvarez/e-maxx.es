@@ -1,0 +1,555 @@
+\h1{ Sistema de conjuntos disjuntos }
+
+
+En este artículo se describe la estructura de datos \bf{"sistema de conjuntos disjuntos"} (en inglés "disjoint-set-union", o simplemente "DSU").
+
+Esta estructura de datos ofrece las siguientes posibilidades. Inicialmente se tienen varios elementos, cada uno de los cuales está en otro (propio) de un proceso. En una operación \bf{fusionar dos cualesquiera conjuntos}, y también se puede \bf{solicitar, en cualquier multitud} ahora se encuentra el elemento especificado. También, en la versión clásica, se introduce otra operación --- la creación de un nuevo elemento que se coloca en un conjunto independiente.
+
+Por lo tanto, la interfaz base de esta estructura de datos se compone de tres operaciones:
+
+\ul{
+
+\li ${\rm make\_set}(x)$ --- \bf{agrega} el nuevo elemento de $x$, lo coloca en una nueva serie que consta de uno mismo.
+
+\li ${\rm union\_sets}(x,y)$ --- \bf{une} los dos conjuntos (conjunto, en el que se encuentra el elemento $x$, y la multitud, en la que se encuentra el elemento $y$).
+
+\li ${\rm find\_set}(x)$ --- \bf{devuelve, en que la multitud} se encuentra el elemento especificado de $x$. En realidad, si este vuelve uno de los elementos de un conjunto (llamado \bf{representante} o \bf{líder} (en inglés de la literatura "leader")). Este representante se selecciona en cada conjunto de la estructura de datos (y puede variar con el transcurso del tiempo, es decir, después de las llamadas a ${\rm union\_sets}()$).
+
+Por ejemplo, si la llamada ${\rm find\_set}()$ para cualquier de los dos elementos devolvió el mismo valor, esto significa que estos elementos se encuentran en el mismo conjunto, y en el caso contrario --- en diferentes conjuntos.
+
+}
+
+A continuación se describe la estructura de datos que permite hacer cada una de esas operaciones por casi $O(1)$ en promedio (para más detalles sobre la asíntota de la función, consulte el siguiente después de la descripción del algoritmo).
+
+También en una de las subclaves artículo se describe la alternativa de la aplicación de la DSU, que permite lograr un асимптотики $O(\log n)$ en promedio, una consulta si $m \ge n$; si $m >> n$ (es decir, $m$ considerablemente más de $n$) --- y en absoluto tiempo $O(1)$ de media en la consulta (véase "Almacenamiento de DSU en forma explícita la lista de conjuntos").
+
+
+
+
+\h2{ la Construcción de una estructura eficaz de datos }
+
+Se determina, primero, en qué forma vamos a almacenar toda la información.
+
+La multitud de elementos que vamos a almacenar en forma de \bf{árboles}: un árbol corresponde a un conjunto. La raíz de un árbol --- es el representante (líder) de la multitud.
+
+Al implementar esto significa que nosotros tenemos la matriz ${\rm parent}$, en el que para cada elemento de almacenamos una referencia a su antecesor en el árbol. Para las raíces de los árboles vamos a considerar que su antecesor --- ellos mismos (es decir, la referencia a fijarse en este lugar).
+
+
+
+\h3{ Ingenuo implementación }
+
+Ya podemos escribir la primera implementación de un sistema de conjuntos disjuntos. Ella estará bastante ineficaz, pero luego mejoraremos con el uso de dos técnicas, obteniendo como resultado, casi constante el tiempo de trabajo.
+
+Así, toda la información acerca de conjuntos de elementos se almacena con nosotros utilizando la matriz de ${\rm parent}$.
+
+Para crear un nuevo elemento (operación de ${\rm make\_set}(v)$), simplemente creamos un árbol con raíz en la cima de $v$, señalando que su antecesor --- es ella misma.
+
+Para combinar dos conjuntos (operación de ${\rm union\_sets}(a,b)$), lo primero que encontraremos los líderes de la multitud, en la que se encuentra el $a$, y la multitud, en la que se encuentra $b$. Si los líderes coincidieron, es no hacer nada --- esto significa que muchos ya se han fusionado. En caso contrario, sólo se puede especificar que el antepasado de la cima de $b$ es $a$ (o viceversa) --- lo que si un árbol a otro.
+
+Por último, la implementación de la operación de búsqueda de un líder (${\rm find\_set}(v)$ es simple: subimos por los antepasados de los picos de $v$, hasta que no lleguemos a la raíz, es decir, hasta la referencia a un antepasado no lleva en sí mismo. Esta operación es más conveniente realizar de forma recursiva (especialmente será útil más adelante, en relación con el añadidas optimizaciones).
+
+\code
+void make_set (int v) {
+parent[v] = v;
+}
+
+int find_set (int v) {
+if (v == parent[v])
+return v;
+return find_set (parent[v]);
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b)
+parent[b] = a;
+}
+\endcode
+
+Sin embargo, esta implementación de un sistema de conjuntos disjuntos muy \bf{no}. Fácil de construir ejemplo, cuando después de varias combinaciones de conjuntos resultar situación, que muchos --- es un árbol, выродившееся en una larga cadena. Como resultado de cada llamada ${\rm find\_set}()$ funcionará en esta prueba por el tiempo de la orden de la profundidad de la madera, es decir, $O(n)$.
+
+Es muy lejos de la асимптотики que íbamos a obtener (constante de tiempo de trabajo). Por lo tanto, examinaremos dos de optimización que permitan (incluso aplicados por separado) acelerar el trabajo.
+
+
+
+\h3{ Heurística de compresión de la ruta }
+
+Esta heurística se ha diseñado para acelerar el trabajo de ${\rm find\_set}()$.
+
+Ella consiste en que, cuando, después de la llamada ${\rm find\_set}(v)$ encontraremos la búsqueda de un líder de $p$ de la multitud, recordemos que cerca de la cima de $v$ y todos los recorridos de la ruta de los vértices --- este es el líder de $p$. Esto es más fácil de hacer, перенаправив de su ${\rm parent}[]$ en esta cima de $p$.
+
+Por lo tanto, la matriz de los antepasados de ${\rm parent}[]$ el significado varía un poco: ahora es \bf{comprimido matriz antepasados}, es decir, para cada vértice allí puede almacenarse directo antecesor, antepasado antecesor, antepasado de un antepasado de un antepasado, etc.
+
+Por otra parte, es evidente que no se puede hacer, para que estos punteros ${\rm parent}$ señalen siempre al líder de otra manera, al realizar una operación de ${\rm union\_sets}()$ tendría que actualizar los líderes de el $O(n)$ de los elementos.
+
+Por lo tanto, a la matriz ${\rm parent}[]$ debe ser exactamente igual a la matriz de los antepasados, tal vez, en parte comprimido.
+
+La nueva implementación de la operación de ${\rm find\_set}()$ es la siguiente:
+
+\code
+int find_set (int v) {
+if (v == parent[v])
+return v;
+return parent[v] = find_set (parent[v]);
+}
+\endcode
+
+Esta sencilla aplicación hace todo lo que debe ser: primero, mediante llamadas recursivas se encuentra el líder de la multitud, y luego, en el proceso de promoción de la pila, este líder se asigna a los enlaces de ${\rm parent}$ para todos los recorridos de los elementos.
+
+Realizar esta operación se puede y de forma no recursiva, pero entonces tendrá que realizar dos pasadas por el árbol: primero que encuentra el que busca un líder, la segunda --- le ofrecerá a todos los vértices de la ruta. Sin embargo, en la práctica, нерекурсивная implementación no da premio esencial.
+
+
+\h4{ Evaluación de la асимптотики al aplicar la heurística de compresión de la ruta }
+
+Vamos a demostrar que la aplicación de una heurística de compresión de la ruta \bf{permite alcanzar logarítmica асимптотику}: $O(\log n)$ en una sola solicitud, en promedio.
+
+Tenga en cuenta que, dado que la operación de ${\rm union\_sets}()$ es de dos invocación de la operación ${\rm find\_set}()$ y $O(1)$ de operaciones, podemos centrarnos en la evidencia sólo en la evaluación del tiempo de trabajo $O(m)$ de operaciones de ${\rm find\_set}()$.
+
+Llamaremos \bf{peso} $w[v]$ la cima de $v$ el número de los descendientes de esta cima (incluida la propia). El peso de los vértices, obviamente, pueden aumentar en el proceso de trabajo del algoritmo.
+
+Llamaremos \bf{la escala de la aleta} $(a,b)$ la diferencia de los pesos de los extremos de este costillas: $|w[a] - w[b]|$ (obviamente, en la punta de la antecesor, el peso es siempre más cerca de la cima de secundaria). Se puede observar que el alcance de cualquier fijo de la aleta $(a,b)$ sólo se puede incrementar en el proceso de trabajo del algoritmo.
+
+Además, nos rompen las costillas a \bf{clases}: vamos a decir que el borde tiene una clase de $k$, si su alcance pertenece al segmento $[2^k; 2^{k+1}-1]$. Por tanto, la clase de la aleta --- este es el número de de $0 a$ a $\lceil \log n \rceil$.
+
+Introduzcamos ahora una cima de $x$ y vamos a ver cómo evoluciona el borde de su antecesor: primero, no existe (hasta la cima de $x$ es el líder) y, a continuación, se realiza el borde de $x$ en una especie de cima (cuando la multitud con la cima de $x$ se une a otro de la multitud), y, a continuación, puede cambiar la compresión de las vías en el proceso de llamadas de ${\rm find\_path}$. Claro que nos interesa a nosotros asíntotas sólo el último de los casos (cuando la compresión de las vías): todos los demás casos requieren $O(1)$ de tiempo de una consulta.
+
+Considere el trabajo de algún llamada operación ${\rm find\_set}$: se celebra en el árbol a lo largo de un \bf{camino}, borrando todas las aristas de este camino y redirigir su líder.
+
+Considere la posibilidad de este camino y \bf{excluiremos} el examen de la última arista de cada clase, es decir, no más de una arista de la clase $0, 1, \ldots \lceil \log n \rceil$). Así hemos eliminado $O(\log n)$ aristas de cada consulta.
+
+Examinaremos ahora todo \bf{el resto} costillas de este camino. Para cada una de las costillas, si es de clase $k$, resulta que en este camino hay otra arista de la clase $k$ (de lo contrario, estaríamos obligados a excluir actual de la costilla, como único representante de la clase $k$). Por lo tanto, después de la compresión de la ruta de la arista por la arista de la clase, como mínimo, $k+1$. Teniendo en cuenta que disminuir el peso de las aletas no puede, obtenemos que para cada vértice, que se vio afectada por la consulta $\rm find\_path$, costilla, en su antecesor, o se han suprimido o estrictamente aumentado su clase.
+
+De ahí que permanentemente recibimos асимптотику de trabajo $m$ consulta: $O((n+m) \log n)$ que $m \ge n$) significa logarítmica tiempo de trabajo en una sola solicitud, en promedio.
+
+
+
+\h3{ Heurística de la combinación de rango }
+
+Aquí otra heurística, que de por sí es capaz de acelerar el tiempo de funcionamiento del algoritmo, y en combinación con la heurística de compresión de las vías y en absoluto es capaz de alcanzar casi константного tiempo de trabajo en una sola solicitud, en promedio.
+
+Esta heurística es un pequeño cambio de ${\rm union\_sets}$: si ingenua de la implementación, ¿ un árbol se asignará a qué se define por casualidad, ahora vamos a hacer en base a \bf{grados}.
+
+Hay dos opciones ранговой heurística: una opción en la jerarquía de árbol se llama \bf{número de vértices} en él, en el otro --- \bf{profundidad del árbol} (más precisamente, el límite superior de la profundidad del árbol, ya que si la participación en la aplicación de la heurística de la compresión de las vías de la verdadera profundidad del árbol puede disminuir).
+
+En ambos casos, la esencia de la heurística es el mismo: al ejecutar $\rm union\_sets$ vamos a juntar un árbol con una clasificación inferior a un árbol con un gran rango.
+
+Presentamos la aplicación de \bf{ранговой la heurística según el tamaño de los árboles}:
+
+\code
+void make_set (int v) {
+parent[v] = v;
+size[v] = 1;
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (size[a] < size[b])
+swap (a, b);
+parent[b] = a;
+size[a] += size[b];
+}
+}
+\endcode
+
+Presentamos la aplicación de \bf{ранговой la heurística basada en la profundidad de los árboles}:
+
+\code
+void make_set (int v) {
+parent[v] = v;
+rank[v] = 0;
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = a;
+if (rank[a] == rango[a b])
+++rank[a];
+}
+}
+\endcode
+
+Ambos ранговой la heurística son equivalentes desde el punto de vista de la асимптотики, por lo que en la práctica se puede aplicar cualquiera de ellos.
+
+
+\h4{ Evaluación de la асимптотики al aplicar ранговой la heurística }
+
+Mostraremos que asíntotas de funcionamiento de un sistema de conjuntos disjuntos cuando se utiliza sólo ранговой la heurística, sin heurística de compresión de las vías, se \bf{una} en una sola solicitud, en promedio: $O (\log n)$.
+
+Aquí mostramos que en cualquiera de las dos opciones ранговой la heurística, la profundidad de cada árbol será el valor $O (\log n)$, lo que automáticamente va a significar logarítmica асимптотику para la consulta $\rm find\_set$, y, por lo tanto, la consulta $\rm union\_sets$.
+
+Veamos \bf{ранговую la heurística de la profundidad del árbol}. Mostraremos que si el grado de un árbol es igual a $k$, es un árbol que contiene, como mínimo, de $2^k$ vértices (de ahí seguirá automáticamente, que el grado, y, por tanto, la profundidad del árbol, es la cantidad de $O(\log n)$). Vamos a demostrar por inducción: para $k=0$ es obvio. Cuando la compresión de las vías de profundidad sólo puede disminuir. Clasificación de la madera aumenta con $k-1$ hasta $k$, cuando a él se une el árbol del grado de la $k-1$; mediante la aplicación de estos dos árboles de tamaño de la $k-1$ suposición de inducción, tenemos que el nuevo árbol rango de $k$, efectivamente, va a tener como mínimo $2^k$ vértices que se quería demostrar.
+
+Veamos ahora \bf{ранговую la heurística de las dimensiones de los árboles}. Mostraremos que si el tamaño del árbol es de $k$, entonces su altura de no más de $\lfloor \log k \rfloor$. Vamos a demostrar por inducción: para $k=1$ afirmación es verdadera. Cuando la compresión de las vías de profundidad sólo puede disminuir, por lo tanto, la compresión de las vías no haya cometido. Que ahora se unen dos árboles de tamaños de $k_1$ y $k_2$; entonces, por la suposición de inducción de su altura es menor o iguales, respectivamente, $\lfloor \log k_1 \rfloor$ y $\lfloor \log k_2 \rfloor$. Sin perder generalidad, creemos que el primer árbol --- más ($k_1 \ge k_2$), por lo tanto, después de la unificación de la profundidad de la resultante de un árbol de $k_1+k_2$ vértices será igual a:
+
+$$ h = \max ( \lfloor \log k_1 \rfloor, 1 + \lfloor \log k_2 \rfloor ). $$
+
+Para completar la prueba, es necesario mostrar que:
+
+$$ h ~ \stackrel{?}{\le} ~ \lfloor \log (k_1+k_2) \rfloor, $$
+$$ 2^h = \max ( 2 ^ {\lfloor \log k_1 \rfloor}, 2 ^ {\lfloor \log 2 k_2 \rfloor} ) ~ \stackrel{?}{\le} ~ 2 ^ {\lfloor \log (k_1+k_2) \rfloor}, $$
+
+que es casi evidente de la desigualdad, ya que $k_1 \le k_1+k_2$ y $2 k_2 \le k_1+k_2$.
+
+
+
+\h3{ Fusionar heurística: la compresión de la ruta más ранговая heurística }
+
+Como se mencionó anteriormente, la aplicación conjunta de estos heurística da especialmente el mejor resultado, finalmente alcanzando casi константного tiempo de trabajo.
+
+No vamos a dar aquí la prueba de асимптотики, ya que es el espacio (véase, por ejemplo, Кормен, Лейзерсон, Ривест, stein "Algoritmos. Diseño y análisis"). La primera vez que esta prueba se realizó Тарьяном (1975).
+
+El resultado final es el siguiente: la participación en la aplicación de la heurística de la compresión de la ruta y de la combinación de rango tiempo de trabajo en una consulta resulta $O (\alpha(n))$, en promedio, donde $\alpha(n)$ --- \bf{la función inversa akkermana}, que crece muy lentamente, tan lentamente que para todos los límites razonables $n$ \bf{no supera el 4} (aproximadamente $n \le 10^{600}$).
+
+Es por eso que sobre асимптотику de funcionamiento de un sistema de conjuntos disjuntos apropiado hablar de "casi constante el tiempo de trabajo".
+
+Aquí \bf{final de la implementación de un sistema de conjuntos disjuntos}, hace ambas heurística (se utiliza ранговая heurística sobre la profundidad de los árboles):
+
+\code
+void make_set (int v) {
+parent[v] = v;
+rank[v] = 0;
+}
+
+int find_set (int v) {
+if (v == parent[v])
+return v;
+return parent[v] = find_set (parent[v]);
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = a;
+if (rank[a] == rango[a b])
+++rank[a];
+}
+}
+\endcode
+
+
+
+
+\h2{ Aplicación de las tareas y mejoras varias }
+
+En esta sección examinaremos algunos de los usos de la estructura de datos "sistema de conjuntos disjuntos", como triviales, y utilizan algunas de las mejoras de la estructura de datos.
+
+
+
+\h3{ Soporte para el componente de conectividad de grafo }
+
+Este es uno de los evidentes aplicaciones de la estructura de datos "sistema de conjuntos disjuntos", que, al parecer, y estimuló el estudio de esta estructura.
+
+\bf{Formalmente} tarea se puede formular así: en un principio se dan en blanco conde, poco a poco en este gráfico se pueden agregar a la cima y неориентированные costado, y también se reciben solicitudes de $(a,b)$ --- "en las mismas si los componentes de conectividad se encuentran la cima de $a$ y $b$?".
+
+Directamente aplicando la aquí descrita la estructura de los datos, obtenemos la solución que procesa una solicitud de la cima/de la aleta o de la solicitud de verificación de dos vértices --- por casi constante en promedio.
+
+Teniendo en cuenta que en casi exactamente la misma tarea se someterá al uso \algohref=mst_kruskal{\bf{el algoritmo de kruskal-permanencia mínima de árbol de extensión}}, inmediatamente recibimos \algohref=mst_kruskal_with_dsu{una versión mejorada de este algoritmo}, se comporta prácticamente de la noche era el momento lineal.
+
+A veces, en la práctica, hay \bf{invertida versión de esta tarea}: inicialmente hay un gráfico con los vértices y de las costillas, y solicita la eliminación de las costillas. Si la tarea se presenta en el offline, es decir, nos podemos saber de antemano todas las solicitudes, haciéndolo de la siguiente manera: dar vuelta la tarea al revés: vamos a suponer que tenemos un vacío conde, en la que se pueden añadir las costillas (primero añadimos el borde de la última consulta y, a continuación, la penúltima, y así sucesivamente). Por tanto, el resultado de invertir esta tarea, hemos llegado a la rutina de la tarea, la solución que se ha descrito anteriormente.
+
+
+
+\h3{ Buscar el componente de conectividad en la imagen }
+
+Uno de los que yacen en la superficie de los usos de la DSU es la solución de la siguiente tarea: hay una imagen $n \times m$ píxeles. Inicialmente, toda la imagen en blanco y negro, pero, a continuación, dibuje en ella varios de los píxeles negros. Es necesario determinar el tamaño de cada "blanca" de los componentes de la conectividad en la imagen final.
+
+Para resolver simplemente nos перебираем todas las células blancas de la imagen, para cada una de las células перебираем de sus cuatro vecinos, y si el vecino también blanco --- lo llamamos ${\rm union\_sets}()$ de estos dos vértices. Por lo tanto, tendremos DSU con $nm$ vértices correspondientes de píxeles de la imagen. Los finalmente árboles DSU --- y hay los componentes de la conectividad.
+
+Esta tarea se puede resolver fácilmente con el uso de \algohref=dfs{rastreo en profundidad} (o \algohref=bfs{rastreo de ancho}), sin embargo, el que aquí se describe el método tiene una ventaja: se puede manejar una matriz fila por fila (en términos sólo con la fila actual, de la línea anterior y el sistema de conjuntos disjuntos, construida para los elementos de una fila), es decir, usando el orden de $O(\min (n, m))$ de memoria.
+
+
+
+\h3{ Soporte de información adicional para cada uno de los conjuntos }
+
+"El sistema de conjuntos disjuntos" permite que sea fácil de almacenar cualquier información adicional referida a conjuntos.
+
+Un ejemplo simple es-es \bf{tamaños de conjuntos}: almacenamiento, se describe en la descripción de ранговой la heurística (la información allí se registró para el actual líder de la multitud).
+
+Así, junto con el líder de cada uno de los conjuntos puede almacenar cualquier adicional a la requerida en una tarea específica de la información.
+
+
+
+\h3{ Aplicación de la DSU para la compresión de "saltos" de un segmento. La tarea de la pintura подотрезков en línea }
+
+Uno de los usos más comunes de DSU es que si hay un conjunto de elementos y de cada elemento que entra por una arista, podemos rápidamente (casi constante de tiempo) encontrar el punto final, en la que iremos, si vamos a seguir a lo largo de las costillas de la especificada en el punto inicial.
+
+Un buen ejemplo de este uso es \bf{tarea de pintura подотрезков}: corto longitud de $L$, cada célula (es decir, cada trozo de longitud $1$) tiene un cero de color. Se recibe la solicitud de la vista $(l,r,c)$ --- colorear trozo $[l;r]$ color $c$. Es necesario encontrar el color final de cada célula. Las solicitudes se consideran conocidas de antemano, es decir, la tarea --- fuera de línea.
+
+Para resolver podemos hacer la DSU-estructura, que para cada una de las células mantendrá el vínculo más cercano a la derecha непокрашенную la jaula. Por lo tanto, inicialmente, cada célula indica en mí misma, y después de la pintura de la primera подотрезка --- la célula antes de comenzar подотрезка se apunta a la jaula después de la final de подотрезка.
+
+Ahora, para resolver la tarea, consideramos que las solicitudes de volver a pintar \bf{en orden inverso}: desde el último al primero. Para realizar la consulta, simplemente estamos cada vez más con la ayuda de nuestro DSU encontramos a la izquierda непокрашенную la jaula dentro de la corte, перекрашиваем, y перебрасываем índice de la misma en la siguiente a la derecha una casilla vacía.
+
+Por lo tanto, estamos aquí en realidad usamos DSU con la heurística de compresión de las vías, pero sin ранговой la heurística (porque nos importa quién sea el líder después de la unificación). Por lo tanto, el total asíntotas $O(\log n)$ en la consulta (sin embargo, con la pequeña en comparación con otras estructuras de datos de una constante).
+
+La implementación de:
+
+\code
+void init() {
+for (int i=0; i<L; ++i)
+make_set (i);
+}
+
+void process_query (int l, int r, int c) {
+for (int v=l; ; ) {
+v = find_set (v);
+if (v >= r); break;
+answer[v] = c;
+parent[v] = v+1;
+}
+}
+\endcode
+
+Sin embargo, se puede implementar esta solución \bf{con ранговой heurística}: vamos a almacenar para cada uno de los conjuntos de alguna matriz ${\rm end}[]$, donde es el conjunto de termina (es decir, la derecha de un punto). Entonces será posible combinar dos conjuntos en uno de sus ранговой эвристике, проставляя luego получившемуся la multitud de nuevo el borde derecho. Así obtenemos la solución a $O(\alpha(n))$.
+
+
+
+\h3{ el Apoyo de distancia del líder }
+
+A veces, en las aplicaciones, el sistema de conjuntos disjuntos aparece el requisito de mantener la distancia al líder (es decir, la longitud del camino recorrido en las costillas en el árbol de la cima hasta la raíz del árbol).
+
+Si no hubiera heurística de compresión de vías ningún problema sería que no hubiese distancia hasta la raíz sólo se traduciría en el número de llamadas recursivas que hizo la función $\rm find\_set$.
+
+Sin embargo, como resultado de la compresión de las vías de varias costillas camino puedan aplastará en un borde. Por lo tanto, con cada vértice tiene que almacenar información adicional: \bf{longitud actual de la aleta de la cima de un antepasado}.
+
+Cuando la aplicación conveniente de representar lo que la matriz ${\rm parent}[]$ y la función $\rm find\_set$ devuelven ahora no solo un número, y un par de números: la cima del liderazgo y la distancia hasta ella:
+
+\code
+void make_set (int v) {
+parent[v] = make_pair (v, 0);
+rank[v] = 0;
+}
+
+pair<int,int> find_set (int v) {
+if (v != parent[v].first) {
+int len = parent[v].second;
+parent[v] = find_set (parent[v].first);
+parent[v].second += len;
+}
+return parent[v];
+}
+
+void union_sets (int a, int b) {
+a = find_set (a) .first;
+b = find_set (b) .first;
+if (a != b) {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = make_pair (a, 1);
+if (rank[a] == rango[a b])
+++rank[a];
+}
+}
+\endcode
+
+
+
+\h3{ el Apoyo de paridad longitud de ruta de acceso y el problema de la verificación de двудольности conde en línea }
+
+Por analogía con la longitud de la ruta a un líder, de la misma manera se puede mantener la paridad longitud de ruta de acceso hasta él. ¿Por qué esta aplicación se ha destinado en un párrafo?
+
+El hecho de que, normalmente, el requisito de almacenamiento de paridad de la ruta aparece en relación con la siguiente \bf{tarea}: en un principio se dan en blanco conde, en él se pueden agregar las costillas, así como hacer consultas del tipo "¿es el componente de conectividad, contiene la cima, \bf{двудольной}?".
+
+Para esta tarea podemos hacer la sesión de conjuntos disjuntos para almacenar el componente de conectividad, y almacenar cada vértice de la paridad de la longitud de la ruta a su líder. Por tanto, podemos comprobar rápidamente, ¿podría agregar especificado costillas a la violación de los двудольности conde o no: es decir, si los extremos de las costillas se encuentran en la misma componente de conectividad, y tienen la misma paridad longitud de ruta de acceso a un líder, entonces la adición de este costillas generando un ciclo de longitud impar y a transformar los actuales componentes en недвудольную.
+
+Inicio \bf{complejidad}, con la que nos encontramos al este, --- esto es lo que debemos cuidadosamente, teniendo en cuenta четностей, para producir la unión de los dos árboles en la función $\rm union\_sets$.
+
+Si añadimos la costilla $(a,b)$ vincula dos componentes de la conectividad en una, con la adhesión de un árbol a otro, debemos especificar con ella esa paridad, para que en consecuencia de los picos de $a$ y $b$ resultaban distintas de paridad longitud de ruta de acceso.
+
+Sacaremos \bf{fórmula}, por lo que debe obtenerse esta paridad, la líder de un conjunto de la adhesión al líder de otro conjunto. Se denota por $x$ paridad longitud de camino de la cima de $a$ a de un líder en su conjunto, a través de la $y$ --- paridad longitud de camino de la cima de $b a$ a líder en su conjunto, y a través de $t$ --- busca la paridad, tenemos que poner присоединяемому líder. Si el conjunto de la cima de la $a$ se une a la multitud con el vértice $b$, convirtiéndose en поддеревом, después de la adhesión de cerca de la cima de $b$ la paridad no cambiará y seguirá siendo igual a $y$, y cerca de la cima de $a$ la paridad será igual a $x \oplus t$ un $\oplus$ aquí está indicada la operación XOR (симметрическая diferencia)). Necesitamos que estos dos paridad diferentes, es decir, su XOR es igual a la unidad. Es decir, obtenemos la ecuación en $t$:
+
+$$ x \oplus t \oplus y = 1, $$
+
+decidiendo que encontramos:
+
+$$ t = x \oplus y \oplus 1. $$
+
+Por lo tanto, independientemente de que la multitud se une a qué, es necesario utilizar la fórmula para establecer la paridad de la aleta, realizada de un líder a otro.
+
+Llevaremos \bf{aplicación} DSU con el apoyo de четностей. Como en el párrafo anterior, para facilitar la utilizamos de la pareja para el almacenamiento de los antepasados y el resultado de la operación $\rm find\_set$. Además, para cada uno de los conjuntos guardamos en el array ${\rm bipartite}[]$, si es todavía двудольным o no.
+
+\code
+void make_set (int v) {
+parent[v] = make_pair (v, 0);
+rank[v] = 0;
+bipartite[v] = true;
+}
+
+pair<int,int> find_set (int v) {
+if (v != parent[v].first) {
+int edad = parent[v].second;
+parent[v] = find_set (parent[v].first);
+parent[v].second ^= paridad;
+}
+return parent[v];
+}
+
+void add_edge (int a, int b) {
+pair<int,int> pa = find_set (a);
+a = pa.first;
+int x = pa.second;
+
+pair<int,int> pb = find_set (b);
+b = pb.first;
+int y = pb.second;
+
+if (a == b) {
+if (x == y)
+bipartite[a] = false;
+}
+else {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = make_pair (a, x ^ y ^ 1);
+bipartite[a] &= bipartite[b];
+if (rank[a] == rango[a b])
+++rank[a];
+}
+}
+
+bool is_bipartite (int v) {
+return bipartite[ find_set(v) .first ];
+}
+\endcode
+
+
+
+\h3{ el Algoritmo de encontrar RMQ (al menos en el tramo de la) a $O(\alpha(n))$, en promedio, en línea }
+
+\bf{Formalmente} la tarea se plantea de la siguiente manera: es necesario implementar una estructura de datos que soporta dos tipos de consultas: la adición de un número especificado de ${\rm insert}(i)$ ($i = 1, \ldots, n$) y la búsqueda y extracción de la actual número mínimo de ${\rm extract\_min}()$. Vamos a suponer que cada número se agrega exactamente una vez.
+
+Además, creemos que toda la secuencia de consultas nos es conocido de antemano, es decir, la tarea --- fuera de línea.
+
+\bf{la Idea de la decisión} la siguiente. En vez de cola de responder a cada solicitud, переберем número $i = 1, \ldots, n$, y determinar la respuesta a cualquier consulta de este número debe ser. Para ello, debemos encontrar la primera no respondida la solicitud, el que viene después de la adición de ${\rm insert}(i)$ de este número --- fácil de entender, que es la consulta, la respuesta a que es el número de $i$.
+
+Por lo tanto, aquí es una idea parecida a \bf{la tarea de pintar los trozos}.
+
+Se puede obtener una solución a $O(\log n)$, en promedio, en la consulta, si nos negamos a ранговой la heurística y sólo tendremos que almacenar en cada elemento de referencia más cercano a la derecha de la consulta ${\rm extract\_min}()$, y el uso de la compresión de la ruta para el mantenimiento de estos vínculos después de asociaciones.
+
+También puede obtener una decisión y por el $O(\alpha(n))$, si vamos a utilizar ранговую heurística y vamos a almacenar en cada una multitud de número de la posición en donde se termina (lo que en la versión anterior de la decisión se logró de forma automática en la cuenta de lo que las referencias siempre iban solamente a la derecha --- ahora será necesario almacenar de forma explícita).
+
+
+
+\h3{ el Algoritmo de encontrar LCA (menor ancestro común en el árbol) a $O(\alpha(n))$, en promedio, en línea }
+
+El algoritmo de Тарьяна encontrar LCA $O(1)$, en promedio, en el modo online se describe en el \algohref=lca_linear_offline{artículo correspondiente de la}. Este algoritmo se compara favorablemente con otros algoritmos de búsqueda de la LCA, en su sencillez (especialmente en comparación con \algohref=lca_linear{mejor algoritmo de Farah-colton-bender}).
+
+
+
+\h3{ Almacenamiento DSU en forma de lista explícita de los conjuntos. La aplicación de esta idea de la fusión de diversas estructuras de datos }
+
+Uno de los métodos alternativos de almacenamiento de DSU es la conservación de cada uno de los conjuntos en forma de \bf{explícitamente se almacena la lista de sus elementos}. Adems, cada elemento se guarda también un enlace a un representante (líder, en su conjunto.
+
+A primera vista parece que es ineficaz de la estructura de datos: cuando se combinan dos conjuntos tendremos que agregar una lista al final de otro, así como actualizar el líder de todos los elementos de una de las dos listas.
+
+Sin embargo, como resulta, el uso de \bf{ponderación de la heurística}, similar a la descrita anteriormente, permite reducir considerablemente el асимптотику de trabajo: hasta $O(m + n \n log n)$ para la ejecución $m$ consultas sobre $n$ elementos.
+
+Bajo la ponderación de la heurística se supone que estamos siempre \bf{vamos a añadir el menor de los dos conjuntos más}. La adición de ${\rm union\_sets}()$ de un conjunto en otro fácil de implementar por el tiempo de la orden del tamaño de la fusión de la multitud, y la búsqueda de un líder de ${\rm find\_set}()$ --- por hora $O(1)$ de esta forma de almacenamiento.
+
+Demostremos \bf{асимптотику} $O(m + n \n log n)$ para la ejecución $m$ consultas. Introduzcamos arbitrario elemento $x,$ y, continuemos, como en él comenzaron a influir en la operación de combinación de ${\rm union\_sets}$. Cuando el elemento $x$ influidos por primera vez, podemos afirmar que el tamaño de su nuevo conjunto será como mínimo de $2$. Cuando $x$ influidos por segunda vez --- se puede afirmar que se mete en un montón de tamaño no inferior a $4$ (ya que agregamos menos muchos más). Y así sucesivamente --- obtenemos que en el elemento $x$ podría afectar un máximo de $\lceil \log n \rceil$ de las operaciones de combinación. Por lo tanto, en la suma de todos los vértices, esto equivale a $O (n \log n)$, + a $O(1)$ de cada solicitud --- que se quería demostrar.
+
+Por ejemplo, \bf{aplicación}:
+
+\code
+vector<int> lst[MAXN];
+int parent[MAXN];
+
+void make_set (int v) {
+lst[v] = vector<int> (1, v);
+parent[v] = v;
+}
+
+int find_set (int v) {
+return parent[v];
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (lst[a].size() < lst[b].size())
+swap (a, b);
+while (!lst[b].empty()) {
+int v = lst[b].back();
+lst[b].pop_back();
+parent[v] = a;
+lst[a].push_back (v);
+}
+}
+}
+\endcode
+
+También esta idea de agregar elementos más pequeños de los conjuntos más puede utilizar y fuera de la DSU, al ocuparse de otras tareas.
+
+Por ejemplo, considere el siguiente \bf{tarea}: dado un árbol, cada hoja que se atribuye a algún número (el mismo número puede aparecer varias veces diferentes de las hojas). Se requiere para cada una de las copas de los árboles saber la cantidad de números diferentes en su subárbol.
+
+Aplicando en esta tarea, esta misma idea, se puede obtener el tipo de solución: пустим \algohref=dfs{rastreo en profundidad} por el árbol, que puede devolver un puntero a ${\rm set}$ de números - - - - - lista de todos los números en el subárbol de esta cima. Entonces, para obtener una respuesta actual a la cima (si, por supuesto, ella no hoja) --- hay que llamar a un rastreo en profundidad de todos los niños de esta cima, y unir a todos los ${\rm set}$ en uno, cuyo tamaño y es la respuesta actual a la cima. Para la eficacia de la combinación de varias de ${\rm set}$ en uno apenas se aplica descrito anteriormente recepción: vamos a combinar dos conjuntos, simplemente añadiendo de uno en uno los elementos de menor a las de muchos más. Finalmente obtenemos la solución a $O (n \log^2 n)$, ya que la adición de un elemento de ${\rm set}$ se $O (\log n)$.
+
+
+
+\h3{ Almacenamiento DSU con la conservación explícita de la estructura de los árboles. Переподвешивание. El algoritmo de búsqueda de puentes en el recuadro $O(\alpha(n))$, en promedio, en línea }
+
+Una de las grandes aplicaciones de la estructura de datos del sistema de conjuntos disjuntos" es que permite almacenar simultáneamente \bf{como comprimida, y no comprimida diferente estructura de los árboles}. Una estructura puede utilizarse para una rápida combinación de los árboles y de la pertenencia de los dos vértices de un árbol, y несжатая --- por ejemplo, para buscar un camino entre dos vértices designados o la de otros rastreos de la estructura de árbol.
+
+Al implementar esto significa que, además de la habitual para DSU la matriz de comprimidos de los antepasados de ${\rm parent}[]$ nos podamos establecer una matriz normales, sin comprimir, de los antepasados de ${\rm real\_parent}[]$. Está claro que el mantenimiento de dicha matriz no afecta a la асимптотику: cambios sólo se producen cuando se combinan dos árboles, y sólo en un elemento único.
+
+Por otro lado, cuando se aplica en la práctica, a menudo es necesario aprender a unir dos árboles especificado el borde, no necesariamente salen de sus raíces. Esto significa que no tenemos otra alternativa que la de \bf{переподвесить} uno de los árboles de concreto cima, a fin de que podamos asociar este árbol a otro, haciendo que la raíz de este árbol secundario de la cima a la segunda final de la fusión de la aleta.
+
+A primera vista, parece que la operación de переподвешивания --- es muy costosa y muy acentuado асимптотику. De hecho, para переподвешивания árbol de la cima de la $v$ tenemos que caminar desde la cima hasta la raíz del árbol, renovando en todas partes punteros ${\rm parent}[]$ y ${\rm real\_parent}[]$.
+
+Sin embargo, en la realidad no todo es tan malo: simplemente переподвешивать de dos árboles, que es menor para obtener асимпотику de una unión, que es igual a $O (\log n)$ en promedio.
+
+Más detalles (incluyendo la prueba de асимптотики), consulte \algohref=bridge_searching_online{el algoritmo de búsqueda de puentes en el recuadro $O(\log n)$, en promedio, en línea}.
+
+
+
+
+\h2{ Histórica retrospectiva }
+
+La estructura de datos "sistema de conjuntos disjuntos" era conocida relativamente hace mucho.
+
+El método de almacenamiento de esta estructura en forma de \bf{bosque de árboles} fue, al parecer, por primera vez se Галлером y fischer en el año 1964 (Galler, Fisher "An Improved Equivalence Algorithm"), sin embargo, un análisis completo de асимптотики se celebró mucho más tarde.
+
+\bf{Heurística} compresión de las vías y de la combinación de rango, al parecer, han desarrollado mcilroy (McIlroy) y morris (Morris), e independientemente de ellos, Триттер (Tritter).
+
+Algún tiempo era conocida sólo la evaluación de la $O(\log^* n)$ en una sola operación, en promedio, este Хопкрофтом y Ульманом en 1973 (Hopcroft, ullman que don "Set-merging algomthms") --- aquí $\log^* n$ --- \bf{итерированный logaritmo} (es de lento crecimiento de la función, pero no tan lento como la inversa de la función de akkermana).
+
+Por primera vez la evaluación de la $O (\alpha(n))$, donde $\alpha(n)$ --- \bf{la función inversa akkermana} --- consiguió Tarján en su artículo de 1975 (Tarjan "Efficiency of a Good But Not Linear Set Union Algorithm"). Más tarde, en 1985, él, junto con el Льювеном ha recibido la evaluación para varias rango heurística y métodos de compresión de la ruta (Tarjan, el sr. van leeuwen "Worst-Case Analysis of Set Union Algorithms").
+
+Por último, Фредман y sachs en 1989, han demostrado que en el modelo aceptado de cálculos \bf{cualquier} el algoritmo para el sistema de conjuntos disjuntos debe trabajar como mínimo $O(\alpha(n))$ en promedio (Fredman, Saks "The cell probe complexity of dynamic data structures").
+
+Sin embargo, también cabe señalar que hay varios artículos, \bf{cuestionan} la evaluación y afirman que el sistema de conjuntos disjuntos con эвристиками de compresión de la ruta y de la combinación de rango trabaja por $O(1)$ promedio: Zhang "The Union-Find Problem Is Lineal", Wu, el Otoo "A Simpler Proof of the Average Case Complexity of Union-Find with Path Compression".
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver mediante el sistema de conjuntos disjuntos:
+
+\ul{
+\li \href=http://acm.timus.es/problem.aspx?space=1&num=1671{TIMUS #1671 \bf{"tela de araña Ананси"} ~~~~ [dificultad: baja]}
+\li \href=http://codeforces.es/contest/25/problem/D{CODEFORCES 25D \bf{"Camino, no sólo en Берляндии"} ~~~~ [dificultad media]}
+\li \href=http://acm.timus.es/problem.aspx?space=1&num=1003{TIMUS #1003 \bf{"Paridad"} ~~~~ [dificultad media]}
+\li \href=http://www.spoj.pl/problemas/CADENA/{SPOJ #1442 \bf{"Chain"} ~~~~ [dificultad media]}
+}
+
+
+
+
+\h2{ Literatura }
+
+\ul{
+\li \book{thomas Кормен, charles Лейзерсон, ronald Ривест, clifford stein}{Algoritmos: diseño y análisis de}{2005}{cormen.djvu}
+\li \book{Kurt Mehlhorn, Peter Sanders}{Algorithms and Data Structures: The Basic Toolbox}{2008}{algorithms_toolbox_mehlhorn.pdf}
+\li \book{Robert Endre Tarjan}{Efficiency of a Good But Not Linear Set Union Algorithm}{1975}{dsu/Efficiency of a Good But Not Linear Set Union Algorithm. Tarjan.pdf}
+\li \book{Robert Endre Tarjan, Jan van leeuwen viernes}{Worst-Case Analysis of Set Union Algorithms}{1985}{dsu/Worst-Case Analysis of Set Union Algorithms. Tarjan, El Sr. Van Leeuwen.pdf}
+}

@@ -1,0 +1,302 @@
+\h1{ el Algoritmo de Диница }
+
+
+
+\h2{ el Planteamiento de la tarea }
+
+Que dada la red, es decir, orientado hacia el conde de $G$, en el que cada eje $(u,v)$ atribuida a la capacidad de ancho de banda $c_{uv}$, y también aparecen dos picos --- fuente $s$ y el $t$.
+
+Es necesario encontrar en esta red, el flujo de $f_{uv}$ de la fuente $s$ en el desagüe $t$ el valor máximo.
+
+
+
+\h2{ un Poco de historia }
+
+Este algoritmo fue publicado soviética (de israel) a los científicos efim \bf{Диницем} (Yefim Dinic, a veces escrito como "Dinitz") en 1970, es decir, incluso dos años antes de la publicación del algoritmo Эдмондса-la Carpa (sin embargo, ambos algoritmos se han independientemente abiertos en 1968).
+
+Además, cabe señalar que algunos de simplificar el algoritmo se efectuaron shimon Ивеном (Shimon \bf{Even}) y su discípulo Алоном Итаи (Alon \bf{Itai}) en 1979, gracias a ellos, el algoritmo ha recibido su aspecto moderno: se han aplicado a la idea de Диница el concepto de bloqueo de los flujos de alejandro Карзанова (Alexander Karzanov, 1974), así como переформулировали el algoritmo a la combinación de rastreo en el ancho y en profundidad, en la que ahora este algoritmo y se presenta en todas partes.
+
+El desarrollo de las ideas con respecto a la transmisión de los algoritmos es muy interesante considerar, teniendo en cuenta \bf{"cortina de hierro"} de aquellos años, había dividido la urss y occidente. Se puede observar como a veces ideas similares aparecieron casi al mismo tiempo (como en el caso del algoritmo de Диница y el algoritmo de Эдмондса-la Carpa), la verdad, teniendo la eficiencia diferente (algoritmo Диница en un orden de más rápido); a veces, por el contrario, la aparición de la idea a un lado de la "cortina" опережало similar a la carrera del otro lado de más de una década (como el algoritmo de Карзанова empujar, en 1974, y el algoritmo de goldberg (Goldberg) empujar en 1985).
+
+
+
+\h2{ las definiciones }
+
+Introduciremos tres necesaria la definición de cada una de ellas es independiente de las demás), que luego se utiliza en el algoritmo de Диница.
+
+\bf{Residual de la red $G^R$} con respecto a la red de $G$, y un cierto flujo de $f$ en ella se denomina una red en la que cada eje $(u,v) \in G$, con un rendimiento de $c_{uv}$ y el flujo de $f_{uv}$ se corresponden con los dos bordes:
+
+\ul{
+
+\li $(u,v)$ con un ancho de banda $c_{uv}^R = c_{uv} - f_{uv}$
+
+\li $(v,u)$ con un ancho de banda $c_{vu}^R = f_{uv}$
+
+}
+
+Vale la pena señalar que con esa definición en la red, pueden aparecer múltiples costillas: si la red es como el borde de $(u,v)$ y $(v,u)$.
+
+Residual de la costilla es posible de forma intuitiva de entender como una medida de cuánto más se puede aumentar el flujo a lo largo de un aletas. En realidad, si por una arista $(u,v)$ con un ancho de banda $c_{uv}$ fluye el flujo de $f_{uv}$, entonces potencialmente en él se puede perder $c_{uv}-f_{uv}$ unidades de caudal, y en el reverso se puede omitir hasta $f_{uv}$ unidades de flujo, lo que significaría la abolición de flujo inicial de dirección.
+
+\bf{Bloqueando el flujo} en esta red se llama este tipo de secuencia, que cualquier camino desde la fuente hasta $s$ en el desagüe $t$ contiene enriquecida de este flujo de arista. En otras palabras, en esta red no hay tal camino de la fuente al drenaje, a lo largo de la cual puede ser para aumentar el flujo.
+
+El bloqueo de flujo no necesariamente es el máximo. El teorema de ford-Фалкерсона dice que el flujo es mayor entonces, y sólo entonces, cuando en la red no hay $s-t$ camino; en el bloqueo de la misma el flujo de nada, no se afirma la existencia de la ruta por los bordes que aparecen en la red.
+
+\bf{Слоистая red} para esta red se construye de la siguiente manera. Primero se definen de la longitud de cortes cortos de la fuente $s$ a todos los demás vértices; llamaremos a un nivel de ${\rm level}[v]$ la cima de su distancia de la fuente. Entonces en una red incluyen todas las costillas $(u,v)$ de la red de origen, que conducen de un nivel a otro, el más reciente, el nivel, es decir, ${\rm level}[u] + 1 = {\rm level}[v]$ (¿por qué en este caso, la diferencia de las distancias no puede ser mayor que la unidad, se desprende de las propiedades de los más cortos de distancia). Por lo tanto, se eliminan todas las costillas, situado enteramente dentro de los niveles, así como las costillas, los principales atrás, a los anteriores niveles.
+
+Obviamente, слоистая red ациклична. Además, cualquier $s-t$ ruta en capas de la red es el camino más corto en la red de origen.
+
+Construir una red de esta red es muy fácil, para ello es necesario iniciar un rastreo en el ancho de los bordes de esta red, considerando por ende, para cada vértice valor de ${\rm level} []$ y, a continuación, realizar en una red con todos los bordes.
+
+Nota. El término "слоистая red", en el idioma ruso, la literatura no se usa; en general, este diseño se llama simplemente "subsidiario por el conde". Sin embargo, en inglés se utiliza generalmente el término "layered network".
+
+
+
+\h2{ el Algoritmo }
+
+
+\h3{ el Esquema del algoritmo }
+
+Un algoritmo es una serie de \bf{fases}. En cada fase se basa primero residual en la red y, a continuación, en relación a ella se construye слоистая de la red (la omisión de ancho), y en ella se busca arbitrario bloqueo del flujo. Encontrado el bloqueo de flujo se añade al subproceso actual, y en esta iteración termina.
+
+Este algoritmo es similar al algoritmo de Эдмондса-la Carpa, pero la principal diferencia se puede entender así: en cada iteración, el flujo no aumenta a lo largo de una distancia más corta $s-t$ camino, y a lo largo de todo el conjunto de tales vías (de hecho, las rutas de acceso y son las rutas de acceso de bloqueo en el flujo de capas de red).
+
+
+\h3{ Corrección del algoritmo }
+
+Mostraremos que si el algoritmo termina, en la salida de él se obtiene el flujo es el valor máximo.
+
+En realidad, se supone que en algún momento de capas de la red construida para el residual de la red, no se pudo encontrar el bloqueo del flujo. Esto significa que la escorrentía $t$ no es alcanzable en capas de red de la fuente $s$. Pero ya que слоистая la red contiene en sí todos los atajos de la fuente en la red, a su vez, esto significa que en la red no hay camino de la fuente en el desagüe. Por lo tanto, aplicando el teorema de ford-Фалкерсона, se obtiene que el flujo de corriente en realidad es el máximo.
+
+
+\h3{ Evaluación del número de fases }
+
+Vamos a demostrar que el algoritmo de Диница realiza siempre \bf{menos de $n$ fases}. Para ello, probaremos dos леммы:
+
+\bf{lemma 1}. La distancia más corta desde su nacimiento hasta cada vértice no disminuye con la aplicación de cada iteración, es decir,
+
+$$ {\rm level}_{i+1}[v] \ge {\rm level}_i[v] $$
+
+donde el subíndice indica el número de fases, ante la cual se tomaron los valores de estas variables.
+
+\bf{Prueba}. Introduzcamos una fase $i$ y arbitraria cima $v$ y considerar cualquier corto $s-v$ ruta $P$ en la red $G^R_{i+1}$ (recordemos, como se denomina residual de la red, tomada antes de realizar la $i+1$-fase). Obviamente, la longitud de la ruta $P$ es ${\rm level}_{i+1}[v]$.
+
+Tenga en cuenta que el valor residual de la red $G^R_{i+1}$ puede incluir sólo los bordes de $G^R$, así como las costillas, las devoluciones de los bordes de $G^R$ (esto se deduce de la definición residual de la red). Veamos dos casos:
+
+\ul{
+\li Ruta $P$ contiene sólo las costillas de $G^R$. Entonces, claro, la longitud de la ruta $P$ es mayor o igual que ${\rm level}_i[v]$ porque ${\rm level}_i[v]$ por definición --- longitud de la ruta más corta), que significa el cumplimiento de la desigualdad.
+\li Ruta $P$ contiene, como mínimo, una costilla, no figura en $G^R$ (pero el contrario es una arista de $G^R$). Veamos la primera costilla; que sea la arista $(u,w)$.
+
+$$ s \Longrightarrow u \rightarrow w \Longrightarrow v $$
+
+Podemos aplicar nuestra лемму a la cima de la $u$, porque es la que viene en el primer caso; y así, obtenemos la desigualdad de ${\rm level}_{i+1}[u] \ge {\rm level}_i[u]$.
+
+Ahora, tenga en cuenta que debido a que el borde de $(u,w)$ apareció en la red sólo después de la ejecución de $i$fase, se desprende que a lo largo de la aleta $(w,u)$ se omite algún tipo de flujo; por lo tanto, la arista $(w,u)$ pertenecía capas de la red antes de la $i$-primera fase, y por eso ${\rm level}_i[u] = {\rm level}_i[w] + 1$. Tenga en cuenta que por la propiedad de cortes cortos ${\rm level}_{i+1}[w] = {\rm level}_{i+1}[u] + 1$, e integrando esta igualdad con los dos anteriores неравенствами, obtenemos:
+
+$$ {\rm level}_{i+1}[w] \ge {\rm level}_i[w] + 2. $$
+
+Ahora podemos aplicar el mismo argumento a todo el restante de la ruta hasta $v$ (es decir, que cada invertir el borde agrega a $\rm level$ como mínimo dos), y finalmente obtenemos deseada de la desigualdad.
+
+}
+
+\bf{lemma 2}. La distancia entre fuente y drenaje estrictamente aumenta después de cada fase del algoritmo, es decir:
+
+$$ {\rm level}^\prime[t] > {\rm level}[t], $$
+
+donde el trazo marcado el valor obtenido en la siguiente fase del algoritmo.
+
+\bf{Prueba}: de lo contrario. Supongamos que, después de la ejecución de la fase actual resultó que $ {\rm level}^\prime[t] = {\rm level}[t] $. Tomemos el camino más corto desde su nacimiento en el desagüe; por supuesto, su longitud debe permanecer invariable. Sin embargo, el valor residual de la red en la siguiente fase contiene sólo las costillas residual de la red antes de realizar la fase actual, o de las devoluciones a él. Por lo tanto, han llegado a una contradicción: es hallado $s-t$ ruta, que no contiene grasas saturadas de las costillas, y tiene la misma longitud que el camino más corto. Esta ruta debe haber "bloqueado" sistema de bloqueo de flujo, lo que no ocurrió, en que consiste la contradicción en la que se quería demostrar.
+
+Este лемму de forma intuitiva se puede entender de la siguiente manera: $i$la fase algoritmo Диница identifica y alimenta a todas las $s-t$ camino de la longitud de la $i$.
+
+Debido a que la longitud de la ruta más corta de $s$ $t$ no puede exceder $n-1$, entonces, por lo tanto, el algoritmo de Диница comete \bf{no más de $n-1$ fases}.
+
+
+\h3{ la Búsqueda de un bloqueo del flujo }
+
+Para completar el algoritmo Диница, es necesario describir el algoritmo de encontrar el bloqueo de flujo en las capas de red --- un lugar clave del algoritmo.
+
+Vamos a ver las tres variantes posibles de la aplicación de búsqueda de bloqueo de flujo:
+
+\ul{
+
+\li Buscar $s-t$ camino de uno en uno, hasta que estas vías se encuentran. La ruta se puede encontrar por $O(m)$ desvío a la profundidad y a tales vías se $O(m)$ (ya que cada ruta saturadas, como mínimo, una arista). Total asíntotas de la búsqueda de un bloqueo del flujo de $O(m^2)$.
+
+\li Similar a la anterior idea, sin embargo, eliminar en el proceso de rastreo en profundidad de un grafo de todos los "sobrantes" de la costilla, es decir, las costillas, a lo largo de que no avanzas hasta la escorrentía.
+
+Esto es muy fácil de implementar: basta con eliminar la arista después de que, como hemos visto en el rastreo de profundidad (además del caso que hemos pasado a lo largo de las costillas y encontrado el camino hasta la escorrentía). Desde el punto de vista de la implementación, simplemente hay que mantener en la lista de adyacencia de cada vértice un puntero a la primera неудаленное el borde, y aumentar de este especificar en el ciclo dentro de la solución en profundidad.
+
+Ponemos асимптотику de esta decisión. Cada rastreo en profundidad termina la saturación, como mínimo, de una costilla (si este recorrido ha alcanzado la escorrentía), o por el avance que, como mínimo, un puntero (en caso contrario). Se puede entender que un arranque de rastreo en profundidad desde el programa principal funciona a $O (k + n)$, donde $k$ --- el número de los progresos de los punteros. Teniendo en cuenta que el total de lanzamientos de rastreo en profundidad en el marco de la búsqueda de un bloqueo del flujo de se $O (p)$, donde $p$ --- número de aristas, saturadas de este sistema de bloqueo de flujo, todo el algoritmo de búsqueda de un bloqueo del flujo de trabajo ha terminado por $O (p k + p n)$, lo que, teniendo en cuenta que todos los punteros en la suma completó la distancia en $O (m)$, da асимптотику $O (m + pn)$. En el peor de los casos, cuando se bloquea el flujo alimenta a todas las costillas, asíntotas se obtiene $O (n m)$; esta asíntotas y se utilizará el siguiente.
+
+Se puede decir que este método de encontrar un bloqueo del flujo es extremadamente eficaz en el sentido de que en la búsqueda de un aumento de la ruta, se lo gasta $O (n)$ operaciones en promedio. En eso radica la diferencia de un orden de magnitud rendimientos del algoritmo Диница y Эдмондса-la Carpa (que busca uno que aumenta la ruta por $O (m)$).
+
+Esta solución es todavía fácil de implementar, pero bastante efectivo, y por lo tanto más a menudo se aplica en la práctica.
+
+\li Puede aplicar especiales de la estructura de datos --- dinámicas de los árboles Слетора (Sleator) y Тарьяна (Tarjan)). Luego, cada bloqueo del flujo se puede encontrar por hora $O (m \log n)$.
+
+}
+
+
+\h3{ Asíntotas }
+
+Por lo tanto, todo el algoritmo Диница se a $O (n^2 m)$, si bloquea el flujo de buscar la forma descrita por el $O (n m)$. La implementación utilizando dinámicas de los árboles Слетора y Тарьяна funcionará por tiempo $O (n m \log n)$.
+
+\h4{ Aislados de la red }
+
+Unitario de red ("network unit") se llama una red en la cual anchos de banda de todas las aristas son iguales a la unidad, y cualquier cima, además de la fuente y de la escorrentía, ya sea entrante o saliente borde único.
+
+Este caso es bastante importante, ya que en la tarea de búsqueda \bf{máximo паросочетания} construida la red es unitario.
+
+\bf{Prueba}, que en aislados de las redes algoritmo Диница incluso en la simple aplicación (que en el arbitrarias columnas adicionales por $O (n^2 m)$) trabaja por hora $O (m \sqrt{n})$, alcanzando en la tarea de la búsqueda de la mayor паросочетания uno de los mejores algoritmos --- algoritmo de Хопкрофта-la Carpa.
+
+En primer lugar, obsérvese que el anterior algoritmo de búsqueda de un bloqueo del flujo, que en el arbitrarias redes funciona por hora $O (n m)$, en las redes con una sola пропускными habilidades funcionará $O (m)$: debido a que cada arista no será visto más de una vez.
+
+En segundo lugar, medir el número total de fases, que podría ocurrir en el caso de aislados de las redes.
+
+Que ya se ha producido $\sqrt{n}$ fases del algoritmo Диница; entonces todos aumentan el camino de la longitud de no más de $\sqrt{n}$ ya descubiertos. Que $f$ --- actual encontrada flujo, en lugar de $f^*$ --- el flujo máximo; veamos la diferencia: $f^* - f$. Es el flujo de las aguas residuales de la red $G^R$. Este subproceso tiene un valor de $|f^*| - |f|$, y a lo largo de cada eje es igual a cero o uno. Puede декомпозировать en conjunto de $|f^*| - |f|$ rutas de $s$ $t$ y, posiblemente, de los ciclos. Dado que la red единична, todas estas rutas pueden tener generales de los vértices, por lo tanto, teniendo en cuenta lo anterior, la suma del número de vértices en ellos $cnt$ se puede estimar como:
+
+$$ cnt \ge (|f^*| - |f|) \cdot \sqrt{n}. $$
+
+Por otro lado, teniendo en cuenta que $cnt \le n$, obtenemos de aquí:
+
+$$ |f^*| - |f| \le \sqrt{n}, $$
+
+lo que significa que aún después de $\sqrt{n}$ fases del algoritmo Диница garantiza que habrá un flujo máximo.
+
+Por lo tanto, el número total de fases del algoritmo Диница realizada individuales o redes, se pueden estimar como $2 \sqrt{n}$, que se quería demostrar.
+
+
+
+\h2{ Aplicación }
+
+Presentamos dos de la implementación del algoritmo por $O (n^2 m)$, trabajan en redes definidas matrices de adyacencia y listas de adyacencia, respectivamente.
+
+
+\h3{ Implementación sobre grafos como matrices de adyacencia }
+
+\code
+const int MAXN = ...; // el número de vértices
+const int INF = 1000000000; // constante hasta el infinito
+
+int n, c[MAXN][MAXN], f[MAXN][MAXN], s, t, d[MAXN], ptr[MAXN], q[MAXN];
+
+bool bfs() {
+int qh=0, qt=0;
+q[qt++] = s;
+memset (d, -1, n * sizeof d[0]);
+d[s] = 0;
+while (qh < qt) {
+int v = q[qh++];
+for (int to=0; a<n; ++to)
+if (d[to] == -1 && f[v][to] < c[v][to]) {
+q[qt++] = to;
+d[to] = d[v] + 1;
+}
+}
+return d[t] != -1;
+}
+
+int dfs (int v, int flow) {
+if (!flow) return 0;
+if (v == t) return flow;
+for (int & to=ptr[v]; to<n; ++) {
+if (d[to] != d[v] + 1) continue;
+int pushed = dfs (to, min (flow, c[v][to] - f[v][to]));
+if (pushed) {
+f[v][to] += pushed;
+f[to][v]: = pushed;
+return pushed;
+}
+}
+return 0;
+}
+
+int dinic() {
+int flow = 0;
+for (;;) {
+if (!bfs ()); break;
+memset (ptr, 0, n * sizeof ptr[0]);
+while (int pushed = dfs (s, INF))
+flow += pushed;
+}
+return flow;
+}
+\endcode
+
+La red debe ser previamente leído: se deben especificar las variables $n$, $s$, $t$, así como leer una matriz de puntos de control de capacidad $c[][]$. La función principal de la decisión --- $\rm dinic()$, que devuelve el valor encontrado es el flujo máximo.
+
+
+\h3{ Implementación sobre grafos en forma de listas de adyacencia }
+
+\code
+const int MAXN = ...; // el número de vértices
+const int INF = 1000000000; // constante hasta el infinito
+
+struct edge {
+int a, b, cap, flow;
+};
+
+int n, s, t, d[MAXN], ptr[MAXN], q[MAXN];
+vector<edge> e;
+vector<int> g[MAXN];
+
+void add_edge (int a, int b, int cap) {
+edge e1 = { a, b, cap, 0 };
+edge e2 = { b, a, 0, 0 };
+g[a].push_back ((int) e.size());
+e.push_back (e1);
+g[b].push_back ((int) e.size());
+e.push_back (e2);
+}
+
+bool bfs() {
+int qh=0, qt=0;
+q[qt++] = s;
+memset (d, -1, n * sizeof d[0]);
+d[s] = 0;
+while (qh < qt && d[t] == -1) {
+ int v = q[qh++];
+for (size_t i=0; i<g[v].size(); ++i) {
+int id = g[v][i],
+to = e[id].b;
+if (d[to] == -1 && e[id].flow < e[id].cap) {
+q[qt++] = to;
+d[to] = d[v] + 1;
+}
+}
+}
+return d[t] != -1;
+}
+
+int dfs (int v, int flow) {
+if (!flow) return 0;
+if (v == t) return flow;
+for (; ptr[v]<(int)g[v].size(); ++ptr[v]) {
+int id = g[v][ptr[v]],
+to = e[id].b;
+if (d[to] != d[v] + 1) continue;
+int pushed = dfs (to, min (flow, e[id].cap - e[id].flow));
+if (pushed) {
+e[id].flow += pushed;
+e[id^1].flow -= pushed;
+return pushed;
+}
+}
+return 0;
+}
+
+int dinic() {
+int flow = 0;
+for (;;) {
+if (!bfs ()); break;
+memset (ptr, 0, n * sizeof ptr[0]);
+while (int pushed = dfs (s, INF))
+flow += pushed;
+}
+return flow;
+}
+\endcode
+
+La red debe ser previamente leído: se deben especificar las variables $n$, $s$, $t$, y también se agregaron todas las aristas (orientado) mediante llamadas a la función $\rm add\_edge$. La función principal de la decisión --- $\rm dinic()$, que devuelve el valor encontrado es el flujo máximo.
+
+

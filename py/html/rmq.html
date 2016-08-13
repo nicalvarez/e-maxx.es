@@ -1,0 +1,18 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Задача RMQ (Range Minimum Query - минимум на отрезке)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Задача RMQ (Range Minimum Query - минимум на отрезке)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Задача RMQ (Range Minimum Query - минимум на отрезке)&lt;/h1&gt;
+
+&lt;p&gt;Дан массив A[1..N]. Поступают запросы вида (L, R), на каждый запрос требуется найти минимум в массиве A, начиная с позиции L и заканчивая позицией R.&lt;/p&gt;
+&lt;h2&gt;Приложения&lt;/h2&gt;
+&lt;p&gt;Помимо непосредственного применения в самых разных задачах, можно отметить следующие:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;algohref=lca&gt;Задача LCA (наименьший общий предок)&lt;/algohref&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Решение&lt;/h2&gt;
+&lt;p&gt;Задача RMQ решается с помощью структур данных.&lt;/p&gt;
+&lt;p&gt;Из описанных на сайте структур данных можно выбрать:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;algohref=sqrt_decomposition&gt;&lt;b&gt;Sqrt-декомпозиция&lt;/b&gt;&lt;/algohref&gt; - отвечает на запрос за O (sqrt (N)), препроцессинг за O (N).&lt;br&gt;Преимущество в том, что это очень простая структура данных. Недостаток - асимптотика.&lt;/li&gt;
+&lt;li&gt;&lt;algohref=segment_tree&gt;&lt;b&gt;Дерево отрезков&lt;/b&gt;&lt;/algohref&gt; - отвечает на запрос за O (log N), препроцессинг за O (N).&lt;br&gt;Преимущество - хорошая асимптотика. Недостаток - бОльший объём кода по сравнению с другими структурами данных.&lt;/li&gt;
+&lt;li&gt;&lt;algohref=fenwick_tree&gt;&lt;b&gt;Дерево Фенвика&lt;/b&gt;&lt;/algohref&gt; - отвечает на запрос за O (log N), препроцессинг за O (N log N)&lt;br&gt;Преимущество - очень быстро пишется и работает тоже очень быстро. Но значительный недостаток - дерево Фенвика может отвечать только на запросы с L = 1, что для многих приложений неприменимо.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Примечание. &quot;Препроцессинг&quot; - это предварительная обработка массива A, фактически это построение структуры данных для данного массива.&lt;/p&gt;
+&lt;p&gt;Теперь предположим, что массив A &lt;b&gt;может изменяться&lt;/b&gt; в процессе работы (т.е. также будут поступать запросы об изменении значения в некотором отрезке [L;R]). Тогда полученную задачу можно решить с помощью &lt;algohref=sqrt_decomposition&gt;&lt;b&gt;Sqrt-декомпозиции&lt;/b&gt;&lt;/algohref&gt; и &lt;algohref=segment_tree&gt;&lt;b&gt;Дерева отрезков&lt;/b&gt;&lt;/algohref&gt;.&lt;/p&gt;</textarea></td></tr></table></body></html>

@@ -1,0 +1,18 @@
+<h1>la Tarea de RMQ (Range Minimum Query - al menos en el tramo)</h1>
+
+<p>Dada una matriz A[1..N]. Se recibe la solicitud de la vista (L, R), para cada consulta se desea encontrar el mínimo de la matriz A, a partir de la posición L hasta la posición de R.</p>
+<h2>Aplicaciones</h2>
+<p>Además de la aplicación directa en las diferentes tareas, se puede mencionar los siguientes:</p>
+<ul>
+<li><algohref=lca>Tarea de LCA (la menor ancestro común)</algohref></li>
+</ul>
+<h2>Solución</h2>
+<p>la Tarea de RMQ resuelto mediante el uso de estructuras de datos.</p>
+<p>las descritas en el sitio de las estructuras de datos, puede seleccionar:</p>
+<ul>
+<li><algohref=sqrt_decomposition><b>Sqrt-la descomposición</b></algohref> - responde a la solicitud O (sqrt (N)), препроцессинг por O (N).<br>la Ventaja de que es muy simple de la estructura de datos. Falta de asíntotas.</li>
+<li><algohref=segment_tree><b>Árbol de regiones</b></algohref> - responde a la solicitud de O (log N), препроцессинг por O (N).<br>la Ventaja de una buena asíntotas. La falta de mayor cantidad de código en comparación con otras estructuras de datos.</li>
+<li><algohref=fenwick_tree><b>Árbol de Fenwicks</b></algohref> - responde a la solicitud de O (log N), препроцессинг por O (N log N)<br>Ventaja es que muy rápidamente se escribe y trabaja también es muy rápido. Pero una considerable falta - el árbol de la Fenwicks puede responder sólo a las solicitudes con L = 1, lo que para muchas aplicaciones, no es aplicable.</li>
+</ul>
+<p>nota. "Препроцессинг" es un pre-procesamiento de la matriz A, de hecho, es la construcción de estructuras de datos para la matriz.</p>
+<p>Ahora, supongamos que la matriz A de <b>se puede cambiar</b> en el proceso de trabajo (es decir, también se dirigirán las solicitudes de modificación de los valores en un cierto intervalo [L;R]). Entonces recibida la tarea se puede resolver mediante la <algohref=sqrt_decomposition><b>Sqrt-descomposición</b></algohref> y <algohref=segment_tree><b>Árbol de regiones</b></algohref>.</p>

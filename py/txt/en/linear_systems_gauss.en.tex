@@ -1,0 +1,265 @@
+\h1{ Gauss-Jordan elimination solution of systems of linear equations }
+
+
+Given a system of $n$ linear algebraic equations (SLAE) with $m$ unknowns. You need to solve this system: determine how many solutions it has (none, one or infinitely many), but if it has at least one solution, it is possible to find any of them.
+
+\bf{Formally} the problem is formulated as follows: solve the system:
+
+$$ \cases{
+a_{11} x_1 + a_{12} x_2 + \ldots + a_{1m} x_m = b_1, \cr
+a_{21} x_1 + a_{22} x_2 + \ldots + a_{2m} x_m = b_2 \cr
+\ldots \cr
+a_{n1} x_1 + a_{n2} x_2 + \ldots + a_{nm} x_m = b_n,
+} $$
+
+where the coefficients $a_{ij} (i=1 \ldots n, j=1 \ldots m)$ and $b_i (i = 1 \ldots n)$ is known, and the variables $x_i (i=1 \ldots m)$ --- the unknown.
+
+Convenient matrix representation for this task
+
+$$ A x = b, $$
+
+where $A$ is the matrix $n \times m$, composed of the coefficients $a_{ij}$, $x$ and $b$ --- the vectors-columns of height $m$.
+
+It is worth noting that SLOUGH may not be over the field of real numbers and over the field \bf{modulo} a number $p$, i.e.:
+
+$$ \cases{
+a_{11} x_1 + a_{12} x_2 + \ldots + a_{1m} x_m = b_1, \pmod p \cr
+a_{21} x_1 + a_{22} x_2 + \ldots + a_{2m} x_m = b_2 \pmod p \cr
+\ldots \cr
+a_{n1} x_1 + a_{n2} x_2 + \ldots + a_{nm} x_m = b_n \pmod p
+} $$
+
+--- the algorithm of Gauss works on those systems too (but it will be discussed below in a separate section).
+
+
+
+\h2{ Gaussian elimination }
+
+Strictly speaking, the following method is properly called the method of "Gauss-Jordan" (Gauss-Jordan elimination), because it is a variation of Gaussian elimination described by the geodesist Wilhelm Jordan in 1887 (it is worth noting that Wilhelm Jordan is not the author nor the theorem on Jordan curves a Jordan algebra --- all three different scientists-namesake; also, apparently, a more correct transcription is "Jordan", but the spelling of "Jordan" is already entrenched in Russian literature). It is also interesting to note that while Jordan (and according to some even before him) this algorithm was invented by Clasen (B.-I. Clasen).
+
+
+\h3{ base map }
+
+Briefly speaking, the algorithm is in \bf{eliminated} variables from each equation until such time as in each equation there will be only one variable. If $n=m$, then we can say that the algorithm Gauss-Jordan seeks to bring a matrix $A$ of the system to a single matrix --- because after the matrix has become singular, the solution of the system is clear --- the solution is unique and sets the resulting coefficients $b_i$.
+
+The algorithm is based on two simple equivalent transformations of the system: firstly, it is possible to exchange two equations, and secondly, any equation can be replaced by a linear combination of this string (with nonzero coefficient) and the other rows (with arbitrary coecients).
+
+\bf{the first step} algorithm Gauss-Jordan divides the first row by the coefficient $a_{11}$. The algorithm then adds the first row to the other row with such coefficients to the coefficients in the first column are applied to the zeros --- for that, obviously, if we add the first row to the $i$-th domniate it should be $-a_{i1}$. At each operation with the matrix $A$ (the division by a number, addition of another line) relevant operations are performed with a vector $b$; in some sense, it behaves as if it were $m+1$-th column of the matrix $A$.
+
+In the end, after the first step, the first column of the matrix $A$ will be singular (i.e., would contain the unit in the first row and zeros in the others).
+
+Similarly performed the second step of the algorithm, only now seen the second column and second line: first, second row is divided by $a_{22}$, and then subtract from every other row with such coefficients to zero out the second column of the matrix $A$.
+
+And so on until we process all rows or all columns of the matrix $A$. If $n=m$, then by construction of the algorithm it is obvious that the matrix $A$ will turn out a single that we need.
+
+
+\h3{ Search support element (pivoting) }
+
+Of course, the above scheme is incomplete. It will work only if for each $i$-th step the element $a_{ii}$ is nonzero --- otherwise we will not be able to achieve zeroing of the remaining coefficients in the current column by adding to it $i$-th row.
+
+To make the algorithm working in such cases, there is a process \bf{control element} (in English it's called in one word "pivoting"). It lies in the fact that is a permutation of rows and/or columns of the matrix to the right element $a_{ii}$ were a nonzero number.
+
+Note that the permutation of rows is much easier on a computer than a permutation of the columns because when you swap two of some of the columns have to remember that these two variables exchanged places, and then, when you restore a response, the right to recover what the answer to what the variable refers. The permutation of rows such no further action is not necessary to make.
+
+Fortunately, for the correctness of the proposed method, it only exchanges the rows (so-called "partial pivoting", unlike "full pivoting", while exchanging the lines and columns). But what kind of line should be selected for exchange? And is it true that the search of the reference element should be done only when the current element $a_{ii}$ is zero?
+
+A common response to this question does not exist. There are a variety of heuristics, but the most effective ones (in terms of ease and impact) is \bf{heuristics}: as a support element should take the largest absolute value, and to search the support element and exchange it should \bf{always}, and not only when it is necessary (i.e. not only when $a_{ii}=0$).
+
+In other words, before implementation of $i$-th phase of the algorithm of Gauss-Jordan with partial pivoting heuristics to search for in $i$-th column among the elements with indices from $i$ to $n$ modulo the maximum, and swap the row with that item from $i$-th row.
+
+Firstly, this heuristic will solve systems of linear algebraic equations, even if the course decision will be that the element $a_{ii}=0$. Secondly, most importantly, this heuristic improves \bf{numerical stability} of Gauss-Jordan.
+
+Without this heuristic, even if the system is such that for each $i$-th phase of $a_{ii} \ne 0$ --- the algorithm Gauss-Jordan will work out, but in the end, the accumulated error may be so large that even for matrices of size about $20$, the error will exceed a response.
+
+
+\h3{ Degenerate cases }
+
+So, if we focus on Gauss-Jordan with partial pivoting, then, it is argued, if $m=n$ and the system of neirogenna (i.e. has non-zero determinant, which means that it has a unique solution), then the algorithm described above will work fully and come to a singular matrix $A$ (the proof of this, i.e., that the nonzero support element will always be, will not be discussed here).
+
+Let us now consider \bf{General case} --- when $n$ and $m$ are not necessarily equal. Assume that the support element at the $i$-th step. This means that $i$-th column from the all rows from the current, contain zeros. It is argued that in this case the $i$-th variable is not defined, and is \bf{independent variable} (can take arbitrary value). The algorithm Gauss-Jordan continued its work for all subsequent variables, in this situation, we should simply skip the current $i$-th column, without increasing the current line number (we can say that we virtually remove $i$-th column of the matrix).
+
+So, some variables in the process, the algorithm can be independent. It is clear that when the number $m$ greater than the number of variables $n$ equations, then at least $m-n$ independent variables is found.
+
+Overall, if you find at least one independent variable, it can take an arbitrary value, while the remaining (dependent) variables will be expressed through it. This means that when we are working in the field of real numbers, the system potentially has a \bf{infinitely many solutions} (if we consider systems of linear algebraic equations modulo the number of solutions is equal to the modulus in the power of the number of independent variables). However, you must be careful: we must remember that even if the independent variables were found, however SLOUGH \bf{may not have solutions at all}. This happens when remaining untreated in the equations (those to which the algorithm of Gauss-Jordan is not reached, i.e. it is an equation in which only independent variables) has at least one nonzero free term.
+
+However, it is easier to verify by explicit substitution of the solution found: all independent variables to assign null values, dependent variables, assign values, and substitute this solution into the current SLOUGH.
+
+
+
+\h2{ the Implementation }
+
+We present here the implementation of the algorithm of Gauss-Jordan with partial pivoting heuristics (the choice of the reference element as the maximum of the column).
+
+The function $\rm gauss()$ is transferred to the system matrix $a$. The last column of the matrix $a$ is in our old notation, the column $b$ free coefficients (as is done for ease of programming --- because in the algorithm, all operations free coefficients $b$, repeat the operation with the matrix $A$).
+
+The function returns the number of solutions of the system ($0$, $1$ or $\infty$) (infinity marked in the code by the special constant $\rm INF$, which can be set to any large value). If at least one solution exists, it is returned in the vector $\rm ans$.
+
+\code
+int gauss (vector < vector<double> > a, vector<double> & ans) {
+int n = (int) a.size();
+int m = (int) a[0].size() - 1;
+
+vector<int> where (m, -1);
+for (int col=0, row=0; col<m && row<n; ++col) {
+int sel = row;
+for (int i=row; i<n; ++i)
+if (abs (a[i][col]) > abs (a[sel][col]))
+sel = i;
+if (abs (a[sel][col]) < EPS)
+continue;
+for (int i=col; i<=m; ++i)
+swap (a[sel][i], a[row][i]);
+where[col] = row;
+
+for (int i=0; i<n; ++i)
+if (i != row) {
+double c = a[i][col] / a[row][col];
+for (int j=col; j<=m; ++j)
+a[i][j] -= a[row][j] * c;
+}
+row++;
+}
+
+ans.assign (m, 0);
+for (int i=0; i<m; ++i)
+if (where[i] != -1)
+ans[i] = a[where[i]][m] / a[where[i]][i];
+for (int i=0; i<n; ++i) {
+double sum = 0;
+for (int j=0; j<m; ++j)
+sum += ans[j] * a[i][j];
+if (abs (sum - a[i][m]) > EPS)
+return 0;
+}
+
+for (int i=0; i<m; ++i)
+if (where[i] == -1)
+return INF;
+return 1;
+}
+\endcode
+
+In function two pointers are supported on the current column $\rm col$ and the current line $\rm row$.
+
+Also got the vector $\rm where$ where for each variable recorded, in which line she should get (in other words, for each column contains the line number in which this column is nonzero). This vector is needed because some variables could not "be determined" during the decision (i.e. they are independent variables that can be assigned an arbitrary value -for example, in the implementation is zero).
+
+The implementation uses the technique of partial pivoting, producing a search string with a maximum in modulus element, and then moving the string in position $\rm row$ (although the obvious permutation of rows can be replaced by the exchange of two indices in a array, in practice this will not win, because the exchange takes $O(n^2)$ operations).
+
+In the implementation in order to ease the current row is not divisible on base element --- so in the end at the end of the algorithm, the matrix becomes singular and the diagonal (however, apparently, the division line to the master element allows to decrease the errors arising).
+
+After finding the solution it is substituted back into the matrix --- to check whether the system has at least one solution or not. If verification of the solutions found successful, the function returns $1$ or $\infty$ --- depending on whether at least one independent variable or not.
+
+
+
+\h2{ Asymptotics }
+
+Evaluate the asymptotic behavior of the resulting algorithm. The algorithm consists of $m$ phases, each of which is:
+
+\ul{
+\li the search and shift of the supporting element for a time $O(n+m)$ using heuristics "partial pivoting" (search for the maximum in the column)
+\li if the reference element in the current column has been found --- the addition of the equation to all other equations --- time of $O(nm)$
+}
+
+Obviously, the first item has a lower complexity than the second. Note also that the second clause is executed no more than $\min(n,m)$ times --- as much as can be the dependent variables in SLOUGH.
+
+Thus, \bf{the complexity} of the algorithm takes $O (\min(n,m) \cdot n m)$.
+
+When $n = m$, this estimate becomes $O(n^3)$.
+
+Note that when the SLOUGH is considered not in the field of real numbers, and the modulo two, then the system can be solved much faster --- see below in the section "Solving SLAE by module".
+
+\h3{More accurate estimate of the number of action}
+
+For simplicity of calculations we assume that $n = m$.
+
+As we already know, the operating time of the entire algorithm is actually determined by the time required to exclude the equation from the rest.
+
+This can occur at each of $n$ steps, while the current equation is added to all $n-1$ others. When adding working only with the columns, starting with the current. Thus, the sum would be $n^3 / 2$ operations.
+
+
+
+
+\h2{ Additions }
+
+
+\h3{ Acceleration algorithm: the division into forward and reverse stroke }
+
+To achieve two-fold speed up of the algorithm is to look at the other version, more classic, when the algorithm is divided into phases for forward and reverse operation.
+
+In General, unlike the above-described algorithm, it is possible to bring the matrix to diagonal form, and to \bf{triangular view} --- when all the elements strictly below the main diagonal equal to zero.
+
+System with a triangular matrix being solved is trivial --- the first from the last equation immediately is the value of the last variable, then the value found is substituted in the last equation and is the value of the penultimate variable, and so on. This process is called \bf{backflow} Gauss.
+
+\bf{Straight forward} of Gaussian elimination is an algorithm similar to described above algorithm the Gauss-Jordan, with one exception: the current variable is eliminated from all equations, but only equations after the current one. As a result of this really is not diagonal and triangular matrix.
+
+The difference is that a direct move works \bf{faster} Gauss-Jordan --- because on average he does two times less of adding one equation to another. Reverse works $O(nm)$, that in any case asymptotically faster than forward stroke.
+
+Thus, if $n=m$, then this algorithm will do is $n^3/4$ of operations --- which is two times less than Gauss-Jordan.
+
+
+\h3{ Solution of linear equations modulo }
+
+For the linear solver module can apply the algorithm described above, it retains its correctness.
+
+Of course, now becomes unnecessary to use any tricky techniques select the reference element --- it is enough to find any non-zero element in the current column.
+
+If the module is simple, then there are no problems do not arise --- what is happening in the course of the algorithm the Gauss fission is not a special problem.
+
+Especially remarkable \bf{module, equal to two}: all operations with the matrix can be produced very efficiently. For example, subtracting one string from another modulo two is actually their symmetric difference ("xor"). Thus, the whole algorithm can be accelerated considerably by squeezing the entire matrix in the bit mask and in only them. We present here a new implementation of the main part of the algorithm Gauss-Jordan, using a standard C++ container "bitset":
+
+\code
+int gauss (vector < bitset<N> > a, int n, int m, bitset<N> & ans) {
+vector<int> where (m, -1);
+for (int col=0, row=0; col<m && row<n; ++col) {
+for (int i=row; i<n; ++i)
+if (a[i][col]) {
+swap (a[i], a[row]);
+break;
+}
+if (! a[row][col])
+continue;
+where[col] = row;
+
+for (int i=0; i<n; ++i)
+if (i != row && a[i][col])
+a[i] ^= a[row];
+row++;
+}
+\endcode
+
+As you can see, the implementation was even a bit shorter, despite the fact that it is significantly faster than the old implementation --- namely, faster $32$ times due to bit compression. It should also be noted that solving systems modulo two in practice is very fast, because the cases when a single row subtract another, are quite rare (sparse matrices, this algorithm can work during rather of the order of the square of the size than Cuba).
+
+If the module \bf{arbitrary} (not necessarily simple), then everything becomes more complicated. It is clear that using \algohref=chinese_theorem{Chinese theorem on residues}, we reduce the problem with arbitrary module only modules with "easy degree". [ further text was hidden, because it is unverified information --- perhaps the wrong way of solution ]
+
+Finally, consider the question \bf{the number of solutions of linear equations modulo}. The answer is quite simple: the number of solutions is $p^k$, where $p$ - module, $k$ --- the number of independent variables.
+
+
+\h3{ Little bit about the different ways of selection of the base element }
+
+As mentioned above, a clear answer to this question is no.
+
+Heuristics "partial pivoting", which was to search for the maximum element in current column works in practice very well. Also it turns out that it gives almost the same result as "full pivoting" --- when support is sought among the elements of a submatrix --- starting with the current row and current column.
+
+But it is interesting to note that both these heuristics with the search for the maximum element, in fact, very much depend on how were scaled to the original equation. For example, if one of the equations of the system multiplied by a million, then this equation will almost certainly be selected as a presenter at the first step. It seems rather odd, so a logical transition to a slightly more complex heuristics --- the so-called \bf{"implicit pivoting"}.
+
+Heuristics implicit pivoting is that elements of different rows are compared as if both lines were normalized so that maximum absolute value element in them would be equal to one. To implement this technique it is necessary simply to maintain the current maximum in each row (or to support every line, so that the maximum was equal to unity in modulus, but it can lead to an increase of accumulated errors).
+
+
+\h3{ Improvement found answer }
+
+Because, despite various heuristics, the algorithm Gauss-Jordan can still lead to big errors on special matrices of even dimensions $50$ - $100$.
+
+In this regard, obtained by the algorithm Gauss-Jordan answer can be improved by applying some simple numerical method -for example, simple iteration method.
+
+Thus, the decision turns into two-step: first, run the algorithm Gauss-Jordan, then --- any numerical method, taking as initial data the solution obtained in the first step.
+
+This technique allows to expand the variety of problems solved by Gauss-Jordan with an acceptable error.
+
+
+
+\h2{ Literature }
+
+\ul{
+\li \book{William H. Press, Saul A. Teukolsky, William T. Vetterling, Brian P. Flannery}{Numerical Recipes: The Art of Scientific Computing}{2007}{numerical_recipes.pdf}
+\li \book{Anthony Ralston, Philip Rabinowitz}{A first course in numerical analysis}{2001}
+}

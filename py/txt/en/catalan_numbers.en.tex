@@ -1,0 +1,46 @@
+\h1{Catalan}
+
+The number of Catalan-is a numeric sequence found in a surprising number of combinatorial problems.
+
+This sequence is named after the Belgian mathematician Catalan (Catalan), who lived in the 19th century, although in fact she was known to Euler (Euler), who lived a century before Catalan.
+
+\h2{the Sequence}
+
+The first few Catalan numbers $C_n$ (starting with zero):
+$$ 1,\ 1,\ 2,\ 5,\ 14,\ 42,\ 132,\ 429,\ 1430,\ \ldots $$
+
+Catalan numbers occur in a large number of problems in combinatorics. \bf{$n$-th Catalan number} --- is:
+\ul{
+\li the Number of correct bracket sequences consisting of $n$ open and $n$ closing parentheses.
+\li the Number of rooted binary trees with $n+1$ leaves (the vertices are not numbered).
+\li the Number of ways to completely separate brackets $n+1$ multiplier.
+\li the Number of triangulations of a convex $n+2$-gon (i.e. the number of partitions of the polygon non-intersecting diagonals into triangles).
+\li the Number of ways to connect $2n$ points on a circle of $n$ non-intersecting chords.
+\li the Number of non-isomorphic full binary trees with $n$ internal vertices (i.e., having at least one son).
+\li the Number of monotone paths from point $(0,0)$ to the point $(n,n)$ in a square lattice of size $n \times n$, not rising above the main diagonal.
+\li the Number of permutations of length $n$ that can be sorted by a stack (it can be shown that a permutation is stack sortable if and only when there are no indices $i<j<k$, $a_k<a_i<a_j$).
+\li the Number of partitions of continuous sets of $n$ elements (i.e., breaks in continuous blocks).
+\li the Number of ways to cover ladder $1 \ldots n$ with $n$ rectangles (referring to a pattern consisting of $n$ columns of $i$-th of which has a height of $i$).
+}
+
+\h2{the Calculation}
+
+There are two formulas for the Catalan numbers: recursive and analytical. Because we believe that all the above tasks are equivalent, to prove the formulas, we will choose the task with which it is easiest to make.
+
+\h3{Recurrent formula}
+
+$$ C_n = \sum_{k=0}^{n-1} C_k C_{n-1-k} $$
+
+The recurrent formula can easily deduce from the problem of correct bracket sequences.
+
+The leftmost opening parenthesis l matches a particular closing brace r, which breaks the formula of two parts, each of which in turn is a correct bracket sequence. Therefore, if we denote $k = r-l-1$, then for any fixed $r$ will be exactly $C_k C_{n-1-k} $ ways. Summing this for all valid $k$, we get the recurrent dependence on $C_n$.
+
+\h3{Analytical formula}
+
+$$ C_n = \frac{1}{n+1} C_{2n}^{n} $$
+
+(here $C_n^k$ defined, as usual, \algohref=binomial_coeff{binomial coefficient}).
+
+This formula is easiest to withdraw from the task on monotone paths. The total number of monotonic paths in a lattice of size $n \times n$ is $C_{2n}^{n}$. Now calculate the number of monotonic paths that cross the diagonal. Consider any of these ways, and find the first edge that is above the diagonal. Reflect about the diagonal all the way, after reaching this edge. The result is a monotone path in the lattice is $(n-1) \times (n+1)$. But, on the other hand, any monotone path in the lattice is $(n-1) \times (n+1)$ necessarily crosses the diagonal, therefore, he received just such a way from any (and only) a monotone path crossing the diagonal in the lattice $n \times n$. Monotone paths in the lattice is $(n-1) \times (n+1)$ there is $C_{2n}^{n-1}$. The result is the formula:
+
+$$ C_n = C_{2n}^{n} - C_{2n}^{n-1} = \frac{1}{n+1} C_{2n}^{n} $$

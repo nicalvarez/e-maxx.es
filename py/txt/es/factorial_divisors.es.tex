@@ -1,0 +1,47 @@
+\h1{ Encontrar la medida de un divisor de факториала }
+
+Dados dos números: $n$ y $k$. Es necesario contar, con qué grado de divisor de $k$ el número uno en $n!$, es decir, a mayor $x$ tal que $n!$ se divide en $k^x$.
+
+
+\h2{ la Solución para el caso simple de $k$ }
+
+Consideremos primero el caso, cuando $k$ es sencillo.
+
+Daremos una expresión para факториала de forma explícita:
+
+$$ n! = 1\ 2\ 3\ \ldots\ (n-1)\ n $$
+
+Tenga en cuenta que cada $k$el primer miembro de esta obra se divide en $k$, es decir, te da +1 a la respuesta; el número de estos miembros es de $\lfloor n/k \rfloor$.
+
+Además, tenga en cuenta que cada $k^2$el primer miembro de esta serie se divide en $k^2$, es decir, da +1 a la respuesta (teniendo en cuenta que $k$ en la primera medida ha sido tomada en cuenta hasta entonces); el número de estos miembros es de $\lfloor n/k^2 \rfloor$.
+
+Y así sucesivamente, cada $k^i$el primer término de la serie, da +1 a la respuesta, y el número de miembros de la es $\lfloor n/k^i \rfloor$.
+
+Por lo tanto, la respuesta es igual a la cantidad:
+$$ \frac{n}{k} + \frac{n}{k^2} + \ldots + \frac{n}{k^i} + \ldots $$
+
+Esta cantidad, por supuesto, no es infinito, ya que sólo los primeros de aproximadamente $\log_k n$ los miembros de la diferente de cero. Por lo tanto, asíntotas de este algoritmo es de O(\log_k n)$.
+
+La implementación de:
+
+\code
+int fact_pow (int n, int k) {
+int res = 0;
+while (n) {
+n /= k;
+res += n;
+}
+return res;
+}
+\endcode
+
+
+\h2{ la Solución para el caso de compuesto de $k$ }
+
+La misma idea de aplicar aquí directamente ya no se puede.
+
+Pero podemos факторизовать $k$ solucionar la tarea para cada uno su simple divisor, para luego seleccionar al menos una de las respuestas.
+
+Más formalmente, supongamos que $k_i$ - - - $i$el primer divisor del número $k$, que entra en él en la medida en $p_i$. Decidamos tarea para $k_i$ con la anterior fórmula a $O (\log n)$; que hemos recibido la respuesta de ${\rm Ans}_i$. Entonces la respuesta para el compuesto de $k$, será por lo menos a partir de los valores de ${\rm Ans}_i / p_i$.
+
+Teniendo en cuenta que факторизация la más simple manera, se $O (\sqrt{k})$, obtenemos el total асимптотику $O (\sqrt{k})$.

@@ -1,0 +1,168 @@
+<h1>los Algoritmos de hash en las tareas en línea</h1>
+
+<p>los Algoritmos de hash filas ayudan a resolver mucho de tareas. Pero tienen una gran desventaja: que no más a menudo que no el 100% de los, ya que hay un montón de cadenas, hashes de las mismas. Otra cosa es que en la mayoría de las tareas se puede ignorar, ya que la probabilidad de coincidencia de hash de todos modos es muy pequeña.</p>
+
+<p> </p>
+
+<h2>la Definición de hash y su cálculo de</h2>
+<p>Una de las mejores maneras de definir una función hash de la cadena S es la siguiente:</p>
+<formula>h(S) = S[0] + S[1] * P + S[2] * P^2 + S[3] * P^3 + ... + S[N] * P^N</formula>
+<p>donde P es un número.</p>
+<p>es Razonable elegir para P un número primo, aproximadamente igual al número de caracteres en el alfabeto de entrada. Por ejemplo, si la cadena предполаются que sólo contienen pequeñas letras, es una buena opción será P = 31. Si las letras pueden ser mayúsculas, y las pequeñas, por ejemplo, se puede P = 53.</p>
+<p>En todos los trozos de código en este artículo se utilizará P = 31.</p>
+<p>el valor de hash, conviene mantener en la más grande numérico tipo - int64, él mismo long long. Es evidente que cuando la longitud de línea de la orden de 20 caracteres ya se producirá un desbordamiento de valor. La clave es que no prestamos atención a estos desbordamientos, como tomando el hash de un módulo de 2^64.</p>
+<p>un Ejemplo de un cálculo de hash, si sólo se permiten pequeñas letras:</p>
+<code>const int p = 31;
+long long hash = 0, p_pow = 1;
+for (size_t i=0; i<s.length (); i++)
+{
+// es deseable tomar la 'a' del código de la letra
+// por unidad de sumar, para las cadenas de tipo 'aaaaa hash fue distinto de cero
+hash += (s[i] - 'a' + 1) * p_pow;
+p_pow *= p;
+}</code>
+<p>En la mayoría de tareas tiene sentido, primero, calcular todos los grado de P en cualquier matriz.</p>
+
+<p> </p>
+
+<h2>Ejemplo de un problema. La búsqueda de duplicados</h2>
+<p>ahora Ya estamos en condiciones de resolver con eficacia esta tarea. Dan una lista de cadenas de S[1..N], cada una longitud de no más de M caracteres. Por ejemplo, se puede encontrar todas las filas duplicadas y dividirlos en grupos, en cada grupo fueron sólo la misma cadena.</p>
+<p>Normal de ordenación de filas tendríamos un algoritmo de complejidad O (N M log N), mientras que usando el hash, obtenemos O (N M + N log N).</p>
+<p>el Algoritmo. Calcular el hash de cada fila, y ordenará la cadena de este hash.</p>
+<code>vector<string> s (n);
+// ... la lectura de las filas ...
+
+// contamos todos los grados de p, digamos, hasta 10.000 - longitud máxima de la cadena
+const int p = 31;
+vector<long long> p_pow (10000);
+p_pow[0] = 1;
+for (size_t i=1; i<p_pow.size(); ++i)
+p_pow[i] = p_pow[i-1] * p;
+
+// creemos hashes de todas las filas
+// en la matriz de almacenamos el valor de hash y el número de la fila en la matriz s
+vector < pair<long long int> > hashes (n);
+for (int i=0; i<n; ++i)
+{
+long long hash = 0;
+for (size_t j=0; j<s[i].length(); ++j)
+hash += (s[i][j] - 'a' + 1) * p_pow[j];
+desmenuza[i] = make_pair (hash, i);
+}
+
+// ordenar por hashes
+sort (hashes.begin(), desmenuza.end());
+
+// escribir respuesta
+for (int i=0, group=0; i<n; ++i)
+{
+if (i == 0 || elementos[i].first != desmenuza[i-1].first)
+cout << "\nGroup " << ++group << ":";
+cout << '' << elementos[i].second;
+}</code>
+
+<p> </p>
+
+<h2>Hash de la subcadena y su rápido cálculo de</h2>
+<p>Supongamos que nos dan la cadena S, y se dan los índices I y J. Desea encontrar el hash de la subcadena de S[I..J].</p>
+<p>Por definición tenemos:</p>
+<formula>H[I..J] = S[I] + S[I+1] * P + S[I+2] * P^2 + ... + S[J] * P^(J-I)</formula>
+<p>ubicación:</p>
+<formula>H[I..J] * P[I] = S[I] * P[I] + ... + S[J] * P[J],
+H[I..J] * P[I] = H[0..J] - H[0..I-1]</formula>
+<p>la propiedad es muy importante.</p>
+<p>Realmente, resulta que, <b>sabiendo sólo hashes de todos los prefijos de la cadena S, podemos O (1) obtener el hash de cualquier subcadena</b>.</p>
+<p>el Único problema es que tienes que ser capaz de dividir por P[I]. En realidad, no es tan fácil. Debido a que se calcula el hash del módulo 2^64, para dividir a P[I] tenemos que encontrar a él el elemento de vuelta en el campo (por ejemplo, con la ayuda de <algohref=extended_Euclid_algorithm>del algoritmo Extendido de euclides</algohref>), y realizar la multiplicación en este elemento de vuelta.</p>
+<p>Además, hay una manera más fácil. En la mayoría de los casos, <b>en lugar de dividir los valores de hash en el grado de P, puede, por el contrario, multiplicar en estos grados</b>.</p>
+<p>Supongamos que dados dos hash: uno multiplicado por P[I], y el otro en la P[J]. Si I < J, entonces se multiplica перый de hash en la P[J-I], de otra manera se multiplica la segunda de hash en la P[I, J]. Ahora que nos llevó a ambos a la misma medida, y podemos comparar tranquilamente.</p>
+<p>por Ejemplo, el código que calcula el hash de todos los prefijos y, a continuación, a O (1) compara las dos subcadenas:</p>
+<code>string s; int i1, i2, len; // datos de entrada
+
+// contamos todos los grados de la p
+const int p = 31;
+vector<long long> p_pow (s.length());
+p_pow[0] = 1;
+for (size_t i=1; i<p_pow.size(); ++i)
+p_pow[i] = p_pow[i-1] * p;
+
+// creemos hashes de todos los prefijos de
+vector<long long> h (s.length());
+for (size_t i=0; i<s.length (); i++)
+{
+h[i] = s[i] - 'a' + 1) * p_pow[i];
+if (i) h[i] += h[i-1];
+}
+
+// obtenemos los valores hash de dos subcadenas
+long long h1 = h[i1+len-1];
+if (i1), h1= h[i1-1];
+long long h2 = h[i2+len-1];
+if (i2) h2= h[i2-1];
+
+// comparamos
+if (i1 < i2 && h1 * p_pow[i2-i1] == h2 ||
+i1 > i2 && h1 == h2 * p_pow[i1-i2])
+cout << "equal";
+else
+cout << "different";</code>
+
+<h2>el Uso de hash</h2>
+<p>he Aquí algunos usos típicos de hash:</p>
+<ul>
+<li><algohref=rabin_karp>el Algoritmo de rabin-la Carpa de la búsqueda de una subcadena en una cadena de O (N)</algohref></li>
+<li>la Definición de las cantidades de diferentes cadenas de O (N^2 log N) (véase más abajo)</li>
+<li>Determinación de la cantidad de палиндромов dentro de la cadena</li>
+</ul>
+
+<h2>la Definición de las cantidades de diferentes subcadenas</h2>
+
+<p>Deje que dan la cadena S de longitud N, está formado por pequeñas letras del alfabeto latino. Necesita encontrar un número de diferentes subcadenas en esta línea.</p>
+
+<p>Para resolver переберем de la cola de la longitud de la subcadena: L = 1 .. N.</p>
+<p>Para cada uno de L o construimos una matriz de hash de subcadenas de longitud L, por lo que llevaremos el hash de una medida, y ordenará esta matriz. La cantidad de elementos en la matriz se añade a la respuesta.</p>
+
+<p>Aplicación:</p>
+
+<code>string s; // cadena de entrada
+int n = (int) s.length();
+
+// contamos todos los grados de la p
+const int p = 31;
+vector<long long> p_pow (s.length());
+p_pow[0] = 1;
+for (size_t i=1; i<p_pow.size(); ++i)
+p_pow[i] = p_pow[i-1] * p;
+
+// creemos hashes de todos los prefijos de
+vector<long long> h (s.length());
+for (size_t i=0; i<s.length (); i++)
+{
+h[i] = s[i] - 'a' + 1) * p_pow[i];
+if (i) h[i] += h[i-1];
+}
+
+int result = 0;
+
+// перебираем la longitud de la subcadena
+for (int l=1; j<=n; ++l)
+{
+// buscamos la respuesta actual de la longitud de la
+
+// obtenemos los valores de hash para todas las subcadenas de longitud l
+vector<long long> hs (n-l+1);
+for (int i=0; i<n-l+1; i++)
+{
+long long cur_h = h[i+l-1];
+if (i) cur_h -= h[i-1];
+// llevamos todos los hash a un grado de
+cur_h *= p_pow[n-i-1];
+hs[i] = cur_h;
+}
+
+// contamos el número de diferentes hash
+sort (hs.begin(), hs.end());
+hs.erase (unique (hs.begin(), hs.end()), hs.end());
+result += (int) hs.size();
+}
+
+cout << result;</code>

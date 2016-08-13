@@ -1,0 +1,101 @@
+\h1{ Encontrar el mayor de cero подматрицы }
+
+Dada la matriz $a$ de $n \times m$. Es necesario encontrar en ella esa подматрицу, que consiste sólo de ceros, y entre todos los --- tiene la mayor superficie (подматрица --- es un área rectangular de la matriz).
+
+Trivial de un algoritmo --- перебирающий que busca подматрицу, - - -, incluso cuando la buena aplicación funcionará $O (n^2 m^2)$. A continuación se describe el algoritmo que trabaja en el $O (n m)$, es decir, lineal en relación con el tamaño de la matriz de tiempo.
+
+
+\h2{ el Algoritmo }
+
+Para resolver ambigüedades, inmediatamente tenga en cuenta que $n$ es igual al número de filas de la matriz $a$, respectivamente, $m$ --- este es el número de columnas. Los elementos de la matriz vamos a numerar $0$-indexación, es decir, en la caracterización de $a[i][j]$ los índices de $i$ y $j$ recorren los rangos de $i = 0, \ldots, n-1$, $j = 0 \ldots m-1$.
+
+
+\h3{ Paso 1: Auxiliar de altavoz }
+
+Primero consideramos la siguiente auxiliar de la dinámica: $d[i][j]$ --- parada de arriba a la unidad para el elemento $a[i][j]$. Formalmente hablando, $d[i][j]$ es mayor al número de fila (entre líneas que van desde $-1$ a $i$), en el cual, $j$-ohm columna vale la unidad. En particular, si esa línea no existe, $d[i][j]$ confía en $-1$ (esto se puede entender como el hecho de que toda la matriz como si se limita el exterior de las unidades).
+
+Esta dinámica es fácil dar por sentado moviendo por la matriz de arriba a abajo: que nos cuesta en $i$-ésima fila, y se sabe de la importancia de la dinámica de la fila anterior. Entonces, basta con copiar estos valores en la dinámica de la fila actual, cambiando solo los elementos que en la matriz están de unidades. Claro que entonces no es necesario almacenar toda rectangular de la matriz dinámica, y solo el tamaño de la matriz $m$:
+
+\code
+vector<int> d (m, -1);
+for (int i=0; i<n; ++i) {
+for (int j=0; j<m; j++)
+if (a[i][j] == 1)
+d[j] = i;
+
+// calculado de d para la i-ésima fila, podemos usar estos valores
+}
+\endcode
+
+
+\h3{ Paso 2: la Solución de la tarea }
+
+Ahora podemos resolver el problema por el $O (n m^2)$ --- faq en la fila actual de la habitación de la izquierda y la derecha de las columnas de la подматрицы, y con la ayuda de la dinámica de $d[][]$ calcular $O (1)$ límite superior de cero подматрицы. Sin embargo, se puede ir más allá y mejorar significativamente el асимптотику de la decisión.
+
+Claro que el buscado de cero подматрица limitada a los cuatro lados de los единичками (o los límites del campo), --- que le impiden aumentar de tamaño y a mejorar la respuesta. Por lo tanto, se afirma, no nos perderemos la respuesta, si vamos a proceder de la siguiente manera: en primer lugar переберем número $i$ de la línea inferior de cero подматрицы y, a continuación, переберем, en qué columna $j$ vamos a упирать arriba de cero подматрицу. Usando un valor de $d[i][j]$, obtenemos el número de la fila superior de cero подматрицы. Queda ahora de determinar los mejores los bordes izquierdo y derecho de cero подматрицы, --- es decir, el máximo de separar este подматрицу a la izquierda y a la derecha del $j$del de la columna.
+
+Lo que significa ampliar el máximo a la izquierda? Esto significa encontrar un índice de $k_1$ que $d[i][k_1] > d[i][j]$ y $k_1$ --- el más cercano esta a la izquierda para el índice $j$. Claro que entonces $k_1+1$ da el número de la columna de la izquierda buscado cero подматрицы. Si este índice no tiene en general, poner $k_1=-1$ (esto significa que hemos sido capaces de ampliar el actual cero подматрицу hacia la izquierda hasta el tope --- hasta la frontera de toda la matriz $a$).
+
+De forma simétrica, se puede definir un índice de $k_2$ para el borde derecho: este es el más cercano a la derecha del $j$ índice tal que $d[i][k_2] > d[i][j]$ (o $m$, si este índice no).
+
+Así, los índices de $k_1$ y $k_2$, si aprendemos de manera eficiente a buscar, nos darán toda la información necesaria acerca de la actual cero подматрице. En particular, su área será igual a $(i - d[i][j]) \cdot (k_2 - k_1 - 1)$.
+
+Cómo buscar en los índices de $k_1$ y $k_2$ eficaz cuando fijas de $i$ y $j$? Nos cubre sólo asíntotas $O(1)$ de, al menos, en promedio.
+
+Para lograr ese tipo de асимптотики es posible con la ayuda de la pila (stack) de la siguiente manera. Aprenderemos a buscar primero el índice $k_1$, y guardar su valor para cada índice $j$ dentro de la línea actual $i$ en la dinámica de $d_1[i][j]$. Para ello, vamos a ver todas las columnas $j$ de izquierda a derecha, y podamos establecer una dicha pila, en la que siempre se encuentran sólo las columnas, en las que el valor de la dinámica de $d[][]$ estrictamente más de $d[i][j]$. Está claro que cuando se pasa de la columna $j$ a la siguiente columna $j+1$ es necesario actualizar el contenido de esta pila. Se afirma que es necesario poner en primer lugar en la pila de la columna $j$ (ya que para él la pila de "bueno"), y luego, mientras en la parte superior de la pila est equivocado elemento (es decir, cuyo valor es de $d \le d[i][j+1]$), --- sacar este elemento. Es fácil de entender, tiene que eliminar de la pila sólo desde su cima, y de cualquier otros lugares (ya que la pila contendrá creciente de $d$ la secuencia de las columnas).
+
+El valor de $d_1[i][j]$ cada $j$ será igual, лежащему en este momento en la cima de la pila.
+
+Claro, que como adiciones en la pila, en cada línea, $i$ ocurre exactamente $m$ unidades, y las eliminaciones no podía ser mayor, por lo tanto, en la suma de asíntotas será lineal.
+
+La dinámica de $d_2[i][j]$ para hallar los índices de $k_2$ se considera el mismo, sólo hay que ver las columnas de derecha a izquierda.
+
+También cabe destacar que este algoritmo consume $O(m)$ de memoria (no teniendo en cuenta los datos de entrada --- la matriz $a[][]$).
+
+
+\h2{ Aplicación }
+
+Esta implementación de lo anterior el algoritmo lee las dimensiones de la matriz y, a continuación, la matriz (como una secuencia de números, separados por espacios en blanco o de traducciones de filas) y, a continuación, muestra la respuesta --- el tamaño de la mayor de cero подматрицы.
+
+Es fácil de mejorar esta aplicación, que también muestre la cero подматрицу: para ello es necesario cada vez que cambia el $\rm ans$ memorizar números de filas y de columnas подматрицы (son respectivamente $d[j]+1$, $i$, $d1[j]+1$, $d2[j]-1$).
+
+\code
+int n, m;
+cin >> n >> m;
+vector < vector<int> > a (n, vector<int> (m));
+for (int i=0; i<n; ++i)
+for (int j=0; j<m; j++)
+cin >> a[i][j];
+
+int ans = 0;
+vector<int> d (m, -1), d1 (m) d2 (m);
+pila<int> st;
+for (int i=0; i<n; ++i) {
+for (int j=0; j<m; j++)
+if (a[i][j] == 1)
+d[j] = i;
+while (!st.empty()) st.pop();
+for (int j=0; j<m; j++) {
+while (!st.empty() && d[st.top()] <= d[j]) st.pop();
+d1[j] = st.empty() ? -1 : st.top();
+st.push (j);
+}
+while (!st.empty()) st.pop();
+for (int j=m-1; j>=0; --j) {
+while (!st.empty() && d[st.top()] <= d[j]) st.pop();
+d2[j] = st.empty() ? m : st.top();
+st.push (j);
+}
+for (int j=0; j<m; j++)
+ans = max (ans, (i - d[j]) * (d2[j] - d1[j] - 1));
+}
+
+cout << ans;
+\endcode
+
+
+
+
+
+
+

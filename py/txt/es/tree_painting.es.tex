@@ -1,0 +1,181 @@
+<h1>la Pintura de los bordes de la madera</h1>
+
+<p>Esto es bastante común la tarea. Dado el árbol de G. se recibe la solicitud de dos tipos: el primer tipo es pintar un borde, el segundo tipo de consulta de la cantidad de pintadas llenas de aristas entre dos vértices.</p>
+<p>Aquí se describe es una solución (con el uso de <algohref=segment_tree>árbol de regiones</algohref>), que va a responder por el O (log N), con препроцессингом (procesamiento de la madera) O (M).</p>
+<h2>Solución</h2>
+<p>Para empezar, tendremos que implementar <algohref=lca>LCA</algohref> para cada solicitud de un segundo tipo (i,j) reducir a dos consultas (a,b), donde a es el antepasado b.</p>
+<p>Ahora describiremos <b>препроцессинг</b> en realidad para nuestra tarea. Ejecutar una búsqueda en profundidad de la raíz del árbol, esta búsqueda en profundidad será algo de la lista de visita de vértices (cada vértice se agrega a la lista, cuando se trata de buscar en ella, y cada vez que después de una búsqueda en profundidad, se devuelve el hijo de la actual cima) - por cierto, esta misma lista se utiliza el algoritmo de la LCA. En esta lista estará presente cada arista (en el sentido de que si i y j - los extremos de las costillas, en la lista encontrarás un lugar donde i y j son consecutivos uno detrás de otro), y asistir exactamente 2 veces: en la dirección de avance (de i a j, donde el vértice i más cerca de la raíz de la cima j) y a la inversa (de j a i).</p>
+<p><b>Construiremos</b> dos de los trozos de madera (para la suma, con una sola modificación) de esta lista: T1 y T2. El árbol T1 tendrá en cuenta cada arista sólo en la dirección correcta, y el árbol T2 - por el contrario, es a la inversa.</p>
+<p>Deje que ingresó ordinario de <b>investigación</b> de la especie (i,j), donde i es el antepasado de j, y se desea determinar la cantidad de aristas es en el camino entre i y j. Encontraremos i y j en la lista de rastreo en profundidad (nos requieren necesariamente la posición donde se encuentran por primera vez), que son algunas de las posiciones p y q (esto se puede hacer en O (1), si calcular las posiciones de antemano en el momento de препроцессинга). <B>la respuesta es la suma de T1[p..q-1] - el importe de la T2[p..q-1]</b>.</p>
+<p>¿por Qué? Considere el segmento [p;q] en la lista de rastreo en profundidad. Contiene las costillas deseado nosotros el camino de i a j, pero también contiene muchas aristas, que se encuentran en otras maneras de i. Sin embargo, entre los que nos las costillas y el resto de las costillas hay una gran diferencia: las costillas van a incluir en esta lista sólo una vez, y en la dirección correcta, y el resto de la aleta se reunirán dos veces: y en directo, y en la dirección opuesta. Por lo tanto, la diferencia de la T1[p..q-1] - T2[p..q-1] nos dará la respuesta (menos uno desea, porque de lo contrario tomaremos aún en exceso el borde de la cima de la j a algn hacia arriba o hacia abajo). La solicitud de la suma en el árbol de regiones se realiza por O (log N).</p>
+<p>la Respuesta de <b>investigación</b> tipo 1 (sobre la pintura de cualquiera de las costillas), es aún más fácil, solo tenemos que actualizar T1 y T2, es decir realizar una única modificación del elemento que se corresponde con nuestro eje (encontrar el borde de la lista de rastreo, de nuevo, a O (1) si, al realizar esta búsqueda en препроцессинге). Una modificación en el árbol de regiones se realiza por O (log N).</p>
+<h2>Realización</h2>
+<p>Aquí encontrará la completa implementación de la solución, incluyendo LCA:</p>
+<code>const int INF = 1000*1000*1000;
+
+typedef vector < vector<int> > graph;
+
+vector<int> dfs_list;
+vector<int> ribs_list;
+vector<int> h;
+
+void dfs (int v, const graph & g, const graph & rib_ids, int cur_h = 1)
+{
+h[v] = cur_h;
+dfs_list.push_back (v);
+for (size_t i=0; i<g[v].size(); ++i)
+if (h[g[v][i]] == -1)
+{
+ribs_list.push_back (rib_ids[v][i]);
+dfs (g[v][i], g, rib_ids, cur_h+1);
+ribs_list.push_back (rib_ids[v][i]);
+dfs_list.push_back (v);
+}
+}
+
+vector<int> lca_tree;
+vector<int> first;
+
+void lca_tree_build (int i, int l, int r)
+{
+if (l == r)
+lca_tree[i] = dfs_list[l];
+else
+{
+int m = (l + r) >> 1;
+lca_tree_build (i+i, l, m);
+lca_tree_build (i+i+1, m+1, r);
+int lt = lca_tree[i+i], rt = lca_tree[i+i+1];
+lca_tree[i] = h[lt] < h[rt] ? lt : rt;
+}
+}
+
+void lca_prepare (int n)
+{
+lca_tree.assign (dfs_list.size() * 8, -1);
+lca_tree_build (1, 0, (int)dfs_list.size()-1);
+
+first.assign (n, -1);
+for (int i=0; i < (int)dfs_list.size(); ++i)
+{
+int v = dfs_list[i];
+if (first[v] == -1) first[v] = i;
+}
+}
+
+int lca_tree_query (int i, int tl, int tr, int l, int r)
+{
+if (tl == l && tr = r=)
+return lca_tree[i];
+int m = (tl + tr) >> 1;
+if (r <= m)
+return lca_tree_query (i+i, tl, m, l, r);
+if (l > m)
+return lca_tree_query (i+i+1, m+1, tr, l, r);
+int lt = lca_tree_query (i+i, tl, m, l, m);
+int rt = lca_tree_query (i+i+1, m+1, tr, m+1, r);
+return h[lt] < h[rt] ? lt : rt;
+}
+
+int lca (int a, int b)
+{
+if (first[a] > first[b]) swap (a, b);
+return lca_tree_query (1, 0, (int)dfs_list.size()-1, first[a], first[b]);
+}
+
+
+vector<int> first1, first2;
+vector<char> rib_used;
+vector<int> tree1, tree2;
+
+void query_prepare (int n)
+{
+first1.resize (n-1, -1);
+first2.resize (n-1, -1);
+for (int i = 0; i < (int) ribs_list.size(); ++i)
+{
+int j = ribs_list[i];
+if (first1[j] == -1)
+first1[j] = i;
+else
+first2[j] = i;
+}
+
+rib_used.resize (n-1);
+tree1.resize (ribs_list.size() * 8);
+tree2.resize (ribs_list.size() * 8);
+}
+
+void sum_tree_update (vector<int> & tree, int i, int l, int r, int j, int delta)
+{
+tree[i] += delta;
+if (i < r)
+{
+int m = (l + r) >> 1;
+if (j <= m)
+sum_tree_update (tree, i+i, l, m, j, delta);
+else
+sum_tree_update (tree, i+i+1, m+1, r, j, delta);
+}
+}
+
+int sum_tree_query (const vector<int> & tree, int i, int tl, int tr, int l, int r)
+{
+if (l > r || tl > tr) return 0;
+if (tl == l && tr = r=)
+return tree[i];
+int m = (tl + tr) >> 1;
+if (r <= m)
+return sum_tree_query (tree, i+i, tl, m, l, r);
+if (l > m)
+return sum_tree_query (tree, i+i+1, m+1, tr, l, r);
+return sum_tree_query (tree, i+i, tl, m, l, m)
++ sum_tree_query (tree, i+i+1, m+1, tr, m+1, r);
+}
+
+int query (int v1, int v2)
+{
+return sum_tree_query (tree1, 1, 0, (int)ribs_list.size()-1, first[v1], first[v2]-1)
+- sum_tree_query (tree2, 1, 0, (int)ribs_list.size()-1, first[v1], first[v2]-1);
+}
+
+
+int main()
+{
+// lectura del conde
+int n;
+scanf ("%d", &n);
+graph g (n), rib_ids (n);
+for (int i=0; i<n-1; i++)
+{
+int v1, v2;
+scanf ("%d%d", &v1 &v2);
+--v1, --v2;
+g[v1].push_back (v2);
+g[v2].push_back (v1);
+rib_ids[v1].push_back (i);
+rib_ids[v2].push_back (i);
+}
+
+h.assign (n, -1);
+dfs (0, g, rib_ids);
+lca_prepare (n);
+query_prepare (n);
+
+for (;;) {
+if () {
+// consulta sobre la pintura de las costillas con el número de x;
+// si el start=true, entonces la arista tiñe bien, de lo contrario la pintura se retira
+rib_used[x] = inicio;
+sum_tree_update (tree1, 1, 0, (int)ribs_list.size()-1, first1[x], start?1:-1);
+sum_tree_update (tree2, 1, 0, (int)ribs_list.size()-1, first2[x], start?1:-1);
+}
+else {
+ // la consulta del número de aristas coloreadas en el camino entre la v1 y la v2
+int l = lca (v1, v2);
+int result = query (l, v1) + consulta (l, v2);
+// resultado - la respuesta a la solicitud de
+}
+}
+
+}</code>

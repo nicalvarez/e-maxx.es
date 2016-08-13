@@ -1,0 +1,57 @@
+<h1>prueba de conde de la ацикличность y la búsqueda de ciclo</h1>
+
+<p>Deje que dan orientado o неориентированный conde sin bisagras y de múltiples aristas. Desea comprobar y, si es ациклическим, y si no es, entonces, encontrar cualquier ciclo.</p>
+<p>Decidamos a esta tarea con la ayuda de <algohref=dfs>búsqueda en profundidad</algohref> a O (M).</p>
+<h2>el Algoritmo de</h2>
+<p>Realizaremos una serie de búsquedas en profundidad en la columna. Es decir, a partir de cada vértice, en la que podemos nunca llegaron a lanzar la búsqueda en profundidad, que al entrar en la cima se va a pintar en el color gris y cuando sale en negro. Y si la búsqueda en profundidad, tratando de ir en el gris de la parte superior, esto significa que hemos encontrado en el ciclo (si el conde неориентированный, casos en que la búsqueda en profundidad de algún cima de la trata de ir a un antepasado, no se consideran).</p>
+<p>El ciclo puede restaurar el paso de la matriz de los antepasados.</p>
+<h2>Realización</h2>
+<p>Aquí se muestra una implementación para el caso orientado hacia el conde.</p>
+<code>int n;
+vector < vector<int> > g;
+vector<char> cl;
+vector<int> p;
+int cycle_st, cycle_end;
+
+bool dfs (int v) {
+cl[v] = 1;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (cl[to] == 0) {
+p[to] = v;
+if (dfs (to)) return true;
+}
+else if (cl[to] == 1) {
+cycle_end = v;
+cycle_st = to;
+return true;
+}
+}
+cl[v] = 2;
+return false;
+}
+
+int main() {
+... lectura del conde ...
+
+p.assign (n, -1);
+cl.assign (n, 0);
+cycle_st = -1;
+for (int i=0; i<n; ++i)
+if (dfs (i))
+break;
+
+if (cycle_st == -1)
+puts ("Acyclic");
+else {
+puts ("Cyclic");
+vector<int> cycle;
+cycle.push_back (cycle_st);
+for (int v=cycle_end; v!=cycle_st; v=p[v])
+cycle.push_back (v);
+cycle.push_back (cycle_st);
+reverse (cycle.begin(), cycle.end());
+for (size_t i=0; i<cycle.size(); ++i)
+printf ("%d ", cycle[i]+1);
+}
+}</code>

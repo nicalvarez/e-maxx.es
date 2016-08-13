@@ -1,0 +1,514 @@
+\h1{ la transformación Rápida de fourier por O (N log N). Aplicación a la multiplicación de dos полиномов o largas de números }
+
+Aquí vamos a ver algoritmo que permite multiplicar dos polinómica de largo $n$ por hora $O(n \log n)$, que es mucho mejor el tiempo $O(n^2)$ llevase trivial el algoritmo de la multiplicación. Es evidente que la multiplicación de dos largos números se puede reducir a la multiplicación de полиномов, por lo tanto, dos largas número también se puede multiplicar por el tiempo $O(n \log n)$.
+
+La invención de la transformada Rápida de fourier se atribuye a cooley (Coolet) y Taki (Tukey) --- de 1965, En la realidad de la fft en repetidas ocasiones изобреталось de antes, pero la importancia de que en gran medida no fue realizado antes de la aparición de las computadoras modernas. Algunos investigadores atribuyen el descubrimiento de la fft runge (Runge) y Кенигу (Konig), en 1924, por Último, la apertura de este método se atribuye a otra gauss (Gauss) en 1805
+
+
+\h2{ transformada Discreta de fourier (dft) }
+
+Supongamos que se tiene un polinomio $n$-segundo grado:
+
+$$ A(x) = a_0 x^0 + a_1 x^1 + \ldots + a_{n-1} x^{n-1}. $$
+
+Sin perder generalidad, se puede suponer que $n$ es una potencia de 2. Si en realidad $n$ no es una potencia de 2, entonces estamos simplemente añadimos la falta de factores, poniendo sus iguales a cero.
+
+De la teoría de funciones integrado de ca se sabe que las integrales de las raíces $n$-segundo grado de la unidad hay exactamente $n$. Daremos el nombre de estas raíces a través de $w_{n,k}, k = 0 \sum_ {n-1}$, entonces se sabe que $w_{n,k} = e^{ i \frac{ 2 \pi k }{ n } }$. Además, una de estas raíces $w_n = w_{n,1} = e^{ i \frac{ 2 \pi }{ n } }$ (llamado el significado principal de la raíz de la $n$-segundo grado de la unidad) es tal que el resto de las raíces son sus grados de: $w_{n,k} = (w_n)^k$.
+
+Entonces \bf{la transformación discreta de fourier (dft)} (discrete Fourier transform, DFT) del polinomio $A(x)$ (o lo que es lo mismo, la dft de vector de sus factores de $(a_0, a_1, \dots, a_{n-1})$) se denominan los valores de este polinómico en los puntos de $x = w_{n,k}$, es decir, se trata de un vector:
+
+$$ {\rm DFT}(a_0, a_1, \ldots, a_{n-1}) = (y_0, y_1, \ldots, y_{n-1}) = (A(w_{n,0}), A(w_{n,1}), \ldots, A(w_{n,n-1})) = $$
+$$ = (A(w_n^0), A(w_n^1), \ldots, A(w_n^{n-1})). $$
+
+De manera similar se define y \bf{inversa de la transformada discreta de fourier} (InverseDFT). Inversa de la dft para el vector de los valores del polinomio $(y_0, y_1, \ldots y_{n-1})$ --- este es el vector de los coeficientes del polinomio $(a_0, a_1, \ldots, a_{n-1})$:
+
+$$ {\rm InverseDFT}(y_0, y_1, \ldots, y_{n-1}) = (a_0, a_1, \ldots, a_{n-1}). $$
+
+Por lo tanto, si directa dft pasa de los coeficientes del polinomio a sus valores integrados en las raíces de $n$-segundo grado de la unidad, entonces la inversa de la dft --- por el contrario, los valores del polinomio recupera los coeficientes del polinomio.
+
+
+\h2{ Uso de la dft para la rápida multiplicación de полиномов }
+
+Que dados dos del polinomio $A$ y $B$. Calcular la dft para cada uno de ellos: ${\rm DFT}(A)$ y ${\rm DFT}(B)$ --- se trata de dos de vector de los valores de los polinomios.
+
+Ahora, lo que sucede en la multiplicación de polinomios? Obviamente, en cada punto de su valor simplemente se multiplican entre sí, es decir,
+
+$$ (A \times B)(x) = A(x) \times B(x). $$
+
+Pero esto significa que si nosotros перемножим vector de ${\rm DFT}(A)$ y ${\rm DFT}(B)$, simplemente multiplicando cada elemento de un vector en el otro elemento de un vector, obtendremos no que otro, como la dft de del polinomio $A \times B$:
+
+$$ {\rm DFT} (A \times B) = {\rm DFT} (A) \times {\rm DFT} (B). $$
+
+Por último, aplicando la inversa de la dft, obtenemos:
+
+$$ A \times B = {\rm InverseDFT}( {\rm DFT} (A) \times {\rm DFT} (B) ), $$
+
+donde, de nuevo, a la derecha debajo de la obra de dos dft se entiende попарные de la obra de los elementos de los vectores. Tal obra, obviamente, requiere para el cálculo de sólo $O(n)$ de operaciones. Por lo tanto, si aprendemos a calcular la dft y la inversa de la dft por hora $O(n \log n)$, y la obra de dos полиномов (y, por lo tanto, y dos largas de números que podemos encontrar por el mismo асимптотику.
+
+Cabe señalar que, en primer lugar, dos del polinomio debe conducir a un grado (simplemente añadiendo factores, uno de ellos con ceros). En segundo lugar, como resultado de la multiplicación de dos polinomios de grado $n$ se obtiene el polinomio de grado $2n-1$, por lo que el resultado es correcto, antes es necesario duplicar el grado de cada del polinomio (de nuevo, completándolos con cero los factores).
+
+
+\h2{ la transformación Rápida de fourier }
+
+\bf{la transformación Rápida de fourier} (fast Fourier transform) --- es un método que permite calcular la dft por hora $O(n \log n)$. Este método se basa en las propiedades integradas de las raíces de la unidad (es decir, en el hecho de que el grado de algunas de las raíces dan otras raíces).
+
+La idea principal de la fft es dividir el vector de los coeficientes para los dos vectores, un cálculo de la dft para ellos, y se combinan los resultados de una fft.
+
+Así, supongamos que se tiene un polinomio de $A(x)$ grado $n$, donde $n$ --- potencia de dos, y $n>1$:
+
+$$ A(x) = a_0 x^0 + a_1 x^1 + \ldots + a_{n-1} x^{n-1}. $$
+
+Dividiremos en dos del polinomio, una --- con el juego de pares y el otro --- con alguna cuotas:
+
+$$ A_0(x) = a_0 x^0 + a_2 x^1 + \ldots + a_{n-2} x^{n/2-1}, $$
+$$ A_1(x) = a_1 x^0 + a_3 x^1 + \ldots + a_{n-1} x^{n/2-1}. $$
+
+Es fácil ver que:
+
+$$ A(x) = A_0(x^2) + x A_1(x^2). ~~~~~~~(1) $$
+
+Los polinomios de $A_0$ y $A_1$ tienen el doble de menor grado que el polinomio de $A$. Si podemos por lineal del tiempo calculado de ${\rm DFT}(A_0)$ y ${\rm DFT}(A_1)$ calcular ${\rm DFT}(A)$, entonces obtendremos el algoritmo de la transformada rápida de fourier (ya que es el estándar en el esquema del algoritmo "divide y vencerás", y para ella es conocida quebrada la evaluación de la $O(n \log n)$).
+
+Así, que tenemos calculado el vector de $\{ y_k^0 \}_{k=0}^{n/2-1} = {\rm DFT}(A_0)$ y $\{ y_k^1 \}_{k=0}^{n/2-1} = {\rm DFT}(A_1)$. Encontramos una expresión para $\{ y_k \}_{k=0}^{n-1} = {\rm DFT}(A)$.
+
+En primer lugar, recordar (1), obtenemos los valores para la primera mitad de los coeficientes:
+
+$$ y_k = y_k^0 + w_n^k y_k^1, ~~~~ k = 0 \ldots, n/2-1. $$
+
+Para la segunda mitad de los factores después de la transformación también obtenemos una fórmula sencilla:
+
+$$ y_{k+n/2} = A(w_n^{k+n/2}) = A_0(w_n^{2k+n}) + w_n^{k+n/2} A_1(w_n^{2k+n}) = A_0(w_n^{2k} w_n^n) + w_n^k w_n^{n/2} A_1(w_n^{2k} w_n^n) = $$
+$$ = A_0(w_n^{2}) - w_n^k A_1(w_n^{2}) = y_k^0 - w_n^k y_k^1. $$
+
+(Aquí hemos aprovechado (1), así como en identidades $w_n^n = 1$, $w_n^{n/2} = -1$.)
+
+Hasta ahora, hemos recibido una fórmula para calcular el total del vector $\{ y_k \}$:
+
+$$ y_k = y_k^0 + w_n^k y_k^1, \ \ \ \ k = 0 \ldots, n/2-1, $$
+$$ y_{k+n/2} = y_k^0 - w_n^k y_k^1, \ \ \ \ k = 0 \ldots, n/2-1. $$
+
+(estas fórmulas, es decir, dos fórmulas de tipo $a+bc$ y $a-bc$, a veces se llama "la transformación de la mariposa" ("butterfly operation"))
+
+Así, finalmente hemos construido el algoritmo de la fft.
+
+
+\h2{ Inversa de la fft }
+
+Por tanto, que dado un vector de $(y_0, y_1, \ldots, y_{n-1})$ --- el valor del polinomio $A$ grado $n$ puntos $x = w_n^k$. Desea restaurar los factores de $(a_0, a_1, \ldots, a_{n-1})$ del polinomio. Esta conocida la tarea se denomina \bf{interpolación}, para esta tarea hay generales y de los algoritmos de decisión, sin embargo, en este caso, se obtiene un algoritmo muy sencillo (simple hecho de que prácticamente no se diferencia de la directa de la fft).
+
+Dft podemos grabar, de acuerdo con su definición, en forma de matriz:
+
+$$ \pmatrix{ w_n^0 & w_n^0 & w_n^0 & w_n^0 & \cdots & w_n^0 \cr w_n^0 & w_n^1 & w_n^2 & w_n^3 & \cdots & w_n^{n-1} \cr w_n^0 & w_n^2 & w_n^4 & w_n^6 & \cdots & w_n^{2(n-1)} \cr w_n^0 & w_n^3 & w_n^6 & w_n^9 & \cdots & w_n^{3(n-1)} \cr \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \cr w_n^0 & w_n^{n-1} & w_n^{2(n-1)} & w_n^{3(n-1)} & \cdots & w_n^{(n-1)(n-1)} } \pmatrix{ a_0 \cr a_1 \cr a_2 \cr a_3 \cr \vdots \cr a_{n-1} } = \pmatrix{ y_0 \cr y_1 \cr y_2 \cr y_3 \cr \vdots \cr y_{n-1} }. $$
+
+Entonces el vector $(a_0, a_1, \ldots, a_{n-1})$, se puede encontrar multiplicando el vector $(y_0, y_1, \ldots, y_{n-1})$ en la matriz inversa de una matriz, que se encuentra a la izquierda (que, por cierto, se llama matriz de Вандермонда):
+
+$$ \pmatrix{ a_0 \cr a_1 \cr a_2 \cr a_3 \cr \vdots \cr a_{n-1} } = \pmatrix{ w_n^0 & w_n^0 & w_n^0 & w_n^0 & \cdots & w_n^0 \cr w_n^0 & w_n^1 & w_n^2 & w_n^3 & \cdots & w_n^{n-1} \cr w_n^0 & w_n^2 & w_n^4 & w_n^6 & \cdots & w_n^{2(n-1)} \cr w_n^0 & w_n^3 & w_n^6 & w_n^9 & \cdots & w_n^{3(n-1)} \cr \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \cr w_n^0 & w_n^{n-1} & w_n^{2(n-1)} & w_n^{3(n-1)} & \cdots & w_n^{(n-1)(n-1)} }^{-1} \pmatrix{ y_0 \cr y_1 \cr y_2 \cr y_3 \cr \vdots \cr y_{n-1} }. $$
+
+Estará verificación puede comprobar que la inversa de una matriz es la siguiente:
+
+$$ \frac{1}{n} \pmatrix{ w_n^0 & w_n^0 & w_n^0 & w_n^0 & \cdots & w_n^0 \cr w_n^0 & w_n^{-1} & w_n^{-2} & w_n^{-3} & \cdots & w_n^{-(n-1)} \cr w_n^0 & w_n^{-2} & w_n^{-4} & w_n^{-6} & \cdots & w_n^{-2(n-1)} \cr w_n^0 & w_n^{-3} & w_n^{-6} & w_n^{-9} & \cdots & w_n^{-3(n-1)} \cr \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \cr w_n^0 & w_n^{-(n-1)} & w_n^{-2(n-1)} & w_n^{-3(n-1)} & \cdots & w_n^{-(n-1)(n-1)} }. $$
+
+Por lo tanto, obtenemos la fórmula:
+
+$$ a_k = \frac{1}{n} \sum_{j=0}^{n-1} y_j w_n^{-kj}. $$
+
+Comparándolo con la fórmula para $y_k$:
+
+$$ y_k = \sum_{j=0}^{n-1} a_j w_n^{kj}, $$
+
+observamos que estos dos tareas casi indistinguibles, por lo tanto, los factores de $a_k$ se puede encontrar el mismo algoritmo "divide y vencerás", como y directa de la fft, sólo que en lugar de $w_n^k$ en todas partes es necesario usar $w_n^{-k}$, y cada elemento del resultado se debe dividir en $n$.
+
+Por lo tanto, el cálculo de la inversa de la dft casi no difiere de la de un cálculo directo de la dft, y también se puede llevar a cabo por hora $O(n \log n)$.
+
+
+\h2{ Aplicación }
+
+Veamos un sencillo recursiva \bf{aplicación de la fft} y la devolución de la fft, realizamos en la forma de una función, ya que la diferencia entre el directo y el inverso de la fft es mínima. Para el almacenamiento de los números complejos, usaremos el estándar en C++ STL tipo complex (definidos en el archivo cabecera <complex>).
+
+\code
+typedef complex<double> base.
+
+void fft (vector<base> & a, bool invert) {
+int n = (int) a.size();
+if (n == 1) return;
+
+vector<base> a0 (n/2), a1 (n/2);
+for (int i=0, j=0; i<n; i+=2, j++) {
+a0[j] = a[i];
+a1[j] = a[i+1];
+}
+fft (a0, invert);
+fft (a1, invert);
+
+double ang = 2*PI/n * (invert ? -1 : 1);
+base w (1), wn (cos(ang), sin(ang));
+for (int i=0; i<n/2; i++) {
+a[i] = a0[i] + w * a1[i];
+a[i+n/2] = a0[i] - w * a1[i];
+if (invert)
+a[i] /= 2, a[i+n/2] /= 2;
+w *= wn;
+}
+}
+\endcode
+
+En el argumento de $\rm a$ la función pasa de entrada el vector de coeficientes, y contendrá el resultado. El argumento $\rm invertir$ muestra, directa o inversa dft debe calcular. Dentro de la función, primero se comprueba que si la longitud del vector $\rm a$ es igual a la unidad, no necesita hacer nada - y él es la respuesta. De lo contrario, el vector de $\rm a$ se divide en dos vectores $\rm a0$ y $\rm a1$, para que de forma recursiva se calcula la dft. A continuación, se calcula el valor de $w_n$, y aparece la variable $w$, contiene el actual grado de $w_n$. A continuación, se evalúan los elementos del resultado de una dft de вышеописанным fórmulas.
+
+Si se especifica la bandera de $\rm invert = true$, entonces $w_n$ se sustituye por $w_n^{-1}$, y cada elemento del resultado se divide por 2 (teniendo en cuenta que estos dividir en 2 se producirán en cada nivel de recursión, en definitiva, de apenas resultar que todos los elementos de compartir en $n$).
+
+Entonces la función de \bf{перемножения dos polinomios} se verá de la siguiente manera:
+
+\code
+void multiply (const vector<int> & a, const vector<int> & b, vector<int> & res) {
+vector<base> fa (a.begin(), a.end ()) fb (b.begin () b.end());
+size_t n = 1;
+while (n < max (a.size () b.size())) n <<= 1;
+n <<= 1;
+fa.resize (n), fb.resize (n);
+
+fft (fa, false), fft (fb, false);
+for (size_t i=0; i<n; ++i)
+fa[i] *= fb[i];
+fft (fa, true);
+
+res.resize (n);
+for (size_t i=0; i<n; ++i)
+res[i] = int (f[i].real() + 0.5);
+}
+\endcode
+
+Esta característica funciona con многочленами con coeficientes enteros (aunque, claro, en teoría, nada impide trabajar y con coeficientes fraccionarios). Sin embargo, aquí se manifiesta el problema de la gran margen de error al calcular la dft: error puede ser importante, por lo tanto, de redondear el número mejor es el método más fiable --- se suma a 0.5 y la posterior redondeo hacia abajo (\bf{cuenta}: esto funciona correctamente para los números negativos, si los pueden aparecer en su aplicación).
+
+Finalmente, la función de \bf{перемножения dos largos números} prácticamente no difiere de la función de перемножения de polinomios. La única característica --- que después de la ejecución de la multiplicación de números como los polinomios deben normalizar, es decir, hacer todas las transferencias de dígitos:
+
+\code
+int c = 0;
+for (size_t i=0; i<n; ++i) {
+res[i] += carry;
+carry = res[i] / 10;
+res[i] %= 10;
+}
+\endcode
+
+(Debido a que la longitud de la multiplicación de dos números nunca superará el total de la longitud de los números, es el tamaño del vector $\rm res$ suficiente para realizar todas las transferencias.)
+
+
+\h2{ Mejorada de la aplicación: cálculo "en lugar de" sin memoria adicional }
+
+Para aumentar la eficacia de dejar a un lado la recursividad de forma explícita. En la anterior recursiva de la aplicación de manera explícita, compartieron el vector $\rm a$ en dos vectores --- los elementos pares posiciones llevaron a uno temporalmente creado vector, y en los impares --- a otro. Sin embargo, si nos переупорядочили elementos de cierta manera, entonces la necesidad de establecer temporales de vectores de entonces ya no son necesarios (es decir, todos los cálculos podríamos producir "in situ", justo en el vector $a$).
+
+Tenga en cuenta que en el primer nivel de recursividad de los elementos menores (los primeros) los bits de las posiciones de los cuales son iguales a cero, se refieren al vector $a_0$, y los bits inferiores de las posiciones de los cuales son iguales a la unidad --- al vector $a_1$. En el segundo nivel de recursividad se realiza lo mismo, pero ya para el segundo lugar de bits, y así sucesivamente, Por lo tanto, si estamos en la posición $i$ de cada elemento $a[i]$ invertir el orden de los bits, y переупорядочим los elementos de la matriz $a$ en consonancia con los nuevos índices, obtendremos el orden (como se llama \bf{поразрядно la inversa de la permutación} (bit-reversal permutation)).
+
+Por ejemplo, para $n=8$ este orden tiene la forma:
+
+$$ a = \biggl\{ \Bigl[ (a_0,a_4), (a_2, a_6) \Bigr] , \Bigl[ (a_1, a_5), (a_3, a_7) \Bigr] \biggr\}. $$
+
+De hecho, en el primer nivel de recursividad (rodeado por llaves) normal recursiva del algoritmo se produce la separación de un vector en dos partes: $[a_0,a_2,a_4,a_6]$ y $[a_1,a_3,a_5,a_7]$. Como vemos, en el поразрядно el reverso de un movimiento a esto corresponde sólo a la división de un vector en dos mitades: los primeros $n/2$ de los elementos, y los últimos $n/2$ de los elementos. A continuación se realiza una llamada recursiva de cada una de las mitades; que el resultante de la dft de cada uno de ellos fue devuelto en el lugar de los elementos propios (es decir, en la primera y segunda considerados por la mitad del vector de $a$, respectivamente):
+
+$$ a = \biggl\{ \Bigl[ y_0^0,\ y_1^0,\ y_2^0,\ y_3^0 \Bigr], \Bigl[ y_0^1,\ y_1^1,\ y_2^1,\ y_3^1 \Bigr] \biggr\}. $$
+
+Ahora debemos realizar la unión de los dos dft en uno para todo el vector. Pero los elementos se levantaron tan bien, que el montaje se puede realizar directamente en la matriz. En efecto, tomemos los elementos $y_0^0$ y $y_0^1$, es aplicable a ellos la transformación de la mariposa, y el resultado de poner en su lugar --- y este es el lugar, y que lo que tenía que suceder:
+
+$$ a = \biggl\{ \Bigl[ y_0^0+w_n^0y_0^1,\ y_1^0,\ y_2^0,\ y_3^0 \Bigr], \Bigl[ y_0^0-w_n^0y_0^1,\ y_1^1,\ y_2^1,\ y_3^1 \Bigr] \biggr\}. $$
+
+Asimismo, aplicamos la transformación de la mariposa a $y_1^0$ y $y_1^1$ y el resultado nos ponemos en su lugar, y así sucesivamente, finalmente obtenemos:
+
+$$ a = \biggl\{ \Bigl[ y_0^0+w_n^0y_0^1,\ y_1^0+w_n^1y_1^1,\ y_2^0+w_n^2y_2^1,\ y_3^0+w_n^3y_3^1 \Bigr], $$
+$$ ~~~~~~~~ \Bigl[ y_0^0-w_n^0y_0^1,\ y_1^0-w_n^1y_1^1,\ y_2^0-w_n^2y_2^1,\ y_3^0-w_n^3y_3^1 \Bigr] \biggr\}. $$
+
+Es decir, hemos recibido es la búsqueda de dft de vector de $a$.
+
+Hemos descrito el proceso de cálculo de la dft en el primer nivel de recursión, pero está claro que los mismos argumentos son válidos para el resto de niveles de recursividad. Por lo tanto, \bf{después de la aplicación de поразрядно la inversa de la permutación de calcular la dft, lugar}, sin la participación de más de matrices.
+
+Pero ahora se puede \bf{deshacerse y de recursividad} de forma explícita. Así, hemos aplicado поразрядно inversa de una permutación de los elementos. Ahora vamos a realizar todo el trabajo realizado en el nivel inferior de la recursividad, es decir, el vector de $a$ dividiremos en parejas de elementos, cada uno se aplica la transformación de la mariposa, el resultado en el vector $a$ estarán los resultados de los trabajos de bajo nivel de recursividad. El siguiente paso es dividir el vector $a$ en los cuatro elementos, a cada una se aplica la transformación de la mariposa, el resultado es una dft de cada cuatro. Y así sucesivamente, finalmente, en el último paso de nosotros, después de recibir los resultados de la dft de dos mitades del vector de $a$, a ellos se refiere la transformación de la mariposa y recibiremos la dft para todo vector de $a$.
+
+Así, la implementación de:
+
+\code
+typedef complex<double> base.
+
+int rev (int num, int lg_n) {
+int res = 0;
+for (int i=0; i<lg_n; ++i)
+if (num & (1<<i))
+res |= 1<<(lg_n-1-i);
+return res;
+}
+
+void fft (vector<base> & a, bool invert) {
+int n = (int) a.size();
+int lg_n = 0;
+while ((1 << lg_n) < n) ++lg_n;
+
+for (int i=0; i<n; ++i)
+if (i < rev(i,lg_n))
+swap (a[i], a[rev(i,lg_n)]);
+
+for (int len=2; len<=n; len<<=1) {
+double ang = 2*PI/len * (invert ? -1 : 1);
+base wlen (cos(ang), sin(ang));
+for (int i=0; i<n; i+=len) {
+base w (1);
+for (int j=0; j<len/2; j++) {
+base u = a[i+j], v = a[i+j+len/2] * w;
+a[i+j] = u + v;
+a[i+j+len/2] = u - v;
+w *= wlen;
+}
+}
+}
+if (invert)
+for (int i=0; i<n; ++i)
+a[i] /= n;
+}
+
+\endcode
+
+Primero en el vector $a$ se aplica поразрядно inversa de la transposición, para lo cual se calcula el número de bits significativos ($\rm lg\_n$) $n$, y para cada posición de la $i$ es la correspondiente posición de bits de la entrada que hay en bits de entrada el número de $i$ grabada en el orden inverso. Si la resultante posición fue más de $i$, entonces los elementos de estas dos posiciones es necesario cambiar (si no es una condición, entonces cada par de обменяется dos veces, y al final no pasará nada).
+
+A continuación, se ejecuta $\lg n - 1$ fases del algoritmo, $k$-el segundo de los cuales ($k=2 \ldots \lg n$) se calculan de la dft para los bloques de longitud $2^k$. Para todos estos bloques será el mismo valor первообразного raíz $w_{2^k}$, que se almacena en la variable $\rm wlen$. El ciclo de sobre $i$ итерируется en bloques, y anidado en él el ciclo $j$ aplica la transformación de la mariposa a todos los elementos de bloque.
+
+Se puede realizar más \bf{optimización de la inversión de los bits}. En la anterior implementación de manera explícita la pasaban todos los bits de un número, en el camino, construyendo поразрядно inversa de un número. Sin embargo, el reverso de bits se puede realizar de otra manera.
+
+Por ejemplo, supongamos que $j$ --- ya inductiva número igual a la inversa de cambiar de lugar el número de bits de $i$. Entonces, al pasar a la siguiente entre $i+1$ debemos a los $j$ sumar la unidad, pero a sumar en la "ingeniería" el sistema numérico. En el caso normal, el sistema binario de numeración de añadir una unidad --- significa eliminar todas las unidades que están en el final del número (es decir, un grupo de jóvenes de unidades), y delante de ellos para poner la unidad. En consecuencia, en la "ingeniería" del sistema tenemos que ir a por los bits de un número, a partir de la de los mayores, y hasta allá están las unidades, eliminarlos y pasar al siguiente bit; cuando se reunirá con el primer cero el bit de poner en él la unidad y parar.
+
+Así, nos encontramos con esta aplicación:
+
+\code
+typedef complex<double> base.
+
+void fft (vector<base> & a, bool invert) {
+int n = (int) a.size();
+
+for (int i=1, j=0; i<n; ++i) {
+int bit = n >> 1;
+for (; j>=bit; bit>>=1)
+j -= bit;
+j += bit;
+if (i < j)
+swap (a[i], a[j]);
+}
+
+for (int len=2; len<=n; len<<=1) {
+double ang = 2*PI/len * (invert ? -1 : 1);
+base wlen (cos(ang), sin(ang));
+for (int i=0; i<n; i+=len) {
+base w (1);
+for (int j=0; j<len/2; j++) {
+base u = a[i+j], v = a[i+j+len/2] * w;
+a[i+j] = u + v;
+a[i+j+len/2] = u - v;
+w *= wlen;
+}
+}
+}
+if (invert)
+for (int i=0; i<n; ++i)
+a[i] /= n;
+}
+\endcode
+
+
+\h2{ Adicionales de optimización }
+
+Llevaremos también la lista de otras optimizaciones, que en conjunto permiten acelerar notablemente más arriba "mejorada" de la aplicación de:
+
+\ul{
+
+\li \bf{Предпосчитать invertir los bits} para todos los números en cierta mundial de tabla. Especialmente fácil es que, cuando el tamaño de la $n$ cuando las llamadas es el mismo.
+
+Esta optimización se hace patente con la gran cantidad de llamadas de $fft()$. Sin embargo, el efecto de ella se puede observar incluso con tres llamadas (tres llamadas --- más común de la situación, es decir, cuando se requiere más de una vez se multiplican dos del polinomio).
+
+\li Rechazar el uso de $\rm vector$ (\bf{ir en matrices normales}).
+
+El efecto de esto depende del compilador, pero normalmente está presente y es de alrededor de 10% -20%.
+
+\li Предпосчитать \bf{todos los grados de la} número de $wlen$. En realidad, en este ciclo del algoritmo una y otra vez se realiza un paso de todos los grados en el número de $wlen$ de $0 a$ a $len/2-1$:
+
+\code
+for (int i=0; i<n; i+=len) {
+base w (1);
+for (int j=0; j<len/2; j++) {
+[...]
+w *= wlen;
+}
+}
+\endcode
+
+En consecuencia, antes de este ciclo podemos предпосчитать en cierto modo, la matriz de todos los grados, y deshacerse de lo innecesario умножений en una subconsulta ciclo.
+
+Estimado aceleración --- 5-10%.
+
+\li Deshacerse de \bf{visitas a las matrices de índices}, utilizar en lugar de ello, los punteros a los elementos de las matrices, la promoción de los en 1 hacia la derecha en cada iteración.
+
+A primera vista, la optimización de compiladores deben ser capaces de abordar con esto, sin embargo, en la práctica, resulta que la sustitución de visitas a las matrices $a[i+j]$ y $a[i+j+len/2]$ punteros acelera el programa en los compiladores. El premio es del 5-10%.
+
+\li \bf{Renunciar a un tipo de números complejos} $\rm complex$, habiendo copiado en su propia implementación.
+
+Una vez más, esto puede parecer sorprendente, pero incluso en los modernos compiladores premio de tal reescritura puede ser de hasta varias decenas de por ciento! Esto confirma indirectamente la afirmacin trivial, de que los compiladores de menos eficaces шаблонными tipos de datos, optimizando el trabajo con ellos es mucho peor que el de no-шаблонными tipos.
+
+\li útil optimización es \bf{recorte de la longitud}: cuando la longitud de la unidad de trabajo se convierte en una pequeña (por ejemplo, 4), calcular la dft para él "manualmente". Si pintar estos casos en forma expresa de fórmulas con una longitud igual a $4/2$, entonces los valores de los senos-cosenos tomarán valores enteros, por lo que se puede conseguir un aumento de velocidad en decenas de por ciento.
+
+}
+
+Aquí la implementación de mejoras descritas (salvo los dos últimos puntos, que conducen a una excesiva hipertrofia de código):
+
+\code
+int rev[MAXN];
+base wlen_pw[MAXN];
+
+void fft (en base a[], int n, bool invert) {
+for (int i=0; i<n; ++i)
+if (i < rev[i])
+swap (a[i], a[rev[i]]);
+
+for (int len=2; len<=n; len<<=1) {
+double ang = 2*PI/len * (invert?-1:+1);
+int len2 = len>>1;
+
+base wlen (cos(ang), sin(ang));
+wlen_pw[0] = base (1, 0);
+for (int i=1; i<len2; ++i)
+wlen_pw[i] = wlen_pw[i-1] * wlen;
+
+for (int i=0; i<n; i+=len) {
+base t,
+*pu = a+i,
+*pv = a+i+len2, 
+*pu_end = a+i+len2,
+*pw = wlen_pw;
+for (; pu!=pu_end; de la pu++, ++pv, ++pw) {
+t = *pv * *pw;
+*pv = *pu - t;
+*pu += t;
+}
+}
+}
+
+if (invert)
+for (int i=0; i<n; ++i)
+a[i] /= n;
+}
+
+void calc_rev (int n, int log_n) {
+for (int i=0; i<n; ++i) {
+rev[i] = 0;
+for (int j=0; j<log_n; ++j)
+if (i & (1<<j))
+rev[i] |= 1<<(log_n-1-j);
+}
+}
+\endcode
+
+En las compiladores esta implementación rápido que la anterior "mejorada" de la opción en 2-3 veces.
+
+
+\h2{ transformada Discreta de fourier en la aritmética modular }
+
+En la base de la elección de la transformada de fourier se encuentran los números complejos, las raíces de $n$-segundo grado de la unidad. Para la eficacia de su cálculo se utilizaron las características de las raíces, como la existencia de $n$ de diferentes raíces, que forman el grupo (es decir, el grado de la misma raíz --- siempre otra raíz; entre ellos hay un elemento --- generador de un grupo llamado primitivo de la raíz).
+
+Pero lo mismo es cierto en relación con las raíces de $n$-segundo grado de la unidad en la aritmética modular. Más precisamente, no es para cualquier módulo $p$ hay $n$ de diferentes raíces de la unidad, sin embargo, estos módulos también existen. Todavía es importante para nosotros encontrar entre ellos una raíz primitiva, es decir:
+
+$$ (w_n)^n = 1 \pmod p, $$
+$$ (w_n)^k \ne 1 {\pmod p}, ~~~~~ 1 \le k < n. $$
+
+Todos los demás $n-1$ de las raíces $n$-segundo grado de la unidad de módulo $p$ se puede obtener como el grado primitivo de la raíz de la $w_n$ (como en la caso).
+
+Para aplicar el algoritmo de la transformada Rápida de fourier necesitamos para примивный raíz existía para algún $n$, que era el grado de doses, así como de todos los menores grados. Y si en el caso de la integral de una raíz primitiva existía para cualquier $n$, en el caso de la aritmética modular es, en general, no es así. Sin embargo, tenga en cuenta que si $n = 2^k$, es decir $k$-aja potencia de dos, es por módulo $m = 2^{k-1}$ tenemos:
+
+$$ (w_n^2)^m = (w_n)^n = 1 \pmod p, $$
+$$ (w_n^2)^k = w_n^{2} \ne 1 {\pmod p}, ~~~~~ 1 \le k < m. $$
+
+Por lo tanto, si $w_n$ --- primitivo de la raz $n=2^k$-segundo grado de la unidad, $w_n^2$ --- una raíz primitiva de $2^{k-1}$-segundo grado de la unidad. Por lo tanto, para todos los grados de dos menores de $n$, primitivas raíces deseada de grado, también existen, y se pueden calcular como los de grado $w_n$.
+
+La reserva de código de barras --- para la devolución de dft hemos utilizado en lugar de $w_n$ inversa de él un elemento: $w_n^{-1}$. Pero un simple módulo $p$ elemento de vuelta también siempre hay.
+
+Por lo tanto, todos los que queremos que las propiedades se cumplen en el caso de la aritmética modular, con la condición de que hemos elegido algo lo suficientemente grande módulo $p$ y han encontrado en él una raíz primitiva de $n$-segundo grado de la unidad.
+
+Por ejemplo, puede tomar estos valores: módulo $p = 7340033$, $w_{2^{20}} = 5$. Si este módulo no será suficiente para encontrar otra pareja puede aprovechar el hecho de que para los módulos de tipo $c 2^k + 1$ (pero sigue necesariamente simples) siempre hay una raíz primitiva de grado $2^k$ de la unidad.
+
+\code
+const int mod = 7340033;
+const int root = 5;
+const int root_1 = 4404020;
+const int root_pw = 1<<20;
+
+void fft (vector<int> & a, bool invert) {
+int n = (int) a.size();
+
+for (int i=1, j=0; i<n; ++i) {
+int bit = n >> 1;
+for (; j>=bit; bit>>=1)
+j -= bit;
+j += bit;
+if (i < j)
+swap (a[i], a[j]);
+}
+
+for (int len=2; len<=n; len<<=1) {
+int wlen = invert ? root_1 : root;
+for (int i=len; i<root_pw; i<<=1)
+wlen = int (wlen * 1ll * wlen % mod);
+for (int i=0; i<n; i+=len) {
+int w = 1;
+for (int j=0; j<len/2; j++) {
+int u = a[i+j], v = int (a[i+j+len/2] * 1ll * w % mod);
+a[i+j] = u+v < mod ? u+v u+v-mod;
+a[i+j+len/2] = u-v >= 0 ? u-v u-v+mod;
+w = int (w * 1ll * wlen % mod);
+}
+}
+}
+if (invert) {
+int nrev = reverse (n, mod);
+for (int i=0; i<n; ++i)
+a[i] = int (a[i] * 1ll * nrev % mod);
+}
+}
+\endcode
+
+Aquí la función $\rm reverse$ encuentra de vuelta a $n$ el elemento de módulo $\rm mod$ (véase \algohref=reverse_element{elemento de vuelta en el campo de módulo}). Las constantes de $\rm mod$, $\rm root$ $\rm root\_pw$ determinan el módulo y una raíz primitiva, y $\rm root\_1$ --- de vuelta a $\rm root$ elemento de módulo $\rm mod$.
+
+Como muestra la práctica, la implementación de entero de la dft de funcionar, aunque un poco lenta la aplicación con números complejos (debido a la gran cantidad de operaciones de toma de módulo), sin embargo, tiene ventajas como un menor uso de memoria y la falta de errores de redondeo.
+
+
+\h2{ Algunas de las aplicaciones }
+
+Además de la aplicación directa de перемножения de polinomios o largas de números, se describe aquí algunas otras aplicaciones de la transformada de fourier discreta.
+
+
+\h3{ todo tipo de sumas }
+
+Objetivo: dados dos de la matriz $a[]$ y $b[]$. Es necesario encontrar todo tipo de número de tipo $a[i]+b[j]$, y para cada número de mostrar el número de maneras de conseguir.
+
+Por ejemplo, para $a = (1,2,3)$ y $b = (2,4)$ obtenemos: el número 3 se puede obtener 1 modo 4 --- también una, 5 --- 2, 6 --- 1, 7 --- 1.
+
+Construiremos en matrices de $a$ y $b$ dos del polinomio $A$ y $B$. En calidad de títulos de grado en многочлене actuar mismos números, es decir, el valor de $a[i]$ ($b[i]$), así como de los factores para ellos: - - - cantidad de veces que el número se encuentra en la matriz $a$ ($b$).
+
+Entonces, перемножив estos dos del polinomio $O(n \log n)$, obtenemos el polinomio $C$, donde, como de los grados serán de todo tipo de número de tipo $a[i]+b[j]$, y los factores de cuando ellos son apenas las cantidades deseadas
+
+
+\h3{ todo tipo de escalares obras }
+
+Dados dos de la matriz $a[]$ y $b[]$ a una longitud $n$. Desea ver los valores de cada escalar obras de arte del vector $a$ en el siguiente período de desplazamiento cíclico del vector $b$.
+
+Invertir la matriz $a$ y припишем a él en la final de $n$ ceros, y a la matriz $b$ --- simplemente припишем de sí mismo. A continuación, перемножим como polinomios. Ahora considere los factores de obra $c[n \ldots 2n-1]$ (como siempre, todos los índices en 0-indexación). Tenemos:
+
+$$ c[k] = \sum_{i+j=k} a[i] b[j]. $$
+
+Dado que todos los elementos de $a[i]=0,\ i=n \ldots 2n-1$, obtenemos:
+
+$$ c[k] = \sum_{i=0}^{n-1} a[i] b[k-i]. $$
+
+Es fácil ver en esta suma, que es escalar la obra del vector $a$ la $k-n-1$-primer desplazamiento cíclico. Por lo tanto, estos factores (a partir de $n-1$y trasvasar $2n-2$-eum) --- es la respuesta a la tarea.
+
+La solución pasa con асимптотикой $O (n \log n)$.
+
+
+\h3{ Dos tiras }
+
+Se dan las dos tiras, definidos como dos булевских (es decir, numéricos con los valores 0 o 1) de la matriz $a[]$ y $b[]$. Es necesario buscar todas las posiciones en la primera tira, que si se aplica, a partir de esta posición, la segunda raya, en ningún lugar, no pasará de $\rm true$ seguida en las dos rayas. Esta tarea se puede reformular así: dada la tarjeta de la raya, como 0/1 --- puede levantarse en esta jaula o no, y se les dio alguna figurita en forma de la plantilla (en forma de matriz, en la que 0 --- no de la célula, 1 --- es), es necesario encontrar todas las posiciones de la tira, a los que se puede aplicar la figura.
+
+Esta tarea, de hecho no es diferente de la tarea --- la tarea de скалярном la obra. De hecho, escalar el producto de los dos 0/1 matrices --- es el número de elementos en cada una de las cuales se encontraban las unidades. Nuestra tarea es encontrar todos los cambios cíclicos de la segunda de las tiras para que no se halló ningún elemento, en donde en ambos se indica anteriormente se encontraban las unidades. Es decir, tenemos que encontrar todos los cambios cíclicos de la segunda matriz, en las que escalar la obra es igual a cero.
+
+Por lo tanto, esta tarea hemos decidido por $O(n \log n)$.

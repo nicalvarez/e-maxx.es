@@ -1,0 +1,120 @@
+\h1{Árbol de stern-Броко. Una Serie De Фарея}
+
+\h2{Árbol de stern-Броко}
+
+El árbol de stern-Броко --- es el diseño para construir el conjunto de todos no negativos fracciones. Ella era independiente abierta alemán matemático Морицем Штерном (Moritz Stern) en 1858 y francés relojero de aquiles Броко (Achille Brocot) en 1861, sin Embargo, según algunas fuentes, este diseño se ha abierto todavía en la antigua grecia los científicos Эратосфеном (Eratosthenes).
+
+En \bf{cero} iteración tenemos dos fracciones:
+$$ \frac{0}{1}, \frac{1}{0} $$
+(segunda magnitud, estrictamente hablando, la fracción no es; se puede entender como несократимую la fracción correspondiente al infinito)
+
+Más allá, en cada \bf{posterior} iteración se toma esta lista de fracciones y entre cada dos vecinas, las fracciones de $\frac{a}{b}$ y $\frac{c}{d}$ se inserta su \bf{intermedio del}, es decir, la fracción $\frac{a+b}{b+d}$.
+
+Así, en la primera iteración actual de muchos es:
+$$ \frac{0}{1}, \frac{1}{1}, \frac{1}{0} $$
+
+En la segunda:
+$$ \frac{0}{1}, \frac{1}{2}, \frac{1}{1}, \frac{2}{1}, \frac{1}{0} $$
+
+En la tercera:
+$$ \frac{0}{1}, \frac{1}{3}, \frac{1}{2}, \frac{2}{3}, \frac{1}{1}, \frac{3}{2}, \frac{2}{1}, \frac{3}{1}, \frac{1}{0} $$
+
+Continuando con este proceso hasta que la \bf{infinito}, se dice, se puede obtener una gran variedad de \bf{todos} no negativos fracciones. Además, todos los derivados de la fracción se \bf{diferentes} (es decir, del conjunto actual de cada fracción se encuentra no más de una vez), \bf{несократимыми} (numeradores y denominadores se van a recuperar mutuamente simples). Por último, todas las fracciones serán automáticamente \bf{ordenadas} en orden ascendente. Prueba de todas estas grandes propiedades de la madera de stern-Броко se pone un poco más abajo.
+
+Solo queda dar la imagen del árbol de stern-Броко (hasta ahora hemos descrito con la ayuda de la evolución de la multitud). En la raíz de este árbol infinito se encuentra fracción $\frac{1}{1}$, y a la izquierda y a la derecha del árbol se encuentran fracción $\frac{0}{1}$ y $\frac{1}{0}$. Toda la cima del árbol tiene dos hijos, cada uno de los cuales se obtiene como intermedio del su izquierda antepasado y la de la derecha del antepasado:
+
+\img{stern_brocot.jpg}
+
+\h3{Prueba}
+
+\bf{Orden}. Se demuestra muy simple: tenga en cuenta que el intermedio del dos fracciones siempre está entre ellos, es decir:
+$$ \frac{a}{b} \le \frac{a+b}{b+d} \le \frac{c}{d} $$
+siempre que
+$$ \frac{a}{b} \le \frac{c}{d} $$
+Esto se demuestra por el simple proceso de tres fracciones a común denominador.
+
+Ya que en el cero de la iteración de la regularidad tuvo lugar a continuación, se mantenga en cada nueva iteración.
+
+\bf{Несократимость}. Para ello, mostraremos que en cualquier iteración para cualquier de los dos países vecinos en la lista de las fracciones de $\frac{a}{b}$ y $\frac{c}{d}$ se:
+$$ bc-ad=1 $$
+Realmente, recordando \algohref=diofant_2_equation{Diofantovy ecuaciones con dos incógnitas ($ax+by=c$)}, obtenemos de esta afirmación, que ${\rm mcd}(a,b) = {\rm mcd}(c,d) = 1$, que nos es necesario.
+
+Así, tenemos que demostrar la veracidad de la aprobación de $bc-ad=1$ en cualquier iteración. Probaremos también por inducción. En el cero de la iteración de esta propiedad se ha ejecutado (en la que es fácil ver). Ahora bien, que se cumplió en la iteración anterior, vamos a demostrar que se cumple en la iteración actual. Para ello, es necesario considerar tres fracciones-los vecinos en la nueva lista:
+$$ \frac{a}{b}, \frac{a+b}{b+d}, \frac{c}{d} $$
+Para ellos las condiciones toman la forma de:
+$ a$ b(a+c) - a(b+d) = 1, $$
+$$ c(b+d) - d(a+c) = 1 $$
+Sin embargo, la verdad de estas condiciones es evidente, siempre y cuando la veracidad de $bc-ad=1$. Por lo tanto, realmente, esta propiedad se ejecutó y en la iteración actual, que se quería demostrar.
+
+\bf{la Presencia de todas las fracciones}. La prueba de esta propiedad está estrechamente relacionado con el algoritmo de encontrar fracciones en el árbol de stern-Броко. Teniendo en cuenta que en el árbol de stern-Броко todas las fracciones, se ordenan, obtenemos que para cualquier copas de los árboles en su subárbol izquierdo se encuentran las fracciones inferiores a los de ella, y la de la derecha --- ampliación de ella. De aquí obtenemos y obvio el algoritmo de búsqueda de cualquiera de las fracciones en el árbol de stern-Броко: primero, estamos en la raíz; comparamos nuestra fracción con perdigones, grabada en la cima: si nuestro fracción menor, lo pasamos en el subárbol izquierdo, si nuestro fracción más --- pasamos a la derecha, y si coincide --- encontrado fracción, la búsqueda ha finalizado.
+
+Para demostrar que el infinito árbol de stern-Броко contiene todas las fracciones, suficiente para demostrar que este algoritmo de búsqueda de fracciones terminará en un número finito de pasos para cualquier lado de la fracción. Este algoritmo se puede entender así: tenemos el actual tramo de $\left[ \frac{a}{b}; \frac{c}{d} \right]$, en el que buscamos nuestra fracción $\frac{x}{y}$. Inicialmente, $\frac{a}{b}=\frac{0}{1}$, $\frac{c}{d}=\frac{1}{0}$. En cada paso de fracción $\frac{x}{y}$ se compara con медиантой de los extremos del segmento, es decir, $\frac{a+b}{b+d}$, y en función de ello, ya sea que se pare la búsqueda o entrando en la izquierda o a la derecha en la parte del corte. Si el algoritmo de búsqueda de fracciones trabajó de manera indefinida, las condiciones siguientes se abordarán en cada iteración:
+$$ \frac{a}{b} < \frac{x}{y} < \frac{c}{d} $$
+Pero se puede volver a escribir de esta forma:
+$$ bx-ay \ge 1, $$
+$$ cy-dx \ge 1 $$
+(aquí se utilizó lo que se целочисленны, por lo tanto, de $>0$ debe $\ge 1$)
+
+Entonces, multiplicando la primera en $c+d$, y la segunda-la - a $a+b$, y plegable, obtenemos:
+$$ (c+d)(bx-ay) + (a+b)(cy-dx) \ge a+b+c+d $$
+Revelar el paréntesis de la izquierda, y teniendo en cuenta que $bc-ad=1$ (véase la prueba anterior de la propiedad), finalmente se obtiene:
+$$ x+y \ge a+b+c+d $$
+Y puesto que en cada iteración alguna de las variables $a, b, c, d$ estrictamente aumenta, el proceso de búsqueda de la fracción $\frac{x}{y}$ contendrá no más de $x+y$ iteraciones que se quería demostrar.
+
+\h3{el Algoritmo de generación del árbol}
+
+Para construir cualquier subárbol de un árbol de stern-Броко, basta con saber sólo de la izquierda y derecha de los antepasados. Inicialmente, en el primer nivel, el antepasado de la izquierda es $\frac{0}{1}$ y, a la derecha --- $\frac{1}{0}$. En ellos se puede calcular la fracción en la parte superior, a continuación, iniciar desde la izquierda y la derecha de los hijos (el hijo izquierdo pasando a sí mismo como el derecho de un antepasado, y el derecho del hijo -, como de la izquierda del antepasado).
+
+Pseudocódigo de este procedimiento, que intenta construir un todo infinito árbol:
+
+\code
+void build (int a = 0, int b = 1, int c = 1, int d = 0, int level = 1) {
+int x = a+c, y = b+d;
+... la salida de la actual fracción x/y en el nivel del árbol level
+build (a, b, x, y, level + 1);
+build (x, y, c, d, level + 1);
+}
+\endcode
+
+\h3{el Algoritmo de búsqueda de fracciones}
+
+El algoritmo de búsqueda de la fracción fue ya descrito con la evidencia de que el árbol de stern-Броко contiene todas las fracciones, a repasar aquí. Este algoritmo --- de hecho, el algoritmo binario de búsqueda, o el algoritmo de búsqueda, el valor especificado en el árbol binario de búsqueda. Inicialmente nos encontramos en la raíz del árbol. De pie en la cima, comparamos nuestra fracción con perdigones en la parte superior. Si coinciden, el proceso de pare --- hemos encontrado la fracción en el árbol. De lo contrario, si nuestro fracción menor de la fracción en la cima, lo movemos a la izquierda del hijo, de lo contrario, - - - en la de la derecha.
+
+Como se ha demostrado en la propiedad de que el árbol de stern-Броко contiene todos no negativo de la fracción, en la búsqueda de fracciones $\frac{x}{y}$ el algoritmo hará no más de $x+y$ iteraciones.
+
+Presentamos una aplicación que devuelve la ruta de acceso hasta la cima, contiene una determinada fracción $\frac{x}{y}$, devolviendo en forma de una secuencia de caracteres 'L'/'R': si el carácter actual es 'L', esto significa que la transición en el árbol de la izquierda hijo, y de otro modo --- en la de la derecha (en un principio, nos encontramos en la raíz del árbol, es decir, en la cima de una colina con perdigones de $\frac{1}{1}$). En realidad, esta secuencia de caracteres existente y claramente identifica cualquier неотрицательную fracción, se llama \bf{el sistema de numeración stern-Броко}.
+
+\code
+string find (int x, int y, int a = 0, int b = 1, int c = 1, int d = 0) {
+int m = a+c, n = b+d;
+if (x == m && y == n)
+return "";
+if (x * n < y * m)
+return 'L' + find (x, y, z, a, b, m, n);
+else
+return 'R' + find (x, y, m, n, c, d);
+}
+\endcode
+
+Irracional números en el sistema numérico stern-Броко se ajuste infinito de la secuencia de caracteres; si se conoce algún tipo de dificultad dada la precisión, se puede limitar algunos prefijo de esta interminable secuencia. En el proceso infinito de la búsqueda irracional de la fracción en el árbol de stern-Броко el algoritmo cada vez encontrar una simple fracción (gradualmente crecientes denominador), que proporciona la mejor aproximación de este número irracional (es la aplicación como el más importante en el sentido de la técnica, y en este sentido, aquiles Броко y abrió este árbol).
+
+\h2{Secuencia de Фарея}
+
+La secuencia de Фарея de orden $n$ es el conjunto de todos los несократимых fracciones entre 0 y 1, los denominadores que no excedan de $n$, y las fracciones se clasifican en orden ascendente.
+
+Esta secuencia nombrada en honor del geólogo inglés john Фарея (John Farey), que intentó en 1816, demostrar que en algunos Фарея toda fracción es медиантой de los dos países vecinos. Lo que se sabe, su prueba es válida y correcta de la prueba sugirió más tarde que Коши (Cauchy). Sin embargo, aún en 1802 matemático Харос (Haros) en una de sus obras ha llegado prácticamente a los mismos resultados.
+
+La secuencia de Фарея tienen y la multitud de sus propios interesantes, sin embargo, es más evidente su \bf{la comunicación con el árbol de stern-Броко}: de hecho, la secuencia de Фарея resulta de la eliminación de algunas de las ramas de un árbol. O se puede decir que para obtener la secuencia de Фарея es necesario tomar muchas las fracciones se obtiene al generar el árbol de stern-Броко en el infinito de iteraciones, y dejar en este conjunto sólo fracciones con denominador no exceda de $n$ y числителями, no superan los denominadores.
+
+El algoritmo de generación del árbol de stern-Броко debe y artículos similares \bf{el algoritmo} para las secuencias de Фарея. En el cero de la iteración pagaremos en la multitud sólo fracciones de $\frac{0}{1}$ y $\frac{1}{1}$. En cada iteración siguiente nos entre cada dos vecinos las fracciones ponemos a su медианту, si su denominador no exceda de $n$. Tarde o temprano, muchos dejarán de producirse algún cambio, y el proceso se puede detener --- hemos encontrado lo que busca la secuencia de Фарея.
+
+Calcularemos \bf{longitud} la secuencia de Фарея. La secuencia de Фарея de orden $n$ contiene todos los elementos de la secuencia Фарея en el orden de $n-1$, y también todos los несократимые fracciones con denominador igual a $n$, pero esta cantidad, como se sabe, igual que $\phi(n)$. Por lo tanto, la longitud de la $L_n$ secuencia de Фарея de orden $n$ se expresa por la fórmula:
+$$ L_n = L_{n-1} + \phi(n) $$
+o, revelando la recursividad:
+$$ L_n = 1 + \sum_{k=1}^n \phi(k) $$
+
+\h2{Literatura}
+
+\ul{
+\li \book{ronald graham, donald Látigo, oren Паташник}{Específica de las matemáticas. La base de la informática}{1998}{graham.djvu}
+}

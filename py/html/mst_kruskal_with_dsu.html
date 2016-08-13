@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Минимальное остовное дерево. Алгоритм Крускала со структурой данных 'система непересекающихся множеств'</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Минимальное остовное дерево. Алгоритм Крускала со структурой данных 'система непересекающихся множеств'</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Минимальное остовное дерево. Алгоритм Крускала с системой непересекающихся множеств&lt;/h1&gt;
+
+&lt;p&gt;Постановку задачи и описание алгоритма Крускала см. &lt;algohref=mst_kruskal&gt;здесь&lt;/algohref&gt;.&lt;/p&gt;
+&lt;p&gt;Здесь будет рассмотрена реализация с использованием структуры данных &lt;algohref=dsu&gt;&quot;система непересекающихся множеств&quot; (DSU)&lt;/algohref&gt;, которая позволит достигнуть асимптотики &lt;b&gt;O (M log N)&lt;/b&gt;.&lt;/p&gt;
+&lt;h3&gt;Описание&lt;/h3&gt;
+&lt;p&gt;Так же, как и в простой версии алгоритма Крускала, отсортируем все рёбра по неубыванию веса. Затем поместим каждую вершину в своё дерево (т.е. своё множество) с помощью вызова функции DSU MakeSet - на это уйдёт в сумме O (N). Перебираем все рёбра (в порядке сортировки) и для каждого ребра за O (1) определяем, принадлежат ли его концы разным деревьям (с помощью двух вызовов FindSet за O (1)). Наконец, объединение двух деревьев будет осуществляться вызовом Union - также за O (1). Итого мы получаем асимптотику O (M log N + N + M) = O (M log N).&lt;/p&gt;
+&lt;h3&gt;Реализация&lt;/h3&gt;
+&lt;p&gt;Для уменьшения объёма кода реализуем все операции не в виде отдельных функций, а прямо в коде алгоритма Крускала.&lt;/p&gt;
+&lt;p&gt;Здесь будет использоваться рандомизированная версия DSU.&lt;/p&gt;
+&lt;code&gt;vector&amp;lt;int&gt; p (n);
+
+int dsu_get (int v) {
+	return (v == p[v]) ? v : (p[v] = dsu_get (p[v]));
+}
+
+void dsu_unite (int a, int b) {
+	a = dsu_get (a);
+	b = dsu_get (b);
+	if (rand() &amp; 1)
+		swap (a, b);
+	if (a != b)
+		p[a] = b;
+}
+
+... в функции main(): ...
+
+int m;
+vector &amp;lt; pair &amp;lt; int, pair&amp;lt;int,int&gt; &gt; &gt; g; // вес - вершина 1 - вершина 2
+... чтение графа ...
+
+int cost = 0;
+vector &amp;lt; pair&amp;lt;int,int&gt; &gt; res;
+
+sort (g.begin(), g.end());
+p.resize (n);
+for (int i=0; i&amp;lt;n; ++i)
+	p[i] = i;
+for (int i=0; i&amp;lt;m; ++i) {
+	int a = g[i].second.first,  b = g[i].second.second,  l = g[i].first;
+	if (dsu_get(a) != dsu_get(b)) {
+		cost += l;
+		res.push_back (g[i].second);
+		dsu_unite (a, b);
+	}
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

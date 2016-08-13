@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Нахождение площади простого многоугольника за O (N)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Нахождение площади простого многоугольника за O (N)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Нахождение площади простого многоугольника&lt;/h1&gt;
+
+&lt;p&gt;Пусть дан простой многоугольник (т.е. без самопересечений, но не обязательно выпуклый), заданный координатами своих вершин в порядке обхода по или против часовой стрелки. Требуется найти его площадь.&lt;/p&gt;
+&lt;h2&gt;Способ 1&lt;/h2&gt;
+&lt;p&gt;Это легко сделать, если перебрать все рёбра и сложить площади трапеций, ограниченных каждым ребром. Площадь нужно брать с тем знаком, с каким она получится (именно благодаря знаку вся &quot;лишняя&quot; площадь сократится). Т.е. формула такова:&lt;/p&gt;
+&lt;formula&gt;S += (X2 - X1) * (Y1 + Y2) / 2&lt;/formula&gt;
+&lt;p&gt;Код:&lt;/p&gt;
+&lt;code&gt;double sq (const vector&amp;lt;point&gt; &amp; fig)
+{
+	double res = 0;
+	for (unsigned i=0; i&amp;lt;fig.size(); i++)
+	{
+		point
+			p1 = i ? fig[i-1] : fig.back(),
+			p2 = fig[i];
+		res += (p1.x - p2.x) * (p1.y + p2.y);
+	}
+	return fabs (res) / 2;
+}&lt;/code&gt;
+&lt;h2&gt;Способ 2&lt;/h2&gt;
+&lt;p&gt;Можно поступить другим образом. Выберем произвольно точку O, переберём все рёбра, прибавляя к ответу ориентированную площадь треугольника, образованного ребром и точкой O (см. &lt;algohref=oriented_area&gt;Ориентированная площадь треугольника&lt;/algohref&gt;). Опять же, благодаря знаку, вся лишняя площадь сократится, и останется только ответ.&lt;/p&gt;
+&lt;p&gt;Этот способ хорош тем, что его проще обобщить на более сложные случаи (например, когда некоторые стороны - не прямые, а дуги окружности).&lt;/p&gt;</textarea></td></tr></table></body></html>

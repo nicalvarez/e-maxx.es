@@ -1,0 +1,97 @@
+<h1>Flujo de costo mínimo (min-cost-flow). El algoritmo de incrementar rutas</h1>
+
+<p>Dada la red de G, compuesta de N vértices y M aristas. Cada costilla (en general, orientada, pero sobre este tema véase a continuación) indica el ancho de banda (entero de un número) y el costo por unidad de flujo a lo largo de este borde (un número entero). En la columna se especifica la fuente S y el drenaje de la T. se Da cierto valor de K de flujo, es necesario encontrar el hilo de esta magnitud, y entre todos los subprocesos de esta magnitud elegir un hilo con el menor coste ("la tarea min-cost-flow").</p>
+<p>a Veces la tarea se ponen un poco diferente: se desea encontrar el flujo máximo en el menor costo ("la tarea min-cost-max-flow").</p>
+<p>Ambas tareas de manera eficiente se resuelven con el siguiente algoritmo aumentan las vías.</p>
+<h2>Descripción</h2>
+<p>el Algoritmo es muy similar a <algohref=edmonds_karp>el algoritmo de Эдмондса-la Carpa calcular el flujo máximo</algohref>.</p>
+<h3>la forma más básica</h3>
+<p>tener en cuenta para el inicio de la forma más básica, cuando el conde - orientado, y entre cualquier par de vértices no más de una costilla (si hay una arista (i,j), costilla (j,i) no debe ser).</p>
+<p>supongamos Que U<sub>ij</sub> - capacidad de la aleta (i,j) si la arista existe. Supongamos que C<sub>ij</sub> - el costo por unidad de flujo lo largo de una arista (i,j). Supongamos que F<sub>ij</sub> - el valor de flujo lo largo de una arista (i,j), inicialmente, todos los valores de los flujos son iguales a cero.</p>
+<p><b>Cambiar</b> de la red de la siguiente manera: para cada aleta (i,j) añadimos en la red llamado <b>inversa</b> de la costilla (j,i) con un ancho de banda U<sub>ji</sub> = 0 y el valor de C<sub>ji</sub> = - C<sub>ij</sub>. Dado que, según nuestra teoría, las costillas (j,i) en la red no es, modificada por lo tanto, la red todavía no se мультиграфом. Además, a lo largo de todo el trabajo del algoritmo vamos a mantener fiel a la condición: F<sub>ji</sub> = - F<sub>ij</sub>.</p>
+<p>Definir el <b>residual de la red</b> para una cierta senda de flujo F de la siguiente manera (de hecho, igual que en el algoritmo de ford-Фалкерсона): residual de la red pertenecen solamente a insaturados de la aleta (es decir, que F<sub>ij</sub> < U<sub>ij</sub>), y el valor residual del ancho de banda de cada una de las costillas como UPI<sub>ij</sub> = U<sub>ij</sub> - F<sub>ij</sub>.</p>
+<p>Es <b>el algoritmo</b> min-cost-flow es el siguiente. En cada iteración del algoritmo encontramos el camino más corto en la red de S en T (la más corta respecto a los costos de C<sub>ij</sub>). Si la ruta no se encuentra, entonces el algoritmo termina, el flujo de F - buscado. Si se ha encontrado el camino, aumentamos el flujo a lo largo de él en la medida de lo posible (es decir, pasamos a lo largo de este camino, nos encontramos con la mínima residual en un ancho de banda de MIN_UPI entre los bordes del camino, y, a continuación, aumentando el flujo a lo largo de cada eje de la ruta de la magnitud de la MIN_UPI, sin olvidar a disminuir en la misma cantidad de flujo a lo largo de devoluciones de aristas). Si en algún momento la magnitud de la inundación alcanzó una magnitud de K (nos es dada por la condición de que la magnitud de la inundación), nosotros también dejemos el algoritmo (debe tenerse en cuenta que, entonces, en la última iteración del algoritmo, cuando aumenta el flujo a lo largo del camino es necesario aumentar el flujo de esta magnitud, que el resultado final en el flujo no superó K, pero es ejecutar fácilmente).</p>
+<p>es Fácil ver que si poner K igual a infinito, el algoritmo encuentra el máximo flujo de costo mínimo, es decir, de un mismo algoritmo sin cambios resuelve ambas tareas min-cost-flow y min-cost-max-flow.</p>
+<h3>el Caso неориентированных de los condes, мультиграфов</h3>
+<p>el Caso de неориентированных de los condes y мультиграфов en el plano conceptual, no es diferente de lo anterior, por lo tanto, en realidad, el algoritmo va a trabajar y en las columnas. Sin embargo, surgen algunas dificultades en la implementación, en la que se debe prestar atención.</p>
+<p><b>Неориентированное</b> la arista (i,j) es, de hecho, dos orientados a la costilla (i,j) y (j,i) con el mismo пропускными habilidades y valores. Dado que el descrito en el algoritmo min-cost-flow requiere para cada неориентированного de la aleta de crear lo contrario le arista, al final resulta que неориентированное costilla, se divide en 4 centradas en las costillas, y que en realidad recibimos caso de <b>мультиграфа</b>.</p>
+<p>¿Qué problemas causan <b>múltiplos de la costilla</b>? En primer lugar, el flujo de cada uno de los múltiples aristas debe mantenerse por separado. En segundo lugar, en la búsqueda de la ruta más corta es necesario tener en cuenta que lo importante es cuál de las múltiples aristas de elegir al recuperar el camino de los antepasados. Es decir, en lugar de la habitual de la matriz de los antepasados para cada vértice tenemos que mantener la cima de la antecesor, y el número de costillas, de la que estamos de ella vinieron. En tercer lugar, mientras que el aumento de flujo a lo largo de un aletas es necesario, de acuerdo con un algoritmo, para reducir el flujo a lo largo de la devolución de las costillas. Ya que tenemos pueden ser múltiplos de la aleta, se tiene que para cada aleta, almacenar el número de costillas hacia atrás, hacia él.</p>
+<p>Otros problemas de неориентированными grafos y мультиграфами no.</p>
+<h3>Análisis del tiempo de trabajo</h3>
+<p>Al igual que con el análisis de un algoritmo de Эдмондса-la Carpa, recibimos esa evaluación: O (N M) * T (N, M), donde T (N, M) es el tiempo necesario para encontrar la ruta más corta en el grafo con N vértices y M las costillas. Si se trata de implementar con <algohref=dijkstra>una variante del algoritmo de Дейкстры</algohref>, para todo el algoritmo min-cost-flow resultar evaluación de la <b>O (N<sup>3</sup> M</b>, la verdad, el algoritmo de Дейкстры tendrá que modificar para que funcione en las negativas pesos (esto se conoce como el algoritmo de Дейкстры con potenciales).</p>
+<p>en Lugar de ello, puede utilizar el <algohref=levit_algorithm>el algoritmo de la Levita</algohref>, que, aunque asintóticamente mucho peor, pero en la práctica funciona muy rápido (aproximadamente por el mismo tiempo que el algoritmo de Дейкстры).</p>
+<h2>Realización</h2>
+<p>Aquí se muestra la implementación del algoritmo min-cost-flow, con sede en <algohref=levit_algorithm>el algoritmo de Levita</algohref>.</p>
+<p>En un algoritmo se sirve de la red (неориентированный мультиграф) con N vértices y M de las costillas, y K es el valor del flujo que desea encontrar. El algoritmo encuentra el flujo de la magnitud de K de costo mínimo, si existe. De lo contrario, se encuentra el flujo de valor máximo valor mínimo.</p>
+<p>El programa tiene una función especial para agregar orientado a la costilla. Si desea agregar неориентированное arista, esta función es necesario llamar para cada aleta (i,j) dos veces: a (i,j) y (j,i).</p>
+<code>const int INF = 1000*1000*1000;
+
+struct rib {
+int b, u, c, f;
+size_t back;
+};
+
+void add_rib (vector < vector<rib> > & g, int a, int b, int u, int c) {
+rib r1 = {(b, u, c, 0, g[b].size() };
+rib r2 = { a, 0, -c, 0, g[a].size() };
+g[a].push_back (r1);
+g[b].push_back (r2).
+}
+
+int main()
+{
+int n, m, k;
+vector < vector<rib> > g (n);
+int s, t;
+... lectura del conde ...
+
+int flow = 0, cost = 0;
+while (flow < k) {
+vector<int> id (n, 0);
+vector<int> d (n, INF);
+vector<int> q (n);
+vector<int> p (n);
+vector<size_t> p_rib (n);
+int qh=0, qt=0;
+q[qt++] = s;
+d[s] = 0;
+while (qh != qt) {
+int v = q[qh++];
+id[v] = 2;
+if (qh == n) qh = 0;
+for (size_t i=0; i<g[v].size(); ++i) {
+rib & r = g[v][i];
+if (r.f < r.u && d[v] + r.c < d[r.b]) {
+d[r.b] = d[v] + r.c;
+if (id[r.b] == 0) {
+q[qt++] = r.b;
+if (qt == n) qt = 0;
+}
+else if (id[r.b] == 2) {
+if (--qh == -1) qh = n-1;
+q[qh] = r.b;
+}
+id[r.b] = 1;
+p[r.b] = v;
+p_rib[r.b] = i;
+}
+}
+}
+if (d[t] == INF); break;
+int addflow = k - flow;
+for (int v=t; v!=s; v=p[v]) {
+int pv = p[v]; size_t pr = p_rib[v];
+addflow = min (addflow, g[pv][pr].u - g[pv][pr].f);
+}
+for (int v=t; v!=s; v=p[v]) {
+int pv = p[v]; size_t pr = p_rib[v], r = g[pv][pr].back;
+g[pv][pr].f += addflow;
+g[v][r].f -= addflow;
+cost += g[pv][pr].c * addflow;
+}
+flow += addflow;
+}
+
+... resultado de salida ...
+
+}</code>

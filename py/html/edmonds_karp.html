@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Алгоритм Эдмондса-Карпа нахождения максимального потока</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Алгоритм Эдмондса-Карпа нахождения максимального потока</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Максимальный поток методом Эдмондса-Карпа за O (N M&lt;sup&gt;2&lt;/sup&gt;)&lt;/h1&gt;
+
+&lt;p style=&quot;color:red&quot;&gt;Внимание: данная статья устарела и содержит ошибки и не рекомендуется к чтению. Через некоторое время статья будет полностью переписана.&lt;/p&gt;
+
+&lt;p&gt;Пусть дан граф G, в котором выделены две вершины: исток S и сток T, а у каждого ребра определена пропускная способность C&lt;sub&gt;u,v&lt;/sub&gt;. Поток F можно представить как поток вещества, которое могло бы пройти по сети от истока к стоку, если рассматривать граф как сеть труб с некоторыми пропускными способностями. Т.е. поток - функция F&lt;sub&gt;u, v&lt;/sub&gt;, определённая на множестве рёбер графа.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Задача заключается в нахождении максимального потока. Здесь будет рассмотрен метод Эдмондса-Карпа, работающий за O (N M&lt;sup&gt;2&lt;/sup&gt;), или (другая оценка) O (F M), где F - величина искомого потока. Алгоритм был предложен в 1972 году.&lt;/p&gt;
+&lt;h2&gt;Алгоритм&lt;/h2&gt;
+&lt;p&gt;&lt;b&gt;Остаточной пропускной способностью&lt;/b&gt; называется пропускная способность ребра за вычетом текущего потока вдоль этого ребра. При этом надо помнить, что если некоторый поток протекает по ориентированному ребру, то возникает так называемое обратное ребро (направленное в обратную сторону), которое будет иметь нулевую пропускную способность, и по которому будет протекать тот же по величине поток, но со знаком минус. Если же ребро было неориентированным, то оно как бы распадается на два ориентированных ребра с одинаковой пропускной способностью, и каждое из этих рёбер является обратным для другого (если по одному протекает поток F, то по другому протекает -F).&lt;/p&gt;
+&lt;p&gt;Общая схема &lt;b&gt;алгоритма Эдмондса-Карпа&lt;/b&gt; такова. Сначала полагаем поток равным нулю. Затем ищем дополняющий путь, т.е. простой путь из S в T по тем рёбрам, у которых остаточная пропускная способность строго положительна. Если дополняющий путь был найден, то производится увеличение текущего потока вдоль этого пути. Если же пути не было найдено, то текущий поток является максимальным. Для поиска дополняющего пути может использоваться как &lt;algohref=bfs&gt;Обход в ширину&lt;/algohref&gt;, так и &lt;algohref=dfs&gt;Обход в глубину&lt;/algohref&gt;.&lt;/p&gt;
+&lt;p&gt;Рассмотрим более точно процедуру увеличения потока. Пусть мы нашли некоторый дополняющий путь, тогда пусть C - наименьшая из остаточных пропускных способностей рёбер этого пути. Процедура увеличения потока заключается в следующем: для каждого ребра (u, v) дополняющего пути выполним: F&lt;sub&gt;u, v&lt;/sub&gt; += C, а F&lt;sub&gt;v, u&lt;/sub&gt; = - F&lt;sub&gt;u, v&lt;/sub&gt; (или, что то же самое, F&lt;sub&gt;v, u&lt;/sub&gt; -= C).&lt;/p&gt;
+&lt;p&gt;Величиной потока будет сумма всех неотрицательных величин F&lt;sub&gt;S, v&lt;/sub&gt;, где v - любая вершина, соединённая с истоком.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;code&gt;const int inf = 1000*1000*1000;
+
+
+typedef vector&amp;lt;int&gt; graf_line;
+typedef vector&amp;lt;graf_line&gt; graf;
+
+typedef vector&amp;lt;int&gt; vint;
+typedef vector&amp;lt;vint&gt; vvint;
+
+
+int main()
+{
+	int n;
+	cin &gt;&gt; n;
+	vvint c (n, vint(n));
+	for (int i=0; i&amp;lt;n; i++)
+		for (int j=0; j&amp;lt;n; j++)
+			cin &gt;&gt; c[i][j];
+	// исток - вершина 0, сток - вершина n-1
+
+	vvint f (n, vint(n));
+	for (;;)
+	{
+		
+		vint from (n, -1);
+		vint q (n);
+		int h=0, t=0;
+		q[t++] = 0;
+		from[0] = 0;
+		for (int cur; h&amp;lt;t;)
+		{
+			cur = q[h++];
+			for (int v=0; v&amp;lt;n; v++)
+				if (from[v] == -1 &amp;&amp;
+					c[cur][v]-f[cur][v] &gt; 0)
+				{
+					q[t++] = v;
+					from[v] = cur;
+				}
+		}
+
+		if (from[n-1] == -1)
+			break;
+		int cf = inf;
+		for (int cur=n-1; cur!=0; )
+		{
+			int prev = from[cur];
+			cf = min (cf, c[prev][cur]-f[prev][cur]);
+			cur = prev;
+		}
+
+		for (int cur=n-1; cur!=0; )
+		{
+			int prev = from[cur];
+			f[prev][cur] += cf;
+			f[cur][prev] -= cf;
+			cur = prev;
+		}
+
+	}
+
+	int flow = 0;
+	for (int i=0; i&amp;lt;n; i++)
+		if (c[0][i])
+			flow += f[0][i];
+
+	cout &amp;lt;&amp;lt; flow;
+
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

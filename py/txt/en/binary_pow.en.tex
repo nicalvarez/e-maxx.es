@@ -1,0 +1,178 @@
+\h1{ Binary exponentiation }
+
+
+Binary (binary) exponentiation is a technique that allows to build any number in $n$-th degree $O(\log n)$ multiplications (instead of $n$ multiplications in the conventional approach).
+
+Moreover, the described technique is applicable to any \bf{associative} operation, not just multiplication of numbers. We will remind, the operation is called associative if for all $a, b, c$ is:
+$$ (a \cdot b) \cdot c = a \cdot (b \cdot c) $$
+
+The most obvious generalization --- some balances on the module (obviously, associativity is maintained). As for "popularity" is a generalization for the product of matrices (associativity it is well-known).
+
+
+
+\h2{ Algorithm }
+
+Note that for any number $a$ and \bf{even} the number $n$ is feasible obvious the identity (follows from associativity of multiplication):
+$$ a^n = (a^{n/2})^2 = a^{n/2} \cdot a^{n/2} $$
+It is the main method of binary exponentiation. Indeed, for even $n$ we showed how, by spending only one multiplication operation, it is possible to reduce the problem to half less.
+
+Now you have to understand what to do, if the degree $n$ \bf{is odd}. Here we do is very simple: turn to degree $n-1$, which will be even:
+$$ a^n = a^{n-1} \cdot a $$
+
+So basically we find the recurrent formula: the degree $n$, we turn, if it is even, $n/2$, and otherwise --- to $n-1$. It is clear that all will not be more than $2 \log n$ crossings before we get to $n = 0$ (the basis of a recurrent formula). Thus, we got the algorithm working for $O (\log n)$ multiplications.
+
+
+
+\h2{ the Implementation }
+
+The simplest recursive implementation:
+
+\code
+binpow int (int a, int n) {
+if (n == 0)
+return 1;
+if (n % 2 == 1)
+return binpow (a, n-1) * a;
+else {
+int b = binpow (a, n/2);
+return b * b;
+}
+}
+\endcode
+
+Non-recursive implementation-optimized (divide-by 2 is replaced with bitwise operations):
+
+\code
+binpow int (int a, int n) {
+int res = 1;
+while (n)
+if (n & 1) {
+res *= a;
+n--;
+}
+else {
+a *= a;
+n >>= 1;
+}
+return res;
+}
+\endcode
+
+This implementation can simplify some more, noticing that the construction of $a$ as the square is always, regardless of work condition of odd $n$ or not:
+
+\code
+binpow int (int a, int n) {
+int res = 1;
+while (n) {
+if (n & 1)
+res *= a;
+a *= a;
+n >>= 1;
+}
+return res;
+}
+\endcode
+
+Finally, it is worth noting that binary exponentiation is already implemented in Java, but class only long arithmetic BigInteger (pow function in this class works under the binary algorithm of construction).
+
+
+
+\h2{ follow us }
+
+
+\h3{ Efficient computation of Fibonacci numbers }
+
+\bf{Condition}. Given a number $n$. You want to calculate $F_n$ where $F_i$ --- \algohref=fibonacci_numbers{the sequence of Fibonacci numbers}.
+
+\bf{Solution}. In more detail this solution is described in \algohref=fibonacci_numbers{article on the Fibonacci sequence}. Here we only briefly present the essence of this solution.
+
+The basic idea is as follows. Calculating the next Fibonacci number is based on the knowledge of the previous two Fibonacci numbers: namely, each next Fibonacci number is obtained as the sum of the previous two. This means that we can build a matrix $2 \times 2$, which would correspond to this transformation: how two Fibonacci numbers $F_i$ and $F_{i+1}$ to calculate the next number, i.e. go to a pair of $F_{i+1}$, $F_{i+2}$. For example, applying this transformation $n$ times to a pair of $F_0$ and $F_1$, we get a couple of $F_n$ and $F_{n+1}$. Thus, taking the matrix of this transformation in $n$-th degree, we thus find the required $F_n$ at time $O (\log n)$ that we need.
+
+
+\h3{ Construction of permutations of $k$-th degree }
+
+\bf{Condition}. Given a permutation $p$ of length $n$. You want to elevate it to $k$-th degree, i.e. to find out what happens if the permutation is identical to $k$ times to apply the permutation $p$.
+
+\bf{Solution}. Just apply to the permutation $p$ described above the algorithm of binary exponentiation. No difference compared with the construction of numbers in degree --- no. The solution is obtained with the asymptotic $O (n \log k)$.
+
+(Note. This problem can be solved more efficiently, \bf{linear time}. To do this, simply select in the permutation cycles, and then to consider individually each cycle, and taking $k$ modulo the length of the current cycle, to find an answer for this cycle.)
+
+
+\h3{ Quick application of a set of geometric operations to points }
+
+\bf{Condition}. Given $n$ points $p_i$, and given $m$ of transformations that should be applied to each of these points. Each transformation is either a shift to a defined vector, or scaling (multiplication of the coordinates by the specified factors), or a rotation around a given axis by a specified angle. In addition, there is a composite operation of rotation: it has the form "repeat specified number of times preset list change" (operation cyclic repetition can be nested into each other).
+
+Required to compute the result of applying these operations to all points (effectively, i.e. for time less than $O(n \cdot length)$, where $length$ --- total number of operations that need to be done).
+
+\bf{Solution}. Look at different types of transformations from the point of view of how they change the coordinates:
+
+\ul{
+
+\li the Operation of the shift --- it just adds to all the coordinates of the unit, multiplied by some constants.
+
+\li scaling Operation --- it multiplies each coordinate by some constant.
+
+\li the Operation of rotation around the axis --- it can be represented as follows: received new coordinates can be written as a linear combination of old ones.
+
+(We will not be here to clarify how this is done. For example, for simplicity, to represent it as a combination of five two-dimensional rotations: first in the plane $OXY$ and $OXZ$ so that the rotation axis coincides with positive direction of the axis $OX$, then the desired rotation around an axis in the plane $YZ$, then the inverse rotations in the planes $OXZ$ and $OXY$, so that the rotation axis is returned to its original position.)
+
+}
+
+It is easy to see that each of these transformations is the conversion of coordinates by linear formulas. Thus, any such transformation can be written in the form of a matrix $4 \times 4$:
+
+$$ \begin{pmatrix}
+a_11 & a_{12} & a_{13} & a_{14} \\
+a_21 & a_{22} & a_{23} & a_{24} \\
+a_31 & a_{32} & a_{33} & a_{34} \\
+a_41 & a_{42} & a_{43} & a_{44} \\
+\end{pmatrix}, $$
+
+which when multiplied (on the left) on the line from the old coordinates and constants unit gives the line of the new coordinates and constants units:
+
+$$ \begin{pmatrix} x & y & z & 1 \end{pmatrix} \cdot \begin{pmatrix}
+a_{11} & a_{12} & a_{13} & a_{14} \\
+a_{21} & a_{22} & a_{23} & a_{24} \\
+a_{31} & a_{32} & a_{33} & a_{34} \\
+a_{41} & a_{42} & a_{43} & a_{44} \\
+\end{pmatrix} = \begin{pmatrix} x' & y' & z' & 1 \end{pmatrix}. $$
+
+(Why did you have to enter a dummy fourth coordinate is always equal to one? Without this wouldn't be possible to implement the operation of the shift: after shift --- it is just an addition to the coordinates of the units, multiplied by some coefficients. Without dummy units we could only implement a linear combination of the coordinates themselves, and add to them the given constant --- would not.)
+
+Now the solution of the problem becomes almost trivial. Times each basic operation is described by a matrix, then the sequence of operations is described by the product of these matrices, and the operation of rotation --- the construction of this matrix. Thus, we in time $O (m \cdot \log repetition)$ can predpochitaete matrix $4 \times 4$, describe all transformations, and then simply multiply each point $p_i$ on the matrix --- thus, we will respond to all requests within time $O (n)$.
+
+
+\h3{ the Number of paths of fixed length in a graph }
+
+\bf{Condition}. Given an undirected graph $G$ with $n$ vertices and an integer $k$. Required for each pair of vertices $i$ and $j$ to find the number of paths between them that contain exactly $k$ edges.
+
+\bf{Solution}. In more detail this problem is considered in \algohref=fixed_length_paths{separate article}. Here only recall the essence of this solution: we just construct $k$-th degree of the adjacency matrix of this graph, and the elements of this matrix and will be solutions. The complexity --- $O (n^3 \log k)$.
+
+(Note. In \algohref=fixed_length_paths{the article} is considered another variation of this problem: when the graph is weighted, and need to find the path of minimum weight that contains exactly $k$ edges. As shown in this article, this problem can be solved using binary exponentiation of the adjacency matrix of the graph, however, instead of the usual operation of multiplication of two matrices you should use modified: instead of the amount taken multiplications, and summation instead of --- taking the minimum.)
+
+
+\h3{ Variation of binary exponentiation: multiplication of two numbers modulo }
+
+We present here an interesting variation of the binary exponentiation.
+
+Suppose we are faced with such \bf{problem}: to multiply two numbers $a$ and $b$ modulo $m$:
+
+$$ a \cdot b \pmod m $$
+
+Assume that the numbers can be quite large: so that the numbers themselves are placed in a built-in data types, but their direct product $a \cdot b$ --- no (note that we also require that the sum of the numbers placed into the built-in data type). Accordingly, the task is to calculate the required value of $(a \cdot b) \pmod m$, without resorting to using \algohref=big_integer{long arithmetic}.
+
+\bf{Solution} this is the. We just used the binary algorithm of construction, above, except that instead of multiplication we perform the addition. In other words, the multiplication of two numbers we have reduced to $O (\log m)$ operations of addition and multiplication by two (which is, in fact, have add).
+
+(Note. This problem can be solved and \bf{differently}, resorting to the help of operations with floating point numbers. Namely, calculate in floating point numbers, the expression $a \cdot b / m$, and round it to the nearest integer. So we'll find \bf{approximate} is private. Subtracting it from the pieces $a \cdot b$ (ignoring overflow), we are likely to get a relatively small number that can be taken modulo $m$ --- and return it as answer. This decision looks pretty unreliable, but it is quite fast, and very briefly implemented.)
+
+
+
+\h2{ Problem in online judges }
+
+A list of tasks that can be solved using binary exponentiation:
+
+\ul{
+
+\li \href=http://acm.sgu.ru/problem.php?contest=0&problem=265{SGU #265 \bf{"Wizards"} ~~~~ [difficulty: medium]}
+
+}
+

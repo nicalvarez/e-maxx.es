@@ -1,0 +1,518 @@
+\h1{ Theory Spraga Grande. Him }
+
+
+\h2{ Introduction }
+
+Theory Spraga Grande --- the theory describing the so-called \bf{equal} ("impartial") two player games, i.e. games in which allowed moves and winning/lose-lose depend only on the state of the game. As to which of the two players goes, is not affected nothing: i.e. the players are completely equal.
+
+In addition, it is assumed that the players have all the information (about the rules of the game, possible moves, the position of the opponent).
+
+It is assumed that the game \bf{end}, i.e. for any strategy of the players will sooner or later come in \bf{losing} position from which no transitions to other positions. This position is losing for the player who has to make a move from this position. Accordingly, it is advantageous for the player, who came to this position. Okay, a draw of outcomes in a game like this does not happen.
+
+In other words, a game can fully describe \bf{acyclic oriented graph}: the vertices are the States of the game, and edges are transitions from one game state to another as a result of stroke current player (again, this is the first and the second player are equal). One or more vertices do not have outgoing edges, they is losing vertices (for the player who needs to move from such vertices).
+
+Because of accidental selections don't happen, then all the state of the game fall into two classes: the \bf{recieve}. Winning is such condition that there will be a move of the current player, which will lead to inevitable defeat another player even if both players play optimally. Consequently, losing status is a state from which all transitions lead into States, leading to the victory of the second player, despite the "resistance" of the first player. In other words, winning will be the state from which there is at least one transition in the state of losing, and losing is the state from which all transitions lead to a winning state (or from which no transitions).
+
+Our task --- for any given game to classify the States of this game, i.e. for each state to determine winning or losing.
+
+The theory of such games independently developed Sprag Roland (Roland Sprague) in 1935 and Patrick Michael Grundy (Patrick Michael Grundy) in 1939
+
+
+\h2{ the Game "Him" }
+
+This game is one of the examples described above games. Moreover, as we shall see later, \bf{any} of equal two-player games is actually analogous to the game "him" ("nim"), so the study of this game will automatically enable us to resolve all other games (but more on that later).
+
+Historically, this game was popular in ancient times. Likely, the game has its origins in China --- at least the Chinese game "Jianshizi" is very similar to him. In Europe the first mention of the Nimes belong to the XVI century the name "him" was invented by the mathematician Charles Bouton (Bouton Charles), who in 1901 published a full analysis of this game. The origin of the name "him" is not known.
+
+
+\h3{ game Description }
+
+The game "him" is the next game.
+
+There are several piles, each containing several stones. In one move the player can take from any one of a handful of any nonzero number of stones and throw them. Accordingly, a loss occurs when more moves left, i.e., all piles are empty.
+
+So, the state of the game "him" uniquely describes an unordered set of natural numbers. In one move is allowed strictly to reduce any of the numbers (if the number becomes zero, it is deleted from the set).
+
+
+\h3{ Solution Nimes }
+
+The solution to this game published in 1901 by Charles Bouton (Charles L. Bouton), and it looks as follows.
+
+\bf{Theorem}. The current player has a winning strategy if and only when the XOR-sum of the sizes of the heaps is nonzero. Otherwise, the current player is in a losing condition. (XOR-sum of numbers $a_i$ is an expression $a_1 \oplus a_2 \oplus \ldots \oplus a_n$, where $\oplus$ is the bitwise exclusive or)
+
+\bf{the Proof}.
+
+The main essence of the following proof --- in stock \bf{a symmetric strategy for the opponent}. We will show that, once in the condition with zero XOR-sum, the player will not be able to recover from this state --- for any transition to a state with non-zero XOR-sum of the enemy there will be a retaliatory move that returns the XOR-sum back to zero.
+
+Let us go now to the formal proof (it will be constructive, i.e. we will show how it looks like a symmetric strategy of the enemy --- what kind of course will need him to perform).
+
+To prove the theorem will be by induction.
+
+For empty Nimes (when the sizes of all groups equal to zero) the XOR-sum is zero, and the theorem is true.
+
+Now suppose we want to prove the theorem for a certain game state, from which there is at least one transition. Using the induction hypothesis (and acyclically games) we believe that the theorem is proved for all the States in which we can get from current.
+
+Then the proof splits into two parts: if the XOR-sum $s$ in the current state $=0$, we need to prove that current state is losing, i.e., all transitions from it lead to the state of the XOR-sum $t \ne 0$. If $s \ne 0$, we need to prove that there is a transition brings us to a state at $t = 0$.
+
+\ul{
+
+\li Let $s = 0$, then we want to prove that the current state-of-the - lost. Let us consider any transition from the current state of Nimes: denote by $p$ the number of variable groups, using $x_i$ ($i = 1 \ldots n$) --- the sizes of the piles before the move, using $y_i$ ($i = 1 \ldots n$) --- after a stroke. Then, by using elementary properties of the function $\oplus$, we have:
+
+$$ t = s \oplus x_p \oplus y_p = 0 \oplus x_p \oplus y_p = x_p \oplus y_p. $$
+
+But since $y_p < x_p$, this means that $t \ne 0$. So, the new state will have non-zero XOR-sum, i.e., the induction will be winning, what we wanted to prove.
+
+\li Let $s \ne 0$. Then our task is to prove that the current state-of-the - advantageous, i.e. from it there is a move to a losing state (with zero XOR-sum).
+
+Consider the bit representation of the number $s$. Take senior non-zero bits, let the number of $d$. Let $k$ is a number that bunch, the $x_k$ where $d$-th bit is nonzero (such $k$ exists, otherwise the XOR-sum $s$, this bit wouldn't be different from zero).
+
+Then, it is alleged, desired move --- change this $k$-th pile, making its $y_k = x_k \oplus s$.
+
+Will see this.
+
+You should first check that this move is correct, i.e. that $y_k < x_k$. However, this is true because all bits which are higher $d$-th, $x_k$ and $y_k$ are the same, and in $d$-th bit in $y_k$ will be zero and $x_k$ is one.
+
+Now calculate, what is the XOR-sum will be included in this course:
+
+$$ t = s \oplus x_k \oplus y_k = s \oplus x_k \oplus (s \oplus x_k) = 0. $$
+
+Thus, the us turn --- is really a move to a losing state, and this proves that the current state winner.
+
+}
+
+The theorem is proved.
+
+\bf{Result}. Any state it-the game can be replaced by an equivalent condition composed of only a handful of size equal to the XOR-sum of sizes of piles in the old state.
+
+In other words, in the analysis of nim with multiple piles, you can calculate the XOR-sum $s$ of their size, and move on to the analysis of Nimes from a single pile of size $s$ --- according to the just proved theorem, the winning/lose-lose that will not change.
+
+
+\h2{ the Equivalence of any game of nim. Theorem Spraga Grande }
+
+Here we will show you how any game (equal playing two-player) to be matched with him. In other words, any state of any game, we will learn how to match them-a bunch of completely describing the state of the original game.
+
+
+\h3{ Lemma about nim with increases }
+
+We shall first prove a very important Lemma --- \bf{Lemma about nim with increases}.
+
+Namely, consider the following modified him: all the same, as in normal nim, but now allowed an additional type of stroke: instead of a decrease, on the contrary, \bf{to increase the size of some piles}. To be more precise, the turn player now is that it takes a non-zero number of stones from any pile, or increases the size of any piles (in accordance with certain rules, see the next paragraph).
+
+It is important to understand that the rules of how the player may perform increase, \bf{we don't care} --- however, such rules must still be that our game was still \bf{acyclic}. Below in the section "Examples" examples of such games: "staircase", "nimble-2", "turning turtles".
+
+Again, the Lemma will be proved in General for any game of this type --- games like "them gains"; specific increases in the evidence could not be used.
+
+\bf{a Formulation of the Lemma}. Them with increases equivalent to ordinary nim, in the sense that the winning/lose-lose condition is determined by the theorem of Bud according to the XOR-sum of sizes of piles. (Or, in other words, the essence of the Lemma is that the zoom is useless, it makes no sense to apply the optimal strategy, and they do not change the winning/lose-lose compared to conventional Nimes.)
+
+\bf{the Proof}.
+
+The idea of the proof as in theorem Bud --- in stock \bf{symmetric strategies}. We show that the gains do not change anything, because after one of the players will resort to increase, the other will symmetrically respond to him.
+
+In fact, suppose that the current player makes a move-a rise in any of the piles. Then his opponent could just answer him, reducing that bunch back to the old values --- because normal moves Nimes we still may be freely used.
+
+Thus, the symmetric response to the speed-increase speed-decrease back to the old size of the heap. Therefore, after this response the game returns back to the same size of the piles, i.e. the player has to gain, nothing to win. Since the game is acyclic, then sooner or later moves-increase ends and the current player will have to make a move-reduction, and this means that the presence of increasing stroke does not change anything.
+
+
+\h3{ Theorem Spraga Grande on the equivalence of any game of nim }
+
+We turn now to the main point in this article is fact --- the theorem about equivalence of any equitable nim a two-player game.
+
+\bf{Theorem Spraga Grande}. Consider any $v$ equal to some two player games. Let it, then transitions to some state $v_i$ $(i=1 \ldots k)$ (where $k \ge 0$). It is argued that as $v$ of this game can be put into correspondence with a handful of Nimes some $x$ (which will fully describe the condition of $v$ - - - i.e., these two States of two different games will be equivalent). This number $x$ --- called \bf{value Spraga Grande} the condition $v$.
+
+Moreover, the number $x$ you can find the following recursive way: let's calculate the value Spraga Grande $x_i$ for each transition $(v,v_i)$, and then running:
+
+$$ x = {\rm mex} \{ x_1, \ldots, x_k \}, $$
+
+where the function $\rm mex$ from the set of numbers returns the smallest nonnegative integer not occurring in this set (called "mex" is short for "minimum excludant").
+
+Thus, we can, starting from the vertices without outgoing edges, gradually \bf{calculate values Spraga Grande for all the States of our game}. If the value Spraga Grande any state is zero, this state is losing, otherwise --- a winner.
+
+\bf{the Proof}. To prove the theorem will be by induction.
+
+For vertices, of which there is no transition, the value of $x$ according to theorem will be obtained as $\rm mex$ from the empty set, i.e. $x = 0$. But, in fact, a state with no transitions --- is a losing condition, and he really needs to meet him a bunch of $0$.
+
+Consider now any state $v$, from which there are transitions. By induction we can assume that for all $v_i$, in which we can move from the current state, the values of $x_i$ is already calculated.
+
+Let's calculate $p = {\rm mex} \{ x_1, \ldots, x_k \}$. Then, according to the definition of the function $\rm mex$, we get that for any number $i$ in the interval $[0; p)$, there is at least one corresponding transition in some of the $v_i$ ' s state. In addition, there may also be additional transitions in state values Grandi, large $p$.
+
+This means that the current state \bf{condition is equivalent to nim with increases with the pile of size $p$}: in fact, we have transitions from the current state to the state with groups all of the smaller sizes, and can also be transitions in the status of large dimensions.
+
+Therefore, the value of ${\rm mex} \{ x_1, \ldots, x_k \}$ is indeed the desired value Spraga Grande for the current state that we wanted to prove.
+
+
+\h2{ the Use of theorem Spraga Grande }
+
+Finally we describe a holistic algorithm is applicable to any equal game between two players to determine the success/pogreshnosti current state of $v$.
+
+A function that to each state of the game puts him in line-a number that is called the \bf{function Spraga Grande}.
+
+So, in order to calculate the function Spraga Grande for the current state of some game, you need:
+
+\ul{
+
+\li Write out all the possible transitions from the current state.
+
+\li Each such transition may lead to either one-game or in \bf{the amount of independent games}.
+
+In the first case --- just do the math Grundy function recursively to this new state.
+
+In the second case, when the transition from the current state leads to the sum of several independent games --- recursively calculate for each of these games Grundy function, then we say that Grundy function of the sum of XOR games is equal to the sum of the values of these games.
+
+\li After we considered Grundy function for each possible transition --- consider $\rm mex$ from these values, and found the number --- is the sought Grundy value for the current state.
+
+\li If the Grundy value is zero, then the current status of losing, otherwise --- a winner.
+
+}
+
+Thus, compared to theorem Spraga Grande here we take into account the fact that the game can be transitions from individual States in \bf{the sum of several games}. To work with sums of games, we first model each game its value Grundy, i.e. one of them is a bunch of a certain size. After that we come to him the sum of short-stacks, i.e. to ordinary nim, the answer to which, according to the theorem of Bud --- the XOR-sum of sizes of piles.
+
+
+\h2{ Regularities in the values Spraga Grande }
+
+Very often the solution of specific tasks when you need to learn to consider the function Spraga Grande for a given game helps \bf{a study of the tables of values} this function in search of patterns.
+
+In many games, which seem very difficult for the theoretical analysis, the function Spraga Grande turns out to be periodic, or having a very simple look that is easy to notice by eye. In most cases, the patterns seen are correct, and, if desired, is proved using mathematical induction.
+
+However, do not always function Spraga Grande contains simple patterns, and for some, even very simple in the wording, games the question of the existence of such regularities is still open (for example, "Grundy''s game" below).
+
+
+\h2{ Examples }
+
+To demonstrate the theory Spraga Grande, will consider a few problems.
+
+We should pay particular attention to the problem "ladder", "nimble-2", "turning turtles", which will demonstrate a non-trivial reduction of the original problem to nim with increases.
+
+
+\h3{ "Noughts and crosses" }
+
+\bf{Condition}. Consider the squared size $1 \times n$ cells. In one move, the player needs to put one stitch, but it is forbidden to put two crosses near (an adjacent cell). The player who cannot make a move. To say who will win under optimal play.
+
+\bf{Solution}. When a player puts an x in any cell, we can assume that the entire strip is split into two independent halves: to the left of x and right of it. However, the cell with x and its left and right neighbor are destroyed --- because in them there is nothing else to supply.
+
+Therefore, if we thenumerous cells of the strip from $1$ to $n$, then by placing a cross in the position of the $1 < i < n$, the strip will split into two strips of length $i-2$ and $n-i-1$, i.e. we move in the aggregate. $i-2$ and $n-i-1$. If the stitch is put in position $1$ or $n$, then this is a special case --- we will just move to state $n-2$.
+
+Thus, the Grundy function $g[n]$ (for $n \ge 3$):
+
+$$ g[n] = {\rm mex} \Bigg\{ g[n-2], \bigcup_{i=2}^{n-1} \Big( g[i-2] \oplus g[n-i-1] \Big) \Bigg\}. $$
+
+I.e. $g[n]$ is obtained as $\rm mex$ from the set consisting of the numbers $g[n-2]$ and all possible values of the expression $g[i-2] \oplus g[n-i-1]$.
+
+So, we got the solution of this problem is $O (n^2)$.
+
+Actually, arguing on the computer a table of values for the first hundred values of $n$, you can see that, starting with $n=52$, the sequence $g[n]$ becomes periodic with the period $34$. This rule still holds and further (which probably can be proved by induction).
+
+
+\h3{ "TIC-TIC --- 2" }
+
+\bf{Condition}. Again the game is played on a strip of $1 \times n$ cells, and the players take turns placing one stitch. Wins the one who will put three crosses in a row.
+
+\bf{Solution}. Note that if $n>2$ and we left after his move two crosses near or through one space, the opponent the next move will win. Therefore, if one player put a cross, then another player is not profitable to put a cross in the adjacent squares, and also in the neighboring of the neighboring (i.e., at a distance of $1$ and $2$ to put it is unprofitable, it will lead to defeat).
+
+Then the solution obtained is almost similar to the previous problem, only now the cross removes every half not one, but two whole cells.
+
+
+\h3 {Pawns }
+
+\bf{Condition}. There is the $3 \times n$, where the first and third row contains $n$ of pawns --- white and black, respectively. The first player can play the white pawns, the second-black. The rules of stroke and stroke --- the standard chess, except that hitting (when available) is mandatory.
+
+\bf{Solution}. Watch what happens when a pawn makes a move forward. Next turn the enemy will be obliged to eat it, then we'll have to eat a pawn of the enemy, then he will eat, and, finally, our pawn will eat the enemy pawn will remain, "leaning" into a pawn of the enemy. Thus, if we are in the beginning went a pawn in column $1 < i < n$, the result is three columns $[i-1, i+1]$ Board actually will be destroyed, and we will move on to the money games of size $i-2$ and $n - i - 1$. Edge cases $i=1$ and $i=n$ just lead us to a Board of size $n-2$.
+
+Thus, we have obtained expressions for the functions Grandi, similar to the above task, "Noughts and crosses".
+
+
+\h3{ "Lasker's nim" }
+
+\bf{Condition}. There are $n$ piles of stones of a given size. In one move the player can take any nonzero number of stones from any pile, or to split any pile into two nonempty piles. The player who cannot make a move.
+
+\bf{Solution}. Recording both types of transitions, it is easy to obtain the function Spraga Grande:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=0}^{n-1} g[i], ~~ \bigcup_{i=1}^{n-1} \Big( g[i] \oplus g[n-i] \Big) \Bigg\}. $$
+
+However, it is possible to construct a table of values for small $n$ and see a simple pattern:
+
+$$ \matrix{
+n & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 \cr
+g[n] & 0 & 1 & 2 & 4 & 3 & 5 & 6 & 8 & 7 & 9 & 10 & 12 & 11 & 13 & 14 & 16 & 15 & 17 & 18 & 20 \cr
+} $$
+
+Here we see that $g[n] = n$ for the numbers $1$ or $2$ modulo $4$, and $g[n] = n \pm 1$ for numbers $3$ and $0$ modulo $4$. It can be proved by induction.
+
+
+\h3{ "The game of Kayles" }
+
+\bf{Condition}. There are $n$ pins, put up in a row. At one stroke, the player can knock either one pin or two pins standing next to. The winner is the one who knocked the last pin.
+
+\bf{Solution}. And when a player knocks out one pin, and when he knocks two --- the game splits into a sum of two independent games.
+
+It is easy to obtain an expression for the function Spraga Grande:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=0}^{n-1} \Big( g[i] \oplus g[n-1-i] \Big), ~~ \bigcup_{i=0}^{n-2} \Big( g[i] \oplus g[n-2-i] \Big) \Bigg\}. $$
+
+Calculate for him the table for the first few dozen elements:
+
+$$ \matrix{
+g[0 \ldots 11]: & 0 & 1 & 2 & 3 & 1 & 4 & 3 & 2 & 1 & 4 & 2 & 6 \cr
+g[12 \ldots 23]: & 4 & 1 & 2 & 7 & 1 & 4 & 3 & 2 & 1 & 4 & 6 & 7 \cr
+g[24 \ldots 35]: & 4 & 1 & 2 & 8 & 5 & 4 & 7 & 2 & 1 & 8 & 6 & 7 \cr
+g[36 \ldots 47]: & 4 & 1 & 2 & 3 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[48 \ldots 59]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 4 & 2 & 7 \cr
+g[60 \ldots 71]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 6 & 7 \cr
+g[72 \ldots 83]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[84 \ldots 95]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[96 \ldots 107]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[108 \ldots 119]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+} $$
+
+You may notice that starting from some moment the sequence becomes periodic with period $12$. In the future this frequency will not be violated.
+
+
+\h3{ Grundy''s game }
+
+\bf{Condition}. There are $n$ piles of stones, the size of which we denote by $a_i$. In one move the player can take any pile of size at least $3$ and divide it into two nonempty piles of unequal size. The player who cannot make a move (i.e. when the sizes of all remaining groups is less than or equal to two).
+
+\bf{Solution}. If $n > 1$, then all these several piles, apparently, --- independent game. Therefore, our task is to learn how to find the function Spraga Grande for one pile, and the response for multiple piles will be obtained as their XOR-sum.
+
+For one of a handful this feature is built also easy enough to view all possible transitions:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=[1 \ldots n-1], \atop i \ne n-i } \Big( g[i] \oplus g[n-i] \Big) \Bigg\}. $$
+
+What makes this game interesting --- the fact that so far not found General regularities. Despite the assumption that the sequence $g[n]$ must be periodic, it was calculated up to $2^{35}$, and periods in this area were found.
+
+
+\h3{ "Ladder" }
+
+\bf{Condition}. There is a staircase with $n$ steps (numbered from $1$ to $n$), $i$-th step is $a_i$ of coins. In one move is allowed to move some non-zero number of coins from $i$-th $i-1$-th step. The player who cannot make a move.
+
+\bf{Solution}. If you try to reduce this task to nim "in a forehead", it turns out that the course we have --- this decrease is one of a handful in number, and simultaneous increase another handful of the same. The result is a modification of Nimes, which is very difficult.
+
+We proceed differently: we consider only the steps with even numbers: $a_2, a_4, a_6, \ldots$. Let's see how will this change the set of numbers when making the same move.
+
+If the move is made with an even $i$, then this move means a reduction in the number of $a_i$. If the move is made with odd $i$ ($i > 1$), this means an increase of $a_{i-1}$.
+
+It turns out that our task is ordinary with him increases with the size of the piles of $a_2, a_4, a_6, \ldots$.
+
+Consequently, the Grundy function of it --- is XOR-sum of numbers of the form $a_{2i}$.
+
+
+\h3{ "Nimble" and "Nimble-2" }
+
+\bf{Condition}. There is plaid strip $1 \times n$, where $k$ coins is $i$-th coin is $a_i$-th cell. In one move the player can take any coin and move it to the left by an arbitrary number of cells, but so that it is not climbed outside of the strip. In the game "Nimble-2" it is forbidden to jump over other coins (or even to put two coins in one cell). The player who cannot make a move.
+
+\bf{Solution "Nimble"}. Note that the coins in this game are independent from each other. Moreover, if we consider the set of numbers $a_i-1$ $(i = 1 \ldots k)$, it is clear that in one move the player can take any of these numbers and reduce it, and a loss occurs when all the numbers become zero. Therefore, the game "Nimble" --- this is \bf{regular him}, and the answer to the problem is the XOR-sum of the numbers $a_i-1$.
+
+\bf{Solution "Nimble-2"}. Remunerate vertexes in such coins in the order they appear from left to right. Then denote by $d_i$ the distance from $i$to $i-1$-th coin:
+
+$$ d_i = a_i - a_{i-1} - 1, ~~~~ (i = 1 \ldots k) $$
+
+(assuming that $a_0 = 0$).
+
+Then one player can take away from some $d_p$ is some number $q$, and add the same number of $q$ to $d_{p+1}$. Thus, this game is actually \bf{"ladder"} on numbers $d_i$ (just change the order of these numbers to the opposite).
+
+
+\h3{ "Turning turtles" and "Twins" }
+
+\bf{Condition}. Given the checkered strip of size $1 \times n$. Each cell is either a cross or crosses. In one move, you can take a zero and turn it into a cross.
+
+In this case \bf{optional} are permitted to select one of the cells to the left of the variable and change it to the opposite value (i.e. the o and replace with the stitch and the stitch on the toe). In the game "turning turtles". (i.e. the player's turn may be limited by transformation of zero in x), and in "twins" --- definitely.
+
+\bf{Solution "turning turtles"}. It is claimed that this game --- this is a common them over the numbers $b_i$ where $b_i$ --- the position of the $i$-th zero (1-based). Will check this claim.
+
+\ul {
+
+\li If the player just changed the crosses on the x without using additional speed --- it can be understood as the fact that he just took the whole bunch, corresponding to this toe. In other words, if the player changed the crosses on the x at position $x$ $(1 \le x \le n)$, thus he took a bunch of $x$ and made it the size to zero.
+
+\li If the player is using an additional stroke, i.e. in addition to the fact that they changed the toe in position $x$ on the cross, he even changed the cell at position $y$ $(y < x)$, we can assume that he reduced the pile of $x$ to $y$. Indeed, if $y$ was used to cross --- it is, in fact, after a player's turn there will be a zero, i.e. there will appear the bunch of $y$. And if $y$ was previously zero, then after the player to the pile disappears --- or, equivalently, there was a second pile exactly the same $y$ (as in Nimes two heaps the same size actually "destroy" each other).
+
+}
+
+Thus, the answer to the problem is the XOR-sum of numbers --- coordinates of all o's is 1-indexed.
+
+\bf{Solution "twins"}. All the arguments above remain true, except that "zero pile" now the player does not have. So if we all coordinate subtract one --- then again the game will turn into a normal.
+
+Thus, the answer to the problem is the XOR-sum of numbers --- coordinates all zeroes to 0-indexing.
+
+
+\h3{ Northcott''s game }
+
+\bf{Condition}. There is a Board of size $n \times m$: $n$ rows and $m$ columns. In each row there are two chips: one black and one white. In one move the player can take any piece of your color and move it inside the string right or left by an arbitrary number of steps, but not jumping over another piece (and not getting it). The player who cannot make a move.
+
+\bf{Solution}. First, it is clear that each of the $n$ rows of the Board forms an independent game. The problem is therefore reduced to the analysis of the game in one line, and the answer to the problem is the XOR-sum of the values Spraga Grande for each row.
+
+Solving the problem for one row, denote by $x$ the distance between the black and white piece (which can vary from zero to $m-2$). In one move, each player may either reduce $x$ to some arbitrary value, or, possibly, to increase it to some value (not always available). Thus, this game is the \bf{"increases from"} and, as we already know, increases in this game are useless. Therefore, Grundy function for a single line --- this is the distance of $x$.
+
+(Note that formally, such reasoning is incomplete --- as in "Nimes with increases" assumes that the game \bf{end}, and here the rules of the game allow players to play endlessly. However, the infinite game can not take place in optimal game --- because one player is to maximize the distance $x$ (the price approach the border of the field), another player can approach it by decreasing $x$ back. Therefore, at optimum the game of the opponent player will not be able to make increasing moves ever so long, and yet describes the solution of the problem remains valid.)
+
+
+\h3{ Triomino }
+
+\bf{Condition}. Given a checkered field of size $2 \times n$. In one move, the player can bet on one figure in the shape of the letter "G" (i.e., connected shape of the three cells, which do not lie on the same line). Forbidden to put a figure so that it crossed at least one cell with any of the already placed pieces. The player who cannot make a move.
+
+\bf{Solution}. Note that the formulation of a figurine divides the whole field into two separate fields. Thus, we need to analyze not only the rectangular fields, but fields that have left and/or right edge uneven.
+
+Drawing a different configuration, you can see that whatever the configuration of the field, the main thing --- just how much on this field of cells. Actually, if the current field $x$ free cells, and we want to split this field into two fields $y$ and $z$ (where $y+z+3 = x$), then it is always possible, i.e. you can always find a suitable place for the figures.
+
+Thus, our task becomes this: initially, we have a bunch of stones of size $2n$, and in one move, we can throw a bunch of $3$ of the stone and then split that pile into two piles of arbitrary size. Grundy function for this game is:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=0}^{n-3} \Big( g[i] \oplus g[n-i-3] \Big) \Bigg\}. $$
+
+
+\h3{ Chips on a graph }
+
+\bf{Condition}. Given a directed acyclic graph. Some vertices of the graph are the chips. In one move the player can take any piece and move it along any edge in a new vertex. The player who cannot make a move.
+
+Also sometimes the second option for this task when it is considered that if the two chips come in one vertex, then they are both mutually destroy each other.
+
+\bf{Solution of the first variant of the task}. First, all the chips --- are independent of each other, so our task is to learn how to find the Grundy function for one of the chips in the column.
+
+Given that the graph is acyclic, we can do it recursively: suppose we considered Grundy function for all descendants of current node. Then Grundy function in the current vertex is $\rm mex$ from this set of numbers.
+
+Thus, the solution to the problem is the following: for each vertex recursively to compute Grundy function, if the chip was in the top. Then the answer to the problem is the XOR-sum of the Grundy values of those vertices of the graph, in which condition the chips are.
+
+\bf{Solution a second version of the task}. Actually, the second variant does not differ from the first. In fact, if the two chips are in the same vertex of the graph, then the resulting XOR-sum of their values Grandi mutually destroy each other. In practice, therefore, is one and the same task.
+
+
+\h2{ the Implementation }
+
+From the perspective of implementation is the function $\rm mex$.
+
+If it is not a bottleneck in the program, you can write some simple version for $O (c \log c)$ (where $c$ --- number of arguments):
+
+\code
+int mex(vector<int> a) {
+set<int> b(a.begin(), a.end());
+for (int i=0; ; ++i)
+if (!b.count(i))
+return i;
+}
+\endcode
+
+However, not so difficult is a variant of \bf{linear time}, i.e. $O (c)$, where $c$ --- the number of arguments the function $\rm mex$. Denote by $D$ a constant that is equal to the maximum possible value of $c$ (i.e. the maximum degree of vertices in the graph of the game). In this case, the result of the function $\rm mex$ will not exceed $D$.
+
+Therefore, the implementation only has to create an array of size $D+1$ (the array global, or static --- the main thing that he was not created at every function call). When calling the function $\rm mex$ we first note in the array $c$ arguments (ignoring those over $D$ --- such values obviously do not affect the result). Then pass on this array we are $O (c)$, we find the first unmarked element. Finally, in the end we again iterate through all the passed arguments, and reset the array for returning them. Thus, we will follow all of the action of $O (c)$, which in practice can be considerably lower than the maximum degree $D$.
+
+\code
+int mex (const vector<int> & a) {
+static bool used[D+1] = { 0 };
+int c = (int) a.size();
+
+for (int i=0; i<c; ++i)
+if (a[i] <= D)
+used[a[i]] = true;
+
+int result;
+for (int i=0; ; ++i)
+if (!used[i]) {
+result = i;
+2 break;
+}
+
+for (int i 1=0; i<c; ++i)
+if (a[i] <= D)
+used[a[i]] = false;
+
+return result;
+}
+\endcode
+
+Another option would be to use appliances \bf{"number used"}. Ie make $\rm used$ a array of Booleans and numbers ("versions"), and to have a global variable indicating the current version number. At the entrance to the function $\rm mex$ we increase the current version number, in the first cycle, we check in the array $\rm used$ not $\rm true$, and the current version number. Finally, in the second cycle, we simply compare ${\rm used}[i]$ with the current version number --- if they do not match, this means that the current number is not met in the array $a$. The third cycle (which previously sanwal array $\rm used$) are not needed.
+
+
+\h2{ a Generalization of Nimes: Nimes Moore ($k$ -) }
+
+One of the interesting generalizations of the usual neem was given to Moore (Moore) in 1910
+
+\bf{Condition}. There are $n$ piles of stones of size $a_i$. Also contains an integer $k$. In one move a player can reduce the size of one to $k$ stacks (i.e. now resolved simultaneous moves in several piles at once). The player who cannot make a move.
+
+Obviously, if $k=1$ it Moore turns into him.
+
+\bf{Solution}. The solution of this problem is amazingly simple. Write the sizes of each pile in binary notation. Then sum these numbers in $k+1$-base notation without hyphens discharges. If it's a number zero, then the current position is losing, otherwise --- winning (and there is a move to position with the zero value).
+
+In other words, for each bit we look at is this bit in the binary representation of each number $a_i$. Then we sum the resulting zeros/unit, and take the sum modulo $k+1$. If in the end this sum for each bit turned out to be zero, then the current position is --- losing, otherwise --- winning.
+
+\bf{the Proof}. As for NIMA, the proof is in the strategy of the players: on the one hand, we show that the zero-value, we can only go into the game with a non-zero value, and on the other hand --- what games with a non-zero value is a move in the game with zero value.
+
+First, we claim that the zero value can only go into the game with a non-zero value. This is understandable: if the sum modulo $k+1$ was equal to zero, changing from one to $k$ bits we could not get again zero sum.
+
+Secondly, we show how from the game with a non-zero amount to switch to a zero-sum game. Iterate over the bits in which the sum is nonzero, in order from highest to lowest.
+
+Denote by $u$ the number of piles that we have already begun to change; start with $u = 0$. Note that these $u$ of the piles we already can put any bits at our request (as any of a handful that got in the number of these $u$ of piles, already decreased from the previous one, more senior, bits).
+
+So, let us consider the current bit, where the sum modulo $k+1$ nonzero happened. Denote by $s$ the sum, but in which no account is taken of $u$ of stacks which we have already begun to change. Denote by $q$ the amount that can be obtained by putting in this $u$ of piles current bit is equal to unit:
+
+$$ q = (s + u) \pmod{(k+1)} $$
+
+We have two options:
+
+\ul{
+
+\li If $q \le u$.
+
+Then we can do only already selected $u$ small enough in $k+1-s = u-q$ of them to put the current bit is equal to one, and all the rest --- zero.
+
+\li If $q > u$.
+
+In this case, we, on the contrary, put in the already selected $u$ of the piles current bit is equal to zero. Then the sum of the current bit will be equal to $s > 0$, which means, among unselected $n-u$ of stacks in the current bit has at least $s$ units. Choose any $s$ of groups among them, and reduce them in the current bit from one to zero.
+
+As a result, the number of $u$ variable stacks will increase by $s$, and $q \le k$.
+
+}
+
+Thus, we have shown how to select multiple variable groups and which bits should be changed to the total number of $u$ never exceeds $k$.
+
+Therefore, we have proved that the desired transition from a state with non-zero-sum in a state with zero money there is that we wanted to prove.
+
+
+\h2{ "giveaway" }
+
+The it which we have considered throughout this article --- also known as "Nimes normal" ("normal nim"). In contrast, there are also \bf{"giveaway"} ("misère nim") --- when the player who makes the last move loses (and wins).
+
+(speaking of which, apparently, is it like a Board game --- more popular in the version of "giveaway" and not in the "normal" version)
+
+\bf{Solution} this NIMA is amazingly simple: we will act in the same way as in conventional Nimes (i.e. calculate the XOR-sum of all sizes of piles, and if it is zero, we will lose with any strategy, but otherwise --- will win, finding the transition into the position with a zero value Spraga Grande). But there is one \bf{exception}: if the sizes of all groups equal to one, then the winning/lose-lose are swapped compared to conventional Nimes.
+
+Thus, the winning/lose-lose Nimes "giveaway" is defined by the number:
+
+$$ a_1 \oplus a_2 \oplus \ldots \oplus a_n \oplus z $$
+
+where $z$ denoted by a Boolean variable equal to one if $a_1 = a_2 = \ldots = a_n = 1$.
+
+With that exception, \bf{optimal strategy} for player in a winning position is defined as follows. Find the move that the player would do if he was playing normal. Now, if this move leads to a position in which the sizes of all groups equal to one (and up to this move was a bunch of size larger than one), this move should change: changed to the number of remaining non-empty stacks changed its parity.
+
+\bf{the Proof}. Note that in General the theory Spraga Grande refers to the "normal" games and not the games in the giveaway. However, it is one of those games for which the solution of the game "giveaway" is not much different from solving a "normal" game. (Incidentally, the solution Nimes "giveaway" was given the same Charles Bouton, who described the decision as "normal" NIMA.)
+
+How can one explain such a strange thing --- that winning/lose-lose Nimes "giveaway" matches the winning/lose-lose "normal" Nimes almost always?
+
+Consider some \bf{during the game}: i.e., we choose an arbitrary starting position and write out the moves of the players until the end of the game. It is easy to see that with optimal play rivals --- the game will culminate in what will remain a heap of size $1$, and the player will be forced to go in it and play.
+
+Consequently, in any game between two optimal players sooner or later \bf{time} when the sizes of all non-empty piles is one. Denote by $k$ the number of non-empty stacks at this point --- then for the current player, this position is winning if and only if $k$ is even. I.e., we have seen that in these cases, the winning/lose-lose Nimes "giveaway" in \bf{opposite} "normal" nim's.
+
+Go back to the time when for the first time in the game all the piles of steel of size $1$, and revert one step back --- right before this situation happened. We find ourselves in a situation that a heap has size $>1$, and all the rest of the bunch (maybe there were zero pieces) - - - $1$. This position is clearly winning (because we really can do it in the way that left an odd number of piles of size $1$, i.e. we will give the opponent to defeat). On the other hand, the XOR-sum of sizes of piles in this moment different from zero --- is it "normal" it \bf{coincides} with Nimes "giveaway".
+
+Further, if you continue to roll the game back, we will come to the state when the game was two piles of size $>1$, three piles, etc. For all such States winning/lose-lose will also coincide with the "normal" Nimes --- just because we have more than one pile of size $>1$, then all transitions lead to States with one more bunch of size $>1$ --- and for all of them, as we have shown, nothing compared to the "normal" Nimes \bf{not changed}.
+
+Thus, changes in Nimes "giveaway" only affect the state when all the piles have size equal to one --- what we wanted to prove.
+
+
+\h2{ Problem in online judges }
+
+The list of problems in online judges that can be solved using Grundy:
+
+\ul{
+
+\li \href=http://acm.timus.ru/problem.aspx?space=1&num=1465{TIMUS #1465 \bf{"pawn Game"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=2529{UVA #11534 \bf{"Say Goodbye to Tic-Tac-Toe"} ~~~~ [difficulty: medium]}
+
+\li \href=http://acm.sgu.ru/problem.php?contest=0&problem=328{SGU #328 \bf{"A Coloring Game"} ~~~~ [difficulty: medium]}
+
+}
+
+
+\h2{ Literature }
+
+\ul{
+
+\li \book{John Horton Conway}{On numbers and games}{1979}{conway.djvu}
+\li \href=http://jourdan.ens.fr/~laffargue/teaching/Incertain/Problemes/lectnotes.pdf{Bernhard von Stengel. \bf{Lecture Notes on Game Theory}}
+
+}

@@ -1,0 +1,203 @@
+<h1>el problema Inverso de MST (inverse-MST - el problema inverso mínimo de la armadura) O (N M<sup>2</sup>)</h1>
+
+<p>Dan ponderado неориентированный el gráfico de G con N vértices y M de los bordes (sin bisagras y de múltiples aristas). Se sabe que el conde coherente. También aparece algún esqueleto de T de este grafo (es decir, se selecciona N-1 arista, que forman un árbol con N vértices). Es necesario cambiar el peso de las aletas de tal manera que la estructura T era mínimo la esencia de ese conde (mejor dicho, uno de los mínimos de núcleos), y hacerlo de manera que el cambio total de todos los pesos era menor.</p>
+<h2>Solución</h2>
+<p><b>Сведем</b> la tarea inverse-MST a la tarea de min-cost-flow, más exactamente, <b>a la tarea, de la doble min-cost-flow</b> (en el sentido de la dualidad de tareas de programación lineal); a continuación, escogemos la última tarea.</p>
+<p>por tanto, que dan el gráfico de G con N vértices, M de las costillas. El peso de cada costilla se denota por C<sub>i</sub>. Supongamos, sin perder generalidad, que los bordes con los números de 1 a N-1 son las costillas T.</p>
+<h3>1. Necesaria y suficiente MST</h3>
+<p>Deje que dan un poco de estructura S (no necesariamente mínimo).</p>
+<p>Introducir primero una designación. Veamos un poco de la arista j, no pertenece a S. Obviamente, en la columna S, hay un único camino que conecta los extremos de este costillas, es decir, el único camino que conecta los extremos de la aleta de la j y de la que sólo consta de las costillas, de propiedad de la S. <b>se denota por P[j]</b> de la multitud de aristas que forman el camino para el j-ésimo de la aleta.</p>
+<p>Para algunos restos de S era mínimo, <b>necesario y suficiente</b> para:</p>
+<formula>C<sub>i</sub> <= C<sub>j</sub> para todos los j ∉ S y cada i ∈ P[j]</formula>
+<p>Puede observar que, dado que <b>en nuestra tarea</b> остову T son propiedad de la aleta 1..N-1, entonces podemos escribir esta condición, por lo tanto:</p>
+<formula>C<sub>i</sub> <= C<sub>j</sub> para todo j = N..M y para cada i ∈ P[j]
+(y todo i están en el rango 1..N-1)</formula>
+<h3>2. El conde de rutas</h3>
+<p>el Concepto de grafo de rutas directamente relacionado con el anterior teorema.</p>
+<p>Deje que dan un poco de estructura S (no necesariamente mínimo).</p>
+<p><b>el conde de las vías de H</b> para la columna G será el siguiente gráfico:</p>
+<ul>
+<li>contiene M vértices, cada vértice en el H mutuamente corresponde claramente a un cierto eje en G.</li>
+<li>el Conde H двудольный. En la primera fracción se encuentran las cimas i, que se corresponden con aristas en G, propiedad de остову S., Respectivamente, en la segunda fracción se encuentran las cimas j, que corresponden a los bordes, no pertenecen a S.</li>
+<li>Arista se realiza desde un vértice i al vértice j entonces, y sólo entonces, cuando i pertenece a la P[j].<br>en Otras palabras, para cada vértice j de la segunda cuota de participación en ella entran los nervios de todos los vértices de la primera cuota, de acuerdo con el conjunto de aristas de P[j].</li>
+</ul>
+<p>En el caso de <b>nuestra tarea</b> podemos simplificar un poco la descripción del grafo de rutas de acceso:</p>
+<formula>la arista (i,j) existe en H si i ∈ P[j], j = N..M, i = 1..N-1</formula>
+<h3>3. La formulación matemática de la tarea</h3>
+<p>Puramente formal <b>tarea inverse-MST</b> se escribe así:</p>
+<formula>encontrar una matriz A[1..M] tal que
+C<sub>i</sub> + A<sub>i</sub> <= C<sub>j</sub> + A<sub>j</sub> para todo j = N..M y para cada i ∈ P[j] (i 1..N-1),
+y minimizar el monto de la |A<sub>1</sub>| + |A<sub>2</sub>| + ... + |A<sub>m</sub>|</formula>
+<p>aquí buscamos una matriz A, nos referimos a los valores que se deben añadir a los pesos de las costillas (es decir, la decisión de la tarea inverse-MST, sustituimos el peso de la C<sub>i</sub> de cada aleta i en el valor de C<sub>i</sub> + A<sub>i</sub>).</p>
+<p>es Evidente que no tiene sentido aumentar el peso de las aletas, propiedad de T, es decir,</p>
+<pre>A<sub>i</sub> <= 0, i = 1..N-1</pre>
+<p>y no tiene sentido cortar las costillas, no pertenecen a la T:</p>
+<formula>A<sub>i</sub> >= 0, i = N..M</formula>
+<p>(ya que en caso contrario, sólo estamos ухудшим respuesta)</p>
+<p>Entonces podemos un poco de <b>simplificar</b> la creación de la tarea, quitando la de la suma de los módulos de:</p>
+<formula>encontrar una matriz A[1..M] tal que
+C<sub>i</sub> + A<sub>i</sub> <= C<sub>j</sub> + A<sub>j</sub> para todo j = N..M y para cada i ∈ P[j] (i 1..N-1),
+A<sub>i</sub> <= 0, i = 1..N-1,
+A<sub>i</sub> >= 0, i = N..M,
+y minimizar el monto de la A<sub>n</sub> + ... + A<sub>m</sub> A<sub>1</sub> + ... + A<sub>n-1</sub>)</formula>
+<p>por Último, simplemente cambiaremos el "minimizar" en "maximizar", y en la suma de cambiar todos los caracteres opuestos:</p>
+<formula>encontrar una matriz A[1..M] tal que
+C<sub>i</sub> + A<sub>i</sub> <= C<sub>j</sub> + A<sub>j</sub> para todo j = N..M y para cada i ∈ P[j] (i 1..N-1),
+A<sub>i</sub> <= 0, i = 1..N-1,
+A<sub>i</sub> >= 0, i = N..M,
+a fin de maximizar la suma de A<sub>1</sub> + ... + A<sub>n-1</sub> A<sub>n</sub> + ... + A<sub>m</sub>)</formula>
+<h3>4. Reducción de tareas inverse-MST a la tarea, la doble tarea de las asignaciones</h3>
+<p>el Enunciado de la tarea inverse-MST, que acaba de dalí, es la formulación de tareas <b>programación lineal</b> con desconocidos A<sub>1</sub>..A<sub>m</sub>.</p>
+<p>se Aplica un clásico de la recepción - considere la <b>doble</b> s de la tarea.</p>
+<p>Por definición, para obtener la doble tarea, se necesita cada desigualdad de asignar el doble de la variable X<sub>ij</sub>, cambiar los roles de destino de la función (la cual era necesario reducir al mínimo) y los factores de la derecha partes de las desigualdades, cambiar los caracteres "< = ""> = " y viceversa, cambiar la maximización de reducir al mínimo.</p>
+<p>por lo tanto, <b>dual a la inverse-MST</b> objetivo:</p>
+<formula>buscar todos los X<sub>ij</sub> para cada (i,j) ∈ H, tales que:
+todo X<sub>ij</sub> >= 0,
+para cada i=1..N-1 ∑ X<sub>ij</sub> de todos j: (i,j) ∈ H <= 1,
+para cada j=N..M ∑ X<sub>ij</sub> de todos i (i,j) ∈ H <= 1,
+y minimizar ∑ X<sub>ij</sub> (C<sub>j</sub> - C<sub>i</sub>) para todo (i,j) ∈ H</formula>
+<p>la Última tarea es <b>tarea acerca de las asignaciones</b>: tenemos que en el apartado de las vías de H seleccionar varias aristas, de manera que ninguna arista no entrara en conflicto con el otro en la parte superior, y la suma de los pesos de las costillas (el peso de la aleta (i,j) puede definir como un C<sub>j</sub> - C<sub>i</sub>) debe ser mínimo.</p>
+<p>Lo que <b>la doble tarea inverse-MST es equivalente a la tarea de asignación</b>. Si aprendemos a resolver doble tarea acerca de las asignaciones, automáticamente nos decidamos a la tarea inverse-MST.</p>
+<h3>5. La solución de la doble tarea de las asignaciones</h3>
+<p>en primer lugar dediquemos un poco de atención a lo privado, con motivo de las tareas de las asignaciones que hemos recibido. En primer lugar, es la fórmula de la tarea sobre los nombramientos, ya que en la misma proporción se encuentra N-1 vértices, y en la otra M vértices, es decir, en el caso general, el número de vértices en la segunda fracción de más de un orden de magnitud. Para resolver esta doble tarea acerca de las asignaciones tienen una algoritmo que decide por O (N<sup>3</sup>), pero aquí este algoritmo no se considerará. En segundo lugar, la tarea de las asignaciones se puede llamar la tarea de asignaciones suspendidas vértices: el peso de las aletas ponemos un 0 (cero), el peso de cada vértice de la primera cuota pondremos igual a -C<sub>i</sub>, de la segunda fracción es igual a la C<sub>j</sub>, y la solución obtenida de la tarea es la misma.</p>
+<p>Vamos a abordar la tarea de la doble tarea de asignaciones mediante <b>modificado el algoritmo min-cost-flow</b>, que se va a encontrar con el flujo de coste mínimo y al mismo tiempo la solución de la doble tarea.</p>
+<p><b>Reducir</b> la tarea acerca de las asignaciones de la tarea min-cost-flow es muy fácil, pero para completar el cuadro, vamos a describir este proceso.</p>
+<p>Añadimos el conde de la fuente s y el drenaje de la t. De s a cada vértice de la primera cuota realizaremos el borde con un ancho de banda = 1 y el valor = 0. De cada vértice de la segunda cuota pasaremos la arista a t con un ancho de banda = 1 y el valor = 0. Anchos de banda de todas las aristas entre la primera y la segunda partes también pondremos iguales a 1.</p>
+<p>Finalmente, para el algoritmo modificado min-cost-flow (descrito a continuación), trabajó, se necesita <b>añadir arista de la s en t</b> con un ancho de banda = N+1 y el valor = 0.</p>
+<h3>6. Modificado el algoritmo min-cost-flow para resolver el problema de las asignaciones</h3>
+<p>Aquí vamos a ver <b>el algoritmo de sucesivos cortes cortos con potenciales</b>, que se asemeja a la normal, el algoritmo min-cost-flow, pero también utiliza el concepto de <b>potenciales</b>, que al final del algoritmo serán contener <b>solución de la doble tarea</b>.</p>
+<p>Introduce una leyenda. Para cada aleta (i,j) se denota por U<sub>ij</sub> de su ancho de banda, a través de la C<sub>ij</sub> - su costo, a través de la F<sub>ij</sub> - el flujo a lo largo de este costillas.</p>
+<p>También introduciremos el concepto de potencial. Cada vértice tiene su potencial PI<sub>i</sub>. El valor residual de la aleta de la CPI<sub>ij</sub> se define como:</p>
+<formula>CPI<sub>ij</sub> = C<sub>ij</sub> - PI<sub>i</sub> + PI<sub>j</sub></formula>
+<p>En cualquier momento de la ejecución del algoritmo de <b>potenciales son</b>, que se cumplen las condiciones:</p>
+<formula>si F<sub>ij</sub> = 0, entonces la CPI<sub>ij</sub> >= 0
+si F<sub>ij</sub> = U<sub>ij</sub>, CPI<sub>ij</sub> <= 0
+de lo contrario, el ipc<sub>ij</sub> = 0</formula>
+<p>el Algoritmo comienza con un cero de flujo, y necesitamos encontrar algunos de los valores iniciales de los potenciales, que satisfacen las condiciones especificadas. Es fácil comprobar que este método es una de las posibles soluciones:</p>
+<formula>PI<sub>j</sub> = 0 para j = N..M
+PI<sub>i</sub> = min C<sub>ij</sub>, donde (i,j) ∈ H
+PI<sub>s</sub> = min PI<sub>i</sub>, donde: i = 1..N-1
+PI<sub>t</sub> = 0</formula>
+<p>en Realidad el algoritmo min-cost-flow se compone de varias iteraciones. <b>En cada iteración</b> nos encontramos con el camino más corto de s a t en la red, y como la balanza de las costillas utilizamos residuales costo de la CPI. Luego aumentamos el flujo a lo largo encontrado el camino de la unidad, y actualizamos los potenciales de la siguiente manera:</p>
+<formula>PI<sub>i</sub> -= D<sub>i</sub></formula>
+<p>donde D<sub>i</sub> - se halló la menor distancia de la s a la i (de nuevo, en la red con los pesos de las costillas CPI).</p>
+<p>tarde o Temprano nos encontraremos con el camino de s a t, que consta de un único costilla (s,t). Entonces, después de esta iteración necesitamos <b>fin</b> el trabajo del algoritmo: en realidad, si no paramos el algoritmo, entonces ya estarán en camino con неотрицательной costo, y agregarlos a la respuesta no es necesario.</p>
+<p>Al final del algoritmo obtenemos la solución del problema de asignación (en forma de flujo F<sub>ij</sub>) y la solución de la doble tarea de las asignaciones (en la matriz PI<sub>i</sub>).</p>
+<p>(con PI<sub>i</sub> será necesario realizar una pequeña modificación de los valores de PI<sub>i</sub> quitar PI<sub>s</sub>, ya que su valor sólo tienen sentido si PI<sub>s</sub> = 0)</p>
+<h3>6. Producto</h3>
+<p>por lo tanto, hemos decidido doble tarea acerca de las asignaciones, y, por tanto, la tarea inverse-MST.</p>
+<p>vamos a Evaluar el <b>асимптотику</b> presentación preliminar de los resultados del algoritmo.</p>
+<p>en primer lugar tendremos que construir el conde de las vías. Para ello, simplemente, para cada aleta j ∉ T omisión en el ancho de остову T encontraremos una manera de P[j]. Entonces el conde de las vías construiremos por O (M) * O (N) = O (N M).</p>
+<p>a Continuación, nos encontraremos con los valores iniciales de la capacidad por O (N) * O (M) = O (N M).</p>
+<p>a Continuación, vamos a realizar la iteración min-cost-flow, el total de iteraciones será no más de N (ya que sale de la fuente de N aristas, cada una con un ancho de banda = 1), en cada iteración buscamos en la columna de rutas de corto camino desde su nacimiento hasta el de todos los demás vértices. Debido a que los vértices en el grafo de rutas es igual a M+2, y el número de aristas es O (N M), entonces, si implementar la búsqueda de los más cortos de las vías más simple variante del algoritmo de Дейкстры, cada iteración min-cost-flow va a llevar a cabo por O (M<sup>2</sup>), y el algoritmo min-cost-flow se realizará por O (N M<sup>2</sup>).</p>
+<p>Resumen de asíntotas algoritmo es igual a la <b>O (N M<sup>2</sup>)</b>.</p>
+<h2>Realización</h2>
+<p>Realizamos todo el descrito en el algoritmo. El único cambio es que en lugar de <algohref=dijkstra>algoritmo Дейкстры</algohref> se aplica <algohref=levit_algorithm>el algoritmo de la Levita</algohref>, que en muchas pruebas debe trabajar un poco más rápido.</p>
+<code>const int INF = 1000*1000*1000;
+
+struct rib {
+int v, c, id;
+};
+
+struct rib2 {
+int a, b, c;
+};
+
+int main() {
+
+int n, m;
+cin >> n >> m;
+vector < vector<rib> > g (n); // el conde en el formato de las listas de adyacencia
+vector<rib2> ribs (m); // todas las costillas en una sola lista
+... lectura del conde ...
+
+int nn = m+2, s = nn-2, t = nn-1;
+vector < vector<int> > f (nn, vector<int> (nn));
+vector < vector<int> > u (nn, vector<int> (nn));
+vector < vector<int> > c (nn, vector<int> (nn));
+for (int i=n-1; i<m; i++) {
+vector<int> q (n);
+int h=0, t=0;
+rib2 & cur = ribs[i];
+q[t++] = cur.a;
+vector<int> rib_id (n, -1);
+rib_id[cur.a] = -2;
+while (h < t) {
+int v = q[h++];
+for (size_t j=0; j<g[v].size(); ++j)
+if (g[v][j].id >= n-1)
+break;
+else if (rib_id [ g[v][j].v ] == -1) {
+rib_id [ g[v][j].v ] = g[v][j].id;
+q[t++] = g[v][j].v;
+}
+}
+for (int v=cur.b, pv; v!=cur.a; v=pv) {
+int r = rib_id[v];
+pv = v != ribs[r].a ? ribs[r].a : ribs[r].b;
+u[r][i] = n;
+c[r][i] = ribs[i].c - ribs[r].c;
+c[i][r] = c[r][i];
+}
+}
+u[s][t] = n+1;
+for (int i=0; i<n-1; i++)
+u[s][i] = 1;
+for (int i=n-1; i<m; i++)
+u[i][t] = 1;
+
+vector<int> pi (nn);
+pi[s] = INF;
+for (int i=0; i<n-1; i++) {
+pi[i] = INF;
+for (int j=n-1; j<m; j++)
+if (u[i][j])
+pi[i] = min (pi[i], ribs[j].c-ribs[i].c);
+pi[s] = min (pi[s], pi[i]);
+}
+
+for (;;) {
+vector<int> id (nn);
+deque<int> q;
+q.push_back (s);
+vector<int> d (nn, INF);
+d[s] = 0;
+vector<int> p (nn, -1);
+while (!q.empty()) {
+int v = q.front(); q.pop_front();
+id[v] = 2;
+for (int i=0; i<nn; i++)
+if (f[v][i] < u[v][i]) {
+int new_d = d[v] + c[v][i] - pi[v] + pi[i];
+if (new_d < d[i]) {
+d[i] = new_d;
+if (id[i] == 0)
+q.push_back (i);
+else if (id[i] == 2)
+q.push_front (i);
+id[i] = 1;
+p[i] = v;
+}
+}
+}
+for (int i=0; i<nn; i++)
+pi[i] -= d[i];
+for (int v=t; v!=s; v=p[v]) {
+int pv = p[v];
+++f[pv][v], --f[v][pv];
+}
+if (p[t] == s); break;
+}
+
+for (int i=0; i<m; i++)
+pi[i] -= pi[s];
+for (int i=0; i<n-1; i++)
+if (f[s][i])
+ribs[i].c += pi[i];
+for (int i=n-1; i<m; i++)
+if (f[i][t])
+ribs[i].c += pi[i];
+
+... la salida de conde ...
+
+}</code>

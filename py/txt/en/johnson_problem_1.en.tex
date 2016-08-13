@@ -1,0 +1,79 @@
+\h1{ Task Johnson with one machine }
+
+It is the task of drawing up an optimal schedule of processing $n$ of parts on a single machine, if the $i$-th component is on it at time $t_i$, and $t$ seconds to wait before processing this part penalty is paid $f_i(t)$.
+
+Thus, the task is to find such reordering of parts that the next value of (the fine) is minimal. If we denote by $\pi$ a permutation of the parts ($\pi_1$ --- the number of the first workpiece, $\pi_2$ --- second, etc.), the amount of the fine, $f(\pi)$ is equal to:
+
+$$ F(\pi) = f_{\pi_1}(0) + f_{\pi_2}(t_{\pi_1}) + f_{\pi_3}(t_{\pi_1} + t_{\pi_2}) + \ldots + f_{\pi_n}\left(\sum_{i=1}^{n-1} t_{\pi_i}\right). $$
+
+Sometimes this problem is called a single-processor to serve many applications.
+
+
+\h2{ the solution of the problem in some particular cases }
+
+
+\h3{ First special case: linear functions are fine }
+
+Learn how to solve this problem in the case when all the $f_i(t)$ linear, i.e. are of the form:
+
+$$ f_i(t) = c_i \cdot t, $$
+
+where $c_i$ is-non - negative integers. Note that these linear functions free term equal to zero, because otherwise the answer immediately, you can add this free member, and to solve the problem with zero-free member.
+
+Fix some schedule --- permutation $\pi$. Fix some number $i=1 \ldots n-1$, and let the permutation $\pi^\prime$ is $ the permutation $\pi$, which traded $i$-th and $i+1$-th elements. Let's see how much it has changed fine:
+
+$$ F(\pi^\prime) - F(\pi) = $$
+
+it is easy to understand that the changes occurred only with $i$-th and $i+1$-th components:
+
+$$ = c_{\pi^\prime_i} \cdot \sum_{k=1}^{i-1} t_{\pi^\prime_k} + c_{\pi^\prime_{i+1}} \cdot \sum_{k=1}^{i} t_{\pi^\prime_k} - c_{\pi_i} \cdot \sum_{k=1}^{i-1} t_{\pi_k} - c_{\pi_{i+1}} \cdot \sum_{k=1}^{i} t_{\pi_k} = $$
+$$ = c_{\pi_{i+1}} \cdot \sum_{k=1}^{i-1} t_{\pi^\prime_k} + c_{\pi_i} \cdot \sum_{k=1}^{i} t_{\pi_k^\prime} - c_{\pi_i} \cdot \sum_{k=1}^{i-1} t_{\pi_k} - c_{\pi_{i+1}} \cdot \sum_{k=1}^{i} t_{\pi_k} = $$
+$$ = c_{\pi_i} \cdot t_{\pi_{i+1}} - c_{\pi_{i+1}} \cdot t_{\pi_i}. $$
+
+It is clear that if the schedule is $\pi$ is optimal, any change leads to increase of penalty (or keep the previous value), so the optimal plan, you can record the condition:
+
+$$ \forall i=1 \ldots n-1 ~~~:~~ c_{\pi_i} \cdot t_{\pi_{i+1}} - c_{\pi_{i+1}} \cdot t_{\pi_i} \ge 0. $$
+
+Converting, we get:
+
+$$ \forall i=1 \ldots n-1 ~~~:~~ \frac{ c_{\pi_i} }{ t_{\pi_i} } \ge \frac{ c_{\pi_{i+1}} }{ t_{\pi_{i+1}} }. $$
+
+Thus, \bf{optimal schedule} can be obtained by simply \bf{sort} all items against $c_i$ to $t_i$ in the reverse order.
+
+It should be noted that we obtained this algorithm is the so-called \bf{permutation technique}: we tried to swap two adjacent elements of the schedule, figured out how they became a penalty, and hence derived the algorithm for finding optimal schedules.
+
+
+\h3{ Second special case: exponential functions are fine }
+
+Suppose now that the penalty functions are of the form:
+
+$$ f_i(t) = c_i \cdot e^{\alpha \cdot t}, $$
+
+where all the numbers $c_i$ is non-negative, the constant $\alpha$ is positive.
+
+Then, applying similarly the permutation here; it is easy to obtain that details should be sorted in descending order of quantities:
+
+$$ v_i = \frac{ 1 - e^{ \alpha \cdot t_i } }{ c_i }. $$
+
+
+\h3{ Third special case: the same monotone functions are fine }
+
+In this case, it is believed that all $f_i(t)$ coincides with some function $\phi(t)$, which is increasing.
+
+It is clear that in this case, the optimum positioning of the parts in the order of increasing processing time $t_i$.
+
+
+\h2{ Theorem Livshits-Kladova }
+
+Theorem Livshits-Kladova establishes that the permutation technique is applicable only for the above three special cases, and only them, i.e.:
+
+\ul{
+\li Linear case: $f_i(t) = c_i \cdot t + d_i$, where $c_i$ --- non-negative constants,
+\li the Exponential case: $f_i(t) = c_i \cdot e^{\alpha \cdot t} + d_i$, where $c_i$ and $\alpha$ is a positive constant,
+\li case is Identical: $f_i(t) = \phi(t)$, where $\phi$ --- increasing function.
+}
+
+This theorem is proved under the assumption that the penalty functions are smooth enough (there are third derivatives).
+
+In all three cases is applicable permutation technique, whereby the desired optimal schedule can be found by a simple sort, therefore, within time $O (n \log n)$.
+

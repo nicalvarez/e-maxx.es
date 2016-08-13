@@ -1,0 +1,133 @@
+<h1>Juegos arbitrarios de las columnas</h1>
+
+<p>deja Que el juego se juega con dos jugadores en alguna columna G. Es decir, el estado actual del juego es cierta la cima del conde, y de cada vértice de la aleta van en los vértices y en el que se puede ir siguiente movimiento.</p>
+<p>consideramos el más común es el caso - el caso de la arbitraria basada conde con los ciclos. Se requiere para la posición inicial y determinar quién gana con una óptima juego de ambos jugadores (o determinar que el resultado será un empate).</p>
+<p>Vamos a resolver esta tarea de manera muy eficiente - encontraremos las respuestas para todos los vértices del grafo por lineal con respecto a la cantidad de aristas tiempo - <b>O (M)</b>.</p>
+<h2>Descripción del algoritmo</h2>
+<p>Sobre algunos de los vértices del grafo se sabe de antemano que son ganadoras o apuestas perdedoras; obviamente, las cimas no tienen salientes de las costillas.</p>
+<p>Disponemos de los siguientes <b>hechos</b>:</p>
+<ul>
+<li>si de cierta parte superior hay una arista en проигрышную la cima, la cima de la ganadora;</li>
+<li>si de alguna cima de todas las aristas vienen en las ganadoras de la cima, la cima perdidosa;</li>
+<li>si en algún momento todavía inciertos de la cima, pero ninguno de ellos no se acercan ni en la primera ni con la segunda regla, todos estos de la cima - ничейные.</li>
+</ul>
+<p>Por lo tanto, está claro el algoritmo que trabaja en el асимптотику O (N M) - перебираем todos los vértices, tratando a cada una de aplicar la primera o la segunda regla, y si hemos realizado algún cambio, lo repetimos de nuevo.</p>
+<p>sin Embargo, este proceso de búsqueda y actualización se puede acelerar, elevando el асимптотику hasta el lineal.</p>
+<p>Переберем todos los vértices sobre los que inicialmente se sabe que son ganadoras o apuestas perdedoras. De cada uno de ellos пустим la siguiente búsqueda en profundidad. Esta búsqueda en profundidad se mueven por el inverso de los bordes. Ante todo, él no va a entrar en la cima, que ya se definen como ganadoras o apuestas perdedoras. Además, si la búsqueda en profundidad intenta ir de perdedora a la cima de alguna cima, lo marca como ganadora, y va en ella. Si la búsqueda en profundidad, tratando de ir ganadora de la cima en alguna cima, se debe comprobar que todas las costillas conducen desde esta cima en ganadoras. Esta prueba es fácil de realizar por O (1) si en cada vértice vamos a almacenar el contador de ejes que conducen a las ganadoras de la cima. Si, pues, la búsqueda en profundidad intenta ir ganadora de la cima en alguna cima, lo que aumenta en ella el contador, y si el contador se logró con el número de aristas que salen de esta cima, la cima de la marca como perdidosa, y una búsqueda en profundidad va en esta cima. De lo contrario, si se dirige a la cima y no se define como un premio, o perdidosa, es una búsqueda en profundidad en ella no pasa.</p>
+<p>en total, conseguimos que cada una y cada uno de los perdidosa vértice visitado por nuestro algoritmo exactamente una vez, y ничейные la cima y no visitados. Por lo tanto, asíntotas realmente <b>O (M)</b>.</p>
+<h2>Realización</h2>
+<p>Considere la realización de una búsqueda en profundidad, en el supuesto de que el conde de juego construido en la memoria, la medida de resultado se calculan y registran en grado máximo (esto es apenas el contador, se va a disminuir, si hay una arista en la ganadora de la cima), y originalmente ganadora o apuestas perdedoras de la cima ya están marcados.</p>
+<code>vector<int> g [100];
+bool win [100];
+bool loose [100];
+bool used[100];
+int degree[100];
+
+void dfs (int v) {
+used[v] = true;
+for (vector<int>::iterator i = g[v].begin(); i != g[v].end(); ++i)
+if (!used[*i]) {
+if (loose[v])
+win[*i] = true;
+else if (--degree[*i] == 0)
+loose[*i] = true;
+else
+continue;
+dfs (*i);
+}
+}</code>
+<h2>Ejemplo de un problema. "El policía y el ladrón"</h2>
+<p>Para que el algoritmo fue más claro, vamos a un ejemplo concreto.</p>
+<p><b>la Condición de tareas</b>. Hay un campo de tamaño MxN celular, algunas células no se puede entrar. Se conocen las coordenadas iniciales de la policía y al ladrón. También en el mapa puede estar la salida. Si el policía es en una jaula con un ladrón, lo ganó el oficial de policía. Si el ladrón esté en la jaula con la salida (y en esa jaula no vale la pena un oficial de policía), gana el ladrón. Un oficial de policía puede caminar en 8 direcciones, el ladrón - sólo en 4 (a lo largo de los ejes de coordenadas). Y el policía y el ladrón puede pasar en su carrera. El primer movimiento hace que el oficial de policía.</p>
+<p><b>Construcción del conde</b>. Construiremos el conde de juego. Debemos formalizar las reglas de juego. El estado actual de juego se define por las coordenadas de la policía P, ladrón T, así como la variable booleana Pstep, que determina quién va a hacer el próximo movimiento. Por lo tanto, el vértice de un grafo se define la troika (P,T,Pstep). El conde de construir una fácil, simplemente correspondiente de la condición.</p>
+<p>a Continuación, debe determinar qué vértices son ganadoras o apuestas perdedoras en un principio. Aquí hay <b>fina</b>. Выигрышность/проигрышность la cima, además de las coordenadas depende de Pstep - quién tiene el turno. Ahora bien, si el progreso de la policía, la cima de la ganadora, si las coordenadas de un policía y un ladrón coinciden; la cima de la perdidosa, si no un premio, y el ladrón se encuentra en la salida. Si ahora en el curso de un ladrón, la cima de la ganadora, si el ladrón está en la salida, y perdidosa, si no se ganadora y las coordenadas de la policía y ladrón coinciden.</p>
+<p>el Único momento en que debe decidir - construir <b>el conde de forma explícita o</b> de hacerlo "<b>curso</b>", directamente en la búsqueda en profundidad. Por un lado, si construir el conde previamente, se habrá menos probabilidad de cometer un error. Por otro lado, esto aumentará la cantidad de código, y el tiempo de trabajo será varias veces más lento que si se construye un grafo en el camino".</p>
+<p><b>Realización</b> de todo el programa:</p>
+<code>struct state {
+char p, t;
+bool pstep;
+};
+
+vector<state> g [100][100][2];
+// 1 = policeman coords; 2 = thief coords; 3 = 1 if policeman\'s step or 0 if thief\'s.
+bool win [100][100][2];
+bool loose [100][100][2];
+bool used[100][100][2];
+int degree[100][100][2];
+
+void dfs (char p, char t, bool pstep) {
+used[p][t][pstep] = true;
+for (vector<state>::iterator i = g[p][t][pstep].begin(); i != g[p][t][pstep].end(); ++i)
+if (!used[i->p][i->t][i->pstep]) {
+if (loose[p][t][pstep])
+win[i->p][i->t][i->pstep] = true;
+else if (--degree[i->p][i->t][i->pstep] == 0)
+loose[i->p][i->t][i->pstep] = true;
+else
+continue;
+dfs (i->p, i->t, i->pstep);
+}
+}
+
+
+int main() {
+
+int n, m;
+cin >> n >> m;
+vector<string> a (n);
+for (int i=0; i<n; ++i)
+cin >> a[i];
+
+for (int p=0; p<n*m; ++p)
+for (int t=0; t<n*m; ++t)
+for (char pstep=0; pstep<=1; ++pstep) {
+int px = p/m, py = p%m tx=t/m, ty=t%m;
+if (a[px][py]==\'*\' || a[tx][ty]==\'*\') continue;
+
+bool & wwin = win[p][t][pstep];
+bool & lloose = loose[p][t][pstep];
+if (pstep)
+wwin = px==tx && py==ty, lloose = !wwin && a[tx][ty] == \'E\';
+else
+wwin = a[tx][ty] == \'E\', lloose = !wwin && px==tx && py==ty;
+if (wwin || lloose) continue;
+
+state st = { p, t, !pstep };
+g[p][t][pstep].push_back (st);
+st.pstep = pstep != 0;
+degree[p][t][pstep] = 1;
+
+const int dx[] = { -1, 0, 1, 0, -1, -1, 1, 1 };
+const int dy[] = { 0, 1, 0, -1, -1, 1, -1, 1 };
+for (int d=0; c<(pstep?8:4); ++d) {
+int ppx=px, ppy=py, ttx=tx, tty=ty;
+if (pstep)
+ppx += dx[d], ppy += dy[d];
+else
+ttx += dx[d], tty += dy[d];
+if (ppx>=0 && ppx<n && ppy>=0 && ppy<m && a[ppx][ppy]!=\'*\' &&
+ttx>=0 && ttx<n && tty>=0 && tty<m && a[ttx][tty]!=\'*\')
+{
+g[ppx*m+ppy][ttx*m+tty][!pstep].push_back (st);
+++degree[p][t][pstep];
+}
+}
+}
+
+for (int p=0; p<n*m; ++p)
+for (int t=0; t<n*m; ++t)
+for (char pstep=0; pstep<=1; ++pstep)
+if ((win[p][t][pstep] || loose[p][t][pstep]) && !used[p][t][pstep])
+dfs (p, t, pstep!=0);
+
+int p_st, t_st;
+for (int i=0; i<n; ++i)
+for (int j=0; j<m; j++)
+if (a[i][j] == \'C\')
+p_st = i*m+j;
+else if (a[i][j] == \'T\')
+t_st = i*m+j;
+
+cout << (win[p_st][t_st][true] ? "WIN" : loose[p_st][t_st][true] ? "LOSS" : "DRAW");
+
+}</code>

@@ -1,0 +1,239 @@
+\h1{Parsing expressions. Reverse Polish notation}
+
+Given a string representing a math expression containing numbers, variables and different operations. Is required to compute its value for $O (n)$, where $n$ is the length of the string.
+
+Here is described an algorithm that translates this expression in the so-called \bf{reverse Polish notation} (implicitly or explicitly), and it evaluates the expression.
+
+
+\h2{Reverse Polish notation}
+
+Reverse Polish notation is a form of record of mathematical expressions in which the operators are after their operands.
+
+For example, the following expression:
+
+$$ a + b * c * d + (e - f) * (g * h + i) $$
+
+in reverse Polish notation is written as follows:
+
+$$ a b c * d * + e f - g h * i + * + $$
+
+Reverse Polish notation was developed by Australian philosopher and specialist in the field of theory of computing by Charles Hamblin in the mid-1950s based on the Polish notation, which was proposed in 1920 by the Polish mathematician Jan Lukasiewicz.
+
+The convenience of reverse Polish notation is that expressions presented in this form, very \bf{easily calculate}, and in linear time. Please start the stack, it is empty. Will move left to right across the expression in reverse Polish notation; if the current element is a number or a variable, then put on the top of the stack its value; if the current element --- the operation, we get from the stack top two elements (or one, if the operation is unary) that will be applied to the operation, and push the result back on the stack. In the end the stack will be exactly one element - the value of the expression.
+
+Obviously, this simple algorithm is $O (n)$, i.e. about the length of the expression.
+
+
+\h2{a Parsing simple expressions}
+
+As long as we consider only the simplest case: all operations \bf{binary} (i.e. with two arguments), and \bf{levastatin} (i.e., with equal priority are performed from left to right). Brackets are allowed.
+
+Make two stacks: one for numbers, another for operations and parentheses (i.e., the stack symbols). Initially both the stack empty. For the second stack will support the precondition that all operations are ordered in a strict descending order of priority, if we move from the top of the stack. If the stack is opening parenthesis, then ordered every block of transactions that are between the brackets, and the entire stack in this case is not necessarily ordered.
+
+We will go through the string from left to right. If the current element --- the number or variable that is put on the stack the value of that number/variable. If the current element --- the opening brace, put it on the stack. If the current element --- the closing parenthesis, then we pop from the stack and perform all operations until such time as we get an opening bracket (i.e., in other words, meeting a closing parenthesis, we perform all the operations that are inside parentheses). Finally, if the current element is-is operation, while at the top of the stack is an operation with the same or higher priority, will be to push and to do it.
+
+After we process the entire string, the stack operations can still remain some operations that have not yet been calculated, and to perform all of them (i.e., operate in a manner similar to the case where we encounter a closing parenthesis).
+
+Here is the implementation of this method on the example of typical operations $+-*/\%$:
+
+\code
+bool delim (char c) {
+return c == ' ';
+}
+
+bool is_op (char c) {
+return c=='+' || c=='-' || c=='*' || c=='/' || c=='%';
+}
+
+int priority (char op) {
+return
+op == '+' || op == '-' ? 1 :
+op == '*' || op == '/' || op == '%' ? 2 :
+-1;
+}
+
+process_op void (vector<int> & st, char op) {
+int r = st.back(); st.pop_back();
+int l = st.back(); st.pop_back();
+switch (op) {
+case '+': st.push_back (l + r); break;
+case '-': st.push_back (l - r); break;
+case '*': st.push_back (l * r); break;
+case '/': st.push_back (l / r); break;
+case '%': st.push_back (l % r); break;
+}
+}
+
+int calc (string & s) {
+vector<int> st;
+vector<char> op;
+for (size_t i=0; i<s.length(); ++i)
+if (!delim (s[i]))
+if (s[i] == '(')
+op.push_back ('(');
+else if (s[i] == ')') {
+while (op.back() != '(')
+process_op (st, op.back()), op.pop_back();
+op.pop_back();
+}
+else if (is_op (s[i])) {
+char curop = s[i];
+while (!op.empty() && priority(op.back()) >= priority(s[i]))
+process_op (st, op.back()), op.pop_back();
+op.push_back (curop);
+}
+else {
+string operand;
+while (i < s.length() && isalnum (s[i])))
+operand += s[i++];
+--i;
+if (isdigit (operand[0]))
+st.push_back (atoi (operand.c_str()));
+else
+st.push_back (get_variable_val (operand));
+}
+while (!op.empty())
+process_op (st, op.back()), op.pop_back();
+return st.back();
+}
+\endcode
+
+Thus, we learned how to calculate the value of the expression for $O (n)$, and thus we implicitly have used reverse Polish notation: we have had operations in this order, when by the time of calculating the next operations both its operands already evaluated. Slightly modifying the above algorithm, we can obtain an expression in reverse Polish notati and explicitly.
+
+
+\h2{Unary operations}
+
+Now assume that the expression contains unary operations (i.e. single argument). For example, are especially frequent unary plus and minus.
+
+One difference in this case is the need to determine whether the current operation is unary or binary.
+
+You may notice that before a unary operation always stands or other operation, or the opening brace, or nothing at all (if it is at the beginning of the line). Before a binary operation, on the contrary, is always either an operand (number/variable) or the closing bracket. Thus, it is enough to have some flag to specify whether the next operation to be unary or not.
+
+Another pure implementation of the subtlety --- how to distinguish between unary and binary operations when extracting from the stack and calculating. Here you can, for example, for the unary operations instead of $s[i]$ to put on the stack $-s[i]$.
+
+Precedence for unary operations necessary to choose so that it was more of the priorities of all binary operations.
+
+In addition, it should be noted that unary operations are actually right associative --- if in a row are a few unary operations, they must be processed from right to left (for description of this case see below; the code shown here already takes into account pravastatine).
+
+Implementation for binary operations $ + - * / and unary operations $+-$:
+
+\code
+bool delim (char c) {
+return c == ' ';
+}
+
+bool is_op (char c) {
+return c=='+' || c=='-' || c=='*' || c=='/' || c=='%';
+}
+
+int priority (char op) {
+if (op < 0)
+return 4; // op == -'+' || op == -'-'
+return
+op == '+' || op == '-' ? 1 :
+op == '*' || op == '/' || op == '%' ? 2 :
+-1;
+}
+
+process_op void (vector<int> & st, char op) {
+if (op < 0) {
+int l = st.back(); st.pop_back();
+switch (op) {
+case '+': st.push_back (l); break;
+case '-': st.push_back (l); break;
+}
+}
+else {
+int r = st.back(); st.pop_back();
+int l = st.back(); st.pop_back();
+switch (op) {
+case '+': st.push_back (l + r); break;
+case '-': st.push_back (l - r); break;
+case '*': st.push_back (l * r); break;
+case '/': st.push_back (l / r); break;
+case '%': st.push_back (l % r); break;
+}
+}
+}
+
+int calc (string & s) {
+may_unary bool = true;
+vector<int> st;
+vector<char> op;
+for (size_t i=0; i<s.length(); ++i)
+if (!delim (s[i]))
+if (s[i] == '(') {
+op.push_back ('(');
+may_unary = true;
+}
+else if (s[i] == ')') {
+while (op.back() != '(')
+process_op (st, op.back()), op.pop_back();
+op.pop_back();
+may_unary = false;
+}
+else if (is_op (s[i])) {
+char curop = s[i];
+if (may_unary && isunary (curop)) curop = -curop;
+while (!op.empty() && (
+curop >= 0 && priority(op.back()) >= priority(curop)
+|| curop < 0 && priority(op.back()) > priority(curop))
+)
+process_op (st, op.back()), op.pop_back();
+op.push_back (curop);
+may_unary = true;
+}
+else {
+string operand;
+while (i < s.length() && isalnum (s[i])))
+operand += s[i++];
+--i;
+if (isdigit (operand[0]))
+st.push_back (atoi (operand.c_str()));
+else
+st.push_back (get_variable_val (operand));
+may_unary = false;
+}
+while (!op.empty())
+process_op (st, op.back()), op.pop_back();
+return st.back();
+}
+\endcode
+
+It is worth noting that in the simplest cases, for example, when the unary operations are allowed only $+$ and $-$, pravastatine plays no role, so in such situations no complications in the schema can be omitted. Which is a loop:
+
+\code
+while (!op.empty() && (
+curop >= 0 && priority(op.back()) >= priority(curop)
+|| curop < 0 && priority(op.back()) > priority(curop))
+)
+process_op (st, op.back()), op.pop_back();
+\endcode
+
+Can be replaced by:
+
+\code
+while (!op.empty() && priority(op.back()) >= priority(curop))
+process_op (st, op.back()), op.pop_back();
+\endcode
+
+
+\h2{Previoussections}
+
+Pravastatine operator means that when the priority of operators are evaluated from right to left (respectively, lovastatinom - when left-to-right).
+
+As mentioned above, unary operators are right associative. Another example is usually the operation of exponentiation is considered to be right associative (indeed, a^b^c is commonly considered as a^(b^c), not (a^b)^c).
+
+What are the differences you should make to the algorithm to correctly process pravastatine? Actually, the changes require the most minimal. The only difference will be manifested only in case of equal priorities, and it consists in the fact that the operations with equal priority, on top of the stack, should not execute before the current operation.
+
+Thus, the only differences should be entered in the calc function:
+
+\code
+int calc (string & s) {
+...
+while (!op.empty() && (
+left_assoc(curop) && priority(op.back()) >= priority(curop)
+|| !left_assoc(curop) && priority(op.back()) > priority(curop)))
+...
+}
+\endcode

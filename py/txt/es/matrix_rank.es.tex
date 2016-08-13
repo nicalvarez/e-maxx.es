@@ -1,0 +1,28 @@
+<h1>Encontrar el rango de la matriz</h1>
+<p><b>el Rango de la matriz</b> es el número más grande linealmente independientes de filas/columnas de la matriz. El rango se define no sólo para los cuadrados de las matrices; que la matriz de прямоугольна y tiene un tamaño NxM.</p>
+<p>el rango de la matriz se puede definir como el mayor de los órdenes de magnitud миноров de la matriz, distinta de cero.</p>
+<p>tenga en cuenta que si una matriz cuadrada y su determinante es distinto de cero, entonces el rango es igual a N(=M), de lo contrario será menor. En el caso general, el rango de la matriz no supera min(N,M).</p>
+<h2>el Algoritmo de</h2>
+<p>Buscar grado mediante modificado <algohref=linear_systems_gauss>el método de gauss</algohref>. Vamos a cumplir con absolutamente las mismas operaciones que en la solución del sistema o encontrar su identificador, pero si un paso en el i-ésimo de la columna entre los no seleccionados antes de filas no distintos de cero, entonces nos saltamos este paso, y grado de reducción a la unidad (en un principio, el grado creemos igual a max(N,M)). De lo contrario, si nos encontramos en el i-ésimo paso de la línea de cero el elemento i-ésimo de la columna, помечаем esta cadena como seleccionada, y llevamos a cabo las operaciones normales de la отнимания de esta línea, entre otros.</p>
+<h2>Realización</h2>
+<code>const double EPS = 1E-9;
+
+int rank = max(n,m);
+vector<char> line_used (n);
+for (int i=0; i<m; i++) {
+int j;
+for (j=0; j<n; ++j)
+if (!line_used[j] && abs(a[j][i]) > EPS)
+break;
+if (j == n)
+--rank;
+else {
+line_used[j] = true;
+for (int p=i+1; p<m; ++p)
+a[j][p] /= a[j][i];
+for (int k=0; k<n; k++)
+if (k != j && abs (a[k][i]) > EPS)
+for (int p=i+1; p<m; ++p)
+a[k], [p] = a[j][p] * a[k][i];
+}
+}</code>

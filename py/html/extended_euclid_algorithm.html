@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Расширенный алгоритм Евклида</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Расширенный алгоритм Евклида</h1><p>Page source on a <a href="http://en.wikipedia.org/wiki/TeX">TeX</a>-like language:</p><textarea style="width:100%;height:500px">\h1{ Расширенный алгоритм Евклида }
+
+
+В то время как \algohref=euclid_algorithm{"обычный" алгоритм Евклида} просто находит наибольший общий делитель двух чисел $a$ и $b$, расширенный алгоритм Евклида находит помимо НОД также коэффициенты $x$ и $y$ такие, что:
+
+$$a \cdot x + b \cdot y = {\rm gcd} (a, b).$$
+
+Т.е. он находит коэффициенты, с помощью которых НОД двух чисел выражается через сами эти числа.
+
+
+\h2{Алгоритм}
+
+Внести вычисление этих коэффициентов в алгоритм Евклида несложно, достаточно вывести формулы, по которым они меняются при переходе от пары $(a,b)$ к паре $(b\%a,a)$ (знаком процента мы обозначаем взятие остатка от деления).
+
+Итак, пусть мы нашли решение $(x_1,y_1)$ задачи для новой пары $(b\%a,a)$:
+
+$$ (b \% a) \cdot x_1 + a \cdot y_1 = g, $$
+
+и хотим получить решение $(x,y)$ для нашей пары $(a,b)$:
+
+$$ a \cdot x + b \cdot y = g. $$
+
+Для этого преобразуем величину $b \% a$:
+
+$$ b \% a = b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a. $$
+
+Подставим это в приведённое выше выражение с $x_1$ и $y_1$ и получим:
+
+$$ g = (b \% a) \cdot x_1 + a \cdot y_1 = \left( b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a \right) \cdot x_1 + a \cdot y_1, $$
+
+и, выполняя перегруппировку слагаемых, получаем:
+
+$$ g = b \cdot x_1 + a \cdot \left( y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1 \right). $$
+
+Сравнивая это с исходным выражением над неизвестными $x$ и $y$, получаем требуемые выражения:
+
+$$ \cases{
+x = y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1, \cr
+y = x_1.
+} $$
+
+
+\h2{Реализация}
+
+\code
+
+int gcd (int a, int b, int & x, int & y) {
+	if (a == 0) {
+		x = 0; y = 1;
+		return b;
+	}
+	int x1, y1;
+	int d = gcd (b%a, a, x1, y1);
+	x = y1 - (b / a) * x1;
+	y = x1;
+	return d;
+}
+\endcode
+
+Это рекурсивная функция, которая по-прежнему возвращает значение НОД от чисел $a$ и $b$, но помимо этого --- также искомые коэффициенты $x$ и $y$ в виде параметров функции, передающихся по ссылкам.
+
+База рекурсии --- случай $a = 0$. Тогда НОД равен $b$, и, очевидно, требуемые коэффициенты $x$ и $y$ равны $0$ и $1$ соответственно. В остальных случаях работает обычное решение, а коэффициенты пересчитываются по вышеописанным формулам.
+
+Расширенный алгоритм Евклида в такой реализации работает корректно даже для отрицательных чисел.
+
+
+\h2{ Литература }
+
+\ul{
+\li \book{Томас Кормен, Чарльз Лейзерсон, Рональд Ривест, Клиффорд Штайн}{Алгоритмы: Построение и анализ}{2005}{cormen.djvu}
+}</textarea></td></tr></table></body></html>

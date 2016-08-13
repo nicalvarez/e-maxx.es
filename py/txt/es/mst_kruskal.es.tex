@@ -1,0 +1,41 @@
+<h1>Mínimo остовное árbol. El algoritmo de kruskal - </h1>
+
+<p>Dan ponderado неориентированный conde. Necesita encontrar un subárbol de este conde, que соединяло todo su cima, y cuando este tenía la menor peso (es decir, la suma de los pesos de las costillas) de todas las posibles. Qué es el subárbol se llama un mínimo de остовным de un árbol o en un simple mínimos de la esencia.</p>
+<p>Aquí se tratarán varios hechos importantes relacionados con el mínimo de остовами y, a continuación, se examinará el algoritmo de kruskal-en su implementación más sencilla.</p>
+<h3>Propiedades mínima de la armadura</h3>
+<ul>
+<li>Mínimo el esqueleto de <b>único, si los pesos de todas las aristas son diferentes</b>. En caso contrario, puede haber unos mínimos de núcleos (específicas de los algoritmos suelen recibir uno de los posibles núcleos).</li>
+<li>Mínimo de la armadura es también, y <b>la esencia, con un mínimo de obra</b> de los pesos de las costillas.<br>(se demuestra es fácil, basta con sustituir el peso de todas las aristas en sus logaritmos)</li>
+<li>Mínimo de la armadura es también, y <b>la esencia con el mínimo peso más pesado de la costilla</b>.<br>(esta afirmación se desprende de justicia del algoritmo de kruskal -)</li>
+<li><b>el Esqueleto de un peso máximo de</b> se busca de manera similar остову de peso mínimo, basta de cambiar los signos de todos los bordes opuestos y ejecutar cualquier algoritmo de mínimo de la armadura.</li>
+</ul>
+<h3>el Algoritmo de kruskal - </h3>
+<p>Este algoritmo ha sido descrito Крускалом (Kruskal) en 1956</p>
+<p>el Algoritmo de kruskal-inicialmente coloca cada cima en su árbol, y luego se une a estos árboles, combinando en cada iteración dos de algún árbol para algunos el borde. Antes de comenzar la ejecución de un algoritmo, todos los bordes se clasifican por peso (en orden de неубывания). A continuación, se inicia el proceso de unificación: se trasladan todas las aristas de la primera a la última (en orden de clasificación), y si el actual de la aleta de sus extremos pertenecen a diferentes subárboles de un, estos subárboles se combinan, y el borde se agrega a la respuesta. Cuando termine de recorrer todas las aristas de todos los vértices serán de propiedad de un subárbol, y la respuesta se encuentra.</p>
+<h3>Simple aplicación</h3>
+<p>con Este código de manera más directa implementa el algoritmo descrito anteriormente, y se realiza por la <b>O (M log N + N<sup>2</sup>)</b>. La ordenación de las costillas requerirá O (M log N) operaciones. La pertenencia de la cima de un subárbol se almacena sólo con la ayuda de la matriz de tree_id - en el mismo para cada vértice se almacena el número de árbol, al que pertenece. Para cada eje de nosotros por O (1) para determinar si pertenecen los extremos de diferentes árboles. Por último, la unión de dos de los árboles se realiza por O (N) el simple paso de una matriz de tree_id. Teniendo en cuenta que el total de las operaciones de combinación será N-1, tenemos асимптотику <b>O (M log N + N<sup>2</sup>)</b>.</p>
+<code>int m;
+vector < pair < int, pair<int,int> > > g (m); // peso - la cima de la 1 - la cima de la 2
+
+int cost = 0;
+vector < pair<int,int> > res;
+
+sort (g.begin () g.end());
+vector<int> tree_id (n);
+for (int i=0; i<n; ++i)
+tree_id[i] = i;
+for (int i=0; i<m; i++)
+{
+int a = g[i].segunda.first, b = g[i].segunda.segunda, l = g[i].first;
+if (tree_id[a] != tree_id[b])
+{
+cost += l;
+res.push_back (make_pair (a, b));
+int old_id = tree_id[b], new_id = tree_id[a];
+for (int j=0; j<n; ++j)
+if (tree_id[j] == old_id)
+tree_id[j] = new_id;
+}
+}</code>
+<h3>avanzada de implementación</h3>
+<p>Con el uso de estructuras de datos <algohref=dsu>"Sistema de conjuntos disjuntos"</algohref> puede ser más rápida aplicación <algohref=mst_kruskal_with_dsu>el algoritmo de kruskal-con асимптотикой O (M log N)</algohref>.</p>

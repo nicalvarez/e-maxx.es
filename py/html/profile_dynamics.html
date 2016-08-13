@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Динамика по профилю. Задача "паркет"</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Динамика по профилю. Задача "паркет"</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Динамика по профилю. Задача &quot;паркет&quot;&lt;/h1&gt;
+
+&lt;p&gt;Типичными задачами на динамику по профилю, являются:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;найти количество способов замощения поля некоторыми фигурами&lt;/li&gt;
+&lt;li&gt;найти замощение с наименьшим количеством фигур&lt;/li&gt;
+&lt;li&gt;найти замощение с минимальным количеством неиспользованных клеток&lt;/li&gt;
+&lt;li&gt;найти замощение с минимальным количеством фигур такое, что в него нельзя добавить ещё одну фигуру&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Задача &quot;Паркет&quot;&lt;/h2&gt;
+&lt;p&gt;Имеется прямоугольная площадь размером NxM. Нужно найти количество способов замостить эту площадь фигурами 1x2 (пустых клеток не должно оставаться, фигуры не должны накладываться друг на друга).&lt;/p&gt;
+&lt;p&gt;Построим такую динамику: D[I][Mask], где I=1..N, Mask=0..2^M-1. I обозначает количество строк в текущем поле, а Mask - профиль последней строки в текущем поле. Если j-й бит в Mask равен нулю, то в этом месте профиль проходит на &quot;нормальном уровне&quot;, а если 1 - то здесь &quot;выемка&quot; глубиной 1. Ответом, очевидно, будет D[N][0].&lt;/p&gt;
+&lt;p&gt;Строить такую динамику будем, просто перебирая все I=1..N, все маски Mask=0..2^M-1, и для каждой маски будем делать переходы вперёд, т.е. добавлять к ней новую фигуру всеми возможными способами.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Реализация:&lt;/b&gt;&lt;/p&gt;
+&lt;code&gt;int n, m;
+vector &amp;lt; vector&amp;lt;long long&gt; &gt; d;
+
+
+void calc (int x = 0, int y = 0, int mask = 0, int next_mask = 0)
+{
+	if (x == n)
+		return;
+	if (y &gt;= m)
+		d[x+1][next_mask] += d[x][mask];
+	else
+	{
+		int my_mask = 1 &amp;lt;&amp;lt; y;
+		if (mask &amp; my_mask)
+			calc (x, y+1, mask, next_mask);
+		else
+		{
+			calc (x, y+1, mask, next_mask | my_mask);
+			if (y+1 &amp;lt; m &amp;&amp; ! (mask &amp; my_mask) &amp;&amp; ! (mask &amp; (my_mask &amp;lt;&amp;lt; 1)))
+				calc (x, y+2, mask, next_mask);
+		}
+	}
+}
+
+
+int main()
+{
+	cin &gt;&gt; n &gt;&gt; m;
+	
+	d.resize (n+1, vector&amp;lt;long long&gt; (1&amp;lt;&amp;lt;m));
+	d[0][0] = 1;
+	for (int x=0; x&amp;lt;n; ++x)
+		for (int mask=0; mask&amp;lt;(1&amp;lt;&amp;lt;m); ++mask)
+			calc (x, 0, mask, 0);
+
+	cout &amp;lt;&amp;lt; d[n][0];
+
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

@@ -1,0 +1,120 @@
+\h1{Tree stern-brocot. A Number Of Parea}
+
+\h2{the Tree stern-brocot}
+
+The tree stern-brocot --- it's a neat design, allowing you to build the set of all nonnegative fractions. It was opened independently by the German mathematician Moritz stern (Moritz Stern) in 1858 and the French clockmaker Achille Brokaw (Achille Brocot) in 1861, However, according to some, this design was open to the ancient Greek scholar Eratosthenes (Eratosthenes).
+
+To \bf{null} iteration we have two fractions:
+$$ \frac{0}{1}, \frac{1}{0} $$
+(the second value, strictly speaking, not a fraction; it can be understood as the irreducible fraction, denoting infinity)
+
+Further, each \bf{further} iteration is taken this list of fractions and between each two adjacent fractions $\frac{a}{b}$ and $\frac{c}{d}$ inserted them \bf{median}, i.e., the fraction $\frac{a+c}{b+d}$.
+
+So, in the first iteration, the current set is:
+$$ \frac{0}{1}, \frac{1}{1}, \frac{1}{0} $$
+
+On the second:
+$$ \frac{0}{1}, \frac{1}{2}, \frac{1}{1}, \frac{2}{1}, \frac{1}{0} $$
+
+On the third:
+$$ \frac{0}{1}, \frac{1}{3}, \frac{1}{2}, \frac{2}{3}, \frac{1}{1}, \frac{3}{2}, \frac{2}{1}, \frac{3}{1}, \frac{1}{0} $$
+
+Continuing this process until \bf{infinity}, is approved, you can get a lot of \bf{all} of non-negative fractions. Moreover, all of the resulting fraction will be \bf{various} (i.e. in the current lot of each fraction occurs at most once), \bf{irreducible} (numerators and denominators will be coprime). Finally, all fractions will be automatically \bf{ordered} in ascending order. The proof of all these remarkable properties of the tree stern-brocot will be given below.
+
+It remains only to bring the image of the tree stern-brocot (as we described it with the changing of many). At the root of this infinite tree is the fraction $\frac{1}{1}$, and the left and right of the tree are the fractions $\frac{0}{1}$ and $\frac{1}{0}$. Any vertex of the tree has two sons, each of which is obtained as the median of its left and right ancestor ancestor:
+
+\img{stern_brocot.jpg}
+
+\h3{Proof}
+
+\bf{Orderliness}. It proved very simple: note that the Mediant of two fractions always lies between them, i.e.:
+$$ \frac{a}{b} \le \frac{a+c}{b+d} \le \frac{c}{d} $$
+provided that
+$$ \frac{a}{b} \le \frac{c}{d} $$
+It is proved that just by bringing three fractions to a common denominator.
+
+Since the zero order iteration took place, then it will be saved and at each new iteration.
+
+\bf{is necessary, - confirmed}. For this we show that at any iteration, for any two adjacent in the list of fractions $\frac{a}{b}$ and $\frac{c}{d}$ is:
+$$ bc-ad=1 $$
+Indeed, Recalling \algohref=diofant_2_equation{Diophantine equations with two unknowns ($ax+by=c$)} derived from this statement that ${\rm gcd}(a,b) = {\rm gcd}(c,d) = 1$, which is what we needed.
+
+So, we need to prove the truth of the allegations $bc-ad=1$ for every iteration. It will prove also by induction. On iteration zero of this property was carried out (as is evident). Now let it was done at the previous iteration, we show that it is made on the current iteration. For this we need to consider the three fractions-neighbors in the new list:
+$$ \frac{a}{b}, \frac{a+c}{b+d}, \frac{c}{d} $$
+For them conditions take the form:
+$$ b(a+c) - a(b+d) = 1, $$
+$$ c(b+d) - d(a+c) = 1 $$
+However, the truth of these conditions is obvious, assuming the truth of $bc-ad=1$. Thus, indeed, this property is made at the current iteration, what we wanted to prove.
+
+\bf{all decimals}. The proof of this property is closely related to the algorithm for finding the fractions in the tree stern-brocot. Given that in the tree stern-brocot fractions all ordered, we get that for any tree node in its left subtree are a fraction smaller than her, and the right --- large. This yields the obvious algorithm for finding any fraction in the tree stern-brocot: first, we are in the root; compare our fraction with a fraction, recorded in the current peak: if our fraction is less than, then proceed to the left subtree, if our fraction more --- go to the right, and if it matches --- find the fraction, search completed.
+
+To prove that an infinite tree, stern-brocot contains all the fractions, it is enough to show that this search algorithm fractions will end in a nite number of steps for any given fraction. This algorithm can be understood as follows: we have the current segment $\left[ \frac{a}{b}; \frac{c}{d} \right]$, where we are looking for our fraction $\frac{x}{y}$. Initially $\frac{a}{b}=\frac{0}{1}$, $\frac{c}{d}=\frac{1}{0}$. At each step, the fraction $\frac{x}{y}$ is compared with the Mediant of the endpoints, i.e. $\frac{a+c}{b+d}$, and depending on it we either stop searching, or turn to the left or right part of the segment. If the search algorithm fractions worked endlessly, then the following conditions would be made at each iteration:
+$$ \frac{a}{b} < \frac{x}{y} < \frac{c}{d} $$
+But they can be rewritten in the form:
+$$ bx-ay \ge 1, $$
+$$ cy-dx \ge 1 $$
+(here used what they clochicine, therefore, of the $>0$ should be $\ge 1$)
+
+Then multiplying the first by $c+d$, and the second is $a+b$, and adding them, we get:
+$$ (c+d)(bx-ay) + (a+b)(cy-dx) \ge a+b+c+d $$
+Opening the brackets on the left and given that $bc-ad=1$ (see the proof of the previous property), we finally obtain:
+$$ x+y \ge a+b+c+d $$
+And since at each iteration at least one of the variables $a, b, c, d$ are strictly increasing, the process of finding the fraction $\frac{x}{y}$ will contain $x+y$ of iterations that was required to prove.
+
+\h3{tree Algorithm}
+
+To build any subtree of a tree stern-brocot, it is enough to know only the left and right ancestors. Initially, at the first level, the left is ancestor of $\frac{0}{1}$ and right --- $\frac{1}{0}$. It is possible to calculate the fraction of the current in the top and then start from the left and right sons (left to son passing itself as the right ancestor, and the right son --- as a left ancestor).
+
+The pseudo-code of this procedure tries to build an infinite tree:
+
+\code
+void build (int a = 0, int b = 1, c int = 1, int d = 0, int level = 1) {
+int x = a+c, y = b+d;
+... the output current of a fraction x/y on the tree level by level
+build (a, b, x, y, level + 1);
+build (x, y, c, d, level + 1);
+}
+\endcode
+
+\h3{search Algorithm fractions}
+
+The search algorithm is the fraction was already described in evidence that the tree stern-brocot contains all the fractions that repeat it here. This algorithm --- in fact, the algorithm of binary search, or the search algorithm a predetermined value into a binary search tree. Initially we are in the root of the tree. Current standing in the top, we compare our fraction with a fraction in the current top. If they match, then the process stopped --- we've found the shot in the tree. Otherwise, if our fraction less than the fraction in the current vertex, then proceed to the left son, otherwise --- in right.
+
+As was proven in the property that the tree stern-brocot contains all non-negative fractions, finding fractions $\frac{x}{y}$, the algorithm will make no more than $x+y$ of iterations.
+
+Here is an implementation that returns the path to the vertex that contains a given fraction $\frac{x}{y}$, returning it as a sequence of characters 'L'/'R': if the current character is 'L', it means the transition in the tree in the left son, otherwise --- in the right (initially, we are at the root of the tree, i.e. the top of the fraction $\frac{1}{1}$). In fact, such a sequence of characters uniquely identifying the existing and any non-negative fraction is called the \bf{number system stern-brocot}.
+
+\code
+string find (int x, int y, int a = 0, int b = 1, c int = 1, int d = 0) {
+int m = a+c, n = b+d;
+if (x == m && y == n)
+return "";
+if (x * n < y * m)
+return 'L' + find (x, y, a, b, m, n);
+else
+return 'R' + find (x, y, m, n, c, d);
+}
+\endcode
+
+Irrational numbers in the number system stern-brocot will correspond to an infinite sequence of symbols; if known to any prescribed accuracy, we can restrict some prefix of this innite sequence. In the process, the endless search for irrational fractions in the tree stern-brocot algorithm will every time find a simple fraction (increasing denominator), which provides the best approximation of this irrational number (that is the application of just in time technique is important, and therefore Achilles Brokaw and opened the tree).
+
+\h2{the Sequence of Faria}
+
+Farea sequence of order $n$ is the set of all irreducible fractions between 0 and 1, the denominators of which do not exceed $n$, fractions ordered in ascending order.
+
+This sequence was named after the British geologist John Faria (John Farey) who tried in 1816 to prove that in some farea any fraction is the Mediant of two adjacent. As far as we know, his proof was incorrect, and a correct proof was offered later Cauchy (Cauchy). However, even in 1802 the mathematician of Charos (Haros) in one of his works came to the same results.
+
+Sequence farea possess many interesting properties, but the most obvious is their \bf{a connection with the tree stern-brocot}: in fact, the sequence of farea is obtained by deleting some branches from the tree. Or you can say that to obtain sequence farea need to take a lot of fractions obtained during the building of the tree stern-brocot on infinite iteration, and leave this set only fractions with denominators not exceeding $n$ and numerators, denominators not exceeding.
+
+From the algorithm of constructing the tree stern-brocot should similar \bf{algorithm} for sequences of farea. Zero iterations will include many fractions $\frac{0}{1}$ and $\frac{1}{1}$. At each next iteration, we between every two adjacent fractions insert their Mediant, if its denominator does not exceed $n$. Sooner or later many will no longer experience any changes, and the process can be stopped --- we've found the required sequence of farea.
+
+Compute \bf{length} sequence farea. The sequence of farea of order $n$ contains all the elements of a sequence of farea of order $n-1$ and all irreducible fractions with denominators equal to $n$, but this number, as you know, is $\phi(n)$. Thus, the length $L_n$ of the sequence of farea of order $n$ is expressed by the formula:
+$$ L_n = L_{n-1} + \phi(n) $$
+or, revealing the recursion:
+$$ L_n = 1 + \sum_{k=1}^n \phi(k) $$
+
+\h2{Literature}
+
+\ul{
+\li \book{Ronald Graham, Donald Knuth, Oren Patashnik}{Concrete mathematics. Foundation of computer science}{1998}{graham.djvu}
+}

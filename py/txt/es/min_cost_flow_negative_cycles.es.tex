@@ -1,0 +1,167 @@
+\h1{Flujo de costo mínimo, la circulación de costo mínimo. El algoritmo de eliminación de los ciclos negativos de peso}
+
+\h2{el Planteamiento de las tareas}
+
+Que $G$ --- red (network), es decir, orientado hacia el conde, en el que se seleccionan de la cima-la fuente $s$ y el $t$. Muchos picos se denota por $V$, muchas de las costillas --- a través de la $E$. Cada eje $(i,j) \in E$ asignan a su ancho de banda $u_{ij} \ge 0$ y el costo por unidad de flujo de $c_{ij}$. Si alguna costilla $(i,j)$ en la columna, se supone que $u_{ij} = c_{ij} = 0$.
+
+\bf{Flujo} (flow) en la red de $G$ es un действительнозначная la función $f$, asigne a cada pareja de vértices $(i,j)$ flujo de $f_{ij}$ entre ellos, y satisface tres condiciones:
+
+\ul{
+\li Límite de ancho de banda (que se realiza para cualquier $i, j \in V$):
+$$ f_{ij} \le u_{ij} $$
+\li Антисимметричность (se cumple para cualquier $i, j \in V$):
+$$ f_{ij} = - f_{ji} $$
+\li Conservación de flujo (se cumple para cualquier $i \in V$ además $i=s$, $i=t$):
+$$ \sum_{j \in V} f_{ij} = 0 $$
+}
+
+La magnitud del flujo se denomina el valor de
+$$ |f| = \sum_{i \in V} f_{si} $$
+
+El coste de flujo se denomina el valor de
+$$ z(f) = \sum_{i,j \in V} c_{ij} f_{ij} $$
+
+La tarea de encontrar \bf{flujo de costo mínimo} es que de la cantidad de flujo de $f$ es necesario encontrar el hilo, con un valor mínimo de $z(f)$. Vale la pena prestar atención al hecho de que el costo de $c_{ij}$, ios bordes, son responsables por el costo por unidad de flujo a lo largo de este borde; a veces se encuentra la tarea, cuando los bordes se asignan costos de fugas de flujo a lo largo de este borde (es decir, si pasa el flujo de cualquier cantidad, deberá abonar el precio de este, independientemente de la magnitud de flujo) --- esta tarea no tiene nada que ver con el tema aquí y, además, es NP-completo.
+
+La tarea de encontrar \bf{máxima de flujo de costo mínimo} consiste en encontrar el flujo de mayor valor, y entre todos los --- con un mínimo de costo. En el caso particular, cuando el peso de todas las aristas son iguales, esta tarea se convierte en el equivalente a la normal a la tarea de máximo flujo.
+
+La tarea de encontrar \bf{circulación de costo mínimo} consiste en encontrar el hilo de cero magnitud, con el menor costo. Si todo costo no negativo, entonces, claro, la respuesta es cero, el flujo de $f_{ij}=0$; si hay una aleta de la negativa de peso (y, más exactamente, los ciclos negativos de peso), incluso con flujo cero es posible encontrar el flujo de costo negativo. La tarea de encontrar la circulación de costo mínimo se puede, sin duda, poner en la red sin la fuente y de la escorrentía, ya que el valor semántico no son (sin embargo, en este gráfico se puede añadir la fuente y el drenaje en forma de pináculos aislados y una sobre el texto de la tarea). A veces la tarea de encontrar la circulación del valor máximo de --- claro, basta con cambiar el valor de las aletas en los extremos opuestos, y obtendremos la tarea de encontrar la circulación ya que el valor mínimo.
+
+Todas estas tareas, por supuesto, y se puede mover y en неориентированные del recuadro. Sin embargo, pasar de неориентированного conde a orientada fácil: cada неориентированное arista $(i,j)$ con un ancho de banda $u_{ij}$ y $c_{ij}$ se debe reemplazar dos orientadas hacia las costillas $(i,j)$ y $(j,i)$ con el mismo пропускными habilidades y valores.
+
+\h2{residual en la red}
+
+El concepto de \bf{residual de la red} $G^f$ se basa en el siguiente simple idea. Si hay algún flujo de $f$; a lo largo de cada eje de $(i,j) \in E$ pasa algún flujo de $f_{ij} \le u_{ij}$. Entonces, a lo largo de esta aleta se puede (en teoría) poner otros $u_{ij} - f_{ij}$ unidades de caudal; a este valor, y llamaremos \bf{residual de ancho de banda}:
+$$ r_{ij}^f = u_{ij} - f_{ij} $$
+El costo de estas unidades adicionales de flujo de la misma:
+$$ c_{ij}^f = c_{ij} $$
+
+Pero, además, \bf{directo} costillas $(i,j)$, en la red de $G^f$ aparece y \bf{inversa de la arista} $(j,i)$. Intuitiva el significado de este nervio en la que podemos en el futuro cancelar una parte del flujo, протекавшего de arista $(i,j)$. En consecuencia, la transmisión de flujo a lo largo de esta devolución de la costilla $(j,i)$ de hecho, formalmente, significa la reducción del flujo a lo largo de la aleta $(i,j)$. Lo contrario arista tiene un ancho de banda igual a cero (para, por ejemplo, si $f_{ij}=0$ y por el revés de la arista que es imposible de ignorar el flujo; en un resultado positivo de la cantidad de $f_{ij}>0$ para la devolución de la aleta de la propiedad антисимметричности será de $f_{ji}<0$, que es menos de $c_{ji}^f = 0$, es decir, se puede omitir algún tipo de flujo a lo largo de la devolución de las costillas), el valor residual del ancho de banda --- igual al flujo a lo largo de la directa de la costilla, y el costo de la --- opuesto (ya que después de la cancelación de parte del flujo debemos en consecuencia reducir el costo de la):
+$$ u_{ji}^f = 0 $$
+$$ r_{ji}^f = f_{ij} $$
+$$ c_{ji}^f = -c_{ij} $$
+
+Por lo tanto, cada una orientada a una arista en G $$ corresponde a dos orientados a la aleta en la red $G^f$, y cada una de las costillas residual de la red muestra más de la característica --- residual de ancho de banda. Sin embargo, no es difícil observar que la expresión para el residual de ancho de banda $r_{ij}^f$ en esencia son los mismos tanto para directo como para la devolución de las costillas, es decir, podemos escribir para cualquier aleta $(i,j)$ residual de la red:
+$$ r_{ij}^f = u_{ij}^f - f_{ij}^f $$
+Por cierto, en la ejecución de esta propiedad permite almacenar los residuos de anchos de banda, sino simplemente de calcular, en caso de necesidad para las costillas.
+
+Cabe señalar que de los residuales de la red, se eliminan todas las aristas que tienen cero valor residual del ancho de banda. El valor residual de la red $G^f$ debe contener \bf{sólo una arista positiva residual de ancho de banda $r_{ij}^f$}.
+
+Aquí vale la pena prestar atención a un punto importante: si en la red $G$ eran al mismo tiempo los dos costillas $(i,j)$ y $(j,i)$, entonces en el residual de la red de cada uno de ellos aparece en el revés de la arista, y finalmente aparecerán \bf{múltiplos de la aleta de la}. Por ejemplo, esta situación se produce con frecuencia cuando la red se basa en la неориентированному la columna (y, resulta cada неориентированное arista puede dar lugar a la aparición de los cuatro bordes en la red). Esta característica es necesario siempre recordar, que le lleva a un pequeño de la complejidad de la programación, aunque en general no cambia nada. Además, la designación de la aleta $(i,j)$ en este caso, se vuelve ambiguo, por lo que estamos en todas partes vamos a considerar que tal situación no dispone de una red (sólo para la simplicidad y la exactitud de las descripciones; en la corrección de las ideas no se ven afectados).
+
+\h2{Criterio del óptimo por la presencia de ciclos negativos de peso}
+
+\bf{Teorema.} Algún flujo de $f$ es el óptimo (es decir, tiene menor coste entre todos los flujos de la misma magnitud) entonces, y sólo entonces, cuando el valor residual de la red $G^f$ no contiene ciclos negativos de peso.
+
+\bf{Prueba: la necesidad de}. Deje que el flujo de $f$ es el óptimo. Supongamos que el valor residual de la red $G^f$ contiene un ciclo negativo de peso. Tomemos este ciclo negativo de peso y elegimos un mínimo de $k$ entre los residuos de puntos de control de las capacidades de las costillas de este ciclo ($k$ será mayor que cero). Pero entonces puede aumentar el flujo a lo largo de cada eje de ciclo en la cantidad de $k$, con ninguna de las propiedades de flujo no нарушатся, la magnitud del flujo no cambia, sin embargo, el costo de flujo disminuye (menor en el costo de un ciclo, multiplicado por $k$). Por lo tanto, si tiene un ciclo negativo de peso, entonces $f$ no puede ser mejor, h, etc.
+
+\bf{Prueba: la suficiencia de la}. Para ello, primero probaremos auxiliares de los hechos.
+
+\bf{lemma 1} (de la descomposición de flujo): cualquier flujo de $f$ se puede presentar en forma de un conjunto de rutas de la fuente en la escorrentía y de los ciclos, los --- con un flujo positivo. Demostremos esta лемму constructiva: mostraremos cómo dividir el flujo en el conjunto de las vías y de los ciclos. Si el flujo tiene ненулевую valor, entonces, evidentemente, desde la fuente hasta $s$ sale al menos una arista positiva de flujo; iremos por la arista, nos encontraremos en algún cima de $v_1$. Si esta cima de $v_1 = t$, lo detenemos --- encontrado el camino de la $s$ $t$. De lo contrario, por la propiedad de la conservación del flujo, de $v_1$ debe ir al menos una arista positiva de flujo; iremos por él en una cima de $v_2$. Repitiendo este proceso, ya sea que lleguemos a la escorrentía $t$, o llegar a una cima en la segunda vez. En el primer caso, nos encontramos con el camino de la $s$ $t$, mientras que el segundo-ciclo. Encontrado la ruta de acceso/ciclo tendrá un flujo positivo de $k$ (al menos a partir de los flujos de aristas de este camino/ciclo). Entonces reduciremos el flujo a lo largo de cada eje de esta vía/el ciclo de la cantidad de $k$, en consecuencia, obtenemos de nuevo el flujo, a la que de nuevo se aplica este proceso. Tarde o temprano, el flujo a lo largo de todos los bordes será cero, y nos encontraremos con su descomposición en el camino y los ciclos.
+
+\bf{lemma 2} (sobre la diferencia de los flujos): para cualesquiera dos corrientes de $f$ y $g$ de un valor ($|f| = |g|$) flujo de $g$ se puede presentar como un flujo de $f$, además de algunos ciclos en la red $G^f$. En efecto, consideremos la diferencia de estas corrientes $g-f$ (restar los flujos --- este es почленное resta, es decir, la sustracción de los flujos a lo largo de cada eje). Es fácil ver que el resultado es cierto flujo de magnitud cero, es decir, de la circulación. Finalizaremos la estructura de desglose de esta circulación bajo el anterior лемме. Obviamente, esta descomposición no puede contener rutas de acceso (ya que la presencia de la $s$-$t$-de viaje con el flujo positivo significa que la magnitud del flujo en la red es positiva). Por lo tanto, la diferencia de los flujos de $g$ y $f$ se puede presentar como la suma de los ciclos en la red de $G$. Además, esto se y los ciclos de las aguas residuales de la red $G^f$ porque $g_{ij} - f_{ij} \le u_{ij} - f_{ij} = r_{ij}^f$, h, etc.
+
+Ahora, con esta леммами, fácilmente podemos \bf{demostrar la suficiencia de la}. Así, considere arbitrario flujo de $f$, en la red de la cual no hay ciclos de costo negativo. Considere también el flujo de la misma magnitud, pero con un costo mínimo de $f^*$; demostramos que $f$ y $f^*$ tienen el mismo valor. Según лемме 2, el flujo de $f^*$ se puede presentar como la suma del flujo de $f$ y de varios ciclos. Pero una vez que el valor de todos los ciclos de неотрицательны, y el costo de un flujo de $f^*$ no puede ser menor que el valor del flujo de $f$: $z(f^*) \ge z(f)$. Por otro lado, ya que el flujo de $f^*$ es el óptimo, el valor no puede ser mayor que el valor del flujo de $f$. Por lo tanto, $z(f) = z(f^*)$, h, etc.
+
+\h2{el Algoritmo de eliminación de los ciclos negativos de peso}
+
+Sólo que demostrado el teorema nos da una simple \bf{el algoritmo}, que permite encontrar el flujo de costo mínimo: si tenemos un flujo de $f$, construir para él residual de la red, comprobar si en ella el ciclo negativo de peso. Si este ciclo no, entonces el flujo de $f$ es la mejor (tiene el menor coste entre todos los flujos de la misma magnitud). Si se ha encontrado el ciclo de costo negativo, calcular el flujo de $k$, que se puede omitir avanzadas a través de este ciclo (que es $k$ será igual al mínimo de los residuos de puntos de control de las capacidades de las costillas de un ciclo). Aumentando el flujo de la $k$ a lo largo de cada eje de ciclo, estamos, obviamente, no violaremos propiedades de flujo, no vamos a cambiar el valor de flujo, pero reduciremos el costo de este flujo, ante un nuevo flujo de $f^\prime$, para el que es necesario repetir todo el proceso.
+
+Por lo tanto, para iniciar el proceso de mejorar el valor del flujo, nosotros antes es necesario encontrar \bf{arbitrario flujo del tamaño deseado} (algún estándar algoritmo de encontrar el flujo máximo, véase, por ejemplo, \algohref=edmonds_karp{el algoritmo de Эдмондса-la Carpa}). En particular, si se desea encontrar la circulación de menor costo, lo que puede empezar simplemente con cero flujo.
+
+Ponemos \bf{асимптотику} algoritmo. La búsqueda de un ciclo de costo negativo en la columna con $n$ cimas $m$ las costillas se a $O(nm)$ (véase \algohref=negative_cycle{artículo}). Si nos denota por $C$, el mayor de los valores de las costillas, a través de la $U$ --- mayor de puntos de control de habilidades, entonces el valor máximo de flujo de valor no exceda de $mCU$. Si todos los costos y anchos de banda --- números enteros, cada iteración del algoritmo reduce el coste de flujo de, como mínimo, en la unidad; por lo tanto, todo el algoritmo hará $O(mCU)$ iteraciones, y el final asíntotas será:
+El $$ O(nm^2CU) $$
+
+Esta asíntotas --- no estrictamente полиномиальна (strong polynomial), ya que depende de los valores de puntos de control de aptitudes y valores.
+
+Sin embargo, si se busca no arbitrario ciclo negativo, y utilizar algún tipo de más de un enfoque claro, asíntotas puede reducirse considerablemente. Por ejemplo, si cada vez que buscar un ciclo con medio mínimo coste (que también se puede producir por $O(nm)$), mientras que el tiempo de trabajo total del algoritmo se reduce a $O(nm^2 \log n)$, y esta asíntotas ya es estrictamente un polinomio.
+
+\h2{Aplicación}
+
+Primero introduciremos las estructuras de datos y funciones para el almacenamiento de conde. Cada costilla se almacena en una única estructura $\rm edge$, todos los bordes se encuentran en la lista general $\rm edges$, y para cada vértice $i$ en el vector ${\rm g}[i]$ se almacenan los números de aristas que salen de ella. Este tipo de organización permite encontrar fácilmente un número de devolución de las costillas por el número directo de la aleta --- se encuentran en la lista de $\rm edges$ adyacentes, y el número uno se puede obtener llamando al otro de la operación "^1" (se invierte el bit de orden inferior). La adición de la aleta de centrado en el gráfico realiza la función $\rm add\_edge$, lo que añade de inmediato directa y la inversa de la costilla.
+
+\code
+const int MAXN = 100*2;
+int n;
+struct edge {
+int v, a, u, f, c;
+};
+vector<edge> edges;
+vector<int> g[MAXN];
+
+void add_edge (int v, int a, int cap, int cost) {
+edge e1 = { v, a, cap, 0, cost };
+edge e2 = { a, v, 0, 0, -cost };
+g[v].push_back ((int) edges.size());
+edges.push_back (e1);
+g[to].push_back ((int) edges.size());
+edges.push_back (e2);
+}
+\endcode
+
+En el programa principal, después de la lectura de el conde trata de un bucle infinito, dentro de la cual se ejecuta el algoritmo de ford-bellman, y si detecta el ciclo de costo negativo, a lo largo de este ciclo, aumenta el flujo. Dado que el valor residual de la red puede ser un incoherente complaciente conde, el algoritmo de ford-bellman se inicia de cada no alcanzado aún la cima. Con el fin de optimizar el algoritmo utiliza la cola (actual lugar de $\rm q$ y la nueva cola de $\rm nq$), para no ordenar a través de cada etapa de cada una de sus costillas. A lo largo de detectado el ciclo cada vez empuja suavemente unidad de flujo, aunque, claro, con el fin de optimizar el valor de la corriente se puede definir, como mínimo, de residuos de puntos de control de la capacidad.
+
+\code
+const int INF = 1000000000;
+for (;;) {
+bool encontrado = false;
+
+vector<int> d (n, INF);
+vector<int> par (n, -1);
+for (int i=0; i<n; ++i)
+if (d[i] == INF) {
+d[i] = 0;
+vector<int> q, nq;
+q.push_back (i);
+for (int it=0; it<n && q.size(); ++it) {
+nq.clear();
+sort (q.begin(), q.end());
+q.erase (unique (q.begin(), q.end()), q.end());
+for (size_t j=0; j<q.size(); ++j) {
+int v = q[j];
+for (size_t k=0; k<g[v].size (); k++) {
+int id = g[v][k];
+if (edges[id].f < edges[id].u)
+if (d[v] + edges[id].c < d[edges[id].to]) {
+d[edges[id].to] = d[v] + edges[id].c;
+par[edges[id].to] = v;
+nq.push_back (edges[id].to);
+}
+}
+}
+swap (q, cn);
+}
+if (q.size()) {
+int leaf = q[0];
+vector<int> path.
+for (int v=leaf; v!=-1; v=par[v])
+if (buscar (path.begin(), path.end(), v) == path.end())
+path.push_back (v);
+else {
+path.erase (path.begin(), find (path.begin(), path.end(), v));
+break;
+}
+for (size_t j=0; j<path.size(); ++j) {
+int to = path[j], v = path[(j+1)%path.size()];
+for (size_t k=0; k<g[v].size(); ++k)
+if (edges[ g[v][k] ].to == to) {
+int id = g[v][k];
+edges[id].f += 1;
+edges[id^1].f -= 1;
+}
+}
+found = true;
+}
+}
+
+if (!found); break;
+}
+\endcode
+
+\h2{Literatura}
+
+\ul{
+\li \book{thomas Кормен, charles Лейзерсон, ronald Ривест, clifford stein}{Algoritmos: diseño y análisis de}{2005}{cormen.djvu}
+\li \book{Ravindra Ahuja, Thomas Magnanti, James Orlin}{Network flows}{1993}{ahuja_flows.djvu}
+\li \book{Andrew Goldberg, Robert Tarjan}{Finding Minimum-Cost Circulations by Cancelling Negative Cycles}{1989}
+}

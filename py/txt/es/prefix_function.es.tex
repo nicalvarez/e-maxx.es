@@ -1,0 +1,307 @@
+\h1{ Prefijo de la función. El Algoritmo De La Zanahoria-Morris-Pratt }
+
+
+\h2{ Prefijo de la función. Definición }
+
+Dada una cadena $s[0 \ldots, n-1]$. Se desea calcular para ella el prefijo de la función, es decir, una matriz de números de $\pi[0 \ldots, n-1]$, donde $\pi[i]$ se define de la siguiente manera: es el tipo de mayor longitud mayor de su propio sufijo de la subcadena $s[0 \ldots i]$, coincidente con su prefijo (el propio sufijo --- significa que no coincide con toda la línea). En particular, el valor de $\pi[0]$ confía en cero.
+
+Matemáticamente la definición de prefijo de la función se puede escribir de la siguiente manera:
+
+$$ \pi[i] = \max_{k=0 \ldots i} ~ \{ ~ k ~ : ~ s[0 \ldots k-1] = s[i-k+1 \ldots i] ~ \}. $$
+
+Por ejemplo, para la cadena "abcabcd" el prefijo de la función es igual a la: $[0, 0, 0, 1, 2, 3, 0]$, lo que significa:
+\ul{
+\li el de la fila "a" no no trivial de un prefijo que coincide con el sufijo;
+\li junto a la línea "ab" no no trivial de un prefijo que coincide con el sufijo;
+\li la cadena "abc" no no trivial de un prefijo que coincide con el sufijo;
+\li la cadena "abca" el prefijo de longitud $1$ coincide con el sufijo;
+\li la cadena "abcab" el prefijo de longitud $2$ coincide con el sufijo;
+\li la cadena "abcabc" el prefijo de longitud $3$ coincide con el sufijo;
+\li la cadena "abcabcd" no no trivial de un prefijo que coincide con el sufijo.
+}
+
+Otro ejemplo --- para la cadena "aabaaab" es igual a: $[0, 1, 0, 1, 2, 2, 3]$.
+
+
+\h2{ Trivial algoritmo }
+
+Directamente según la definición, se puede escribir un algoritmo para calcular el prefijo de la función:
+
+\code
+vector<int> prefix_function (string s) {
+int n = (int) s.length();
+vector<int> pi (n);
+for (int i=0; i<n; ++i)
+for (int k=0; k<=i; k++)
+if (s.substr(0,k) == s.substr(i-k+1,k))
+pi[i] = k;
+return pi;
+}
+\endcode
+
+Como es fácil notar, a trabajar se a $O(n^3)$, que es demasiado lento.
+
+
+\h2{ algoritmo }
+
+Este algoritmo fue desarrollado por el Látigo (Knuth) y pratt (Pratt) independientemente morris (Morris) en 1977 (como el elemento principal para el algoritmo de búsqueda de una subcadena en una cadena).
+
+\h3{ la Primera optimización }
+
+La primera nota importante --- que el valor de $\pi[i+1]$ a no más de una unidad excede el valor de $\pi[i]$ cualquier $i$.
+
+De hecho, en el caso contrario, si $\pi[i+1] > \pi[i] + 1$, entonces considere este sufijo, terminado en la posición $i+1$ y que tiene una longitud de $\pi[i+1]$ --- elimina el último carácter, obtenemos el sufijo que termina en la posición $i$ y que tiene una longitud de $\pi[i+1]-1$, que es mejor $\pi[i]$, es decir, han llegado a una contradicción. La ilustración de este conflicto (en este ejemplo, $\pi[i-1]$ debe ser igual a 3):
+
+$$ \underbrace{ \overbrace{s_0 \ s_1}^{\pi[i-1]=2} \ s_2 \ s_3}_{\pi[i]=4} \ \ldots\ \underbrace{ s_{i-3}\ \overbrace{s_{i-2}\ s_{i-1}}^{\pi[i-1]=2} \ s_i}_{\pi[i]=4} $$
+
+(en este esquema, los superiores, los corchetes indican dos de las mismas subcadenas de longitud 2, las llaves --- dos de las mismas subcadenas de longitud 4)
+
+Por lo tanto, cuando se mueve a la siguiente posición del siguiente elemento prefijo funciones de poda o aumentar en una unidad, o no cambiar o disminuir en alguna medida. Ya este hecho nos permite reducir асимптотику hasta $O(n^2)$ --- ya que en un solo paso el valor podría aumentar hasta en la unidad, entonces el total de toda la cadena podría ocurrir un máximo de $n$ de los aumentos en la unidad, y como consecuencia de ello (ya que el valor nunca puede ser menor que cero), hasta un máximo de $n$ reducciones. El resultado final es $O(n)$ comparaciones de cadenas, es decir, ya hemos alcanzado el асимптотики $O(n^2)$.
+
+\h3{ la Segunda optimización }
+
+Vamos a ir más allá --- \bf{libraremos de garantías explícitas en las comparaciones de subcadenas}. Para ello, trataremos de maximizar el uso de la información basada en los pasos anteriores.
+
+Así, que calculamos el valor de prefijo de la función $\pi[i]$ para algún $i$. Ahora, si $s[i+1] = s[\pi[i]]$, entonces podemos decir con certeza que $\pi[i+1] = \pi[i] + 1$, esto ilustra el esquema:
+
+$$ \underbrace{ \overbrace{s_0 \ s_1 \ s_2}^{\pi[i]} \ \overbrace{s_3}^{s_3=s_{i+1}}}_{\pi[i+1]=\pi[i]+1} \ \ldots\ \underbrace{ \overbrace{s_{i-2}\ s_{i-1}\ s_i}^{\pi[i]} \ \overbrace{s_{i+1}}^{s_3=s_{i+1}}}_{\pi[i+1]=\pi[i]+1} $$
+
+(en este esquema, de nuevo los mismos, los corchetes indican los mismos de la subcadena)
+
+Supongamos ahora, por el contrario, resultó que $s[i+1] \ne s[\pi[i]]$. Entonces tenemos que tratar de probar la subcadena de menor longitud. Con el fin de optimizar gustaría ir directamente a esa (la mayor) la longitud de la $j < \pi[i]$, que todavía se está ejecutando el prefijo de la propiedad en la posición $i$, es decir $s[0 \ldots j-1] = s[i-j+1 \ldots i]$:
+
+$$ \overbrace{\underbrace{s_0 \ s_1}_{j} \ s_2 \ s_3}^{\pi[i]} \ \ldots\ \overbrace{ s_{i-3}\ s_{i-2} \underbrace{s_{i-1}\ s_{i}}_{j}}^{\pi[i]} \ s_{i+1} $$
+
+De hecho, cuando nos encontramos con esa longitud $j$, entonces nos será de nuevo, basta con comparar los caracteres $s[i+1],$ y $s[j]$ --- en caso de que coincidan, se puede afirmar que $\pi[i+1] = j+1$. De lo contrario, necesitamos volver a encontrar el menor (mayor) valor $j$, para el que se realiza el prefijo de la propiedad, y así sucesivamente. Puede ocurrir que el valor de $j$ acabarán --- esto ocurre cuando $j=0$. En este caso, si $s[i+1]=s[0]$, entonces $\pi[i+1]=1$, de lo contrario $\pi[i+1]=0$.
+
+Así, el esquema general de un algoritmo ya lo tenemos, sólo queda pendiente la cuestión de la eficiencia de encontrar esas longitudes de $j$. Poner esta cuestión formal: según la longitud de la $j$ posición $i$ (para el que se realiza el prefijo de la propiedad, es decir $s[0 \ldots j-1] = s[i-j+1 \ldots i]$) es necesario encontrar el mayor $k < j$, para el que todavía se está ejecutando con el prefijo-propiedad de:
+
+$$ \overbrace{\underbrace{s_0 \ s_1}_{k} \ s_2 \ s_3}^{j} \ \ldots\ \overbrace{ s_{i-3}\ s_{i-2} \underbrace{s_{i-1}\ s_{i}}_{k}}^{j} \ s_{i+1} $$
+
+Después de tanto una descripción detallada de las ya casi se hace, que es un valor de $k$ es no que otro, como el valor de prefijo de la función $\pi[j-1]$, que ya se ha calculado por nosotros anteriormente (la resta de unidades, recibirá por 0-indexación de filas). Por lo tanto, encontrar estas longitudes de $k$ podemos $O(1)$ de cada una.
+
+\h3{ Final el algoritmo }
+
+Así que, finalmente hemos construido un algoritmo que no contiene garantías explícitas en las comparaciones de cadenas y realiza $O(n)$ de acción.
+
+Aquí un resumen de un esquema de algoritmo:
+
+\ul{
+
+\li Considerar el valor de prefijo de la función $\pi[i]$ vamos a por la cola: desde $i=1$ a $i=n-1$ (valor de $\pi[0]$ simplemente asignamos a cero).
+
+\li Para calcular el valor actual de $\pi[i]$ nos activamos la variable $j$, indica la longitud actual de la cuestión de la muestra. Inicialmente, $j = \pi[i-1]$.
+
+\li Prueba de la muestra de longitud $j$, para lo cual comparamos los caracteres $s[j],$ y $s[i]$. Si coinciden --- lo creemos $\pi[i] = j+1$ y pasamos a la siguiente índice $i+1$. Si los caracteres son diferentes, entonces reducimos la longitud de la $j$, la creencia de la igualdad de $\pi[j-1]$, y repetimos este paso del algoritmo desde el principio.
+
+\li Si hemos llegado hasta la longitud de la $j=0$ y nunca se ha encontrado una coincidencia, entonces pare el proceso de fuerza bruta de las muestras y creemos $\pi[i] = 0$ y pasamos a la siguiente índice $i+1$.
+}
+
+\h3{ Aplicación }
+
+El algoritmo finalmente ha resultado sorprendentemente simple y conciso:
+
+\code
+vector<int> prefix_function (string s) {
+int n = (int) s.length();
+vector<int> pi (n);
+for (int i=1; i<n; ++i) {
+int j = pi[i-1];
+while (j > 0 && s[i] != s[j])
+j = pi[j-1];
+if (s[i] == s[j]) ++j;
+pi[i] = j;
+}
+return pi;
+}
+\endcode
+
+Como es fácil notar, este algoritmo es \bf{en línea} el algoritmo, es decir, se procesa la información por la marcha de los ingresos --- se puede, por ejemplo, leer una cadena de un solo carácter y a la vez controlar el carácter, la búsqueda de la respuesta a la siguiente posición. El algoritmo requiere el almacenamiento de la propia cadena y anteriores de los valores calculados con el prefijo-función, sin embargo, como es fácil ver, si nos conoce de antemano el valor máximo que puede tomar el prefijo de-función en toda la cadena, será suficiente con mantener sólo en la unidad de un mayor número de primeros caracteres de la cadena y de los valores de prefijo de la función.
+
+
+\h2{ Aplicación }
+
+
+\h3{ Búsqueda de una subcadena en una cadena. El Algoritmo De La Zanahoria-Morris-Pratt }
+
+Esta tarea es un clásico de la aplicación de prefijo de la función (y, en realidad, ella y fue abierto en este sentido).
+
+Dan texto $t$ y $s$, es necesario encontrar y mostrar la posición de todas las apariciones de la cadena $s$ a texto $t$.
+
+Designaremos para instalaciones a través de $n$ la longitud de la cadena $s$, y por $m$ --- longitud de texto $t$.
+
+Formamos una cadena $s + \# + t$, en la que el símbolo $\#$ --- es el separador, que no debe en ningún otro lugar de reunirse. Contaremos para esta cadena de prefijo de la función. Ahora examinaremos su valor, además de los primeros $n+1$ (que, como se ve, se refieren a la línea de $s$ y divisor). Por definición, el valor de $\pi[i]$ muestra наидлиннейшую la longitud de la subcadena, оканчивающейся en la posición $i$ y coincide con el prefijo. Pero en nuestro caso es de $\pi[i]$ --- de hecho, la longitud mayor de la unidad de coincidencia con la cadena $s$ y оканчивающегося en la posición $i$. Más de $n$, esta longitud no puede ser --- gracias a un separador. Y aquí está la igualdad de $\pi[i] = n$ (donde se consigue), significa que en la posición $i$ termina con la búsqueda de aparición de la cadena $s$ (no hay que olvidar que todas las posiciones se miden en la encolada línea $s+\#+t$).
+
+Por lo tanto, si en cualquier posición de la $i$ result $\pi[i] = n$, en la posición ($i) - (n + 1) n + 1 = i - 2 n$ cadena $t$ comienza la próxima aparición de la cadena $s$ en la cadena $t$.
+
+Como ya se mencionó en la descripción del algoritmo de cálculo de prefijo de la función, si se sabe que el valor de prefijo características no exceder de una cierta cantidad, es suficiente para almacenar toda la cadena y el prefijo de la función, sino sólo su comienzo. En nuestro caso, esto significa que se deben almacenar en una memoria de sólo una fila $s + \#$ y el valor de prefijo de-función en ella, y luego de leer un carácter a la cadena $t$ y volver a calcular el valor actual de prefijo de la función.
+
+Así, el algoritmo de la Zanahoria-morris-pratt lleva a cabo esta tarea por $O(n+m)$ tiempo $de O(n)$ de memoria.
+
+
+\h3{ contar el número de apariciones de cada prefijo }
+
+Aquí vamos a ver en seguida las dos tareas. Dada una cadena $s$ de longitud $n$. En el primer caso, se requiere para cada prefijo $s[0 \ldots i]$ contar el número de veces que se encuentra en la misma fila $s$. En la segunda variante de la tarea dada otra cadena $t$, y es necesario para cada prefijo $s[0 \ldots i]$ contar el número de veces que se ha reunido en el $t$.
+
+Decidimos primero la primera tarea. Veamos en qué posición $i$ el valor del prefijo de-función en ella, de $\pi[i]$. Por definición, significa que en la posición $i$ termina con la aparición de un prefijo de la cadena $s$ de la longitud de $\pi[i]$, y ninguna más el prefijo termina en la posición $i$ no puede. Al mismo tiempo, en la posición $i$ podría terminar y la aparición de los prefijos más pequeñas longitudes (y, obviamente, no necesariamente de la longitud de $\pi[i]-1$). Sin embargo, como es fácil notar, hemos llegado a la misma cuestión, a la que ya hemos respondido al considerar un algoritmo para calcular el prefijo-funciones: dada la longitud de la $j$ es necesario decir qué наидлиннейший su propio sufijo que coincide con su prefijo. Ya hemos visto que la respuesta a esta pregunta será de $\pi[j-1]$. Pero entonces, y en esta tarea, si en la posición $i$ termina con la aparición de la subcadena de longitud $\pi[i]$, coincidiendo con el prefijo, en el $i$ también termina con la aparición de la subcadena de longitud $\pi[\pi[i]-1]$, coincidiendo con el prefijo, y para ella se aplican los mismos razonamientos, por lo que $i$ también termina y la aparición de la longitud de $\pi[\pi[\pi[i]-1]-1]$ y así sucesivamente (hasta que el índice no será cero). Por lo tanto, para el cálculo de la respuesta debemos realizar este ciclo:
+
+\code
+vector<int> ans (n+1);
+for (int i=0; i<n; ++i)
+++ans[pi[i]];
+for (int i=n-1; i>0; --i)
+ans[pi[i-1]] += ans[i];
+\endcode
+
+Aquí estamos para cada valor de prefijo de la función primero se consideraron la cantidad de veces que se reunió en el array $\pi []$ y, a continuación, sugerida en cierto modo, la dinámica: si sabemos que el prefijo de longitud $i$ se encontraba exactamente ${\rm ans}[i]$ más, ese es el número debe agregarse al número de apariciones de su длиннейшего propio sufijo que coincide con su prefijo; luego ya a partir de este sufijo (por supuesto, menor que $i$ de longitud) se realizará la "redirección" de este número de su extensión, etc.
+
+Ahora veamos la segunda tarea. Se aplica una técnica estándar: припишем a la línea de $s$ cadena $t$ a través de un separador, es decir, obtenemos una cadena $s+\#+t$, y contarlos para ella el prefijo de la función. La única diferencia con la primera tarea en la que es necesario tener en cuenta sólo los valores de prefijo-funciones, que se refieren a la línea $t$, es decir, de los $\pi[i]$ para $i \ge n+1$.
+
+
+\h3{ Número de diferentes subcadenas de una cadena }
+
+Dada una cadena $s$ de longitud $n$. Es necesario contar el número de sus diferentes cadenas.
+
+Vamos a resolver esta tarea repetidamente. A saber, aprender, saber el número actual de diferentes subcadenas que calcular es la cantidad cuando se agrega al final de un carácter.
+
+Así, que $k$ --- número actual de diferentes subcadena de la cadena $s$, y añadimos al final el símbolo $c$. Es evidente, en consecuencia, podría aparecer algunas de las nuevas cadenas, оканчивавшиеся en este nuevo símbolo $c$. Es decir, se agregan como nuevos los de la subcadena que terminan en el símbolo $c$ y no visto anteriormente.
+
+Tomemos la cadena $t = s + c$ e invertir (escribir los caracteres en orden inverso). Nuestra tarea-para-el - contar el número de filas de $t$ tales prefijos que no se encuentran en ella en ningún otro lugar. Pero si pensamos que para la cadena $t$ prefijo función y encontraremos su valor máximo de $\pi_{\rm max}$, entonces, obviamente, en la línea de $t$ se encuentra (no al principio), su prefijo de longitud $\pi_{\rm max}$, pero no de mayor longitud. Claro, los prefijos de menor longitud, ciertamente, se encuentran en ella.
+
+Por lo tanto, tenemos que el número de subcadenas, que aparecen al дописывании el símbolo $c$ es $s.{\rm length}() + 1 - \pi_{\rm max}$.
+
+Por lo tanto, para cada дописываемого símbolo nos $O(n)$ podemos contar la cantidad de distintas subcadenas de una cadena. Por lo tanto, por el $O(n^2)$ podemos encontrar en un número de diferentes subcadenas para cualquier lado de la línea.
+
+Vale la pena señalar que es totalmente análogo, se puede calcular la cantidad diferentes de subcadenas y cuando дописывании de un carácter en principio, se elimina el carácter final o al principio.
+
+
+\h3{ Compresión de fila }
+
+Dada una cadena $s$ de longitud $n$. Es necesario encontrar el más corto de su "gesto" de la representación, es decir, de encontrar esa cadena $t$ de menor longitud que la $s$ se puede presentar en forma de concatenación de una o más copias de $t$.
+
+Está claro que el problema es encontrar la longitud de una cadena $t$. Sabiendo la longitud, la respuesta a la tarea sería, por ejemplo, el prefijo de la cadena $s$ de esta longitud.
+
+Conde de la cadena de $s$ prefijo-función. Examinaremos su último valor, es decir, $\pi[n-1]$, y vamos a introducir la designación de la $k = n - \pi[n-1]$. Mostraremos que si $n$ se divide en $k$, entonces $k$ y será la longitud de la respuesta, de lo contrario eficaz de compresión no existe, y la respuesta es $n$.
+
+Efectivamente, supongamos que $n$ se divide en $k$. Entonces la cadena se puede presentar en varios bloques de longitud $k$, de los cuales, por definición, el prefijo de la función de prefijo de longitud $n-k$ coincidirá con su sufijo. Pero entonces el bloque final debe coincidir con el antepenúltimo, penúltimo con предпредпоследним, y así sucesivamente, El resultado final es que todos los bloques los bloques son iguales, y tal $k$ es realmente adecuado para la respuesta.
+
+Mostraremos que esta respuesta es óptimo. De hecho, en el caso contrario, si se hubiera encontrado con menos de $k$, y el prefijo de la función en el extremo sería mayor que $n-k$, es decir, han llegado a una contradicción.
+
+Supongamos ahora $n$ no se divide en $k$. Mostraremos que de ello se deduce que la longitud de la respuesta es de $n$. Demostremos a la inversa --- supongamos que la respuesta existe, y tiene una longitud de $p$ ($p$ divisor de $n$). Tenga en cuenta que el prefijo de-la función debe debe ser más de $n p$, es decir, este sufijo debe cubrir parcialmente el primer bloque. Consideremos ahora el segundo bloque de comandos; ya que el prefijo coincide con el sufijo y el prefijo y el sufijo cubren este bloque, y su desplazamiento relativo entre sí $k$ no divide la longitud de la unidad $p$ (y de otro modo $k$ compartió $n$), todos los caracteres de un bloque coinciden. Pero entonces la cadena se compone de un mismo carácter, de ahí $k=1$, y la respuesta debe existir, es decir, así llegaremos a una contradicción.
+
+$$ \overbrace{s_0\ s_1\ s_2\ s_3}^{p}\ \overbrace{s_4\ s_5\ s_6\ s_7}^{p} $$
+$$ s_0\ s_1\ s_2\ \underbrace{\overbrace{s_3\ s_4\ s_5\ s_6}^{p}\ s_7}_{\pi[7]=5} $$
+$$ s_4=s_3,\ \ s_5=s_4,\ \ s_6=s_5,\ \ s_7=s_6\ \ \ \ \Longrightarrow\ \ \ \ s_0=s_1=s_2=s_3 $$
+
+
+\h3{ la Construcción de la máquina de ranura de prefijo de la función }
+
+Volvamos a veces usado recibir concatenación de dos cadenas, a través de un separador, es decir, para los datos de filas de $s$ y $t$ el cálculo de prefijo de la función para la cadena $s+\#+t$. Es evidente que dado el carácter $\#$ es el delimitador, el valor de prefijo de la función nunca superará los $s.{\rm length}()$. De aquí se desprende que, como se mencionó en la descripción del algoritmo de cálculo de prefijo de la función, basta con solo mantener la cadena $s+\#$ y el valor de prefijo-funciones para ella, y para todos los caracteres de prefijo de la función de calcular sobre la marcha:
+
+$$ \underbrace{s_0\ s_1\ \ldots\ s_{n-1}\ \#}_{\rm need\ to\ save} \underbrace{t_0\ t_1\ \ldots\ t_{m-1}}_{\rm need\ not\ to\ save} $$
+
+De hecho, en esa situación, y sabiendo que el siguiente carácter $c \in t$ y el valor de prefijo de funciones en la posición anterior, se puede calcular un nuevo valor de prefijo de la función, de ningn modo no utilizando todos los caracteres de la cadena $t$ y el valor de prefijo de funciones en ellos.
+
+En otras palabras, podemos construir \bf{expendedora}: el estado sería el valor actual de un prefijo de funciones, las transiciones de un estado a otro se llevarán a cabo bajo la influencia de los símbolos:
+
+$$ s_0\ s_1\ \ldots\ s_{n-1}\ \# \underbrace{\sum_}_{\pi[i-1]}\ \ \Longrightarrow\ \ s_0\ s_1\ \ldots\ s_{n-1}\ \# \underbrace{\sum_}_{\pi[i-1]} + t_i\ \ \Longrightarrow\ \ s_0\ s_1\ \ldots\ s_{n-1}\ \# \ldots \underbrace{t_i}_{\pi[i]} $$
+
+Por lo tanto, aún no teniendo la cadena $t$, podemos pre-construir una tabla de transiciones $({\rm old}\_\pi,c) \rightarrow {\rm new}\_\pi$ utilizando el mismo algoritmo para calcular el prefijo-funciones:
+
+\code
+string s; // cadena de entrada
+const int alphabet = 256; // potencia del alfabeto de símbolos, por lo general menos de
+
+s += '#';
+int n = (int) s.length();
+vector<int> pi = prefix_function (s);
+vector < vector<int> > aut (n, vector<int> (alphabet));
+for (int i=0; i<n; ++i)
+for (char c=0; c<alphabet; c++) {
+int j = i;
+while (j > 0 && c != s[j])
+j = pi[j-1];
+if (c == s[j]) ++j;
+aut[i][c] = j;
+}
+\endcode
+
+La verdad, en esta forma, el algoritmo va a trabajar por $O(n^2 k)$ ($k$ --- de potencia del alfabeto). Pero tenga en cuenta que, en lugar del bucle interno $\rm while$, que poco a poco reduce la respuesta, podemos aprovechar, ya que la calculada parte de la tabla: pasando de un valor de $j$ a un valor de $\pi[j-1]$, realmente estamos hablando de que la transición de un estado de $(j, c)$ llevará en el mismo estado que la transición $(\pi[j-1], c)$, y para él la respuesta exacta juzgado (ya que $\pi[j-1] < j$):
+
+\code
+string s; // cadena de entrada
+const int alphabet = 256; // potencia del alfabeto de símbolos, por lo general menos de
+
+s += '#';
+int n = (int) s.length();
+vector<int> pi = prefix_function (s);
+vector < vector<int> > aut (n, vector<int> (alphabet));
+for (int i=0; i<n; ++i)
+for (char c=0; c<alphabet; c++)
+if (i > 0 && c != s[i])
+aut[i][c] = aut[pi[i-1]][c];
+else
+aut[i][c] = i + (c == s[i]);
+\endcode
+
+Finalmente ha resultado extremadamente simple y fácil de implementar construcción de la máquina, que trabaja por el $O(n k)$.
+
+Cuando puede ser útil este expendedora? Para empezar, recordemos que creemos que es el prefijo de la función de la cadena $s+\#+t$, y su valor normalmente se utilizan con el único propósito de encontrar todas las apariciones de una cadena $s$ en la cadena $t$.
+
+Por lo tanto, la más evidente el uso de la construcción del autómata --- \bf{aceleración de cálculo prefijo} para la cadena $s+\#+t$. Construido por línea $s+\#$ expendedora, que ya no necesita ni la cadena $s$, ni el valor de prefijo de-función en ella, no necesita de ningún cálculo --- todas las transiciones (es decir, cómo va a cambiar el prefijo de la función) ya предпосчитаны en la tabla.
+
+Pero hay una segunda, menos una aplicación evidente. Este es el caso, cuando la línea de $t$ \bf{es un gigante de la cadena, construido sobre cualquier regla}. Esto puede ser, por ejemplo, la cadena que se calienta o la cadena de caracteres delimitada por una combinación de varias cadenas cortas presentadas en la entrada.
+
+Deje que la certidumbre decidimos \bf{tal tarea}: dan el número de la $k \le 10^5$ fila que se calienta, y se da una cadena $s$ de longitud $n \le 10^5$. Es necesario contar el número de apariciones de la cadena $s$ $k$-yu la cadena de gray. Recordemos que la línea que se define de esta manera:
+
+$$ g_1 = "a" $$
+$$ g_2 = "aba" $$
+$$ g_3 = "abacaba" $$
+$$ g_4 = "abacabadabacaba" $$
+$$ \ldots $$
+
+En esos casos, incluso simplemente la creación de una cadena $t$ será imposible debido a su astronómica de longitud (por ejemplo, $k$-aja cadena de gray tiene una longitud de $2^k-1$). Sin embargo, podemos calcular el valor del prefijo de-función en el final de esta línea, sabiendo el valor de prefijo de las funciones que tenía antes de comenzar esta línea.
+
+Así, además de la máquina también calcular esos valores: $G[i][j]$ --- valor de la máquina, se logrará después de "скармливания" le cadenas de $g_i$, en el caso de la máquina expendedora se encontraba en estado de $j$. El segundo valor --- $K[i][j]$ --- el número de apariciones de la cadena $s$ en la línea de $g_i$, si hasta "скармливания" de esa fila $g_i$ expendedora se encontraba en estado de $j$. De hecho, $K[i][j]$ --- este es el número de veces que el autómata tomó un valor de $s.{\rm length}()$ por hora "скармливания" de la cadena $g_i$. Está claro que la respuesta a la tarea sería el valor de $K[k][0]$.
+
+Como para considerar estos valores? En primer lugar, el estándar de los valores son de $G[0][j] = j$, $K[0][j] = 0$. Y todos los valores se pueden calcular de los valores anteriores y el uso de la máquina. Así, para el cálculo de estos valores para un $i$ recordamos que la cadena $g_i$ es de $g_{i-1}$ más $i$el carácter del alfabeto más nuevo $g_{i-1}$. Entonces, después de la "скармливания" de la primera pieza ($g_{i-1}$) automático entrará en un estado de $G[i-1][j],$ y, a continuación, después de "скармливания" el símbolo ${\rm char}_i$ entrará en el estado:
+
+$$ {\rm mid} = {\rm aut}[\ G[i-1][j]\ ][{\rm char}_i] $$
+
+Después de este rifle "скармливается" la última pieza, es decir, $g_{i-1}$:
+
+G $ $ [i][j] = G[i-1][{\rm mid}] $$
+
+La cantidad de $K[i][j]$ fácilmente se considera como la suma de las cantidades de tres tacos de $g_i$: $g_{i-1}$, el símbolo de ${\rm char}_i$, y de nuevo, la línea $g_{i-1}$:
+
+$$ K[i][j] = K[i-1][j] + ({\rm mid} == s.{\rm length}()) + K[i-1][mid] $$
+
+Así pues, hemos decidido tarea para las filas que se calienta, de igual forma, puede resolver una clase de tales tareas. Por ejemplo, exactamente el mismo método se resuelve \bf{el siguiente desafío}: dada una cadena $s$, y las muestras de $t_i$, cada uno de los cuales se establece de la siguiente manera: es una cadena de caracteres comunes, entre los que pueden encontrarse recursivas de la inserción de otras líneas en forma de $t_k[\rm cnt]$, lo que significa que en este lugar se debe insertar $\rm cnt$ instancias de la cadena $t_k$. Un ejemplo de este esquema:
+
+$$ t_1 = "abdeca" $$
+$$ t_2 = "abc" + t_1[30] + "abd" $$
+$$ t_3 = t_2[50] + t_1[100] $$
+$$ t_4 = t_2[10] + t_3[100] $$
+
+Se garantiza que esta descripción no contiene en sí mismo cíclicas de la dependencia. Las restricciones son que si explícitamente revelar la recursividad y buscar cadenas de $t_i$, entonces su longitud puede ser de hasta un orden de 100 $^{100}$.
+
+Es necesario encontrar el número de apariciones de la cadena $s$ en cada una de las filas de $t_i$.
+
+El problema se resuelve de la misma manera, la construcción de la máquina de ranura del prefijo de la función y, a continuación, es necesario calcular y agregar transiciones por entero a las filas de $t_i$. En general, esto es simplemente un caso más general en comparación con la tarea acerca de las cadenas de gray.
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver utilizando el prefijo de la función:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=396{UVA #455 \bf{"Periodic Strings"} ~~~~ [dificultad media]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1963{UVA #11022 \bf{"String Factoring"} ~~~~ [dificultad media]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=2447{UVA #11452 \bf{"Dancing the Cheeky-Cheeky"} ~~~~ [dificultad media]}
+
+\li \href=http://acm.sgu.es/problem.php?contest=0&problem=284{SGU #284 \bf{"Grammar"} ~~~~ [nivel de dificultad: alto]}
+
+}

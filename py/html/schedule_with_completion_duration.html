@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Оптимальный выбор заданий при известных временах завершения и длительностях выполнения</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Оптимальный выбор заданий при известных временах завершения и длительностях выполнения</h1><p>Page source on a <a href="http://en.wikipedia.org/wiki/TeX">TeX</a>-like language:</p><textarea style="width:100%;height:500px">\h1{Оптимальный выбор заданий при известных временах завершения и длительностях выполнения}
+
+Пусть дан набор заданий, у каждого задания известен момент времени, к которому это задание нужно завершить, и длительность выполнения этого задания. Процесс выполнения какого-либо задания нельзя прерывать до его завершения. Требуется составить такое расписание, чтобы выполнить наибольшее число заданий.
+
+\h2{Решение}
+
+Алгоритм решения --- \bf{жадный} (greedy). Отсортируем все задания по их крайнему сроку, и будем рассматривать их по очереди в порядке убывания крайнего срока. Также создадим очередь $q$, в которую мы будем постепенно помещать задания, и извлекать из очереди задание с наименьшим временем выполнения (например, можно использовать set или priority_queue). Изначально $q$ пустая.
+
+Пусть мы рассматриваем $i$-ое задание. Сначала поместим его в $q$. Рассмотрим отрезок времени между сроком завершения $i$-го задания и сроком завершения $i-1$-го задания --- это отрезок некоторой длины $T$. Будем извлекать из $q$ задания (в порядке увеличения оставшегося времени их выполнения) и помещать на выполнение в этом отрезке, пока не заполним весь отрезок $T$. Важный момент --- если в какой-то момент времени очередное извлечённое из структуры задание можно успеть частично выполнить в отрезке $T$, то мы выполняем это задание частично --- именно настолько, насколько это возможно, т.е. в течение $T$ единиц времени, а оставшуюся часть задания помещаем обратно в $q$.
+
+По окончании этого алгоритма мы выберем оптимальное решение (или, по крайней мере, одно из нескольких решений). Асимптотика решения --- $O (n \log n)$.
+
+
+\h2{Реализация}
+
+
+\code
+int n;
+vector < pair<int,int> > a; // задания в виде пар (крайний срок, длительность)
+... чтение n и a ...
+
+sort (a.begin(), a.end());
+
+typedef set < pair<int,int> > t_s;
+t_s s;
+vector<int> result;
+for (int i=n-1; i>=0; --i) {
+	int t = a[i].first - (i ? a[i-1].first : 0);
+	s.insert (make_pair (a[i].second, i));
+	while (t && !s.empty()) {
+		t_s::iterator it = s.begin();
+		if (it->first <= t) {
+			t -= it->first;
+			result.push_back (it->second);
+		}
+		else {
+			s.insert (make_pair (it->first - t, it->second));
+			t = 0;
+		}
+		s.erase (it);
+	}
+}
+
+for (size_t i=0; i<result.size(); ++i)
+	cout << result[i] << ' ';
+\endcode</textarea></td></tr></table></body></html>

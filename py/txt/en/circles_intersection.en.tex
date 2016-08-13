@@ -1,0 +1,18 @@
+<h1>the Intersection of two circles</h1>
+
+<p>Given two circles, each defined by coordinates of its center and radius. You need to locate their point of intersection (or one, or two, or none of the dots or circles are the same).</p>
+the <h2>Solution</h2>
+<p>we Reduce our task to the problem of <b><algohref=circle_line_intersection>the intersection of the circle and straight</algohref></b>.</p>
+<p>let us Assume without losing generality that the center of the first circle is at the origin (if it is not, then we move the center to the origin, and when the answer will be to add back the coordinates of the center). Then we have the system of two equations:</p>
+<formula>x<sup>2</sup> + y<sup>2</sup> = r<sub>1</sub><sup>2</sup>
+(x - x<sub>2</sub>)<sup>2</sup> + (y - y<sub>2</sub>)<sup>2</sup> = r<sub>2</sub><sup>2</sup></formula>
+<p>Subtract from the second equation first to get rid of the squares of the variables:</p>
+<formula>x<sup>2</sup> + y<sup>2</sup> = r<sub>1</sub><sup>2</sup>
+x (-2x<sub>2</sub>) + y (-2y<sub>2</sub>) + (x<sub>2</sub><sup>2</sup> + y<sub>2</sub><sup>2</sup> + r<sub>1</sub><sup>2</sup> - r<sub>2</sub><sup>2</sup>) = 0</formula>
+<p>Thus, we have reduced the problem of the intersection of two circles to the problem of the intersection of the first circle and the following straight:</p>
+<formula>Ax + By + C = 0,
+A = -2x<sub>2</sub>,
+B = -2y<sub>2</sub>,
+C = x<sub>2</sub><sup>2</sup> + y<sub>2</sub><sup>2</sup> + r<sub>1</sub><sup>2</sup> - r<sub>2</sub><sup>2</sup>.</formula>
+<p>And the solution of the last problem described in <algohref=circle_line_intersection>related article</algohref>.</p>
+<p>the Only <b>degenerate case</b>, which must be dealt with separately - when the centers of the circles coincide. Indeed, in this case, instead of the straight line equation we get an equation of the form 0 = C, where C is some number, and this case will be handled correctly. Therefore, this case should be considered separately: if the radii of the circles coincide, then the answer is infinity, otherwise there is no intersection.</p>

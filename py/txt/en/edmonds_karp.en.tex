@@ -1,0 +1,82 @@
+the <h1>Maximum flow using the Edmonds-Karp O (N M<sup>2</sup>)</h1>
+
+<p style="color:red">note: this article is outdated and contains errors and not recommended reading. After some time the article will be completely rewritten.</p>
+
+<p>Suppose we are given a graph G, where two vertices: the source S and the sink T, and each edge defined bandwidth C<sub>u,v</sub>. The stream F can be represented as a flow of matter that could pass through the network from the source to the drain, if we consider the graph as a network of pipes with certain bandwidth capabilities. I.e. the flux - function F<sub>u, v</sub>, defined on the set of edges of the graph.</p>
+<p> </p>
+<p>the Challenge is in finding the maximum flow. Here will be described the method of the Edmonds-Karp running time O (N M<sup>2</sup>), or (another estimate) O (F M), where F is the magnitude of the desired flow. The algorithm was developed in 1972.</p>
+the <h2>the Algorithm</h2>
+<p><b>Residual bandwidth</b> is called the bandwidth of the edge minus the current ow along that edge. It should be remembered that if some thread runs through oriented rib, a so-called reverse edge (directed in the opposite direction), which will have a bandwidth of zero, and which will flow the same largest stream, but with a minus sign. If the edge was undirected, then it splits into two oriented edges with the same bandwidth, and each of these edges is the reverse for the other (if one flows a flow F, then another runs a -F).</p>
+<p>the General scheme of the <b>algorithm the Edmonds-Karp</b> is as follows. First believe the flux is zero. Then looking for a complementary way, i.e. a simple path from S to T by those edges whose residual bandwidth is strictly positive. If the complementary path has been found, increase the current ow along this path. If the path was not found, then the current flow is maximum. To search for complementary ways can be used as <algohref=bfs>BFS</algohref> and <algohref=dfs>DFS</algohref>.</p>
+<p>let us Consider more precisely the procedure for increasing the flow of. May we find some complementary way, then let C be the smallest of the residual capacities of edges of this path. The procedure of increasing the flow is as follows: for each edge (u, v) complementary ways perform: F<sub>u, v</sub> += C, and F<sub>v, u</sub> = F<sub>u, v</sub> (or, equivalently, F<sub>v, u</sub> = C).</p>
+<p>the flow rate will be the sum of all non-negative values of F<sub>S, v</sub>, where v is any vertex connected to the source.</p>
+the <h2>Implementation</h2>
+<code>const int inf = 1000*1000*1000;
+
+
+typedef vector<int> graf_line;
+typedef vector<graf_line> graf;
+
+typedef vector<int> vint;
+typedef vector<vint> vvint;
+
+
+int main()
+{
+int n;
+cin >> n;
+vvint c (n, vint(n));
+for (int i=0; i<n; i++)
+for (int j=0; j<n; j++)
+cin >> c[i][j];
+// source is vertex 0, the drain is the top n-1
+
+vvint f (n, vint(n));
+for (;;)
+{
+
+vint from (n, -1);
+vint q (n);
+int h=0, t=0;
+q[t++] = 0;
+from[0] = 0;
+for (int cur; h<t;)
+{
+cur = q[h++];
+for (int v=0; v<n; v++)
+if (from[v] == -1 &&
+c[cur][v]-f[cur][v] > 0)
+{
+q[t++] = v;
+from[v] = cur;
+}
+}
+
+if (from[n-1] == -1)
+break;
+int cf = inf;
+for (int cur=n-1; cur!=0; )
+{
+int prev = from[cur];
+cf = min (cf, c[prev][cur]-f[prev][cur]);
+cur = prev;
+}
+
+for (int cur=n-1; cur!=0; )
+{
+int prev = from[cur];
+f[prev][cur] += cf;
+f[cur][prev] -= cf;
+cur = prev;
+}
+
+}
+
+int flow = 0;
+for (int i=0; i<n; i++)
+if (c[0][i])
+flow += f[0][i];
+
+cout << flow;
+
+}</code>

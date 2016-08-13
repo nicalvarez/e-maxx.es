@@ -1,0 +1,124 @@
+\h1{ busque las tangentes a dos окружностям }
+
+Se dan las dos de la circunferencia. Desea buscar todos los generales de las tangentes, es decir, todos los directos, que se refieren a dos círculos a la vez.
+
+Se describe el algoritmo funcionará también en el caso de que una (o ambas) de la circunferencia degeneran en un punto. Por lo tanto, este algoritmo también se puede utilizar para encontrar tangentes a la circunferencia que pasan a través del punto.
+
+
+\h2{ Número de tangentes }
+
+Ten en cuenta que no consideramos \bf{вырожденные} casos: cuando la circunferencia de la misma (en este caso, son infinitamente muchas de las tangentes), o una circunferencia se encuentra dentro de la otra (en este caso, no tienen tangentes comunes, o, si los círculos se refieren, hay un total de tangente).
+
+En la mayoría de los casos, dos círculos tienen \bf{cuatro} generales de las tangentes.
+
+Si la circunferencia \bf{refieren}, tendrán tres обших tangentes, pero esto se puede entender como un caso de degeneración: así, como si de dos tangentes coinciden.
+
+Además, el siguiente algoritmo funcionará en el caso de que uno o ambos de la circunferencia tienen cero radio: en este caso, respectivamente, de dos o es la tangente.
+
+En resumen, nosotros, a excepción de los descritos en el comienzo de los casos, siempre vamos a buscar \bf{cuatro tangentes}. En degeneradas casos, algunos de ellos serán los mismos, pero sin embargo, estos casos también se ajustan a la imagen.
+
+
+\h2{ el Algoritmo }
+
+En aras de la simplicidad del algoritmo, vamos a suponer, sin perder generalidad, que el centro de la primera circunferencia tiene coordenadas $(0;0)$. (Si no es así, esto se puede lograr de un simple desplazamiento de todo el panorama, y después de encontrar una solución --- desplazamiento obtenidas directas de nuevo.)
+
+Se denota por $r_1$ y $r_2$ radios de la primera y la segunda círculos, y a través de la $v$ --- las coordenadas del centro de la segunda circunferencia con un punto ($v$ es diferente de cero, ya que no consideramos el caso, cuando la circunferencia son iguales, o una circunferencia se encuentra dentro de otra).
+
+Para resolver la tarea de acercarnos a ella puramente \bf{алгебраически}. Necesitamos encontrar todos los directos de la vista $ax+by+c=0$, que se encuentran a una distancia de $r_1$ del origen de coordenadas, y a una distancia de $r_2$ punto $v$. Además, impone la condición de нормированности directa: la suma de los cuadrados de los coeficientes de $a$ y $b$ debe ser igual a la unidad (esto es necesario, de lo contrario la misma recta va a coincidir con un número infinito de representaciones de tipo $ax+by+c=0$). Total obtenemos un sistema de ecuaciones en los $a,b,c$:
+
+$$ \begin{cases}
+a^2 + b^2 = 1, \\
+| a \cdot 0 + b \cdot 0 + c | = r_1, \\
+| a \cdot v_x + b \cdot v_y + c | = r_2.
+\end{cases} $$
+
+Para deshacerse de módulos, tenga en cuenta que sólo hay cuatro maneras de expandir los módulos de este sistema. Todas estas formas se puede considerar el caso general, si se entiende la divulgación de módulo como el hecho de que el coeficiente de en la parte derecha, tal vez, se multiplica por $-1$.
+
+En otras palabras, pasamos a un sistema de este tipo:
+
+$$ \begin{cases}
+a^2 + b^2 = 1, \\
+c = \pm r_1, \\
+a \cdot v_x + b \cdot v_y + c = \pm r_2.
+\end{cases} $$
+
+Escribiendo la leyenda de $d_1 = \pm r_1$ y $d_2 = \pm r_2$, llegamos a lo que es cuatro veces tienen que resolver el sistema:
+
+$$ \begin{cases}
+a^2 + b^2 = 1, \\
+c = d_1, \\
+a \cdot v_x + b \cdot v_y + c = d_2.
+\end{cases} $$
+
+La solución de este sistema se reduce a la decisión cuadrada de la ecuación. Nos bajaremos todos los engorrosos cálculos, y en seguida presentamos la respuesta preparada:
+
+$$ \begin{cases}
+a = \frac{ (d_2-d_1)v_x \pm v_y \sqrt{ v_x^2 + v_y^2 - (d_2-d_1)^2 } }{ v_x^2 + v_y^2 }, \\
+b = \frac{ (d_2-d_1)v_y \mp v_x \sqrt{ v_x^2 + v_y^2 - (d_2-d_1)^2 } }{ v_x^2 + v_y^2 }, \\
+c = d_1.
+\end{cases} $$
+
+Total tenemos $8$ de decisiones en lugar de los $4$. Sin embargo, es fácil de entender, en qué lugar se producen exceso de solución: en realidad, en el último sistema, basta con tomar una decisión (por ejemplo, la primera). En realidad, geométrico sentido de lo que cobramos $\pm r_1$ y $\pm r_2$, claro: en realidad, hemos перебираем, de qué lado de cada uno de los círculos será directa. Por lo tanto, dos formas que surgen al abordar la última versión del sistema redundantes: basta con seleccionar una de las dos soluciones (sólo, por supuesto, en los cuatro casos, es necesario elegir la misma familia de soluciones).
+
+La última, que aún no hemos examinado --- es \bf{como mover directos} cuando el primer círculo no se encontraba originalmente en el punto de origen. Sin embargo, es muy sencillo: de la linealidad de la ecuación de la recta se deduce que el factor $c$ es necesario quitarle la cantidad de $a \cdot x_0 + b \cdot y_0$ (en $x_0$ y $y_0$ --- las coordenadas inicial en el centro de la circunferencia de la primera).
+
+
+\h2{ Aplicación }
+
+Describiremos primero las estructuras de datos necesarias y otros auxiliares de la definición:
+
+\code
+struct pt {
+double x, y;
+
+pt operator- (pt p) {
+pt res = { x-p.x, y-p.y };
+return res;
+}
+};
+
+struct circle : pt {
+double r;
+};
+
+struct line {
+double a, b, c;
+};
+
+const double EPS = 1E-9;
+
+double sqr (double a) {
+return a * a;
+}
+\endcode
+
+Entonces, la misma solución se puede escribir de esta manera (donde la función principal de la llamada --- el segundo; mientras que en la primera función --- auxiliar):
+
+\code
+void tangents (pt c, double r1, double r2, vector<line> & ans) {
+double r = r2 - r1;
+double z = sqr(c.x) + sqr(c.y);
+double d = z - sqr(r);
+if (d < -EPS) return;
+d = sqrt (abs (d));
+line l;
+l.a = (c.x * r + c.y * d) / z;
+l.b = (c.y * r - c.x * d) / z;
+l.c = r1;
+ans.push_back (l);
+}
+
+vector<line> tangents (circle a, circle b) {
+vector<line> ans;
+for (int i=-1; i<=1; i+=2)
+for (int j=-1; j<=1; j+=2)
+tangents (b-a, a.r*i, b.r*j ans);
+for (size_t i=0; i<ans.size(); ++i)
+ans[i].c -= ans[i].a * a.x + ans[i].b * a.y;
+return ans;
+}
+\endcode
+
+
+
+

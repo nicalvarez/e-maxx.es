@@ -1,0 +1,101 @@
+\h1{ Finding the largest zero submatrix }
+
+Given a matrix $a$ of size $n \times m$. You want to find a sub-matrix consisting only of zeros, and among all such --- having the largest area (the sub-matrix is a rectangular region of the matrix).
+
+A trivial algorithm --- iterating over the desired sub-matrix --- even the good implementation will run $O (n^2 m^2)$. The following describes the algorithm for $O (n m)$, i.e., for linear relative to the size of the matrix.
+
+
+\h2{ Algorithm }
+
+To resolve ambiguities, we note that $n$ equals the number of rows of the matrix $a$, respectively, $m$ is the number of columns. The elements of the matrix will be numbered $0$-indexing, i.e. in the notation $a[i][j]$ the indices $i$ and $j$ run over the ranges $i = 0 \ldots n-1$, $j = 0 \ldots m-1$.
+
+
+\h3{ Step 1: the Auxiliary dynamics }
+
+First, calculate the following auxiliary dynamics: $d[i][j]$ --- the closest unit to the top of the element $a[i][j]$. Formally speaking, $d[i][j]$ is equal to the highest row number (including rows that range from $-1$ to $i$), where $j$-th column is a unit. In particular, if no such line, then $d[i][j]$ to be equal to $-1$ (it can be understood that all matrix like is limited outside units).
+
+This dynamic it's easy to take along the matrix from top to bottom: may we worth in the $i$-th line, and knows the value of dynamics for the previous line. Then just copy these values into the dynamics for the current row by changing only those elements which are the matrix units. It is clear that then not even want to keep the entire rectangular array of dynamics, and only one array of size $m$:
+
+\code
+vector<int> d (m, -1);
+for (int i=0; i<n; ++i) {
+for (int j=0; j<m; ++j)
+if (a[i][j] == 1)
+d[j] = i;
+
+// calculated d for the i-th row, can use these values
+}
+\endcode
+
+
+\h3{ Step 2: the solution of the problem }
+
+Now we can solve the problem in $O (m n^2)$ --- just to sort out the current row number of the left and right columns of the sought matrices, and using dynamics $d[][]$ be computed in $O (1)$ the upper bound of the zero submatrix. However, you can go ahead and significantly improve the asymptotic behavior of the solution.
+
+It is clear that the desired zero sub-matrix restricted on all four sides some ones (or field boundaries), --- that and prevented it to grow in size and improve the response. Therefore, it is argued, we wouldn't miss the answer, if we act as follows: first, consider the number $i$ the bottom row is a zero submatrix, then consider which column $j$, we will set up a zero submatrix. Using the value of $d[i][j]$, we immediately get the number on the top row of zero sub-matrices. It remains now to determine the optimal left and right edge of the zero-matrices, --- i.e. maximally push the left and right submatrix of $j$-th column.
+
+What does it mean to push the left? This means to find such an index $k_1$ to $d[i][k_1] > d[i][j]$, and $k_1$ --- left for the next index $j$. It is clear that when $k_1+1$ gives the number of the leftmost column of the desired zero submatrix. If such index is no, then put $k_1=-1$ (it means that we were able to extend the current zero submatrix to the left --- to the border of the whole matrix $a$).
+
+Symmetrically it is possible to determine the index $k_2$ for the right border: it is nearest to the right of $j$ is the index such that $d[i][k_2] > d[i][j]$ (or $m$, if such an index is not).
+
+Thus, the indices $k_1$ and $k_2$, if we learn effectively to find them, will give us all the necessary information about the current zero submatrix. In particular, its area will be equal to $(i - d[i][j]) \cdot (k_2 - k_1 - 1)$.
+
+How to find the indices $k_1$ and $k_2$ is effective for fixed $i$ and $j$? We will satisfy only asymptotic $O(1)$, at least on average.
+
+To achieve this asymptotics by using the stack (stack) as follows. Learn to search the index $k_1$, and save the value for each index $j$ within current line $i$ - dynamics $d_1[i][j]$. This will display all columns $j$ from left to right, and have a stack, which always will lie only those columns in which the value dynamics $d[][]$ strictly larger than $d[i][j]$. It is clear that when moving from column $j$ to the next column $j+1$ you want to update the contents of this stack. It is claimed that you must first put in the stack column $j$ (since for him the stack of "good"), and then while on top of the stack is the wrong element (i.e. which has a value of $d \le d[i][j+1]$), --- to get this item. It is easy to understand what to remove from the stack only enough of its vertices, and from any other places (because the stack will contain increasing by $d$ the sequence of columns).
+
+The value of $d_1[i][j]$ for each $j$ will be equal to the value lying at this moment on the top of the stack.
+
+It is clear that because of additions to the stack on every line $i$ is exactly $m$ pieces, and deletions could not be more so in the amount of asymptotic behavior will be linear.
+
+Dynamics $d_2[i][j]$ to find the index $k_2$ is considered similarly, except that it is necessary to display the columns from right to left.
+
+It should also be noted that this algorithm consumes $O(m)$ memory (not counting the input data --- the matrix $a[][]$).
+
+
+\h2{ the Implementation }
+
+This implementation of the above algorithm reads the matrix dimensions, then the matrix (as a sequence of numbers separated by spaces or newlines), and then outputs the answer --- the size of the largest zero submatrix.
+
+It is easy to improve this implementation to also output the zero sub-matrix: for this purpose it is necessary at each change of $\rm ans$ remember also the numbers of rows and columns of the matrices (they will be respectively $d[j]+1$, $i$, $d1[j]+1$, $d2[j]-1$).
+
+\code
+int n, m;
+cin >> n >> m;
+vector < vector<int> > a (n, vector<int> (m));
+for (int i=0; i<n; ++i)
+for (int j=0; j<m; ++j)
+cin >> a[i][j];
+
+int ans = 0;
+vector<int> d (m, -1), d1 (m) d2 (m);
+stack<int> st;
+for (int i=0; i<n; ++i) {
+for (int j=0; j<m; ++j)
+if (a[i][j] == 1)
+d[j] = i;
+while (!st.empty()) st.pop();
+for (int j=0; j<m; ++j) {
+while (!st.empty() && d[st.top()] <= d[j]) st.pop();
+d1[j] = st.empty() ? -1 : st.top();
+st.push (j);
+}
+while (!st.empty()) st.pop();
+for (int j=m-1; j>=0; --j) {
+while (!st.empty() && d[st.top()] <= d[j]) st.pop();
+d2[j] = st.empty() ? m : st.top();
+st.push (j);
+}
+for (int j=0; j<m; ++j)
+ans = max (ans, (i - d[j]) * (d2[j] - d1[j] - 1));
+}
+
+cout << ans;
+\endcode
+
+
+
+
+
+
+

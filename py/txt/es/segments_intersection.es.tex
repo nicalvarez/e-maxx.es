@@ -1,0 +1,91 @@
+\h1{la Intersección de dos líneas}
+
+Dados dos segmentos de $AB$ y $CD$ (que puede degenerar en un punto). Es necesario encontrar la intersección: se puede estar en blanco (si los trozos que no se cruzan), puede ser un punto, y puede ser un trozo (si los trozos se superponen).
+
+
+\h2{el Algoritmo}
+
+Trabajar con líneas vamos a como directos: construir dos bloques de la ecuación de sus directos, comprobaremos, no son paralelas si directas. Si las rectas no son paralelas, entonces simplemente tienes que encontramos en su punto de intersección y comprobamos que pertenece a ambos bloques (para ello basta comprobar que el punto pertenece a cada segmento en la proyección en el eje $X$ y en el eje de $Y$ por separado). En consecuencia, en este caso, la respuesta será "vacío", o la única encontrada punto.
+
+Caso más complicado --- si directas fueron paralelas (se incluye el caso, cuando uno o ambos de corte degenerado en un punto). En este caso hay que comprobar que ambos del corte se encuentran en una recta (o, en el caso de que ambos habían вырождены en el punto --- de que este punto coincide). Si no es así, entonces la respuesta --- "vacío". Si es así, entonces la respuesta --- es la intersección de dos líneas, se encuentran en una recta, que se realiza es sencillo --- es necesario sacar el máximo partido de la izquierda de todo y menos de la derecha de todo.
+
+En el comienzo del algoritmo, vamos a añadir la denominada "prueba de la bounding box" --- en primer lugar, es necesaria para el caso, cuando dos líneas se encuentran en la misma recta, y en segundo lugar, ella, como un ligero comprobación, permite que el algoritmo de trabajar, en promedio, más rápido aleatorias de las pruebas.
+
+
+\h2{Aplicación}
+
+Aquí una implementación completa, incluyendo todas las funciones de apoyo para el trabajo con los puntos y rectas.
+
+Principal aquí es la función $\rm intersect$, que cruza los dos enviados a ella la corte, y si se cruzan por lo menos en un punto, entonces devuelve $\rm true$, y en los argumentos de $\rm left$ y $\rm right$ devuelve el inicio y el final del corte de la respuesta (en particular, cuando la respuesta --- este es el único punto devueltos por el inicio y el final será el mismo).
+
+\code
+const double EPS = 1E-9;
+
+struct pt {
+double x, y;
+
+bool operator< (const pt & p) const {
+return x < p.x-EPS || abs(x-p.x) < EPS && y < p.y - EPS;
+}
+};
+
+struct line {
+double a, b, c;
+
+line() {}
+line (pt p, pt q) {
+a = p.y - q.y;
+b = q.x - p.x;
+c = - a * p.x - b * p.y;
+norm();
+}
+
+void norm() {
+double z = sqrt (a*a + b*b);
+if (abs(z) > EPS)
+a /= z, b /= z, c /= z;
+}
+
+double dist (pt p) const {
+return a * p.x + b * p.y + c;
+}
+};
+
+#define det(a,b,c,d) (a*d-b*c)
+
+inline bool betw (double l, double r, double x) {
+return min(l,r) <= x + EPS && x <= max(l,r) + EPS;
+}
+
+inline bool intersect_1d (double a, double b, double c, double d) {
+if (a > b) swap (a, b);
+if (c > d) swap (c, d);
+return max (a, c) <= min (b, d) + EPS;
+}
+
+bool intersect (pt a, pt b pt c pt d, pt & left, pt & right) {
+if (! intersect_1d (a.x, b.x, c.x, d.x) || ! intersect_1d (a.y, b.y, c.y, d.y))
+return false;
+line m (a, b);
+line n (c, d);
+double zn = det (m.a, m.b, n.a, n.b);
+if (abs (zn) < EPS) {
+if (abs (m.dist (c)) > EPS || abs (n.dist (a)) > EPS)
+return false;
+if (b < a) swap (a, b);
+if (d < c) swap (c, d);
+left = max (a, c);
+right = min (b, d);
+return true;
+}
+else {
+left.x = right.x = - det (m.c, m.b, n.c, n.b) / zn;
+left.y = right.y = - det (m.a, m.c, n.a, n.c) / zn;
+return betw (a.x, b.x, izquierda.x)
+&& betw (a.y, b.y, left.y)
+&& betw c.x, d.x, izquierda.x)
+&& betw c.y, d.y, left.y);
+}
+}
+\endcode
+

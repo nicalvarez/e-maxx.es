@@ -1,0 +1,25 @@
+\h1{ crea gráficos con los valores culminante y costal связностей y el menor de los grados de los vértices }
+
+Dadas la magnitud de $\kappa$, $\lambda$, $\delta$ --- este es, en consecuencia, \algohref=vertex_connectivity{вершинная conectividad}, \algohref=rib_connectivity{реберная conectividad} y el más pequeño de los grados de los vértices de la gráfica. Es necesario construir el conde, que tenía los valores especificados, o decir que este punto no existe.
+
+
+\h2{ Relación de whitney }
+
+\bf{Relación de whitney (Whitney)} (1932) entre \algohref=rib_connectivity{costal связностью} $\lambda$, \algohref=vertex_connectivity{culminante de связностью} $\kappa$ y el menor de los grados de los vértices de $\delta$:
+
+$$ \kappa \le \lambda \le \delta. $$
+
+\bf{Prueba} esta afirmación.
+
+Demostremos primero la primera desigualdad: $\kappa \le \lambda$. Considere la posibilidad de este conjunto de $\lambda$ aristas que hacen que el conde de несвязным. Si tomamos de cada una de estas aristas de un extremo (cualquiera de los dos) y eliminamos el conde, por tanto, a través de $\le \lambda$ remotos de los vértices (dado que el mismo vértice podía reunirse dos veces) haremos el conde несвязным. Por lo tanto, $\kappa \le \lambda$.
+
+Probaremos la segunda desigualdad: $\lambda \le \delta$. Considere la cima grado mínimo, entonces podemos eliminar todo $\delta$ conexos con ella las costillas y por lo tanto la separación de esta cima de todo el resto de la gráfica. Por lo tanto, $\lambda \le \delta$.
+
+Es interesante que la desigualdad de whitney \bf{no se puede mejorar}: es decir, para cualquier tríos de números que cumplen esta desigualdad, existe al menos un conde. Esto demostramos de manera constructiva, mostrando cómo se construyen las columnas correspondientes.
+
+
+\h2{ para Decisión }
+
+Comprobaremos, cumplen si los datos del número de $\kappa$, $\lambda$ y $\delta$ relación de whitney. Si no, no hay una respuesta.
+
+En caso contrario, construir el propio conde. Constará de $2 (\delta + 1)$ de los vértices, y los primeros $\delta + 1$ vértices forman полносвязный подграф, y el segundo $\delta + 1$ de la cima, también forman полносвязный подграф. Además, conectar estas dos partes $\lambda$ costillas, para que en la primera parte de estas costillas se es adyacente $\lambda$ vértice, y en otra parte --- $\kappa$ cimas. Fácil de asegurarse de que el conde de poseer las características necesarias.

@@ -1,0 +1,63 @@
+\h1{Juego de corre que te pillo: la existencia de la solución}
+
+Recordemos que el juego es un campo de 4 $$ $4$, en el que se encuentran $15$ en fichas numeradas de 1 $a$ a $15$, y un campo se deja en blanco. Es necesario, moviendo a cada paso alguna ficha en la posición libre, para llegar finalmente a la siguiente posición:
+$$ \matrix{
+1&2&3&4\cr
+5&6&7&8\cr
+9&10&11&12\cr
+13&14&15&\bigcirc\cr
+} $$
+
+Juego de corre que te pillo ("15 puzzle") se inventó en 1880 Нойес Чэпман (Noyes Chapman).
+
+\h2{la Existencia de la solución}
+
+Aquí vamos a ver una de ellas: de la posición en el tablero decir, si existe una secuencia de movimientos que conducen a la solución, o no.
+
+Que dan una cierta posición en la pizarra:
+
+$$ \matrix{
+a_1 & a_2 & a_3 & a_4 \cr 
+a_5 & a_6 & a_7 & a_8 \cr 
+a_9 & a_{10} & a_{11} & a_{12} \cr 
+a_{13} & a_{14} & a_{15} & a_{16} \cr 
+} $$
+donde uno de los elementos es igual a cero, indica una celda vacía de $a_z = 0$.
+
+Considere una permutación:
+$$ a_1 a_2 \ldots a_{z-1} a_{z+1} \sum_ a_{15} a_{16} $$
+(es decir, la transposición de números correspondiente a la posición en el tablero, sin el cero del elemento)
+
+Se denota por $N$ el número de reversiones de dicha en este movimiento (es decir, el número de tales elementos $a_i$ y $a_j$ que $i < j$ pero $a_i > a_j$).
+
+A continuación, dejar que $K$ --- el número de la línea en la que se encuentra el elemento vacío (es decir, en nuestros leyenda de $K = (z-1)\ {\rm div}\ 4 + 1)$.
+
+Entonces, \bf{existe una solución entonces, y sólo entonces, cuando $N+K$ uniforme}.
+
+\h2{Aplicación}
+
+Ilustraremos indicado anteriormente, el algoritmo mediante el software de código:
+\code
+int a[16];
+for (int i=0; i<16; i++)
+cin >> a[i];
+
+int inv = 0;
+for (int i=0; i<16; i++)
+if (a[i])
+for (int j=0; j<i; j++)
+if (a[j] > a[i])
+++inv;
+for (int i=0; i<16; i++)
+if (a[i] == 0)
+inv += 1 + i / 4;
+
+puts ((inv & 1) ? "No Solution" : "Solution Exists");
+\endcode
+
+\h2{Prueba}
+Johnson (Johnson) en 1879 ha demostrado que si $N+K$ es impar, entonces no hay una solución a Story) en el mismo año ha demostrado que todas las posiciones, de los cuales $N+K$ uniforme, tienen solución.
+
+Sin embargo, dos de estas pruebas eran bastante complejas.
+
+En 1999, archer (arquero) propuso mucho más simple prueba (descargar su artículo \href=http://www.cs.cmu.edu/afs/cs/academic/class/15859-f01/www/notes/15-puzzle.pdf{aquí}).

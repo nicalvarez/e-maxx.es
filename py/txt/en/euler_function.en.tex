@@ -1,0 +1,98 @@
+\h1{ Function Euler }
+
+
+\h2{ Definition }
+
+\bf{Function Euler} $\phi (n)$ (sometimes denoted $\varphi(n)$ or ${\it phi}(n)$) is the number of integers from $1$ to $n$, coprime with $n$. In other words, the number of integers in the interval $[1; n]$, \algohref=euclid_algorithm{greatest common divisor} with $n$ equal to one.
+
+The first few values of this function (\href=http://oeis.org/A000010{encyclopedia A000010 in OEIS}):
+
+$$ \phi (1)=1, $$
+$$ \phi (2)=1, $$
+$$ \phi (3)=2, $$
+$$ \phi (4)=2, $$
+$$ \phi (5)=4. $$
+
+
+\h2{ Properties }
+
+The following three simple properties of the Euler function --- sufficient to learn how to calculate it for any numbers:
+
+\ul{
+
+\li If $p$ is a Prime number, then $\phi (p)=p-1$.
+
+(This is obvious, since any number except $p$, mutually just with him.)
+
+\li If $p$ is a Prime number, $a$ --- natural number, then $\phi (p^a)=p^a-p^{a-1}$.
+
+(Because with the number $p^a$ are not relatively Prime numbers of the form $pk$ $(k \in \mathcal{N})$, which $p^a / p = p^{a-1}$ units.)
+
+\li If $a$ and $b$ are relatively Prime, then $\phi(ab) = \phi(a) \phi(b)$ ("multiplicative" of the Euler function).
+
+(This fact follows from \algohref=chinese_theorem{Chinese theorem on residues}. Let us consider an arbitrary number $z \le ab$. Denote by $x$ and $y$ remains from dividing $z$ on $a$ and $b$ respectively. Then $z$ are mutually simple with $ab$ if and only when $z$ are mutually simple with $a$ and $b$ separately, or, equivalently, $x$ are mutually simple with $a$ and $y$ are mutually simple with $b$. Using Chinese theorem on residues, we obtain that any pair of numbers $x$ and $y$ $(x \le a, ~ y \le b)$ one-to-one corresponds to the number of $z$ $(z \le ab)$, which completes the proof.)
+
+}
+
+From here you can obtain the Euler function for any $\it n$ through \bf{factorization} (decomposition of $n$ into Prime factors):
+
+if
+
+$$ n = p_1^{a_1} \cdot p_2^{a_2} \cdot \ldots \cdot p_k^{a_k} $$
+
+(where all the $p_i$ --- simple)
+
+$$ \phi(n) = \phi(p_1^{a_1}) \cdot \phi(p_2^{a_2}) \cdot \ldots \cdot \phi(p_k^{a_k}) = $$
+$$ = (p_1^{a_1} - p_1^{a_1-1}) \cdot (p_2^{a_2} - p_2^{a_2-1}) \cdot \ldots \cdot (p_k^{a_k} - p_k^{a_k-1}) = $$
+$$ = n \cdot \left( 1-{1\over p_1} \right) \cdot \left( 1-{1\over p_2} \right) \cdot \ldots \cdot \left( 1-{1\over p_k} \right). $$
+
+
+\h2{ the Implementation }
+
+Simple code that computes the Euler function, the number of elementary factorize method for $O (\sqrt n)$:
+
+\code
+int phi (int n) {
+int result = n;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+while (n % i == 0)
+n /= i;
+result -= result / i;
+}
+if (n > 1)
+result -= result / n;
+return result;
+}
+\endcode
+
+A key role for the computation of the Euler function is being \bf{factorization} of $n$. It can be implemented over time, a significantly smaller $O(\sqrt{n})$: see \algohref=factorization{Efficient algorithms for factorization}.
+
+
+\h2{ the Application of the Euler function }
+
+The most famous and important property of the Euler function is expressed in \bf{Euler's theorem}:
+$$ a^{\phi(m)} \equiv 1 \pmod m, $$
+where $\it$ a $ and $\it m$ are coprime.
+
+In the particular case when $\it m$ is simple, Euler's theorem turns into the so-called \bf{small Fermat's theorem}:
+$$ a^{m-1} \equiv 1 \pmod m $$
+
+The Euler theorem often occurs in practical applications, see, for example, \algohref=reverse_element{Return item in the module}.
+
+
+\h2{ Problem in online judges }
+
+The task list in which you want to calculate the Euler function,or use Euler's theorem or the value of the Euler function to restore the original number:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1120{UVA #10179 \bf{"Irreducible Basic Fractions"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1240{UVA #10299 \bf{"Relatives"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2302{UVA #11327 \bf{"Enumerating Rational Numbers"} ~~~~ [difficulty: medium]}
+
+\li \href=http://acm.timus.ru/problem.aspx?space=1&num=1673{TIMUS #1673 \bf{"Permit to test"} ~~~~ [difficulty: high]}
+
+}

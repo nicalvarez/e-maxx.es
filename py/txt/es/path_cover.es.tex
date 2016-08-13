@@ -1,0 +1,25 @@
+\h1{Revestimiento de caminos basada ациклического conde}
+
+Dan orientado ациклический el conde de $G$. Se requiere cubrir el menor número de rutas, es decir, a la menor potencia de la multitud de desligadas de las cimas de maneras simples, tales que cada vértice pertenece a ningún camino.
+
+
+\h2{Reducción al двудольному columna}
+
+Que dan el conde de $G$ c $n$ vértices. Construiremos el двудольный el conde de $H$ de la manera estándar, es decir: en cada porcentaje del conde de $H$ ser $n$ vértices, se denota a través de $a_i$ y $b_i$, respectivamente. Entonces para cada aleta $(i, j)$ original del conde de $G$ realizaremos la correspondiente a la arista $(a_i, b_j)$.
+
+Cada eje de $G$ corresponde a un borde de $H$, y viceversa. Si nos fijamos en $G$ cualquier ruta $P = (v_1, v_2, \ldots, v_k)$, entonces se le asigna un conjunto de aristas $(a_{v_1}, b_{v_2}), (a_{v_2}, b_{v_3}), ..., (a_{v_{k-1}}, b_{v_k}) $.
+
+Más fácil de entender si agregamos el "retroceso" de la costilla, es decir, formamos el conde de $\overline H$ de conde de $H$ la adición de aletas de tipo $(b_i, a_i), i=1, \ldots, N$. Entonces el camino de la $P = (v_1, v_2, \ldots, v_k)$ en el punto $\overline H$ coincidirá con la ruta $\overline Q = (a_{v_1}, b_{v_2}, a_{v_2}, b_{v_3}, ..., a_{v_{k-1}}, b_{v_k})$.
+
+De nuevo, considere cualquier ruta $\overline Q$ en el punto $\overline H$, comienza en la primera parte y termina en la segunda fracción. Obviamente, $\overline Q$ de nuevo será de la forma $\overline Q = (a_{v_1}, b_{v_2}, a_{v_2}, b_{v_3}, ..., a_{v_{k-1}}, b_{v_k})$, y se le puede asignar, en la columna de $G$ ruta $P = (v_1, v_2, \ldots, v_k)$. Sin embargo, aquí hay una fineza: $v_1$ podría coincidir con $v_k$, por lo que la ruta $P$ ha resultado sería el ciclo. Sin embargo, por la condición de que el conde de $G$ ациклический, por lo que no es posible en absoluto (es el único lugar donde se usa ацикличность conde de $G$; sin embargo, en la circular del recuadro se describe aquí el método no se puede generalizar).
+
+Por tanto, a todo el que tomaron el camino fácil, en la columna de $\overline H$, начинающемуся en la primera parte y заканчивающемуся en la segunda, se puede poner en el cumplimiento de una ruta sencilla, en la columna de $G$, y viceversa. Pero tenga en cuenta que este camino en el grafo de $\overline H$ --- es \bf{паросочетание} en el recuadro $H$. Por lo tanto, cualquier camino de $G$ se puede poner en el cumplimiento de паросочетание en la columna de la $H$, y viceversa. Además, непересекающимся vías de $G$ corresponden discontinuo паросочетания $H$.
+
+El último paso. Tenga en cuenta que cuanto más maneras hay en nuestro conjunto, menos todas estas rutas contienen las costillas. Es decir, si hay un $p$ disjuntos rutas que cubren todo $n$ de los vértices de la gráfica, lo que juntos contienen $r = n - p$ costillas. Por lo tanto, para reducir al mínimo el número de rutas, tenemos que \bf{maximizar el número de aristas} en ellos.
+
+Así, hemos reducido la tarea de encontrar el máximo паросочетания en двудольном la columna $H$. Después de encontrar este паросочетания (véase \algohref=kuhn_matching{el Algoritmo de kuhn}) tenemos que convertirlo en un conjunto de rutas de $G$ (esto se hace trivial algoritmo, ambigüedades, aquí no se produce). Algunos vértices pueden permanecer ácidos grasos паросочетанием, en este caso, la respuesta debe agregar la ruta de longitud cero de cada uno de estos vértices.
+
+
+\h2{Ponderado de caso}
+
+Ponderado caso no difiere mucho de la невзвешенного, simplemente, en la columna de $H$ en las costillas aparecen de peso, y es necesario encontrar ya паросочетание de menor peso. Restaurando una respuesta similar a la невзвешенному ocasión, tendremos la cobertura del conde de menor número de rutas de acceso, y en caso de empate, - - - el menor costo.

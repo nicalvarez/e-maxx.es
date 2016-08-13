@@ -1,0 +1,590 @@
+<h1>prueba de BPSW en la simplicidad de números</h1>
+
+<hr>
+
+<h2>Introducción</h2>
+<p>el Algoritmo de BPSW es la prueba de que el número en la simplicidad. Este algoritmo es llamado por apellidos de sus inventores: robert bailey (Ballie), carlos Померанс (Pomerance), john Селфридж (Selfridge), samuel Вагстафф (Wagstaff). El algoritmo fue propuesto en la década de 1980. Hoy en día, el algoritmo no se ha encontrado ningún контрпримера, así como no se ha encontrado prueba.</p>
+<p>el Algoritmo de BPSW ha sido probado en todos los números hasta 10<sup>15</sup>. Además, контрпример trató de encontrar mediante el programa de PRIMO (véase <a href="#6">[6]</a>), que se basa en la prueba de la facilidad con la ayuda de las curvas elípticas. El programa, después de tres años, no se ha encontrado ningún контрпримера, en razon de que martin sugirió que no existe ningún BPSW-псевдопростого, menor de 10<sup>10000</sup> (псевдопростое número compuesta número, en el que el algoritmo da como resultado "fácil"). Al mismo tiempo, karl Померанс en 1984 presentó la heurística de la prueba de que hay un número infinito de BPSW-псевдопростых números.</p>
+<p>la Complejidad de un algoritmo de BPSW es O (log<sup>3</sup>(N)) bit a bit. Si comparar el algoritmo de BPSW con otras pruebas, por ejemplo, el test de miller-rabin, el algoritmo BPSW generalmente en 3 a 7 veces más lento.</p>
+<p>el Algoritmo a menudo se aplica en la práctica. Al parecer, muchas empresas matemáticas paquetes, total o parcialmente, se basan en el algoritmo de BPSW para comprobar los números de la sencillez.</p>
+
+<hr>
+
+<h2>descripción general</h2>
+<p>el Algoritmo tiene varias implementaciones diferentes, que se diferencian sólo por los detalles. En nuestro caso, el algoritmo tiene la forma:</p>
+<p>1. Realizar el test de miller-rabin base 2.</p>
+<p>2. Realizar una fuerte prueba de lukas, Селфриджа, utilizando la secuencia de lucas con los parámetros de Селфриджа.</p>
+<p>3. Devolver el "simple" únicamente cuando ambas pruebas devolvieron "simple".</p>
+<p>+0. Además, en el comienzo del algoritmo, se puede agregar un control de la triviales rias, es decir hasta el 1000. Esto permitirá aumentar la velocidad de trabajo en compuestos de números, y la verdad es que el haber tardado algoritmo simple.</p>
+<p>por lo tanto, el algoritmo de BPSW se basa en lo siguiente:</p>
+<p>1. (el hecho de) el test de miller-rabin y el test de lucas-Селфриджа si se equivocan, es sólo en una dirección: algunos compuestos el número de estos algoritmos se reconocen como simples. En el lado opuesto de estos algoritmos no se equivocan nunca.</p>
+<p>2. (suposición) el test de miller-rabin y el test de lucas-Селфриджа si se equivocan, nunca se equivocan en el mismo número al mismo tiempo.</p>
+<p>En realidad, la segunda hipótesis como tanto como falso - heurística de la prueba de refutación de Померанса se muestra a continuación. Sin embargo, en la práctica, ningún псевдопростого hasta ahora no han encontrado, por lo tanto, es posible contar a la segunda suposición correcta.</p>
+
+<hr>
+
+<h2>Implementación de algoritmos en este artículo</h2>
+<p>Todos los algoritmos en este artículo se van a implementar en C++. Todos los programas se han probado sólo en el compilador de Microsoft C++ 8.0 SP1 (2005), también se deben compilar en g++.</p>
+<p>los Algoritmos se implementan mediante el uso de plantillas (templates), lo que permite aplicarlos como a la incorporada tipos numéricos, como propio de las clases que implementan una larga aritmética. [ hasta que el largo de la aritmética en el artículo, no incluye - TODO ]</p>
+<p>En el mismo artículo se describen sólo las más importantes funciones, textos de apoyo de las funciones se pueden descargar en el anexo a este artículo. Aquí se muestran sólo los títulos de estas funciones, junto con los comentarios:</p>
+<code>//! El módulo de 64-bit número de
+long long <b>abs</b> (long long n);
+unsigned long long abs (unsigned long long n);
+
+//! Devuelve true, si n es par
+template <class T>
+bool <b>aún</b> (const T & n);
+
+//! Divide un número por 2
+template <class T>
+void <b>bisect</b> (T & n);
+
+//! Multiplica un número por 2
+template <class T>
+void <b>redoblar</b> (T & n);
+
+//! Devuelve true, si n el cuadrado de un número primo
+template <class T>
+bool <b>perfect_square</b> (const T & n);
+
+//! Calcula la raíz de un número, redondeando hacia abajo
+template <class T>
+T <b>sq_root</b> (const T & n);
+
+//! Devuelve el número de bits en el número de
+template <class T>
+unsigned <b>bits_in_number</b> (T n);
+
+//! Devuelve el valor k-ésimo bit de un número (los bits se numeran desde cero)
+template <class T>
+bool <b>test_bit</b> (const T & n, unsigned k);
+
+//! Multiplica a *= b (mod n)
+template <class T>
+void <b>mulmod</b> (T & a, T b, const T & n);
+
+//! Calcula el a^k (mod n)
+template <class T, class T2>
+T <b>powmod</b> (T a, T2 k, const T & n);
+
+//! Traduce el número de n en la forma q*2^p
+template <class T>
+void <b>transform_num</b> (T n, T & p, T & q);
+
+//! El Algoritmo De Euclides
+template <class T, class T2>
+T <b>gcd</b> (const T & a, const T2 & b);
+
+//! Calcula jacobi(a,b) es un símbolo de jacobi
+template <class T>
+T <b>jacobi</b> (T a, T b)
+
+//! Calcula pi(b) los primeros números primos. Devuelve un vector con los sencillos y a pi - pi(b)
+template <class T, class T2>
+const std::vector<T> & <b>get_primes</b> (const T & b, T2 & pi);
+
+//! Trivial verificación n de la simplicidad, se trasladan todos los bifurcadores a la m.
+//! Resultado: 1 - si n exactamente simple, p - su encontrado el divisor 0 - si es desconocido
+template <class T, class T2>
+T2 <b>prime_div_trivial</b> (const T & n, T2 m);</code>
+
+<hr>
+
+<h2>el Test de miller-rabin</h2>
+<p>no voy a concentrar la atención en el test de miller-rabin, ya que se describe en muchas fuentes, incluyendo en ruso (por ejemplo. consulte <a href="#5">[5]</a>).</p>
+<p>tenga en cuenta que la velocidad de su trabajo es O (log<sup>3</sup>(N)) bit a bit, y los traeré a terminado la implementación de este algoritmo:</p>
+<code>template <class T, class T2>
+bool miller_rabin (T n, T2 b)
+{
+
+// primero comprobamos triviales de los casos
+if (n == 2)
+return true;
+if (n < 2 || even (n))
+return false;
+
+ // comprobamos que el n y b son mutuamente simples (de lo contrario se producirá un error)
+// si no son mutuamente simples, o bien la n no es fácil, o es necesario aumentar la b
+if (b < 2)
+b = 2;
+for (T g; g = mcd (n, b)) != 1; ++b)
+if (n > g)
+return false;
+
+// разлагаем n-1 = q*2^p
+T n_1 = n;
+--n_1;
+T p, q;
+transform_num (n_1, p, q);
+
+// calculamos b^q mod n, si es 1 o n-1, n simple (o псевдопростое)
+T rem = powmod (T(b), q, n);
+if (rem == 1 || rem == n_1)
+return true;
+
+// ahora calculamos b^2q, b^4q, ... , b^((n-1)/2)
+// si alguno de ellos es igual a n-1, n simple (o псевдопростое)
+for (T i=1; i<de p; i++)
+{
+mulmod (rem, rem, n);
+if (rem == n_1)
+return true;
+}
+
+return false;
+
+}</code>
+
+<hr>
+
+<h2>Fuerte el test de lucas-Селфриджа</h2>
+<p>Fuerte el test de lucas-Селфриджа consta de dos partes: el algoritmo de Селфриджа para el cálculo de un parámetro, y un fuerte algoritmo de lucas, de la ejecución de esta opción.</p>
+<h3>el Algoritmo de Селфриджа</h3>
+<p>Entre la secuencia de 5, -7, 9, -11, 13, ... encontrar el primer número de D para el cual J (D, N) = 1 y mcd (D, N) = 1, donde J(x,y) es el símbolo de jacobi.</p>
+<p><b>Configuración de Селфриджа</b> P = 1 y Q = (1 - D) / 4.</p>
+<p>observe que el parámetro Селфриджа no existe para los números, que son exactos cuadrados. En efecto, si el número es exacto a un cuadrado, entonces el exceso D llegará a sqrt(N), en el que se encuentra, que gcd (D, N) > 1, es decir, se observa que el número N compuesta.</p>
+<p>Además, las opciones de Селфриджа serán calculados incorrectamente para los números pares y para la unidad; sin embargo, la comprobación de estos casos no es fácil.</p>
+<p>Por lo tanto, <b>antes de comenzar el algoritmo</b>, se debe comprobar que el número N es impar, grande 2, y no es preciso y cuadrado, de lo contrario (si el incumplimiento de al menos uno de los términos) de inmediato debe salir del algoritmo con el resultado de un "compuesto".</p>
+<p>por Último, tenga en cuenta que si D para un número N es demasiado grande, entonces el algoritmo de procesamiento de punto de vista resulta inaplicable. Aunque en la práctica este no era notado (se prestó suficiente 4 bytes número), sin embargo, la probabilidad de este evento no se debe excluir. Sin embargo, por ejemplo, en el intervalo [1; 10<sup>6</sup>] max(D) = 47, y en el intervalo [10<sup>19</sup>; 10<sup>19</sup>+10<sup>6</sup>] max(D) = 67. Además, bailey y Вагстаф en 1980 han demostrado analíticamente esta observación (véase Ribenboim, 1995/96, p. 142).</p>
+<h3>un Fuerte algoritmo de lucas</h3>
+<p><b>Parámetros del algoritmo</b> lucas son el número de <b>D, P y Q,</b> tales que D = P<sup>2</sup> - 4*Q ? 0 y P > 0.</p>
+<p>(no es difícil observar que los parámetros calculados por el algoritmo Селфриджа, cumplen estas condiciones)</p>
+<p><b>la Secuencia de lucas</b> es una secuencia U<sub>k</sub> y V<sub>k</sub>, que se definen de la siguiente manera:</p>
+<formula>U<sub>0</sub> = 0
+U<sub>1</sub> = 1
+<b>U<sub>k</sub> = P U<sub>k-1</sub> - Q U<sub>k-2</sub></b>
+V<sub>0</sub> = 2
+V<sub>1</sub> = P
+<b>V<sub>k</sub> = P V<sub>k-1</sub> - Q V<sub>k-2</sub></b></formula>
+<p>a Continuación, dejar que M = N - J (D, N).</p>
+<p>Si N simple y gcd (N, Q) = 1, tenemos:</p>
+<formula><b>U<sub>M</sub> = 0 (mod N)</b></formula>
+<p>En particular, cuando los valores de D, P, Q, calculado por el algoritmo Селфриджа, tenemos:</p>
+<formula>U<sub>N+1</sub> = 0 (mod N)</b></formula>
+<p>lo contrario, en general, es incorrecta. Sin embargo, псевдопростых los números al este algoritmo resulta que no mucho, en la que, en realidad y se basa en el algoritmo de lucas.</p>
+<p>por lo tanto, <b>el algoritmo de lucas es calcular U<sub>M</sub> y se la compara con cero</b>.</p>
+<p>a Continuación, debe encontrar alguna manera de acelerar el cálculo de U<sub>K</sub>, de lo contrario, claro, ningún sentido práctico en este algoritmo no sería.</p>
+<p>Tenemos:</p>
+<formula>U<sub>k</sub> = (a<sup>k</sup> - b<sup>k</sup>) / (a - b),
+V<sub>k</sub> = a<sup>k</sup> + b<sup>k</sup>,</formula>
+<p>donde a y b son diferentes de las raíces cuadradas de la ecuación x<sup>2</sup> - P x + Q = 0.</p>
+<p>Ahora, estos géneros se puede demostrar simplemente:</p>
+<formula>U<sub>2</sub> = U<sub>k</sub> V<sub>k</sub> (mod N)
+V<sub>2</sub> = V<sub>k</sub><sup>2</sup> - 2 Q<sup>k</sup> (mod N)</formula>
+<p>Ahora, si tomamos M = E 2<sup>T</sup>, donde E es un número impar, que es fácil de obtener:</p>
+<formula><b>U<sub>M</sub> = U<sub>E</sub> V<sub>E</sub> V<sub>2</sub> V<sub>4E</sub> ... V<sub>2<sup>T-2</sup>E</sub> V<sub>2<sup>T-1</sup>E</sub> = 0 (mod N)</b></formula>
+<p>y al menos uno de los factores es igual a cero por el módulo N.</p>
+<p>Claro que <b>basta con calcular U<sub>E</sub> y V<sub>E</sub></b>, y todos los multiplicadores V<sub>2</sub> V<sub>4E</sub> ... V<sub>2<sup>T-2</sup>E</sub> V<sub>2<sup>T-1</sup>E</sub> <b>obtener ya de ellos</b>.</p>
+<p>Por lo tanto, queda aprender a calcular rápidamente U<sub>E</sub> y V<sub>E</sub> para impar E.</p>
+<p>en primer lugar, consideremos la siguiente fórmula para la suma de los miembros de la secuencia de lucas:</p>
+<formula>U<sub>i+j</sub> = (U<sub>i</sub> V<sub>j</sub> + U<sub>j</sub> V<sub>i</sub>) / 2 (mod N)
+V<sub>i+j</sub> = (V<sub>i</sub> V<sub>j</sub> + D U<sub>i</sub> U<sub>j</sub>) / 2 (mod N)</formula>
+<p>hay que tener en cuenta que la división se realiza en el campo (mod N).</p>
+<p>la Fórmula de estos доказываются es muy sencillo, y aquí su prueba fuera.</p>
+<p>Ahora, con fórmulas para la suma y para la duplicación de los miembros de la secuencia de lucas, clara y una forma de acelerar el cálculo de U<sub>E</sub> y V<sub>E</sub>.</p>
+<p>en efecto, consideremos la entrada binaria del número E. Pondremos primero el resultado de la - U<sub>E</sub> y V<sub>E</sub> - iguales, respectivamente, U<sub>1</sub> y V<sub>1</sub>. Vamos a hacer un recorrido por todos los bits del número E, de más jóvenes a los más mayores, dejando sólo el primer bit de inicio de un miembro de la secuencia). Para cada i-ésimo bit vamos a calcular U<sub>2<sup> i</sup></sub> y V<sub>2<sup> i</sup></sub> de anteriores miembros a través de fórmulas de doblar. Además, si el i-primer bit es la unidad, entonces la respuesta vamos a sumar actuales U<sub>2<sup> i</sup></sub> y V<sub>2<sup> i</sup></sub> a través de fórmulas de suma. Al finalizar el algoritmo, en ejecución de O (log(E)), nos <b>obtenemos los U<sub>E</sub> y V<sub>E</sub></b>.</p>
+<p>Si U<sub>E</sub> o V<sub>E</sub> parecen ser iguales a cero (mod N), entonces el número N simple (o псевдопростое). Si ambos son diferentes de cero, entonces calculamos V<sub>2</sub>, V<sub>4E</sub>, ... V<sub>2<sup>T-2</sup>E</sub>, V<sub>2<sup>T-1</sup>E</sub>. Si al menos uno de ellos es comparable con el cero en el módulo N, es el número de N simple (o псевдопростое). De lo contrario, el número N compuesta.</p>
+<h3>la Discusión de un algoritmo de Селфриджа</h3>
+<p>Ahora, cuando revisamos el algoritmo de lucas, se puede profundizar en los valores de D,P,Q, una de las maneras de conseguir de lo que es el algoritmo de Селфриджа.</p>
+<p>Recordemos los requisitos básicos de opciones:</p>
+<formula><b>P > 0</b>,
+<b>D = P<sup>2</sup> - 4*Q ? 0</b>.</formula>
+<p>Ahora continuaremos el estudio de estos parámetros.</p>
+<p><b>D no debe ser precisa cuadrado (mod N)</b>.</p>
+<p>Realmente, de lo contrario, tenemos:</p>
+<p>D = b<sup>2</sup>, de ahí J(D,N) = 1, P = b + 2, Q = b + 1, a partir de aquí U<sub>n-1</sub> = (Q<sup>n-1</sup> - 1) / (Q - 1).</p>
+<p>Es decir, si D - exacto cuadrado, el algoritmo de lucas es casi normal probabilística de la prueba.</p>
+<p>Una de las mejores maneras de evitar este tipo de <b>exigir que J(D,N) = -1</b>.</p>
+<p>por Ejemplo, puede seleccionar el primer número de la secuencia D 5, -7, 9, -11, 13, ..., para el que J(D,N) = -1. También supongamos que P = 1. Entonces Q = (1 - D) / 4. Este método fue propuesto Селфриджем.</p>
+<p>sin Embargo, hay otros modos de selección D. Puede elegir a partir de una secuencia 5, 9, 13, 17, 21, ... También supongamos que P es la menor probabilidad de привосходящее sqrt(D). Entonces Q = (P<sup>2</sup> - D) / 4.</p>
+<p>es evidente que de la selección de un método para el cálculo de parámetros lucas depende de su resultado - псевдопростые pueden ser diferentes en distintas formas de seleccionar una opción. Como ha demostrado la práctica, el algoritmo propuesto Селфриджем es muy acertado: todos los псевдопростые lukas, Селфриджа no son псевдопростыми de miller-rabin, por lo menos, ninguno контрпримера no se había resuelto.</p>
+<h3>Implementación de un fuerte algoritmo de lucas-Селфриджа</h3>
+<p>Ahora solo queda implementar el algoritmo:</p>
+<code>template <class T, class T2>
+bool lucas_selfridge (const T & n, T2 unused)
+{
+
+// primero comprobamos triviales de los casos
+if (n == 2)
+return true;
+if (n < 2 || even (n))
+return false;
+
+// comprobamos que el n no es un cuadrado exacto, de lo contrario el algoritmo dará un error
+if (perfect_square (n))
+return false;
+
+// algoritmo de Селфриджа: encontramos el primer número d tal que:
+// jacobi(d,n)=-1, y pertenece a una serie de { 5,-7,9,-11,13,... }
+T2 dd;
+for (T2 d_abs = 5, d_sign = 1; ; d_sign = -d_sign, ++++ d_abs)
+{
+dd = d_abs * d_sign;
+T g = mcd (n, d_abs);
+if (1 < g && g < n)
+// encontrado un divisor - d_abs
+return false;
+if (jacobi (T(dd), n)) = = -1)
+break;
+}
+
+// configuración de Селфриджа
+T2
+p = 1,
+q = (p*p - dd) / 4;
+
+// разлагаем n+1 = d*2^s
+T n_1 = n;
+++n_1;
+T s, d;
+transform_num (n_1, s, d);
+
+// algoritmo de lucas
+T
+u = 1,
+v = p,
+u2m = 1,
+v2m = p
+qm = q,
+qm2 = q*2,
+qkd = q;
+for (unsigned bit = 1, bits = bits_in_number(d); bit < bits; bit++)
+{
+mulmod (u2m, v2m, n);
+mulmod (v2m, v2m, n);
+while (v2m < qm2)
+v2m += n;
+v2m -= qm2;
+mulmod (qm qm, n);
+qm2 = qm.
+redoblar (qm2);
+if (test_bit (d, bit))
+{
+T t1, t2;
+t1 = u2m;
+mulmod (t1, v, n);
+t2 = v2m;
+mulmod (t2, u, n);
+
+T t3, t4;
+t3 = v2m;
+mulmod (t3, v, n);
+t4 = u2m;
+mulmod (t4, u, n);
+mulmod (t4, (T)dd, n);
+
+u = t1 + t2;
+if (!even (u))
+u += n;
+bisect (u);
+u %= n;
+
+v = t3 + t4;
+if (!even (v))
+v += n;
+bisect (v);
+v %= n;
+mulmod (qkd, qm, n);
+}
+}
+
+// con precisión simple (o pseudo-simple)
+if (u == 0 || v == 0)
+return true;
+
+// довычисляем el resto de los miembros
+T qkd2 = qkd;
+redoblar (qkd2);
+for (T2 r = 1; r < s; ++r)
+{
+mulmod (v, v, n);
+v -= qkd2;
+if (v < 0) v += n;
+if (v < 0) v += n;
+if (v >= n) v= n;
+if (v >= n) v= n;
+if (v == 0)
+return true;
+if (r < s-1)
+{
+mulmod (qkd, qkd, n);
+qkd2 = qkd;
+redoblar (qkd2);
+}
+}
+
+return false;
+
+}</code>
+
+<hr>
+
+<h2>el Código de BPSW</h2>
+<p>Ahora queda simplemente combinar los resultados de las 3 pruebas: verificación de pequeños triviales rias, el test de miller-rabin, el fuerte de la prueba de lucas-Селфриджа.</p>
+<code>template <class T>
+bool baillie_pomerance_selfridge_wagstaff (T n)
+{
+
+// primero comprobamos en triviales rias - por ejemplo, hasta el 29 de
+int div = prime_div_trivial (n, 29);
+if (div == 1)
+return true;
+if (div > 1)
+return false;
+
+// test de miller-rabin base 2
+if (!miller_rabin (n, 2))
+return false;
+
+// fuerte el test de lucas-Селфриджа
+return lucas_selfridge (n, 0);
+
+}</code>
+<p><a href=BPSW_main.zip>Aquí</a> se puede descargar el programa (fuente + exe) que contiene la plena aplicación de la prueba de BPSW. [77 kb]</p>
+
+<hr>
+
+<h2>resumen de la aplicación</h2>
+<p>la Longitud del código, puede reducir considerablemente en detrimento de la universalidad, renunciando a las plantillas y diferentes funciones auxiliares.</p>
+<code>const int trivial_limit = 50;
+int p[1000];
+
+int mcd (int a, int b) {
+retorno a ? gcd (b%a, a) : b;
+}
+
+int powmod (int a, int b, int m) {
+int res = 1;
+while (b)
+if (b & 1)
+res = res * 1ll * a) % m --b;
+else
+a = (a * 1ll * a) % m, b > > a= 1;
+return res;
+}
+
+bool miller_rabin (int n) {
+int b = 2;
+for (int g; g = mcd (n, b)) != 1; ++b)
+if (n > g)
+return false;
+int p=0, q=n-1;
+while ((q & 1) == 0)
+++p, q >>= 1;
+int rem = powmod (b, q, n);
+if (rem == 1 || rem == n-1)
+return true;
+for (int i=1; i<de p; ++i) {
+rem = (rem * 1ll * rem) % n;
+if (rem == n-1) return true;
+}
+return false;
+}
+
+int jacobi (int a, int b)
+{
+if (a == 0) return 0;
+if (a == 1) return 1;
+if (a < 0)
+if ((b & 2) == 0)
+return jacobi (a, b);
+else
+return - jacobi (a, b);
+int a1=a, e=0;
+while ((a1 & 1) == 0)
+a1 >>= 1, ++e;
+int s;
+if ((e & 1) == 0 || (b & 7) == 1 || (b & 7) == 7)
+s = 1;
+else
+s = -1;
+if ((b & 3) == 3 && (a1 & 3) == 3)
+s = -s;
+if (a1 == 1)
+return s;
+return s * jacobi (b % a1, a1);
+}
+
+bool bpsw (int n) {
+if ((int)sqrt(n+0.0) * (int)sqrt(n+0.0) == n) return false;
+int dd=5;
+for (;;) {
+int g = mcd (n, abs(dd));
+if (1<g && g<n) return false;
+if (jacobi (dd, n) == -1); break;
+dd = dd<0 ? -dd+2 : -dd-2;
+}
+int p=1, q=(p*p-dd)/4;
+int d=n+1, s=0;
+while ((d & 1) == 0)
+++s, d>>=1;
+long long u=1, v=p, u2m=1, v2m=p, qm=q, qm2=q*2, qkd=q;
+for (int mask=2; mask<=d; mask<<=1) {
+u2m = (u2m * v2m) % n;
+v2m = (v2m * v2m) % n;
+while (v2m < qm2) v2m += n;
+v2m -= qm2;
+qm = (qm * qm) % n;
+qm2 = qm * 2;
+if (d & mask) {
+long long t1 = (u2m * v) % n, t2 = (v2m * u) % n,
+t3 = (v2m * v) % n, t4 = (((u2m * u) % n) * dd) % n;
+u = t1 + t2;
+if (u & 1) u += n;
+u = (u >> 1) % n;
+v = t3 + t4;
+if (v & 1) v += n;
+v = (v >> 1) % n;
+qkd = (qkd * qm) % n;
+}
+}
+if (u==0 || v==0) return true;
+long long qkd2 = qkd*2;
+for (int r=1; r<s; ++r) {
+v = (v * v) % n - qkd2;
+if (v < 0) v += n;
+if (v < 0) v += n;
+if (v >= n) v= n;
+if (v >= n) v= n;
+if (v == 0) return true;
+if (r < s-1) {
+qkd = (qkd * 1ll * qkd) % n;
+qkd2 = qkd * 2;
+}
+}
+return false;
+}
+
+bool prime (int n) { // esta función, es necesario llamar para comprobar la sencillez de
+for (int i=0; i<trivial_limit && p[i]<n; ++i)
+if (n % p[i] == 0)
+return false;
+if (p[trivial_limit-1]*p[trivial_limit-1] >= n)
+return true;
+if (!miller_rabin (n))
+return false;
+return bpsw (n);
+}
+
+void prime_init() { // llamar antes de la primera llamada prime() !
+for (int i=2, j=0; j<trivial_limit; ++i) {
+bool pr = true;
+for (int k=2; k*k<=i; k++)
+if (i % k == 0)
+pr = false;
+if (pr)
+p[j++] = i;
+}
+}</code>
+
+<hr>
+
+<h2>Heurística de la prueba de refutación de Померанса</h2>
+<p>Померанс en 1984 propuso la siguiente heurística de la prueba.</p>
+<p>Aprobación: <b>la Cantidad de BPSW-псевдопростых de 1 a X más X<sup>1-a</sup> para cualquier a > 0</b>.</p>
+<p>la Prueba.</p>
+<p>supongamos Que k > 4 - es arbitraria, pero un número fijo. Supongamos que T es un número grande.</p>
+<p>supongamos Que P<sub>k</sub>(T) - muchas de estas simples de p en el intervalo [T; T<sup>k</sup>] para los que:</p>
+<p>(1) p = 3 (mod 8), J(5,p) = -1</p>
+<p>(2) el número de (p-1)/2 no es preciso y cuadrado</p>
+<p>(3) el número de (p-1)/2 se compone exclusivamente de simples q < T
+<p>(4) número de (p-1)/2 se compone exclusivamente de simples q que q = 1 (mod 4)</p>
+<p>(5) número de (p+1)/4 no es preciso y cuadrado</p>
+<p>(6) número de (p+1)/4 se compone exclusivamente de simples d < T</p>
+<p>(7) número de (p+1)/4 se compone exclusivamente de simples d que q = 3 (mod 4)</p>
+<p>Claro que aproximadamente 1/8 de todos los simples en el intervalo [T; T<sup>k</sup>] cumple la condición (1). También se puede mostrar que las condiciones (2) y (5) conservan una parte de los números. Эвристически, las condiciones (3) y (6) también nos permiten dejar una parte de los números de corte (T; T<sup>k</sup>). Por último, el evento (4) tiene una probabilidad de (c (log T)<sup>-1/2</sup>), así como el evento (7). Por lo tanto, la cardinalidad de P<sub>k</sub>(T) прблизительно es igual a cuando T -> oo</p>
+<p><img src=BPSW_formula1.jpg></p>
+<p>donde c es cierta una constante positiva que depende de la selección de k.</p>
+<p>Ahora nos <b>podemos construir un número n</b>, no es preciso un cuadrado compuesto de l simples de P<sub>k</sub>(T), donde l es impar y menor que T<sup>2</sup> / log(T<sup>k</sup>). El número de maneras de elegir cuál es el número n es de aproximadamente</p>
+<p><img src=BPSW_formula2.jpg></p>
+<p>para un gran T y fijo k. Además, cada número n es menor e<sup>T<sup>2</sup></sup>.</p>
+<p>se denota por Q<sub>1</sub> la obra simples q < T, para los que q = 1 (mod 4), y a través de Q<sub>3</sub> - la obra de simples q < T, para los que q = 3 (mod 4). Entonces gcd (Q<sub>1</sub>, Q<sub>3</sub>) = 1 y Q<sub>1</sub> Q<sub>3</sub> ? e<sup>T</sup>. Por lo tanto, el número de maneras de elegir un n <b>condiciones adicionales</b></p>
+<formula>n = 1 (mod Q<sub>1</sub>), n = -1 (mod Q<sub>3</sub>)</formula>
+<p>debe ser, эвристически, como mínimo,</p>
+<formula>e<sup>T<sup> 2</sup> (1 - 3 / k)</sup> / e<sup> 2T</sup> > de <b>e<sup>T<sup> 2</sup> (1 - 4 / k)</sup></b></formula>
+<p>para el gran T.</p>
+<p>Pero <b>cada uno de estos n es контрпример a la prueba BPSW</b>. Realmente, n será el número de Кармайкла (es decir, el número en el que el test de miller-rabin se equivocarse en cualquier base), por lo que automáticamente se псевдопростым base 2. Dado que n = 3 (mod 8) y cada uno de los p | n es igual a 3 (mod 8), es evidente que n también habrá un fuerte псевдопростым base 2. Puesto que J(5,n) = -1, entonces cada una simple p | n satisface J(5,p) = -1, y así como el p+1 | n+1 para cualquier simple p | n, de aquí se sigue que n - псевдопростое lucas para cualquier prueba de lucas con дискриминантом 5.</p>
+<p>Por lo tanto, hemos demostrado que para cualquier fijo k y todos los grandes de T, como mínimo, e<sup>T<sup> 2</sup> (1 - 4 / k)</sup> контрпримеров a la prueba BPSW entre los números más pequeños de la e<sup>T<sup> 2</sup></sup>. Ahora, si ponemos x = e<sup>T<sup> 2</sup></sup>, como mínimo, x<sup>1 - 4 / k</sup> контрпримеров menor que x. Dado que k es un número al azar, nuestra evidencia indica que <b>la cantidad de контрпримеров menor que x, es el número mayor que x<sup>1-a</sup> para cualquier a > 0</b>.</p>
+
+<hr>
+
+<h2>las pruebas Prácticas de la prueba de BPSW</h2>
+<p>En esta sección se examinarán los resultados de mí en las pruebas de mi implementar la prueba BPSW. Todas las pruebas se llevaron a cabo en el tipo de - 64-bits como long long. Largo de la aritmética no se ha probado.</p>
+<p>las Pruebas se realizaron en un equipo con un procesador Celeron 1.3 GHz.</p>
+<p>Todos los tiempos se dan en <b>microsegundos</b> 10<sup> -6</sup> seg).</p>
+
+<h3>tiempo Promedio en el intervalo de los números en función del límite de lo trivial que revienta</h3>
+<p>Tiene en cuenta el parámetro pasado a la función prime_div_trivial(), que en el código de arriba es igual a 29.</p>
+<p><a href="BPSW_test_1.zip">Descargar</a> un programa de prueba (el codigo fuente y el archivo exe). [83 kb]</p>
+<p>Si se ejecuta la prueba de <b>todos los números impares</b> de la corte, se obtienen resultados como:</p>
+<table class=tabla2 cellspacing=0>
+<tr><th>inicio<br>corte</th><th>fin<br>corte</th><th>límite ><br>de la fuerza bruta a ></th><th width=13%>0</th><th width=13%>10<sup>2</sup></th><th width=13%>10<sup>3</sup></th><th width=13%>10<sup>4</sup></th><th width=13%>10<sup>5</sup></th></tr>
+<tr><td>1</td><td>10<sup>5</sup></td><td></td><td>8.1</td><td>4.5</td><td>0.7</td><td>0.7</td><td>0.9</td></tr>
+<tr><td>10<sup>6</sup></td><td>10<sup>6</sup>+10<sup>5</sup></td><td></td><td>12.8</td><td>6.8</td><td>7.0</td><td>1.6</td><td>1.6</td>
+<tr><td>10<sup>9</sup></td><td>10<sup>9</sup>+10<sup>5</sup></td><td></td><td>28.4</td><td>12.6</td><td>12.1</td><td>17.0</td><td>17.1</td></tr>
+<tr><td>10<sup>12</sup></td><td>10<sup>12</sup>+10<sup>5</sup></td><td></td><td>41.5</td><td>16.5</td><td>15.3</td><td>19.4</td><td>54.4</td></tr>
+<tr><td>10<sup>15</sup></td><td>10<sup>15</sup>+10<sup>5</sup></td><td></td><td>66.7</td><td>24.4</td><td>21.1</td><td>24.8</td><td>58.9</td></tr>
+</table>
+<p>Si se ejecuta la prueba de <b>sólo en simples números</b> de la corte, entonces la velocidad de trabajo es la siguiente:</p>
+<table class=tabla2 cellspacing=0>
+<tr><th>inicio<br>corte</th><th>fin<br>corte</th><th>límite ><br>de la fuerza bruta a ></th><th width=13%>0</th><th width=13%>10<sup>2</sup></th><th width=13%>10<sup>3</sup></th><th width=13%>10<sup>4</sup></th><th width=13%>10<sup>5</sup></th></tr>
+<tr><td>1</td><td>10<sup>5</sup></td><td></td><td>42.9</td><td>40.8</td><td>3.1</td><td>4.2</td><td>4.2</td></tr>
+<tr><td>10<sup>6</sup></td><td>10<sup>6</sup>+10<sup>5</sup></td><td></td><td>75.0</td><td>76.4</td><td>88.8</td><td>13.9</td><td>15.2</td>
+<tr><td>10<sup>9</sup></td><td>10<sup>9</sup>+10<sup>5</sup></td><td></td><td>186.5</td><td>188.5</td><td>201.0</td><td>294.3</td><td>283.9</td></tr>
+<tr><td>10<sup>12</sup></td><td>10<sup>12</sup>+10<sup>5</sup></td><td></td><td>288.3</td><td>288.3</td><td>302.2</td><td>387.9</td><td>1069.5</td></tr>
+<tr><td>10<sup>15</sup></td><td>10<sup>15</sup>+10<sup>5</sup></td><td></td><td>485.6</td><td>489.1</td><td>496.3</td><td>585.4</td><td>1267.4</td></tr>
+</table>
+<p>Por lo tanto, la forma óptima de elegir <b>límite de lo trivial que revienta en 100 o 1000</b>.</p>
+<p>Para cada una de las siguientes pruebas elegí el límite de 1000.</p>
+
+<h3>tiempo Promedio en el intervalo de números</h3>
+<p>Ahora, cuando hemos seleccionado el límite de lo trivial fuerza bruta, puede probar la velocidad de operación en los diferentes segmentos.</p>
+<p><a href=BPSW_test2.zip>Descargar</a> un programa de prueba (el codigo fuente y el archivo exe). [83 kb]</p>
+<table class=tabla1 cellspacing=0>
+<tr><th width=100>inicio<br>corte</th><th width=100>fin<br>corte</th><th width=200>tiempo de trabajo<br>en números impares</th><th width=200>tiempo de trabajo<br>en simples números</th></tr>
+<tr><td>1</td><td>10<sup>5</sup></td><td>1.2</td><td>4.2</td></tr>
+<tr><td>10<sup>6</sup></td><td>10<sup>6</sup>+10<sup>5</sup></td><td>13.8</td><td>88.8</td></tr>
+<tr><td>10<sup>7</sup></td><td>10<sup>7</sup>+10<sup>5</sup></td><td>16.8</td><td>115.5</td></tr>
+<tr><td>10<sup>8</sup></td><td>10<sup>8</sup>+10<sup>5</sup></td><td>21.2</td><td>164.8</td></tr>
+<tr><td>10<sup>9</sup></td><td>10<sup>9</sup>+10<sup>5</sup></td><td>24.0</td><td>201.0</td></tr>
+<tr><td>10<sup>10</sup></td><td>10<sup>10</sup>+10<sup>5</sup></td><td>25.2</td><td>225.5</td></tr>
+<tr><td>10<sup>11</sup></td><td>10<sup>11</sup>+10<sup>5</sup></td><td>28.4</td><td>266.5</td></tr>
+<tr><td>10<sup>12</sup></td><td>10<sup>12</sup>+10<sup>5</sup></td><td>30.4</td><td>302.2</td></tr>
+<tr><td>10<sup>13</sup></td><td>10<sup>13</sup>+10<sup>5</sup></td><td>33.0</td><td>352.2</td></tr>
+<tr><td>10<sup>14</sup></td><td>10<sup>14</sup>+10<sup>5</sup></td><td>37.5</td><td>424.3</td></tr>
+<tr><td>10<sup>15</sup></td><td>10<sup>15</sup>+10<sup>5</sup></td><td>42.3</td><td>499.8</td></tr>
+<tr><td>10<sup>16</sup></td><td>10<sup>15</sup>+10<sup>5</sup></td><td>46.5</td><td>553.6</td></tr>
+<tr><td>10<sup>17</sup></td><td>10<sup>15</sup>+10<sup>5</sup></td><td>48.9</td><td>621.1</td></tr>
+</table>
+<p>O en forma de un gráfico, el tiempo estimado de funcionamiento de la prueba de BPSW en el mismo se incluyen:</p>
+<p><img src=BPSW_graph1.gif></p>
+<p>Es decir, tenemos que, en la práctica, en pequeños números (hasta 10<sup>17</sup>), <b>funciona el algoritmo de O (log N)</b>. Esto se debe a que para un tipo de int64 la operación de división se realiza por O(1), es decir, la complejidad de la división no зависисит del número de bits de un número.</p>
+<p>Si aplicar la prueba de BPSW a la larga a la aritmética, se prevé que se va a trabajar, a O (log<sup>3</sup>(N)). [ TODO ]</p>
+
+<hr>
+
+<h2>la Aplicación. Todos los programas</h2>
+<p><a href=BPSW_all.zip>Descargar</a> todos los programas de este artículo. [242 kb]</p>
+
+<hr>
+
+<h2>Literatura</h2>
+<p>Utilizada mí la literatura, totalmente disponible en internet:</p>
+<ol>
+<li>Robert Baillie; Samuel S. Wagstaff<br><b>Lucas pseudoprimes</b><br>Math. Comp. 35 (1980) 1391-1417<br><a href="http://mpqs.free.fr/LucasPseudoprimes.pdf">mpqs.free.fr/LucasPseudoprimes.pdf</a><br> </li>
+<li>Daniel J. Bernstein<br><b>Distinguishing prime numbers from composite numbers: the state of the art in 2004</b><br>Math. Comp. (2004)<br><a href="http://cr.yp.to/primetests/prime2004-20041223.pdf">cr.yp.to/primetests/prime2004-20041223.pdf</a><br> </li>
+<li>Richard P. Brent<br><b>Primality Testing and Integer Factorisation</b><br>The Role of Mathematics in Science (1990)<br><a href="http://wwwmaths.anu.edu.au/~brent/pd/rpb120.pdf">wwwmaths.anu.edu.au/~brent/pd/rpb120.pdf</a><br> </li>
+<li>H. Cohen; H. W. Lenstra<br><b>Primality Testing and collective Sums</b><br>Amsterdam (1984)<br><a href="https://www.openaccess.leidenuniv.nl/bitstream/1887/2136/1/346_065.pdf">www.openaccess.leidenuniv.nl/bitstream/1887/2136/1/346_065.pdf</a><br> </li>
+<li><a name=5></a>Thomas H. Cormen; Charles E. Leiserson; Ronald L. Rivest<br><b>Introduction to Algorithms</b><br>[ sin referencias ]<br>The MIT Press (2001)<br> </li>
+<li><a name=6></a>M. Martin<br><b>PRIMO - Primality Proving</b><br><a href="http://www.ellipsa.net/">www.ellipsa.net</a><br> </li>
+<li>F. Morain<br><b>Elliptic curves and primality proving</b><br>Math. Comp. 61(203) (1993)<br><a href="http://citeseer.ist.psu.edu/rd/43190198%2C72628%2C1%2C0.25%2CDownload/ftp%3AqSqqSqftp.inria.frqSqINRIAqSqpublicationqSqpubli-ps-gzqSqRRqSqRR-1256.ps.gz">citeseer.ist.psu.edu/rd/43190198%2C72628%2C1%2C0.25%2CDownload/ftp%3AqSqqSqftp.inria.frqSqINRIAqSqpublicationqSqpubli-ps-gzqSqRRqSqRR-1256.ps.gz</a><br> </li>
+<li>Carl Pomerance<br><b>Are there counter-examples to the Baillie-PSW primality test?</b><br>Math. Comp. (1984)<br><a href="http://www.pseudoprime.com/dopo.pdf">www.pseudoprime.com/dopo.pdf</a><br> </li>
+<li>Eric W. Weisstein<br><b>Baillie-PSW primality test</b><br>página mathworld (2005)<br><a href="http://mathworld.wolfram.com/Baillie-PSWPrimalityTest.html">mathworld.wolfram.com/Baillie-PSWPrimalityTest.html</a><br> </li>
+<li>Eric W. Weisstein<br><b>Strong Lucas pseudoprime</b><br>página mathworld (2005)<br><a href="http://mathworld.wolfram.com/StrongLucasPseudoprime.html">mathworld.wolfram.com/StrongLucasPseudoprime.html</a><br> </li>
+<li>Paulo Ribenboim<br><b>The Book of Prime Number Records</b><br>Springer-Verlag (1989)<br>[ sin referencias ]<br> </li>
+</ol>
+<p>una Lista de otros libros recomendados, que no he podido encontrar en la web:</p>
+<ol start=12>
+<li>Zhaiyu Mo; James P. Jones<br><b>A new primality test using Lucas sequences</b><br>Resumen (1997)<br> </li>
+<li>Hans Riesel<br><b>Prime numbers and computer methods for factorization</b><br>Boston: Birkhauser (1994)<br> </li>
+</ol>

@@ -1,0 +1,108 @@
+\h1{ el Algoritmo de floyd-Уоршелла de encontrar caminos más cortos entre todos los pares de vértices }
+
+Dan orientado o неориентированный ponderado conde de $G$ c $n$ vértices. Se desea encontrar el valor de todos los valores de $d_{ij}$ --- longitud de la ruta más corta desde la cima de la $i$ en la cima de la $j$.
+
+Se supone que el conde no contiene ciclos negativos de peso (entonces la respuesta entre algunos pares de vértices no debe existir --- será infinitamente pequeño).
+
+Este algoritmo se ha publicado simultáneamente en los artículos de robert floyd (Robert Floyd) y stephen Уоршелла (Варшалла) (Stephen Warshall en 1962, por el nombre que este algoritmo se denomina en la actualidad. Sin embargo, en 1959, bernard roy (Bernard Roy) publicó prácticamente el mismo algoritmo, pero su publicación ha pasado desapercibido.
+
+
+\h2{ Descripción del algoritmo }
+
+La idea clave del algoritmo --- una ruptura en el proceso de búsqueda de cortes cortos en \bf{fase}.
+
+Antes de la $k$-primera fase ($k = 1 \ldots, n$) se considera que en la matriz de distancias de $d[][]$ guardado de la longitud de tales cortes cortos que contienen como internos de vértices sólo los vértices de la multitud de $\{ 1, 2, \ldots, k-1 \}$ (vértices del grafo estamos contando, a partir de la unidad).
+
+En otras palabras, antes de la $k$-primera fase de la cantidad de $d[i][j]$ es igual a la longitud de la ruta más corta desde la cima de la $i$ en la cima de la $j$, si este camino se permite entrar solo en la cima de habitaciones con menos de $k$ (el comienzo y el final de la ruta no se consideran).
+
+Es fácil convencerse de que para esta propiedad resultado de la primera fase, es suficiente en la matriz de distancias de $d[][]$ escribir la matriz de adyacencia del conde: $d[i][j] = g[i][j]$ --- el costo de la aleta de la cima de la $i$ en la cima de la $j$. En este caso, si entre los vértices de la aleta no, debe grabar el valor "infinito" $\infty$. Desde la cima de la misma siempre debe anotar la cantidad de de $0$, es fundamental para el algoritmo.
+
+Supongamos ahora que estamos en el $k$-fase, y queremos \bf{calcular} la matriz $d[][]$ por lo tanto, para que cumpla con los requisitos ya para $k+1$-fase. Introduzcamos alguna cima de la $i$ y $j$. Tenemos dos fundamentalmente diferentes de la del caso:
+
+\ul{
+
+\li camino más Corto desde un vértice $i$ en la cima de la $j$, que permite adicionalmente pasar a través de la cima de $\{ 1, 2, \ldots, n \}$, \bf{coincide} con el camino más corto, que puede pasar a través de la cima de la multitud de $\{ 1, 2, \ldots, k-1 \}$.
+
+En este caso, el valor de $d[i][j]$ no cambia al pasar de $k$-oh en $k+1$de una fase.
+
+\li "Nuevo" camino más corto se convirtió en \bf{mejor} "de la antigua" ruta de acceso.
+
+Esto significa que el "nuevo" camino más corto pasa por la cima de la $k$. Ten en cuenta que no perdemos generalidad, examinando sucesivamente sólo las maneras simples (es decir, el camino no pasa por un vértice dos veces).
+
+Entonces observamos que si dividimos este "nuevo" camino de la cima de $k$ en dos mitades (una corriente $i \Rightarrow k$, y la otra --- $k \Rightarrow j$), cada una de estas mitades ya no entra en la cima de la $k$. Pero entonces resulta que la longitud de cada una de estas mitades se juzgar aún en la $k-1$-fase o incluso antes, y nos es suficiente para tomar simplemente la suma de $d[i][k] + d[k][j]$, ella le dará la longitud de la "nueva" de la ruta más corta.
+
+}
+
+\bf{Uniendo} estos dos casos, obtenemos que $k$-fase desea volver a calcular la longitud de caminos más cortos entre todos los pares de vértices de $i$ y $j$ de la siguiente manera:
+
+\code
+new_d[i][j] = min (d[i][j], d[i][k] + d[k][j]);
+\endcode
+
+Por lo tanto, toda la obra que desea realizar en $k$-fase --- este es recorrer todos los pares de vértices y volver a calcular la longitud de la ruta más corta entre ellos. En consecuencia, tras la ejecución de $n$-fase en la matriz de distancias de $d[i][j]$ registrará la longitud de la ruta más corta entre $i$ y $j$ o $\infty$, si el camino entre estos vértices no existe.
+
+La última observación que se debe hacer, --- lo que se puede \bf{no crear una matriz} $\rm new\d[][]$ temporal de la matriz de cortes cortos en $k$-fase: todos los cambios se pueden hacer directamente en la matriz $d[][]$. En realidad, si hemos mejorado el (reducido) ¿cuál es el valor de la matriz de distancias, que no podía empeorar más la longitud de la ruta más corta para cualquier otro de los pares de vértices, procesados posteriormente.
+
+\bf{Asíntotas} algoritmo, obviamente, es de $O (n^3)$.
+
+
+\h2{ Aplicación }
+
+La entrada el programa se sirve el conde especificado en la forma de matriz de adyacencia --- matrices bidimensionales $d[][]$ el tamaño de la $n \times n$, en el que cada elemento especifica la longitud de la aleta de entre los vértices.
+
+Desea que se $d[i][i] = 0$ para todo $i$.
+
+\code
+for (int k=0; k<n; k++)
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; ++j)
+d[i][j] = min (d[i][j], d[i][k] + d[k][j]);
+\endcode
+
+Se supone que si entre dos de los vértices \bf{no costilla}, la matriz de adyacencia se registró una gran número (lo suficientemente grande para que sea mayor que la longitud de cualquier manera en este apartado); entonces es el borde siempre se beneficiarán de tomar, y el algoritmo funciona correctamente.
+
+La verdad, si no se toman medidas especiales, si hay en la columna de las costillas \bf{negativo de peso}, en la resultante de la matriz puede recibir el número de la vista $\infty-1$, $\infty-2$, etc., que, por supuesto, aún se entiende que entre los vértices en general, no hay camino. Por tanto, si en la columna negativos de las costillas, el algoritmo de floyd es mejor escribir para que no cumplía con las transiciones de los estados, en que ya "no hay camino":
+
+\code
+for (int k=0; k<n; k++)
+for (int i=0; i<n; ++i)
+for (int j=0; j<n; ++j)
+if (d[i][k] < INF && d[k][j] < INF)
+d[i][j] = min (d[i][j], d[i][k] + d[k][j]);
+\endcode
+
+
+\h2{ la Recuperación de los mismos caminos }
+
+Es fácil de mantener información adicional --- los llamados "antepasados", en el que se puede restaurar el camino más corto entre dos vértices designados \bf{como una secuencia de vértices}.
+
+Para ello, además de la matriz de distancias de $d[][]$ admitir también \bf{de la matriz de los antepasados} $p[][]$, que para cada par de vértices contendrá el número de la fase en la que se recibió la distancia más corta entre ellos. Es evidente que este número de fases no es otro, como "medio" el pináculo de la búsqueda de la ruta más corta, y ahora sólo nos tenemos que encontrar el camino más corto entre los vértices de los $i$ y $p[i][j]$, y entre $p[i][j]$ y $j$. De ahí se deriva de la simple recursiva del algoritmo de recuperación de la ruta más corta.
+
+
+\h2{ el Caso de elementos de la balanza }
+
+Si el peso de las aletas del conde no enteros, números reales, se debe tener en cuenta los errores que inevitablemente surgen en el trabajo con los tipos de punto flotante.
+
+Con respecto al algoritmo de floyd desagradable спецэффектом estos errores, entonces se convierte en lo que los encontrados por el algoritmo de la distancia pueden ser muy negativos debido a la \bf{la acumulación de errores}. En realidad, si en la primera fase tuvo lugar el $\Delta$, entonces en la segunda iteración de ese error se puede convertir en $2 \Delta$, en la tercera - - - $4 \Delta$, y así sucesivamente.
+
+Para que esto no suceda, la comparación en el algoritmo de floyd se debe hacer teniendo en cuenta el margen de error:
+
+\code
+if (d[i][k] + d[k][j] < d[i][j] - EPS)
+d[i][j] = d[i][k] + d[k][j];
+\endcode
+
+
+\h2{ el Caso de los negativos de los ciclos }
+
+Si en el grafo tiene ciclos negativos de peso, es formalmente el algoritmo de floyd-Уоршелла no se aplica a esta sección.
+
+En realidad, para los pares de vértices de $i$ y $j$, entre los cuales no se puede entrar en un ciclo negativo de peso, el algoritmo funcione correctamente.
+
+Para todos los pares de vértices de respuesta para la que no existe (debido a la presencia negativa de un ciclo en el camino entre ellos), el algoritmo de floyd encontrará como respuesta algún número (tal vez muy negativo, pero no necesariamente). Sin embargo, se puede mejorar el algoritmo de floyd para él suavemente el importe de estos pares de vértices y sacaba para ellos, por ejemplo, $- \infty$.
+
+Para ello se puede hacer, por ejemplo, el siguiente \bf{criterio} "no de la existencia de la ruta". Por tanto, que en este apartado trabajado normal, el algoritmo de floyd. Entonces entre los vértices de las $i$ y $j$ no existe la ruta más corta entonces, y sólo entonces, cuando hay esta la cima de $t$, alcanza de $i$ y de que es posible lograr $j$, para la que se $d[t][t] < 0$.
+
+Además, cuando se utiliza el algoritmo de floyd para los gráficos con los ciclos se debe recordar que surgen en el proceso de trabajo de la distancia pueden ser muy irse en menos de forma exponencial con cada fase. Por lo tanto, se deben tomar medidas en contra de desbordamiento de enteros, limitando todas las distancias debajo de algún valor (por ejemplo, $- {\rm INF}$).
+
+Más información sobre esta tarea, consulte un artículo separado: \algohref=negative_cycle{\bf{"Encontrar el negativo de un ciclo en el recuadro"}}.

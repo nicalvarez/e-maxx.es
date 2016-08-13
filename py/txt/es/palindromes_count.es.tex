@@ -1,0 +1,147 @@
+\h1{ Encontrar todos los подпалиндромов }
+
+
+\h2{ el Planteamiento de la tarea }
+
+Dada una cadena $s$ de longitud $n$. Es necesario buscar todas las parejas) $(i,j)$, donde $i<j$, que es la subcadena $s[i \ldots j]$ es палиндромом (es decir, se lee igual de izquierda a derecha y de derecha a izquierda).
+
+
+\h3{ Aclaración del planteamiento }
+
+Está claro que en el peor de los casos de estas subcadenas-палиндромов puede ser $O(n^2)$, y a primera vista parece que el algoritmo lineal асимптотикой no puede existir.
+
+Sin embargo, la información sobre los палиндромах puede devolver más de \bf{compacto}: para cada posición de la $i=0, \ldots, n-1$ encontraremos con un valor de $d_1[i]$ y $d_2[i]$, que indican el número de палиндромов respectivamente impar y par de longitud, con centro en la posición $i$.
+
+Por ejemplo, en la línea $s = abababc$ hay tres палиндрома impar de longitud, con sede en el símbolo $s[3]=b$, es decir, el valor de $d_1[3]=3$:
+
+$$ a\ \overbrace{b\ a\ \underbrace{b}_{s_3}\ a\ b}^{d_1[3]=3}\ c $$
+
+Y en la línea $s = cbaabd$ hay dos палиндрома par de longitud, con sede en el símbolo $s[3]=a$, es decir, el valor de $d_2[3]=2$:
+
+$$ c\ \overbrace{b\ a\ \underbrace{a}_{s_3}\ b}^{d_2[3]=2}\ d $$
+
+Es decir, la idea de que si hay подпалиндром de longitud $l$ con el centro en alguna posición de la $i$, es decir, también подпалиндромы de longitud $l-2$, $l-4$, y así sucesivamente con los centros en $i$. Por lo tanto, de dos de estas matrices $d_1[i]$ y $d_2[i]$ es suficiente para el almacenamiento de información acerca de todos los подпалиндромах de esta cadena.
+
+Bastante sorprendente es el hecho de que existe bastante simple algoritmo que calcula estas matrices палиндромностей" $d_1[]$ y $d_2[]$ por lineal del tiempo. Este algoritmo y se describe en este artículo.
+
+
+\h2{ para Decisión }
+
+En general, este problema tiene varias soluciones conocidas: con la ayuda de \algohref=string_hashes{la técnica de hashing} se puede resolver por $O (n \log n)$, y con la ayuda de \algohref=ukkonen{суффиксных árboles} y \algohref=lca_linear{algoritmo rápido de la LCA} esta tarea se puede resolver en $O (n)$.
+
+Sin embargo, el descrito en este artículo un método mucho más fácil y tiene menos ocultos constantes en la asíntota de la función de tiempo y memoria. Este algoritmo se ha abierto \bf{glenn Манакером (Glenn Manacher)} en el año 1975
+
+
+\h3{ Trivial algoritmo }
+
+Para evitar ambigüedades a la hora de continuar la descripción de la llevaré a cabo, que tal es la "trivial algoritmo".
+
+Es un algoritmo para la búsqueda de la respuesta en la posición $i$ una y otra vez, intenta aumentar la respuesta de la unidad, cada vez que compara un par de caracteres.
+
+Este algoritmo es demasiado медленен, la respuesta completa se puede considerar que sólo por el tiempo $O (n^2)$.
+
+Llevaremos para la visibilidad de la realización de la misma:
+
+\code
+vector<int> d1 (n), d2 (n);
+for (int i=0; i<n; ++i) {
+d1[i] = 1;
+while (i-d1[i] >= 0 && i+d1[i] < n && s[i-d1[i]] == s[i+d1[i]])
+++d1[i];
+
+d2[i] = 0;
+while (i-d2[i]-1 >= 0 && i+d2[i] < n && s[i-d2[i]-1] == s[i+d2[i]])
+++d2[i];
+}
+\endcode
+
+
+\h3{ el Algoritmo de Манакера }
+
+Aprendamos primero encontrar todos los подпалиндромы impar de longitud, es decir, calcular la matriz $d_1[]$; solución para палиндромов par de longitud (es decir, encontrar la matriz $d_2[]$) resultará una pequeña modificación.
+
+Para un rápido cálculo vamos a apoyar la \bf{frontera $(l,r)$} el derecho de descubierto подпалиндрома (es decir, подпалиндрома el valor mayor de $r$). Inicialmente se puede poner $l=0, r=-1$.
+
+Así, supongamos que queremos calcular el valor de $d_1[i]$ para una $i$, con todos los valores anteriores $d_1[]$ ya contados.
+
+
+\ul{
+
+\li Si $i$ no se encuentra dentro de la actual подпалиндрома, es decir, $i > r$, simplemente ejecuta un algoritmo trivial.
+
+Es decir, vamos a ampliar el valor de $d_1[i]$, y comprobar que cada vez --- la verdad si la subcadena $[i-d_1[i]; i+d_1[i]]$ es палиндромом. Cuando encontramos la primera diferencia, o cuando se trate de límites de la línea de $s$ --- paramos: finalmente hemos contado valor $d_1[i]$. Después de esto, no debemos olvidar actualizar el valor de $(l,r)$.
+
+\li Consideremos ahora el caso, cuando $i \le r$.
+
+Tratemos de extraer parte de la información de la ya contada de los valores de $d_1[]$. Es decir, отразим la posición de la $i$ en el interior de подпалиндрома $(l,r)$, es decir, obtenemos la posición $j = l + (r - i)$, y considere el valor de $d_1[j]$. Ya que $j$ --- la posición simétrica de la posición $i$, \bf{casi siempre} podemos asignar $d_1[i] = d_1[j]$. La ilustración de esta reflexión (палиндром alrededor de $j$ en realidad de una "copia" en палиндром alrededor de $i$):
+
+$$ \sum_ \overbrace{s_l\ \ldots\ \underbrace{s_{j-d_1[j]+1}\ \ldots\ s_j\ \ldots\ s_{j+d_1[j]-1}}_{\rm palindrome}\ \ldots\ \underbrace{s_{i-d_1[j]+1}\ \ldots\ s_i\ \ldots\ s_{i+d_1[j]-1}}_{\rm palindrome}\ \ldots\ s_r\ \ldots}^{\rm palindrome} $$
+
+Sin embargo, hay \bf{finura}, que es necesario manejar correctamente: cuando el interno палиндром" llega hasta el límite externo o vilazit por ella, es decir, $j-d_1[j]+1 \le l$ (o lo que es lo mismo, $i+d_1[j]-1 \ge r$). Ya fuera de los límites del exterior палиндрома ninguna simetría no está garantizada, es simplemente asignar $d_1[i] = d_1[j]$ ya correctamente: disponemos de suficiente información para afirmar que en la posición $i$ подпалиндром tiene la misma longitud.
+
+En realidad, para manejar correctamente estas situaciones, hay que "recortar" la longitud del подпалиндрома, es decir, asignar $d_1[i] = r - i$. Después de esto, debe establecer un algoritmo trivial, que tratará de aumentar el valor de $d_1[i]$, mientras que es posible.
+
+La ilustración de este caso (en ella палиндром con el centro en $j$ representado ya "la circuncisión" a tal longitud, que él de cabo a rabo se coloca en el exterior палиндром):
+
+$$ \sum_ \overbrace{\underbrace{s_l\ \ldots\ s_j\ \ldots\ s_{j+(j-l)}}_{\rm palindrome}\ \ldots\ \underbrace{s_{i-(r-i)}\ \ldots\ s_i\ \ldots\ s_r}_{\rm palindrome}}^{\rm palindrome}\ \underbrace{\ldots\ldots\ldots\ldots}_{\rm try\ moving\ here} $$
+
+(En esta imagen se muestra que, a pesar de палиндром con centro en la posición $j$ podía ser más largo que van más allá del exterior палиндрома, --- pero en la posición $i$ podemos usar sólo la parte entera se coloca en el exterior палиндром. Pero la respuesta para una posición de $i$ puede ser mayor que la parte, por lo que más debemos iniciar la búsqueda trivial, que tratará de empujar fuera de la externa палиндрома, es decir, en el área de "try móvil here".)
+
+}
+
+En conclusión, la descripción del algoritmo queda sólo recordar que es necesario no olvidar actualizar los valores de $(l,r)$ después de calcular el siguiente valor de $d_1[i]$.
+
+También reiteramos, que anteriormente hemos descrito razonamiento para el cálculo de la matriz impares палиндромов $d_1[]$; para un conjunto de pares палиндромов $d_2[]$ razonamiento similar.
+
+
+\h3{ Evaluación de la асимптотики algoritmo Манакера }
+
+A primera vista no es evidente que este algoritmo es lineal асимптотику: al calcular la respuesta para una posición determinada en él se inicia con frecuencia trivial algoritmo de búsqueda палиндромов.
+
+Sin embargo, el más atento, el análisis muestra que el algoritmo de todo es lineal. (Vale la pena hacer referencia a la famosa \algohref=z_function{algoritmo de construcción Z-las funciones de la barra}, que internamente se parece mucho a este algoritmo, y funciona también por lineal del tiempo.)
+
+En realidad, es fácil de seguir por el algoritmo, que cada iteración, por trivial de la búsqueda, se traduce en una frontera $r$. Cuando este reducciones $r$ avanza el algoritmo a pasar, no puede. Por lo tanto, el trivial, el algoritmo de la suma de comprometerá a sólo $O(n)$ de acción.
+
+Teniendo en cuenta que, además de trivial en la búsqueda, todo el resto del algoritmo Манакера obviamente trabajan en el lineal del tiempo, tenemos un resumen de la асимптотику: $O(n)$.
+
+
+\h3{ la Implementación del algoritmo de Манакера }
+
+Para el caso de подпалиндромов impar de longitud, es decir, para el cálculo de la matriz $d_1[]$, obtenemos esto:
+
+\code
+vector<int> d1 (n);
+int l=0, r=-1;
+for (int i=0; i<n; ++i) {
+int k = (i>r ? 0 : min (d1[l+r-i], r-i)) + 1;
+while (i+k < n && i-k >= 0 && s[i+k] == s[i-k]) ++k;
+d1[i] = k--;
+if (i+k > r)
+l = i-k, r = i+k;
+}
+\endcode
+
+Para подпалиндромов longitudes de pares, es decir, para el cálculo de la matriz $d_2[]$, sólo un poco cambian las expresiones aritméticas:
+
+\code
+vector<int> d2 (n);
+l=0, r=-1;
+for (int i=0; i<n; ++i) {
+int k = (i>r ? 0 : min (d2[l+r-i+1], r-i+1)) + 1;
+while (i+k-1 < n && i-k >= 0 && s[i+k-1] == s[i-k]) ++k;
+d2[i] = --k;
+if (i+k-1 > r)
+l = i-k, r = i+k-1;
+}
+\endcode
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que puede realizar con el uso de este algoritmo:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2470{UVA #11475 \bf{"Extend to Palindrome"} ~~~~ [dificultad: baja]}
+
+}

@@ -1,0 +1,98 @@
+\h1{Validación de dos líneas en la intersección de la}
+
+Dados dos segmentos de $AB$ y $CD$ (que puede degenerar en un punto). Es necesario comprobar que se cruzan o no.
+
+Si, además, se desea encontrar el mismo punto (el punto) de cruce, consulte \algohref=segments_intersection{artículo}.
+
+
+\h2{Primer método: orientada hacia el área del triángulo}
+
+Usaremos \algohref=oriented_area{Orientada hacia el área del triángulo y el predicado 'en sentido De las agujas del reloj'}. En efecto, para el tronzado de $AB$ y $CD$ se cruzan, es necesario y suficiente que el punto de $A$ y $B$ bandos de la recta $CD$, y, de manera similar, el punto de $C$ y $D$ --- en el lado opuesto de la recta $AB$. Usted puede comprobarlo calculando orientadas hacia la plaza de los respectivos triángulos y comparando sus marcas.
+
+Lo único que se debe prestar atención --- las restricciones de los casos en que los puntos que caen en la misma recta. Cuando se produce este el único caso especial, cuando estas comprobar nada que dar --- ocasión en la que ambos del corte de la mentira \bf{en línea}. Este caso es necesario considerar por separado. Para ello, basta con comprobar que la proyección de estas dos regiones en el eje $X$ y $Y$ se cruzan (a menudo esta prueba se llama la "prueba de bounding box).
+
+En general, este método es más simple que el que se muestra a continuación (el punto de intersección de dos rectas), y tiene menos casos especiales, sin embargo, su principal desventaja --- en el sentido de que no busca el propio punto de intersección.
+
+\bf{Aplicación}:
+\code
+struct pt {
+int x, y;
+};
+
+inline int area (pt a, pt b pt c) {
+return (b.x - a.x) * (c.y - a.y) - b.y - a.y) * (c.x - a.x);
+}
+
+inline bool intersect_1 (int a, int b, int c, int d) {
+if (a > b) swap (a, b);
+if (c > d) swap (c, d);
+return max(a,c) <= min(b,d);
+}
+
+bool intersect (pt a, pt b pt c pt d) {
+return intersect_1 (a.x, b.x, c.x, d.x)
+&& intersect_1 (a.y, b.y, c.y, d.y)
+&& area(a,b,c) * area(a,b,d) <= 0
+&& area(c,d,a) * area(c,d,b) <= 0;
+}
+\endcode
+
+Con el fin de optimizar la comprobación de la bounding box planteado en el inicio, hasta el cálculo de la superficie --- ya que es más "fácil" comprobación.
+
+Por supuesto, este código es aplicable para el caso de las coordenadas, simplemente todas las comparaciones con el cero en el debe de producir эпсилону (y evitar перемножения dos вещественнозначных los valores de $\rm area()$, multiplicando en lugar de ello, sus marcas).
+
+
+\h2{Segundo método: la intersección de dos rectas}
+
+En lugar de intersección de líneas cumpliremos \algohref=lines_intersection{la intersección de dos rectas}, en consecuencia, si las líneas rectas no son paralelas, recibiremos algún punto, que es necesario comprobar la pertenencia de ambas regiones; para ello, basta con comprobar que este punto pertenece a dos regiones en la proyección en el eje $X$ y en el eje de $Y$.
+
+Si directas fueron paralelas, entonces, si no coinciden, lo cortes no se exactamente que se cruzan. Si rectas coinciden, los trozos se encuentran en la misma recta, y para la comprobación de su intersección, basta con comprobar que se cruzan por su proyección en el eje $X$ y $Y$.
+
+Siendo un caso especial, cuando uno o ambos de corte \bf{degeneran} en un punto: en este caso, hablar sobre directas correctamente, y que este método no es aplicable (en este caso será necesario desmontar por separado).
+
+\bf{Aplicación} (sin tener en cuenta el caso de degenerados trozos):
+
+\code
+struct pt {
+int x, y;
+};
+
+const double EPS = 1E-9;
+
+inline int det (int a, int b, int c, int d) {
+return a * d - b * c;
+}
+
+inline bool entre (int a, int b, double c) {
+return min(a,b) <= c + EPS && c <= max(a,b) + EPS;
+}
+
+inline bool intersect_1 (int a, int b, int c, int d) {
+if (a > b) swap (a, b);
+if (c > d) swap (c, d);
+return max(a,c) <= min(b,d);
+}
+
+bool intersect (pt a, pt b pt c pt d) {
+int A1 = a.y-b.y, B1 = b.x-a.x, C1 = -A1*a.x - B1*a.y;
+int A2 = c.y-d.y, B2 = d.x-c.x, C2 = -A2*c.x - B2*c.y;
+int zn = det (A1, B1, A2, B2);
+if (zn != 0) {
+double x = - det (C1, B1, C2, B2) * 1. / zn;
+double y = - det (A1, C1, A2, C2) * 1. / zn;
+retorno entre (a.x, b.x, x) && entre (a.y, b.y, y)
+&& entre (c.x, d.x, x) && entre (c.y, d.y, y);
+}
+else
+return det (A1, C1, A2, C2) == 0 && det (B1, C1, B2, C2) == 0
+&& intersect_1 (a.x, b.x, c.x, d.x)
+&& intersect_1 (a.y, b.y, c.y, d.y);
+}
+\endcode
+
+Aquí primero se calcula el coeficiente de $\rm zn$ --- denominador en la fórmula de kramer. Si ${\rm zn} = 0$, entonces los factores de $A$ y $B$ rectas son proporcionales, las rectas son paralelas o coincidentes. En este caso, es necesario comprobar que coinciden o no, para lo cual es necesario comprobar que los factores de $C$ rectas son proporcionales con el mismo coeficiente, para lo cual es suficiente calcular dos de los siguientes identificadores, si ambos son iguales a cero, entonces rectas coinciden:
+$$ \left|\matrix{ A_1 & C_1 \cr A_2 & C_2 }\right|, \left|\matrix{ B_1 & C_1 \cr B_2 & C_2 }\right| $$
+
+Si ${\rm zn} \ne 0$, entonces rectas se cruzan, y según la fórmula de kramer encontramos con el punto de intersección de $(x,y)$ y comprobamos su pertenencia a ambas regiones.
+
+Cabe señalar que si el origen de las coordenadas de los puntos ya se han вещественнозначными, debe racionar directos (es decir, llevarlos a tal estado, que la suma de los cuadrados de los coeficientes de $a$ y $b$ es igual a la unidad), de lo contrario, los errores de comparación directa en el paralelismo y la coincidencia pueden ser demasiado grandes.

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Алгоритм Левита нахождения кратчайших путей от заданной вершины до всех остальных вершин за O (N M)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Алгоритм Левита нахождения кратчайших путей от заданной вершины до всех остальных вершин за O (N M)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Алгоритм Левита нахождения кратчайших путей от заданной вершины до всех остальных вершин&lt;/h1&gt;
+
+&lt;p&gt;Пусть дан граф с N вершинами и M ребрами, для каждого из которых указан его вес L&lt;sub&gt;i&lt;/sub&gt;. Также дана стартовая вершина V&lt;sub&gt;0&lt;/sub&gt;. Требуется найти кратчайшие пути от вершины V&lt;sub&gt;0&lt;/sub&gt; до всех остальных вершин.&lt;/p&gt;
+&lt;p&gt;Алгоритм Левита решает эту задачу весьма эффективно (по поводу асимптотики и скорости работы см. ниже).&lt;/p&gt;
+&lt;h2&gt;Описание&lt;/h2&gt;
+&lt;p&gt;Пусть массив D[1..N] будет содержать текущие кратчайшие длины путей, т.е. D&lt;sub&gt;i&lt;/sub&gt; - это текущая длина кратчайшего пути от вершины V&lt;sub&gt;0&lt;/sub&gt; до вершины i. Изначально массив D заполнен значениями &quot;бесконечность&quot;, кроме D&lt;sub&gt;V&lt;sub&gt;0&lt;/sub&gt;&lt;/sub&gt; = 0. По окончании работы алгоритма этот массив будет содержать окончательные кратчайшие расстояния.&lt;/p&gt;
+&lt;p&gt;Пусть массив P[1..N] содержит текущих предков, т.е. P&lt;sub&gt;i&lt;/sub&gt; - это вершина, предшествующая вершине i в кратчайшем пути от вершины V&lt;sub&gt;0&lt;/sub&gt; до i. Так же как и массив D, массив P изменяется постепенно по ходу алгоритма и к концу его принимает окончательные значения.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Теперь собственно сам алгоритм Левита. На каждом шаге поддерживается три множества вершин:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;M&lt;sub&gt;0&lt;/sub&gt; - вершины, расстояние до которых уже вычислено (но, возможно, не окончательно);&lt;/li&gt;
+&lt;li&gt;M&lt;sub&gt;1&lt;/sub&gt; - вершины, расстояние до которых вычисляется;&lt;/li&gt;
+&lt;li&gt;M&lt;sub&gt;2&lt;/sub&gt; - вершины, расстояние до которых ещё не вычислено.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Вершины в множестве M&lt;sub&gt;1&lt;/sub&gt; хранятся в виде двунаправленной очереди (deque).&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Изначально все вершины помещаются в множество M&lt;sub&gt;2&lt;/sub&gt;, кроме вершины V&lt;sub&gt;0&lt;/sub&gt;, которая помещается в множество M&lt;sub&gt;1&lt;/sub&gt;.&lt;/p&gt;
+&lt;p&gt;На каждом шаге алгоритма мы берём вершину из множества M&lt;sub&gt;1&lt;/sub&gt; (достаём верхний элемент из очереди). Пусть V - это выбранная вершина. Переводим эту вершину во множество M&lt;sub&gt;0&lt;/sub&gt;. Затем просматриваем все рёбра, выходящие из этой вершины. Пусть T - это второй конец текущего ребра (т.е. не равный V), а L - это длина текущего ребра.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Если T принадлежит M&lt;sub&gt;2&lt;/sub&gt;, то T переносим во множество M&lt;sub&gt;1&lt;/sub&gt; в конец очереди. D&lt;sub&gt;T&lt;/sub&gt; полагаем равным D&lt;sub&gt;V&lt;/sub&gt; + L.&lt;/li&gt;
+&lt;li&gt;Если T принадлежит M&lt;sub&gt;1&lt;/sub&gt;, то пытаемся улучшить значение D&lt;sub&gt;T&lt;/sub&gt;: D&lt;sub&gt;T&lt;/sub&gt; = min (D&lt;sub&gt;T&lt;/sub&gt;, D&lt;sub&gt;V&lt;/sub&gt; + L). Сама вершина T никак не передвигается в очереди.&lt;/li&gt;
+&lt;li&gt;Если T принадлежит M&lt;sub&gt;0&lt;/sub&gt;, и если D&lt;sub&gt;T&lt;/sub&gt; можно улучшить (D&lt;sub&gt;T&lt;/sub&gt; &gt; D&lt;sub&gt;V&lt;/sub&gt; + L), то улучшаем D&lt;sub&gt;T&lt;/sub&gt;, а вершину T возвращаем в множество M&lt;sub&gt;1&lt;/sub&gt;, помещая её в начало очереди.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Разумеется, при каждом обновлении массива D следует обновлять и значение в массиве P.&lt;/p&gt;
+&lt;h2&gt;Подробности реализации&lt;/h2&gt;
+&lt;p&gt;Создадим массив ID[1..N], в котором для каждой вершины будем хранить, какому множеству она принадлежит: 0 - если M&lt;sub&gt;2&lt;/sub&gt; (т.е. расстояние равно бесконечности), 1 - если M&lt;sub&gt;1&lt;/sub&gt; (т.е. вершина находится в очереди), и 2 - если M&lt;sub&gt;0&lt;/sub&gt; (некоторый путь уже был найден, расстояние меньше бесконечности).&lt;/p&gt;
+&lt;p&gt;Очередь обработки можно реализовать стандартной структурой данных deque. Однако есть более эффективный способ. Во-первых, очевидно, в очереди в любой момент времени будет храниться максимум N элементов. Но, во-вторых, мы можем добавлять элементы и в начало, и в конец очереди. Следовательно, мы можем организовать очередь на массиве размера N, однако нужно зациклить его. Т.е. делаем массив Q[1..N], указатели (int) на первый элемент QH и на элемент после последнего QT. Очередь пуста, когда QH == QT. Добавление в конец - просто запись в Q[QT] и увеличение QT на 1; если QT после этого вышел за пределы очереди (QT == N), то делаем QT = 0. Добавление в начало очереди - уменьшаем QH на 1, если она вышла за пределы очереди (QH == -1), то делаем QH = N-1.&lt;/p&gt;
+&lt;p&gt;Сам алгоритм реализуем в точности по описанию выше.&lt;/p&gt;
+&lt;h2&gt;Асимптотика&lt;/h2&gt;
+&lt;p&gt;Мне не известна более-менее хорошая асимптотическая оценка этого алгоритма. Я встречал только оценку O (N M) у похожего алгоритма.&lt;/p&gt;
+&lt;p&gt;Однако на практике алгоритма зарекомендовал себя очень хорошо: время его работы я оцениваю как &lt;b&gt;O (M log N)&lt;/b&gt;, хотя, повторюсь, это исключительно &lt;b&gt;экспериментальная&lt;/b&gt; оценка.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;code&gt;typedef pair&amp;lt;int,int&gt; rib;
+typedef vector &amp;lt; vector&amp;lt;rib&gt; &gt; graph;
+
+const int inf = 1000*1000*1000;
+
+
+int main()
+{
+	int n, v1, v2;
+	graph g (n);
+
+	... чтение графа ...
+
+	vector&amp;lt;int&gt; d (n, inf);
+	d[v1] = 0;
+	vector&amp;lt;int&gt; id (n);
+	deque&amp;lt;int&gt; q;
+	q.push_back (v1);
+	vector&amp;lt;int&gt; p (n, -1);
+
+	while (!q.empty())
+	{
+		int v = q.front(),  q.pop_front();
+		id[v] = 1;
+		for (size_t i=0; i&amp;lt;g[v].size(); ++i)
+		{
+			int to = g[v][i].first, len = g[v][i].second;
+			if (d[to] &gt; d[v] + len)
+			{
+				d[to] = d[v] + len;
+				if (id[to] == 0)
+					q.push_back (to);
+				else if (id[to] == 1)
+					q.push_front (to);
+				p[to] = v;
+				id[to] = 1;
+			}
+		}
+	}
+
+	... вывод результата ...
+
+}&lt;/code&gt;
+</textarea></td></tr></table></body></html>

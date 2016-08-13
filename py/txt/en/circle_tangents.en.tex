@@ -1,0 +1,124 @@
+\h1{ Finding common tangents to two circles }
+
+Given two circles. You want to find all their common tangent, i.e., all such straight lines which touch both circles at the same time.
+
+The described algorithm will work also in the case when one (or both) of the circles degenerate into points. Thus, this algorithm can also be used for finding tangents to a circle passing through a given point.
+
+
+\h2{ the Number of common tangents }
+
+Just note that we do not consider \bf{degenerate} cases: when the circles coincide (in which case they have innitely many common tangent), or one circle lies inside the other (in this case they have no common tangent, or, if the circles touch, there is one common tangent).
+
+In most cases, the two circles is \bf{four} common tangent.
+
+If the circle \bf{concern}, then they will have three common tangents, but this can be understood as a degenerate case: as if the two tangents coincide.
+
+Moreover, the algorithm described below will work in the case where one or both circles have radius zero: in this case, respectively, two or one common tangent.
+
+To sum up, we, except as described in the beginning cases, will always look for \bf{four tangents}. In degenerate cases, some of them will be the same, but nevertheless these cases will also fit into the overall picture.
+
+
+\h2{ Algorithm }
+
+In order to simplify the algorithm, we assume without losing generality that the center of the first circle has coordinates $(0;0)$. (If not, this can be achieved by a simple shift of the whole picture, and after finding the solution --- the shift obtained straight back.)
+
+Denote by $r_1$ and $r_2$ the radii of the first and second circles, and using $v$ --- the coordinates of the center of the second circle (point $v$ different from the origin, because we do not consider the case when the circles coincide, or one circle is inside the other).
+
+To solve the problem, we approach it purely \bf{algebraically}. We want to find all lines of the form $ax+by+c=0$, which lie at a distance $r_1$ from the origin, and at a distance $r_2$ from the point $v$. In addition, we impose the condition of normalization is straightforward: the sum of the squares of the coefficients $a$ and $b$ must be equal to one (this is necessary, otherwise one and the same line will correspond to infinitely many representations of the form $ax+by+c=0$). We will have the following system of equations for the desired $a,b,c$:
+
+$$ \begin{cases}
+a^2 + b^2 = 1, \\
+| a \cdot 0 + b \cdot 0 + c | = r_1, \\
+| a \cdot v_x + b \cdot v_y + c | = r_2.
+\end{cases} $$
+
+To get rid of modules, note that there are four ways to open the modules in this system. All of these methods can be considered General case, if we understand revelation as the fact that the coefficient on the right side may be multiplied by $-1$.
+
+In other words, we are moving to such a system:
+
+$$ \begin{cases}
+a^2 + b^2 = 1, \\
+c = \pm r_1, \\
+a \cdot v_x + b \cdot v_y + c = \pm r_2.
+\end{cases} $$
+
+Introducing the notation $d_1 = \pm r_1$ and $d_2 = \pm r_2$, we come to the fact that four times must solve the system:
+
+$$ \begin{cases}
+a^2 + b^2 = 1, \\
+c = d_1, \\
+a \cdot v_x + b \cdot v_y + c = d_2.
+\end{cases} $$
+
+The solution of this system reduces to solving a quadratic equation. We will skip all the cumbersome calculations, and let us give at once a ready answer:
+
+$$ \begin{cases}
+a = \frac{ (d_2-d_1)v_x \pm v_y \sqrt{ v_x^2 + v_y^2 - (d_2-d_1)^2 } }{ v_x^2 + v_y^2 }, \\
+b = \frac{ (d_2-d_1)v_y \mp v_x \sqrt{ v_x^2 + v_y^2 - (d_2-d_1)^2 } }{ v_x^2 + v_y^2 }, \\
+c = d_1.
+\end{cases} $$
+
+Total, we've got $8$ solutions instead of $4$. However, it is easy to understand where there are excess solutions: in fact, in the last system it is enough to take only one decision (e.g., the first). In fact, the geometric meaning of what we take $\pm r_1$ and $\pm r_2$, is clear: we actually searched which side of each of the circles is a line. Therefore, two methods arising from the solution of the last system, redundant enough to choose one of two solutions (only, of course, in all four cases, it is necessary to choose the same family of solutions).
+
+The last thing we haven't considered is the \bf{how to move straight} in the case where the first circle was not originally at the origin. However, it's simple: from the linearity of the equation of a straight line, it follows that the coefficient $c$ must take the value $a \cdot x_0 + b \cdot y_0$ (where $x_0$ and $y_0$ --- the coordinates of the initial center of the first circle).
+
+
+\h2{ the Implementation }
+
+Let us describe all the necessary data structures and other auxiliary definitions:
+
+\code
+struct pt {
+double x, y;
+
+pt operator- (pt p) {
+res pt = { x-p.x, y-p.y };
+return res;
+}
+};
+
+struct circle : pt {
+double r;
+};
+
+struct line {
+double a, b, c;
+};
+
+const double EPS = 1E-9;
+
+double sqr (double a) {
+return a * a;
+}
+\endcode
+
+Then the decision itself can be written in this way (where the main function to call the second; and the first function --- auxiliary):
+
+\code
+void tangents (pt c, double r1, double r2, vector<line> & ans) {
+double r = r2 - r1;
+double z = sqr(c.x) + sqr(c.y);
+double d = z - sqr(r);
+if (d < -EPS) return;
+d = sqrt (abs (d));
+line l;
+l.a = (c.x * r + c.y * d) / z;
+l.b = (c.y * r - c.x * d) / z;
+l.c = r1;
+ans.push_back (l);
+}
+
+vector<line> tangents (circle a, circle b) {
+vector<line> ans;
+for (int i=-1; i<=1; i+=2)
+for (int j=-1; j<=1; j+=2)
+tangents (b-a, a.r*i, b.r*j, ans);
+for (size_t i=0; i<ans.size(); ++i)
+ans[i].c -= ans[i].a * a.x + ans[i].b * a.y;
+return ans;
+}
+\endcode
+
+
+
+

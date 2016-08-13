@@ -1,0 +1,203 @@
+the <h1>MST Inverse problem (inverse-MST - return objective minimum core) in O (N M<sup>2</sup>)</h1>
+
+<p>Given a weighted undirected graph G with N vertices and M edges (without loops and multiple edges). It is known that the graph is connected. Also listed some skeleton T of the graph (i.e., the selected N-1 edges that form a tree with N vertices). You want to change the weight of the ribs so that the specified frame T was a minimum spanning of this graph (more precisely, one of the minimum cores), and make it so that the total change was the smallest of all weights.</p>
+the <h2>Solution</h2>
+<p><b>Bring</b> inverse task-MST to the problem of min-cost-flow, more precisely, <b>task, the dual min-cost-flow</b> (in the sense of the duality of linear programming problems); then solve the last task.</p>
+<p>so, suppose we are given a graph G with N vertices, M edges. The weight for each edge we denote by C<sub>i</sub>. Assume, without loss of generality that the edges with the numbers from 1 to N-1 are edges of T.</p>
+the <h3>1. A necessary and sufficient condition MST</h3>
+<p>Suppose that we are given a skeleton S (not necessarily minimal).</p>
+<p>first, we Introduce one notation. Consider an edge j that does not belong to S. Clearly, in the graph S, there is a single path connecting the ends of this edge, i.e. the only path connecting the ends of the ribs j and consisting only of edges belonging to S. <b>denote by P[j]</b> set of edges forming this path for the j-th edge.</p>
+<p>For some skeleton S is minimal, <b>necessary and sufficient</b> to:</p>
+<formula>C<sub>i</sub> <= C<sub>j</sub> for all j ∉ S and each i ∈ P[j]</formula>
+<p>You may notice that, since <b>our goal</b> belong to the frame of the T rib 1..N-1, then we can write this condition as follows:</p>
+<formula>C<sub>i</sub> <= C<sub>j</sub> for all j = M..N and each i ∈ P[j]
+(and all i lying in the range 1..N-1)</formula>
+the <h3>2. Count the ways</h3>
+<p>the Concept of a graph of paths is directly related to the previous theorem.</p>
+<p>Suppose that we are given a skeleton S (not necessarily minimal).</p>
+<p>Then <b>count the ways H</b> for the graph G be the following graph:</p>
+the <ul>
+the <li>It contains M vertices, each vertex in H corresponds one-to-one edge in G.</li>
+the <li>H is a bipartite Graph. In the first fraction are of vertex i, which correspond to the edges in G belonging to the frame S. Accordingly, the second part contains j vertices that correspond to edges not belonging to S.</li>
+the <li>is an Edge from vertex i to vertex j if and only when i belongs to P[j].<br>in Other words, for each vertex j of the second fraction consists of all edges from all vertices of the first lobe, corresponding to the set of edges P[j].</li>
+</ul>
+<p><b>our objectives</b>, we can simplify the graph:</p>
+<formula>edge (i,j) exists in H, if i ∈ P[j], j = N..M, i = 1..N-1</formula>
+the <h3>3. Mathematical formulation of the problem</h3>
+<p>formally, <b>task inverse-MST</b> is written like this:</p>
+<formula>find the array A[1..M] such that
+C<sub>i</sub> + A<sub>i</sub> <= C<sub>j</sub> + A<sub>j</sub> for all j = M..N and each i ∈ P[j] (i in 1..N-1),
+and to minimize the sum of |A<sub>1</sub>| + |A<sub>2</sub>| + ... + |A<sub>m</sub>|</formula>
+<p>here, the lookup array A, we mean the values that you want to add weights to edges (i.e., solving the inverse task-MST, we replace the weight of C<sub>i</sub> of each edge i on the value of C<sub>i</sub> + A<sub>i</sub>).</p>
+<p>Obviously, it makes no sense to increase the weight of edges belonging to T, i.e.</p>
+the <pre>A<sub>i</sub> <= 0, i = 1..N-1</pre>
+<p>and it makes no sense to shorten the edges not belonging to T:</p>
+<formula>A<sub>i</sub> >= 0, i = N..M</formula>
+<p>(because otherwise, we will only worsen the answer)</p>
+<p>Then we can have a little <b>simplify</b> problem statement, removing from the sum of the modules:</p>
+<formula>find the array A[1..M] such that
+C<sub>i</sub> + A<sub>i</sub> <= C<sub>j</sub> + A<sub>j</sub> for all j = M..N and each i ∈ P[j] (i in 1..N-1),
+A<sub>i</sub> <= 0, i = 1..N-1,
+A<sub>i</sub> >= 0, i = N..M,
+and to minimize the sum of the A<sub>n</sub> + ... + A<sub>m</sub> (A<sub>1</sub> + ... + A<sub>n-1</sub>)</formula>
+<p>Finally, just change "minimize" to "maximize", and in the money change all the signs on the opposite:</p>
+<formula>find the array A[1..M] such that
+C<sub>i</sub> + A<sub>i</sub> <= C<sub>j</sub> + A<sub>j</sub> for all j = M..N and each i ∈ P[j] (i in 1..N-1),
+A<sub>i</sub> <= 0, i = 1..N-1,
+A<sub>i</sub> >= 0, i = N..M,
+and to maximize the sum of the A<sub>1</sub> + ... + A<sub>n-1</sub> (A<sub>n</sub> + ... + A<sub>m</sub>)</formula>
+the <h3>4. The problem inverse-MST to the task, the dual task of appointments</h3>
+<p>the formulation of the inverse problem is MST, which we have just given, is the formulation of <b>linear programming</b> by unknown with A<sub>1</sub>..A<sub>m</sub>.</p>
+<p>Applies a classic technique - consider a <b>dual</b> her.</p>
+<p>By definition, to obtain the dual problem, each inequality to associate a dual variable X<sub>ij</sub>, to change the roles of the objective function (to minimize) and the coefficients in the right-hand parts of inequalities, to change the characters "<=" to ">=" and Vice versa, to change the maximization to minimization.</p>
+<p>so, <b>dual to the inverse-MST</b> task:</p>
+<formula>to find all X<sub>ij</sub> for each (i,j) ∈ H, such that:
+all X<sub>ij</sub> >= 0,
+for each i=1..N-1 ∑ X<sub>ij</sub> for all j: (i,j) ∈ H <= 1,
+for each j=N..M ∑ X<sub>ij</sub> for all i: (i,j) ∈ H <= 1,
+and minimize ∑ X<sub>ij</sub> (C<sub>j</sub> - C<sub>i</sub>) for all (i,j) ∈ H</formula>
+<p>the Last task is the <b>task assignment</b>: we need the graph H ways to select multiple edges so that no edge intersects with another at a vertex, and the sum of the weights of edges (weight of edge (i,j) defined as C<sub>j</sub> - C<sub>i</sub>) should be the smallest.</p>
+<p>Thus, <b>dual problem inverse-MST problem is equivalent to the assignment</b>. If we learn to solve the dual problem of the assignments, we will automatically solve the problem inverse-MST.</p>
+the <h3>5. The solution of the dual assignment problem</h3>
+<p>First let's pay some attention to the particular case of the assignment problem, which we received. First, it is unbalanced task assignment, because one part is N-1 vertices and the other M vertices, i.e. in the General case, the number of vertices of the second part more on one order. To solve this dual assignment problem is a specialized algorithm that decides it in O (N<sup>3</sup>), but here this algorithm will not be considered. Secondly, this task assignment can be called a problem of assignment with weighted vertices: edges with weight put equal to 0, the weight of each vertex from the first share put equal to -C<sub>i</sub>, from the second fraction is equal to C<sub>j</sub>, and from will be the same.</p>
+<p>We will solve the task using the dual task of appointments by using <b>modified algorithm min-cost-flow</b>, who will find a flow of minimum cost and at the same time the solution of the dual problem.</p>
+<p><b>Flatten</b> the task assignment problem to min-cost-flow very easily, but for completeness we will describe this process.</p>
+<p>Add to the graph the source s and drain of t. From s to each vertex of the first share hold an edge with capacity = 1 and cost = 0. Each vertex of the second fraction hold an edge to t with capacity = 1 and cost = 0. The bandwidth of all edges between the first and second installments are also put equal to 1.</p>
+<p>Finally, the modified algorithm min-cost-flow (described below) worked in <b>add edge from s to t</b> bandwidth = N+1 and value = 0.</p>
+the <h3>6. Modified algorithm for min-cost flow to solve the assignment problem</h3>
+<p>Here we look at <b>the algorithm of successive shortest paths with potentials</b>, which resembles the conventional algorithm min-cost-flow, but also uses the concept of <b>potentials</b>, which by the end of the algorithm will contain the <b>solution of the dual problem</b>.</p>
+<p>we Introduce the notation. For each edge (i,j) denote by U<sub>ij</sub> to its bandwidth, using C<sub>ij</sub> is its value, using F<sub>ij</sub> is the ow along this edge.</p>
+<p>will Also introduce the concept of potentials. Each vertex has its own capacity PI<sub>i</sub>. The residual value of the rib CPI<sub>ij</sub> defined as:</p>
+<formula>CPI<sub>ij</sub> = C<sub>ij</sub> - PI<sub>i</sub> + PI<sub>j</sub></formula>
+<p>at any point In the algorithm, <b>potentials are</b> that satisfy the following conditions:</p>
+<formula>if F<sub>ij</sub> = 0, CPI<sub>ij</sub> >= 0
+if F<sub>ij</sub> = U<sub>ij</sub> CPI<sub>ij</sub> <= 0
+otherwise CPI<sub>ij</sub> = 0</formula>
+<p>the Algorithm starts with zero flow, and we need to find some initial values of the potentials, which would satisfy the specified conditions. It is easy to check that this method is one of possible solutions:</p>
+<formula>PI<sub>j</sub> = 0 for j = N..M
+PI<sub>i</sub> = min C<sub>ij</sub>, where (i,j) ∈ H
+PI<sub>s</sub> = min PI<sub>i</sub>, where i = 1..N-1
+PI<sub>t</sub> = 0</formula>
+<p>in fact, the algorithm min-cost-flow consists of multiple iterations. <b>each iteration</b> we find the shortest path from s to t in residual network, the edge weight using the residual value of the CPI. Then we increase the ow along the found path by one, and the updated potentials as follows:</p>
+<formula>PI<sub>i</sub> = D<sub>i</sub></formula>
+<p>where D<sub>i</sub> was found the shortest distance from s to i (again, in the residual network with weights of edges CPI).</p>
+<p>Sooner or later we will find the path from s to t that consists of a single edge (s,t). Then after this iteration, we should <b>end</b> algorithm: indeed, if we do not stop the algorithm, then you will already be a path with nonnegative value, and add them in a reply is not necessary.</p>
+<p>By the end of the algorithm we obtain the solution of the assignment problem (in the form of flux F<sub>ij</sub>) and the solution of the dual of the assignment problem (in the array PI<sub>i</sub>).</p>
+<p>(PI<sub>i</sub> will have to do a little modification: all values of PI<sub>i</sub> to take PI<sub>s</sub>, because its values make sense only when PI<sub>s</sub> = 0)</p>
+the <h3>6. Summary</h3>
+<p>so, we decided the dual task of appointments, and, consequently, the task inverse-MST.</p>
+<p>Evaluate <b>complexity</b> of the resulting algorithm.</p>
+<p>First we will need to build a graph of paths. To do this, simply for each edge j ∉ T by the breadth-first search on the skeleton T will find a way P[j]. Then count the ways we construct in O (M) * O (N) = O (N M).</p>
+<p>Then we find the initial values of potentials in O (N) * O (M) = O (N M).</p>
+<p>we will Then iterate min-cost-flow, all iterations will be at most N (because of the source leaves N edges, each with capacity = 1), at each iteration we are searching in the graph of paths the shortest paths from source to all other vertices. Since the vertices in the graph path is M+2, and the number of edges is O (N M), then if you realize finding shortest paths the simple version of the Dijkstra's algorithm each iteration of the min-cost-flow will execute in O (M<sup>2</sup>), and the whole algorithm min-cost-flow will run in O (N M<sup>2</sup>).</p>
+<p>the complexity of the algorithm is <b>O (N M<sup>2</sup>)</b>.</p>
+the <h2>Implementation</h2>
+<p>Implement the entire algorithm described above. The only change is instead of <algohref=dijkstra>Dijkstra's algorithm</algohref> used <algohref=levit_algorithm>algorithm Leviticus</algohref>, on which many tests have to work a little faster.</p>
+<code>const int INF = 1000*1000*1000;
+
+struct rib {
+int v, c, id;
+};
+
+struct rib2 {
+int a, b, c;
+};
+
+int main() {
+
+int n, m;
+cin >> n >> m;
+vector < vector<rib> > g (n); // the count in the format of adjacency list
+vector<rib2> ribs (m); // all edges in a single list
+... reading graph ...
+
+int nn = m+2, s = nn-2, t = nn-1;
+vector < vector<int> > f (nn, vector<int> (nn));
+vector < vector<int> > u (nn, vector<int> (nn));
+vector < vector<int> > c (nn, vector<int> (nn));
+for (int i=n-1; i<m; ++i) {
+vector<int> q (n);
+int h=0, t=0;
+rib2 & cur = ribs[i];
+q[t++] = cur.a;
+vector<int> rib_id (n, -1);
+rib_id[cur.a] = -2;
+while (h < t) {
+int v = q[h++];
+for (size_t j=0; j<g[v].size(); ++j)
+if (g[v][j].id >= n-1)
+break;
+else if (rib_id [ g[v][j].v ] == -1) {
+rib_id [ g[v][j].v ] = g[v][j].id;
+q[t++] = g[v][j].v;
+}
+}
+for (int v=cur.b, pv; v!=cur.a; v=pv) {
+int r = rib_id[v];
+pv = v != ribs[r].a ? ribs[r].a : ribs[r].b;
+u[r][i] = n;
+c[r][i] = ribs[i].c - ribs[r].c;
+c[i][r] = -c[r][i];
+}
+}
+u[s][t] = n+1;
+for (int i=0; i<n-1; ++i)
+u[s][i] = 1;
+for (int i=n-1; i<m; ++i)
+u[i][t] = 1;
+
+vector<int> pi (nn);
+pi[s] = INF;
+for (int i=0; i<n-1; ++i) {
+pi[i] = INF;
+for (int j=n-1; j<m; ++j)
+if (u[i][j])
+pi[i] = min (pi[i], ribs[j].c-ribs[i].c);
+pi[s] = min (pi[s] pi[i]);
+}
+
+for (;;) {
+vector<int> id (nn);
+deque<int> q;
+q.push_back (s);
+vector<int> d (nn, INF);
+d[s] = 0;
+vector<int> p (nn, -1);
+while (!q.empty()) {
+int v = q.front(); q.pop_front();
+id[v] = 2;
+for (int i=0; i<nn; ++i)
+if (f[v][i] < u[v][i]) {
+int new_d = d[v] + c[v][i] - pi[v] + pi[i];
+if (new_d < - d[i]) {
+d[i] = new_d;
+if (id[i] == 0)
+q.push_back (i);
+else if (id[i] == 2)
+q.push_front (i);
+id[i] = 1;
+p[i] = v;
+}
+}
+}
+for (int i=0; i<nn; ++i)
+pi[i] -= d[i];
+for (int v=t; v!=s; v=p[v]) {
+int pv = p[v];
+++f[pv][v], --f[v][pv];
+}
+if (p[t] == s) break;
+}
+
+for (int i=0; i<m; ++i)
+pi[i] -= pi[s];
+for (int i=0; i<n-1; ++i)
+if (f[s][i])
+ribs[i].c += pi[i];
+for (int i=n-1; i<m; ++i)
+if (f[i][t])
+ribs[i].c += pi[i];
+
+... conclusion of the count ...
+
+}</code>

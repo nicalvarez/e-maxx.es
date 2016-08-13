@@ -1,0 +1,57 @@
+\h1{Point of intersection of lines}
+
+Suppose we are given two lines defined by its coefficients $A_1, B_1, C_1$ and $A_2, B_2, C_2$. You want to find their intersection point, or figure out that the lines are parallel.
+
+\h2{Solution}
+
+If two lines are not parallel, then they intersect. To find the intersection point, enough to make two equations of the direct system and solve it:
+$$ \cases{ A_1 x + B_1 y + C_1 = 0, \cr
+A_2 x + B_2 y + C_2 = 0. } $$
+
+Using the formula of Kramer, we find immediately the solution of the system, which will be required \bf{point of intersection}:
+
+$$ x = - \frac{ \left|\matrix{C_1&B_1 \cr C_2&B_2}\right| }{ \left|\matrix{A_1&B_1 \cr A_2&B_2}\right| } = - \frac{ C_1 B_2 - C_2 B_1 }{ A_1 B_2 - A_2 B_1 }, $$
+$$ y = - \frac{ \left|\matrix{A_1&C_1 \cr A_2&C_2}\right| }{ \left|\matrix{A_1&B_1 \cr A_2&B_2}\right| } = - \frac{ A_1 C_2 - C_1 A_2 }{ A_1 B_2 - A_2 B_1 }. $$
+
+If the denominator is zero, i.e.
+$$ \left|\matrix{A_1&B_1 \cr A_2&B_2}\right| = A_1 B_2 - A_2 B_1 = 0 $$
+the system has no solutions (direct \bf{parallel} and do not match) or is infinite (direct \bf{match}). If it is necessary to distinguish these two cases, it is necessary to check that the coefficients $C$ of direct proportional with the same proportionality coefficient, and the coefficients $A$ and $B$, which is enough to calculate two of the qualifier, if they are both zero, then a direct match:
+
+$$ \left|\matrix{ A_1 & C_1 \cr A_2 & C_2 }\right|, \left|\matrix{ B_1 & C_1 \cr B_2 & C_2 }\right| $$
+
+\h2{the Implementation}
+
+\code
+struct pt {
+double x, y;
+};
+
+struct line {
+double a, b, c;
+};
+
+const double EPS = 1e-9;
+
+double det (double a, double b, double c, double d) {
+return a * d - b * c;
+}
+
+bool intersect (line m, line n, pt, & res) {
+double zn = det (m.a, m.b, n.a, n.b);
+if (abs (zn) < EPS)
+return false;
+res.x = - det (m.c, m.b, n.c, n.b) / zn;
+res.y = - det (m.a, m.c, n.a, n.c) / zn;
+return true;
+}
+
+bool parallel (line m, line n) {
+return abs (det (m.a, m.b, n.a, n.b)) < EPS;
+}
+
+bool equivalent (line m, line n) {
+return abs (det (m.a, m.b, n.a, n.b)) < EPS
+&& abs (det (m.a, m.c, n.a, n.c)) < EPS
+&& abs (det (m.b, m.c, n.b, n.c)) < EPS;
+}
+\endcode

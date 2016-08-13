@@ -1,0 +1,61 @@
+\h1{Terciario búsqueda}
+
+\h2{el Planteamiento de la tarea}
+
+Que dada la función $f(x)$, \bf{унимодальная} en algún tramo $[l;r]$. Bajo унимодальностью se entiende cualquiera de las dos opciones. La primera: la función primero estrictamente aumenta, luego alcanza un máximo (en un punto o la totalidad de tramo), luego estrictamente disminuye. La segunda opción, simétrica: la función primero disminuye disminuye, alcanzando un mínimo de cadera. En el futuro vamos a considerar la primera opción, la segunda será totalmente simétrica a él.
+
+Es necesario \bf{encontrar la máxima} la función $f(x)$ en el intervalo $[l;r]$.
+
+\h2{el Algoritmo}
+
+Tomemos dos puntos cualesquiera de $m_1$ y $m_2$ en este tramo: $l < m_1 < m_2 < r$. Calcular el valor de la función $f(m_1)$ y $f(m_2)$. Más allá nos resulta tres opciones:
+
+\ul{
+
+\li Si resulta que $f(m_1) < f(m_2)$, entonces el máximo no puede estar en el lado izquierdo, es decir, en la parte $[l;m_1]$. En este fácil de comprobar: si el de la izquierda de un punto de la función es menor que en el lado derecho, cualquiera de estos dos puntos se encuentran en el área de la "elevación" de la función, o sólo el extremo izquierdo se encuentra allí. En cualquier caso, esto significa que el máximo de encendido, tiene sentido buscar sólo en el tramo de $[m_1;r]$.
+
+\li Si, por el contrario, $f(m_1) > f(m_2)$, entonces la situación es similar a la anterior, con una precisión hasta de simetría. Ahora se busca el máximo no puede estar en la parte derecha, es decir, en la parte $[m_2;r]$, por lo que pasamos a un segmento $[l;m_2]$.
+
+\li Si $f(m_1) = f(m_2)$, entonces uno o ambos de estos puntos se encuentran en el área del máximo, o el extremo izquierdo se encuentra en el ámbito de la ascendente, mientras que la derecha --- en el ámbito de la descendente (aquí esencialmente se basa en que el acrecentamiento de la/el receso de estrictas). Por lo tanto, en el futuro, la búsqueda tiene sentido producir en el tramo de $[m_1;m_2]$, pero (para simplificar el código) este caso puede referirse a cualquiera de los dos anteriores.
+}
+
+Por lo tanto, el resultado de la comparación de los valores de la función en dos puntos internos tenemos en lugar de la actual corte de búsqueda $[l;r]$ encontramos con un nuevo trozo de $[l^\prime;r^\prime]$. Recapitulemos ahora, todos los pasos para este nuevo corte, alcanzaremos el nuevo, estrictamente menor, corte, etc.
+
+Tarde o temprano, la longitud del segmento será pequeña, menos de un constante de la precisión, y el proceso se puede detener. Este método numérico, por lo tanto, después de la parada del algoritmo se aproxima a considerar que en todos los puntos del segmento $[l;r]$ se logra el máximo; como respuesta se puede tomar, por ejemplo, el punto de $l$.
+
+Queda por señalar que no estamos imprimiendo ninguna restricción en la elección de los puntos de $m_1$ y $m_2$. De este modo, claro, dependerá de la velocidad de convergencia (sino se produce el error). El método más común --- seleccionar un punto de modo que el segmento $[l;r]$ compartió en 3 partes iguales:
+$$ m_1 = l + \frac{r-l}{3} $$
+$$ m_2 = r - \frac{r-l}{3} $$
+
+Sin embargo, mientras que en el otro se selecciona cuando $m_1$ y $m_2$ más cerca el uno al otro, la velocidad de convergencia, se aumentará ligeramente.
+
+\h3{Caso argumento entero}
+
+Si el argumento de la función $f$ entero, corte a $[l;r]$ también se hace discreto, sin embargo, ya no estamos imprimiendo ninguna restricción en la elección de los puntos de $m_1$ y $m_2$, entonces la corrección de un algoritmo esto no afecta de ningún modo. Todavía puede elegir $m_1$ y $m_2$ para que dividían el tramo de $[l;r]$ en 3 partes, pero ya la igualdad de sólo aproximadamente.
+
+La segunda se distingue por el momento --- el criterio de parada del algoritmo. En este caso, el terciario búsqueda será necesario parar, cuando se hace el $r-l<3$, ya que en este caso ya no se podrá seleccionar un punto de $m_1$ y $m_2$ para que eran distintas y diferentes de $l$ y $r$, y esto puede dar lugar a un bucle. Después de que el algoritmo de тернарного la búsqueda se detendrá y será $r-l<3$, de las que quedan varios puntos de candidatos $(l,l+1,\ldots,r)$ es necesario seleccionar un punto con el valor máximo de la función.
+
+\h2{Aplicación}
+
+La implementación continua de los casos (es decir, la función $f$ es: $\rm double\ f\ (double\ x)$):
+
+\code
+double l = ..., r = ..., EPS = ...; // datos de entrada
+while (r - l > EPS) {
+double m1 = l + (r - l) / 3,
+m2 = r - (r - l) / 3;
+if (f (m1) < f (m2))
+l = m1;
+else
+r = m2;
+}
+\endcode
+
+Aquí $\rm EPS de$ --- en realidad, \bf{error absoluto} respuesta (no teniendo en cuenta la parcialidad impreciso el cálculo de la función).
+
+En lugar del criterio de "while (r - l > EPS)", puede seleccionar un criterio de parada:
+\code
+for (int it=0; it<iterations; ++it)
+\endcode
+
+Por un lado, tendrá que recoger la constante de $\rm iterations$, para garantizar la precisión (normalmente es suficiente con unos pocos cientos, para lograr la máxima precisión). Pero, por otro lado, el número de iteraciones deja de depender de los valores absolutos de $l$ y $r$, es decir, la hemos hecho con la ayuda de $\rm iterations$ hacemos deseada \bf{relativa de error}.

@@ -1,0 +1,483 @@
+\h1{ el Principio de inclusiones-exclusiones }
+
+El principio de inclusiones-exclusiones --- es importante комбинаторный un truco para calcular el tamaño de alguno de los conjuntos, o calcular la probabilidad de eventos complejos.
+
+
+\h2{ el Lenguaje del principio de inclusiones-exclusiones }
+
+
+\h3{ Verbal redacción }
+
+El principio de inclusiones-exclusiones de la siguiente manera:
+
+Para calcular el tamaño de la combinación de varios de los conjuntos, es necesario sumar las dimensiones de estos conjuntos \bf{individualmente}, y luego restar el tamaño de todos los \bf{попарных} de intersección de estos conjuntos, añadir de nuevo las dimensiones de cruces de todo tipo de \bf{triples} de conjuntos, restar dimensiones de las intersecciones \bf{cuatros}, y así sucesivamente, hasta llegar a la intersección \bf{todos} de conjuntos.
+
+
+\h3{ Formulación en términos de conjuntos }
+
+En forma matemática anterior verbal redacción es la siguiente:
+
+$$ \left| \bigcup_{i=1}^n A_i \right| = \sum_{i=1}^n \left| A_i \right| ~~ - \sum_{i,j : \atop 1 \le i < j \le n} \left| A_i \cap A_j \right| ~~ + \sum_{i,j,k : \atop 1 \le i < j < k \le n} \left| A_i \cap A_j \cap A_k \right| ~ - ~ \ldots ~ + ~ (-1)^{n-1} \left| A_1 \cap \ldots \cap A_n \right|. $$
+
+Se puede grabar de forma más compacta, a través de la suma de subconjuntos de. Se denota por $B$ multitud de elementos que son $A_i$. Entonces el principio de inclusiones-exclusiones toma la forma:
+
+$$ \left| \bigcup_{i=1}^n A_i \right| = \sum_{C \subseteq B} (-1)^{size(C)-1} \left| \bigcap_{e \in C} e \right|. $$
+
+A esta fórmula se le atribuye Муавру (Abraham de Moivre).
+
+
+\h3{ Redacción con la ayuda de diagramas de venn }
+
+Que en el gráfico destacaron tres figuras de $A$, $B$ y $C$:
+
+\img{inclusion_exclusion_1.png}
+
+Entonces el tamaño de la federación de $A \cup B \cup C$ es igual a la suma de las superficies de $A$, $B$ y $C$ menos dos veces cubiertos de superficie $A \cap B$, $A \cap C$, $B \cap C$, pero se suma tres veces cubierto de la plaza $A \cap B \cap C$:
+
+$$ S(A \cup B \cup C) = S(A) ~ + ~ S(B) ~ + ~ S(C) ~ - ~ S(A \cap B) ~ - ~ S(A \cap C) ~ - ~ S(B \cap C) ~ + ~ S(A \cap B \cap C). $$
+
+De igual modo, el resume y de la federación de $n$ de las figuras.
+
+
+\h3{ Formulación en términos de la teoría de la probabilidad }
+
+Si $A_i$ $(i = 1, \ldots, n)$ --- este es el evento, ${\cal P}(A_i)$ --- de probabilidad, la probabilidad de la combinación de ellos (es decir, lo que ocurra al menos uno de estos eventos) es igual a:
+
+$$$ \begin{eqnarray}
+{\cal P} \left( \bigcup_{i=1}^n A_i \right) & = & \sum_{i=1}^n {\cal P} \left( A_i \right) ~~ - \sum_{i,j : \atop 1 \le i < j \le n} {\cal P} \left( A_i \cap A_j \right) ~~ + \cr
+& + & \sum_{i,j,k : \atop 1 \le i < j < k \le n} {\cal P} \left( A_i \cap A_j \cap A_k \right) ~ - ~ \ldots ~ + ~ (-1)^{n-1} {\cal P} \left( A_1 \cap \ldots \cap A_n \right). \cr
+\nonumber
+\end{eqnarray} $$$
+
+Esta cantidad también se puede escribir como la suma de subconjuntos de conjuntos $B$, elementos que son eventos $A_i$:
+
+$$ {\cal P} \left( \bigcup_{i=1}^n A_i \right) = \sum_{C \subseteq B} (-1)^{size(C)-1} \cdot {\cal P} \left( \bigcap_{e \in C} e \right). $$
+
+
+\h2{ Prueba del principio de inclusiones-exclusiones }
+
+Para la prueba es fácil de utilizar matemática de la redacción en los términos de la teoría de conjuntos:
+
+$$ \left| \bigcup_{i=1}^n A_i \right| = \sum_{C \subseteq B} (-1)^{size(C)-1} \left| \bigcap_{e \in C} e \right|, $$
+
+donde $B$, recordemos, --- es el conjunto formado por $A_i$s -.
+
+Tenemos que demostrar que cualquier elemento de contenido al menos en uno de los conjuntos $A_i$, учтется fórmula exactamente una vez. (Tenga en cuenta que el resto de los elementos que no figuran en ninguno de $A_i$, no pueden ser tenidas en cuenta, ya que no hay en la parte derecha de la fórmula).
+
+Considere un elemento arbitrario de $x$, contenida exactamente en $k \ge 1$ conjuntos $A_i$. Mostraremos que él посчитается fórmula exactamente una vez.
+
+Tenga en cuenta que:
+
+\ul{
+
+\li en los términos de los cuales $size(C) = 1$, el elemento $x$ учтется exactamente $k$ más, con signo positivo;
+
+\li en los términos de los cuales $size(C) = 2$, el elemento $x$ учтется (con signo negativo) exactamente $C_k^2$ más --- ya que $x$ посчитается sólo en los términos que corresponden a dos conjuntos de $k$ conjuntos que contengan $x$;
+
+\li en los términos de los cuales $size(C) = 3$, el elemento $x$ учтется exactamente $C_k^3$ más, con signo positivo;
+
+\li $\ldots$
+
+\li en los términos de los cuales $size(C) = k$, el elemento $x$ учтется exactamente $C_k^k$ más, con el signo $(-1)^{k-1}$;
+
+\li en los términos de los cuales $size(C) > k$, el elemento $x$ учтется cero veces.
+
+}
+
+Por lo tanto, debemos considerar la misma cantidad \algohref=binomial_coeff{binomial de los factores}:
+
+$$ T = C_k^1 - C_k^2 + C_k^3 - \ldots + (-1)^{i-1} \cdot C_k^i + \ldots + (-1)^{k-1} \cdot C_k^k. $$
+
+La forma más fácil de calcular esta cantidad, comparándolo con el de la descomposición en el binomio de newton de la expresión $(1-x)^k$:
+
+$$ (1-x)^k = C_k^0 - C_k^1 \cdot x + C_k^2 \cdot x^2 - C_k^3 \cdot x^3 + \ldots + (-1)^k \cdot C_k^k \cdot x^k. $$
+
+Se ve que cuando $x=1$, la expresión $(1-x)^k$ no es otro, como $1 - T$. Por lo tanto, $T = 1 - (1-1)^k = 1$, que se quería demostrar.
+
+
+\h2{ Aplicación en la solución de problemas }
+
+El principio de inclusiones-exclusiones difícil de comprender sin el estudio de los ejemplos de sus usos.
+
+Primero vamos a ver las tres tareas simples "en el trozo de papel", para ilustrar la aplicación del principio y, a continuación, echemos un vistazo más prácticos, que son difíciles de resolver sin el uso de un principio de inclusión-exclusión.
+
+Cabe destacar que la tarea de "buscar el número de caminos", ya que en ella se muestra que el principio de inclusiones-exclusiones a veces puede conducir a полиномиальным las decisiones, y no necesariamente a una exponencial.
+
+
+\h3{ Simple tarea de permutaciones }
+
+¿Cuánto hay de permutaciones de los números de $0 a$ a $9$ tales que el primer elemento más de $1$, y el último --- menos de $8$?
+
+Calcular el número de los "malos" de permutaciones, es decir, aquellos en los que el primer elemento de la $\le 1$ y/o la reserva de $\ge 8$.
+
+Se denota por $X$ multitud de permutaciones, que el primer elemento de la $\le 1$, y por $Y$ --- en la que el último elemento de $\ge 8$. Entonces el número de los "malos" de permutaciones bajo la fórmula de inclusiones-exclusiones es igual a:
+
+$$ |X| + |Y| - |X \cap S|. $$
+
+Después de pasar combinatorios simples cálculos, obtenemos que esto es igual a:
+
+$$ 2 \cdot 9! + 2 \cdot 9! - 2 \cdot 2 \cdot 8! $$
+
+Tomando este número entre el número total de permutaciones de 10$!$, obtenemos la respuesta.
+
+
+\h3{ Simple tarea de (0,1,2) las secuencias }
+
+El número de secuencias de longitud $n$, compuestas únicamente de números de $0,1,2$, y cada número se reúne al menos una vez?
+
+De nuevo pasamos a la inversa de la tarea, es decir, vamos a considerar el número de secuencias en las que no está presente al menos uno de los números.
+
+Se denota por $A_i$ ($i = 0, \ldots 2$) muchas de las secuencias, en las que no aparece el número de $i$. Entonces, según la fórmula de inclusiones-exclusiones el número de los "malos" de secuencia es igual a:
+
+$$ |A_0| + |A_1| + |A_2| - |A_0 \cap A_1| - |A_0 \cap A_2| - |A_1 \cap A_2| + |A_0 \cap A_1 \cap A_2|. $$
+
+Las dimensiones de cada uno de $A_i$ son iguales, obviamente, $2^n$ (ya que en estas secuencias pueden encontrar dos clases de números). La capacidad de cada попарного la intersección de $A_i \cap A_j$ son iguales a $1$ (ya que sigue siendo de solo un dígito). Por último, la potencia de la intersección de los tres conjuntos es igual a $0$ (ya que se dispone de cifras no es).
+
+Para recordar lo que hemos resuelto la tarea inversa, obtenemos la final \bf{respuesta}:
+
+$$ 3^n - 3 \cdot 2^n + 3 \cdot 1 - 0. $$
+
+
+\h3{ el Número de enteros de soluciones de la ecuación }
+
+Dada la ecuación:
+
+$$ x_1 + x_2 + x_3 + x_4 + x_5 + x_6 = 20, $$
+
+donde todos $0 \le x_i \le 8$ (donde $i = 1, \ldots 6$).
+
+Es necesario calcular el número de soluciones de esta ecuación.
+
+Olvidaremos primero sobre el límite de $x_i \le 8$, y simplemente contar el número de soluciones no negativas de la ecuación. Esto se hace fácilmente a través de \algohref=binomial_coeff{los coeficientes binomiales también} --- queremos dividir $20$ elementos $6$ de grupos, es decir, distribuir $5$ las paredes que dividen el grupo, por $25$ lugares:
+
+$$ N_0 = C_{25}^5 $$
+
+Consideramos ahora la fórmula de inclusiones-exclusiones el número de los "malos" de las decisiones, es decir, como soluciones de ecuaciones en las que uno o más de $x_i$ más $9$.
+
+Se denota por $A_k$ (donde $k = 1 \ldots 6$) muchas de estas soluciones de la ecuación, en los cuales $x_k \ge 9$, y el resto de $x_i \ge 0$ (para todas las $i \ne k$). Para calcular el tamaño de la multitud de $A_k$, tenga en cuenta que nosotros en la esencia de la misma combinatoria tarea que se emprendió dos párrafos anteriores, sólo que ahora $9$ elementos excluidos y exactamente pertenecen al primer grupo. Por lo tanto:
+
+$$ | A_k | = C_{16}^5 $$
+
+De manera similar, la potencia de la intersección de dos conjuntos $A_k$ y $A_p$ es igual al número:
+
+$$ \left| A_k \cap A_p \right| = C_7^5 $$
+
+La potencia de cada una de la intersección de tres o más conjuntos es igual a cero, ya que $20$ de los elementos no es suficiente para tres o más variables, más o iguales a $9$.
+
+Uniendo todo esto en la fórmula de las inclusiones-exclusiones y teniendo en cuenta que hemos decidido inversa de la tarea y, finalmente recibimos \bf{respuesta}:
+
+$$ C_{25}^5 - C_6^1 \cdot C_{16}^5 + C_6^2 \cdot C_7^5. $$
+
+
+\h3{ Número mutuamente simples números en un determinado tramo }
+
+Que dado el número de $n$ o $r$. Es necesario calcular la cantidad de números en el tramo de $[1; r]$ mutuamente simples con $n$.
+
+Proceder de inmediato a la inversa de la tarea --- calcular el número no son mutuamente primos.
+
+Considere todas las cosas simples rias número $n$; se denota a través de $p_i$ ($i = 1, \ldots k$).
+
+La cantidad de números en el tramo de $[1;r]$, que se dividen en $p_i$? Su número es igual a:
+
+$$ \left\lfloor \frac{ r }{ p_i } \right\rfloor $$
+
+Sin embargo, si nos limitamos a просуммируем estos números, recibiremos la respuesta incorrecta --- algunos de los que se sumar varias veces (los que se dividen rápidamente en varias $p_i$). Por lo tanto, es necesario utilizar la fórmula de inclusión-exclusión.
+
+Por ejemplo, puede por $2^k$ escoger un subconjunto del conjunto de todos los $p_i$s, calcular su obra, y sumar o restar en la fórmula de las inclusiones-exclusiones ordinaria de término.
+
+Total \bf{aplicación} para el cálculo de la cantidad mutuamente números simples:
+
+\code
+int solve (int n, int r) {
+vector<int> p;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+p.push_back (i);
+while (n % i == 0)
+n /= i;
+}
+if (n > 1)
+p.push_back (n);
+
+int sum = 0;
+for (int msk=1; msk<(1<<p.size()); ++msk) {
+int mult = 1,
+bits = 0;
+for (int i=0; i<(int)p.size(); ++i)
+if (msk & (1<<i)) {
+++bits;
+mult *= p[i];
+}
+
+int cur = r / mult;
+if (bits % 2 == 1)
+sum += cur;
+else
+sum -= cur;
+}
+
+return r - sum;
+}
+\endcode
+
+Asíntotas de la solución es de $O (\sqrt{n})$.
+
+
+\h3{ la Cantidad de números en un determinado tramo de múltiplos de al menos uno de los números dados }
+
+Dado $n$ de números de $a_i$ número $r$. Es necesario calcular la cantidad de números en el tramo de $[1; r]$, que son múltiplos de al menos uno de $a_i$.
+
+El algoritmo de solución coincide prácticamente con la anterior tarea --- hacemos la fórmula de inclusiones-exclusiones sobre los números $a_i$, es decir, cada término en la fórmula --- es la cantidad de números que se dividen en un subconjunto de los números $a_i$ (en otras palabras, que se dividen a su \algohref=euclid_algorithm{mínimo común múltiplo}).
+
+Por lo tanto, la solución se reduce a lo que por $2^n$ escoger un subconjunto de los números, por $O(n \log r)$ operaciones de encontrar el mínimo común múltiplo, y añadir o restar de la respuesta ordinaria de valor.
+
+
+\h3{ el Número de filas que cumplan un número de patrones }
+
+Dado $n$ patrones --- cadenas de la misma longitud, compuestas únicamente de las letras y signos de interrogación. También se da el número de $k$. Es necesario contar el número de filas que cumplan exactamente $k$ patrones o, en otro planteamiento, como mínimo, $k$ patrones.
+
+Tenga en cuenta, primero, que podemos \bf{fácil contar el número de filas} que satisfacen de inmediato todos los patrones. Para ello, es necesario simplemente de "cruzar" estos patrones: ver en el primer carácter (si todos los паттернах en la primera posición es la cuestión, o no en todos --- entonces el primer carácter es inequívoco), en la segunda, el carácter, etc.
+
+Aprendamos ahora resolver \bf{la primera opción de la tarea}: cuando las cadenas de búsqueda deben cumplir exactamente $k$ patrones.
+
+Para ello, переберем y зафксируем específica de un subconjunto de $X$ de patrones de tamaño de la $k$ --- ahora tenemos que calcular el número de filas que cumplan este conjunto de patrones y sólo a él. Para ello, usaremos la fórmula de inclusión-exclusión: sumamos todos надмножествам multitud de $X$, y, o bien se añade a la respuesta, o llevamos de él el número de filas que cumplen con la actual de la multitud:
+
+$$ ans(X) = \sum_{Y \supseteq X} (-1)^{|Y|k} \cdot f(Y) $$
+
+donde $f(X)$ es el número de filas que cumplen con un conjunto de patrones de $Y$.
+
+Si nos просуммируем $ans(X)$ para todo $X$, obtenemos la respuesta:
+
+$$ ans = \sum_{X ~ : ~ |X| = k} ans(X). $$
+
+Sin embargo, así tenemos la solución durante aproximadamente $O(3^k \cdot k)$.
+
+La solución se puede acelerar, al darse cuenta de que en las diferentes $ans(X)$ suma a menudo se realiza de la misma conjuntos $Y$.
+
+Dar vuelta la fórmula de inclusiones-exclusiones y vamos a llevar la suma de $Y$. Entonces es fácil entender que muchos $Y$ учтется en $C_{|Y|}^k$ fórmulas de inclusiones-exclusiones, siempre con el mismo signo $(-1)^{|Y|-k}$:
+
+$$ ans = \sum_{Y ~ : ~ |Y| \ge k} (-1)^{|Y|k} \cdot C_{|Y|}^k \cdot f(Y). $$
+
+La solución pasa con асимптотикой $O(2^k \cdot k)$.
+
+Pasemos ahora a \bf{la segunda variante de la tarea}: cuando las cadenas de búsqueda deben cumplir, como mínimo, $k$ patrones.
+
+Claro, podemos simplemente usar la solución de la primera versión de la tarea y sumar las respuestas de $k$ a $n$. Sin embargo, se puede notar que todos los razonamientos siguen siendo fieles, sólo en esta variante de la tarea de la suma de $X$, no se trata sólo de temas conjuntos, cuyo tamaño es de $k$, y de todos los conjuntos con un tamaño de $\ge k$.
+
+Por lo tanto, en la final de la fórmula antes de que $f(Y)$ habr otro factor: no un биномиальный factor de algún signo, y su suma:
+
+$$ (-1)^{|Y|k} \cdot C_{|Y|}^k ~~ + ~~ (-1)^{|Y|k-1} \cdot C_{|Y|}^{k+1} ~~ + ~~ (-1)^{|Y|-k-2} \cdot C_{|Y|}^{k+2} ~~ + ~~ \ldots ~~ + ~~ (-1)^{|S|-|Y|} \cdot C_{|Y|}^{|Y|}. $$
+
+Al entrar en el Грэхема (\book{graham, el Látigo, Паташник}{"Específica de las matemáticas"}{1998}{graham.djvu} ), vemos una conocida fórmula para \algohref=binomial_coeff{binomial de los factores}:
+
+$$ \sum_{k=0}^m (-1)^k \cdot C_n^k = (-1)^m \cdot C_{n-1}^m. $$
+
+Aplicando aquí, obtenemos que toda esta suma binomial de los factores se minimiza en:
+
+$$ (-1)^{|Y|k} \cdot C_{|Y|-1}^{|Y|k}. $$
+
+Por lo tanto, para esta variante de la tarea también hemos recibido la decisión de асимптотикой $O(2^k \cdot k)$:
+
+$$ ans = \sum_{Y ~ : ~ |Y| \ge k} (-1)^{|Y|k} \cdot C_{|Y|-1}^{|Y|k} \cdot f(Y). $$
+
+
+\h3{ Número de rutas de acceso }
+
+Hay un campo $n \times m$ algunos $k$ de las células que --- impenetrable pared. En el campo de la jaula $(1,1)$ (izquierda inferior de la célula) inicialmente se encuentra el robot. El robot sólo puede moverse hacia la derecha o hacia arriba, y con el tiempo se debe caer en la jaula $(n,m)$, evitando todos los obstáculos. Es necesario calcular el número de formas en las cuales se puede hacer esto.
+
+Suponemos que el tamaño de la $n$ y $m$ muy grandes (por ejemplo, hasta $10^9$), y la cantidad de $k$ --- pequeño (del orden de los $100$).
+
+Para resolver de inmediato en el objeto de facilitar el \bf{ordenará} obstáculos en el orden en que podemos evitar: es decir, por ejemplo, por la coordenada de $x$, y en caso de empate, - - - por la coordenada $y$.
+
+Inmediatamente aprender a resolver un problema sin obstáculos: es decir, aprenderemos a contar el número de maneras de llegar de una célula a otra. Si una coordenada tenemos que pasar de $x$ de las células, y por el otro --- $y$ de las células, de la facilidad para комбинаторики obtenemos una fórmula a través de la \algohref=binomial_coeff{los coeficientes binomiales también}:
+
+$$ C_{x+y}^{x} $$
+
+Ahora, para calcular el número de maneras de llegar de una célula a otra, evitando todos los obstáculos, se puede utilizar \bf{fórmula de inclusiones-exclusiones}: calcular el número de maneras de llegar, paso a paso, aunque sea un obstáculo.
+
+Para ello, puede, por ejemplo, escoger un subconjunto de los obstáculos a los que estamos exactamente наступим, contar el número de maneras de hacer esto (sólo перемножив número de maneras de llegar desde la plataforma de lanzamiento de las células antes de la primera de las selecciones de obstáculos, desde el primer obstáculo al segundo, y así sucesivamente), y, a continuación, añadir o quitar es el número de la respuesta, de acuerdo a la fórmula de inclusión-exclusión.
+
+Sin embargo, de nuevo se неполиномиальное solución --- por асимптотику $O (2^k)$. Le mostraremos cómo obtener \bf{полиномиальное solución}.
+
+Resolver vamos a \bf{dinámico de programación}: aprenderemos a calcular el número de $d[i][j]$ --- número de maneras de llegar desde $i$-ésimo punto de hasta $j$-oh, no pisar ni en un obstáculo (excepto los $i$ y $j$, naturalmente). En total, disponemos de $k+2$ el punto, ya que los obstáculos se agregan de inicio y final de la célula.
+
+Si estamos en el segundo olvidaremos sobre todos los obstáculos y simplemente calcular el número de formas de las células de $i$ en la jaula $j$, lo consideraremos algunos de los "malos" de la ruta, pasan a través de los obstáculos. Aprenderemos a contar el número de estos "malos" de las vías. Переберем el primero de los obstáculos $i < t < j$, a los que estamos наступим, entonces el número de rutas de acceso será de $d[i][t]$, multiplicado por el número de formas arbitrarias de $t$ $j$. La suma es sobre todos los $t$, determinemos el número de los "malos" de las vías.
+
+Por lo tanto, un valor de $d[i][j]$ hemos aprendido a considerar a la hora $O(k)$. Por lo tanto, la solución de todo problema tiene асимптотику $O(k^3)$.
+
+
+\h3{ Número mutuamente simples de cuatros }
+
+Dado $n$ de números: $a_1, a_2, \ldots, a_n$. Es necesario contar el número de maneras de seleccionar una de las cuatro números de modo que su ingreso total máximo común divisor es igual a uno.
+
+Vamos a resolver la tarea inversa --- calcular el número de los "malos" de cuatros, es decir, de esos cuatros, en el que todos los números se dividen por el número $d > 1$.
+
+Usaremos la fórmula de inclusiones-exclusiones, sumando el número de cuatros, clasificado en el divisor $d$ (pero, tal vez, se dividen y en el mayor divisor):
+
+$$ ans = \sum_{d \ge 2} (-1)^{deg(d)-1} \cdot f(d), $$
+
+donde $deg(d)$ --- este es el número de sencillos en факторизации número $, d$, $f(d)$ --- cantidad de cuatros, que se dividen en $d$.
+
+Para calcular la función $f(d)$, solo hay que contar la cantidad de números múltiplos de $d$ y \algohref=binomial_coeff{биномиальным coeficiente} calcular el número de maneras de seleccionar una de las cuatro.
+
+Por lo tanto, mediante la fórmula de inclusiones-exclusiones sumamos la cantidad de cuatros, que se dividen en simples números y, a continuación, quite el número de cuatros, que se dividen en la obra de dos simples, se añade un cuarteto, que se dividen en tres sencillos, etc.
+
+
+\h3{ Número de armónicos triples }
+
+Dado el número $n \le 10^6$. Es necesario contar el número de estos tríos de números de $2 \le a < b < c \le n$, que son armónicas тройками, es decir:
+
+\ul{
+
+\li o ${\rm mcd}(a,b) = {\rm mcd}(a,c) = {\rm mcd}(b,c) = 1$,
+\li o ${\rm mcd}(a,b) > 1$, ${\rm mcd}(a,c) > 1$, ${\rm mcd}(b,c) > 1$.
+
+}
+
+En primer lugar, proceder de inmediato a la inversa de la tarea --- es decir, calcular el número de негармонических triples.
+
+En segundo lugar, tenga en cuenta que en cualquier негармонической tres exactamente dos de sus números se encuentran en esta situación, que es el número mutuamente simplemente con un número de la troika y no mutuamente simplemente con otro número de tres.
+
+Por lo tanto, el número de негармонических triples es igual a la suma de todos los números de 2 $a$ a $n$ las obras de la cantidad mutuamente simples con el actual número de dígitos en el número de no mutuamente simples números.
+
+Ahora todo lo que queda por hacer para resolver la tarea es aprender a contar para cada número en el tramo de $[2, n]$ cantidad de los números mutuamente simples (o no mutuamente simples) con él. Aunque esta tarea ya ha examinado ya hemos mencionado anteriormente, la decisión de no encaja aquí --- que requerirá de факторизации de cada uno de los números de 2 $a$ a $n$, y luego recorrer todo tipo de obras de los números simples de факторизации.
+
+Por lo tanto, necesitamos una resolución más rápida de cuenta de las respuestas para todos los números de la corte $a[2, n]$ a la vez.
+
+Para ello, se puede implementar tal \bf{modificación del tamiz eratosfena}:
+
+\ul{
+
+\li En primer lugar, tenemos que encontrar todos los números en el tramo de $[2, n]$, en факторизации que ningún simple no entra dos veces. Además, para la fórmula de inclusiones-exclusiones necesitamos saber la cantidad de sencillos contiene факторизация de cada uno de esos números.
+
+Para ello, necesitamos tener las matrices $deg[]$, almacenan para cada número de la cantidad de sencillos en su факторизации, y $good[]$ --- contiene para cada número en $true$ o $falso$ --- todas las cosas simples se incluyen en él en la medida en $\le 1$ o no.
+
+Después de eso, durante el tamiz eratosfena al procesar el siguiente número primo nos vamos a hacer un recorrido por todos los números que sean múltiplos actual número, y aumentaremos $deg[]$ a ellos, y todos los números múltiplos de al cuadrado de la actual simple --- elegiremos $good = false$.
+
+\li En segundo lugar, debemos considerar la respuesta para todos los números de 2 $a$ a $n$, es decir, la matriz $cnt[]$ --- cantidad de números, no son mutuamente simples con los datos.
+
+Para ello, recordemos cómo funciona la fórmula de inclusiones-exclusiones --- aquí en realidad realizamos la misma, pero con lógica invertida: parecemos перебираем término y veamos en qué fórmula inclusiones-exclusiones de ningún tipo de números es el término está incluido.
+
+Así, supongamos que tenemos el número de $i$ y que $good[]=true$, es decir, el número de participantes en la fórmula de inclusión-exclusión. Переберем todos los números múltiplos de $i$, y a la respuesta $cnt[]$ de cada uno de estos números, debemos sumar o restar un valor de $\lfloor N/i \rfloor$. El signo de --- la suma o resta --- depende de la $deg[i]$: si $deg[i]$ нечетна, es necesario sumar, de lo contrario deducir.
+
+}
+
+\bf{Aplicación}:
+
+\code
+int n;
+bool good[MAXN];
+int deg[MAXN], la cnt[MAXN];
+
+long long solve() {
+memset (good, 1, sizeof good);
+memset (deg, 0, sizeof deg);
+memset (cnt, 0, sizeof cnt);
+
+long long ans_bad = 0;
+for (int i=2; i<=n; ++i) {
+if (good[i]) {
+if (deg[i] == 0) deg[i] = 1;
+for (int j=1; i*j<=n; ++j) {
+if (j > 1 && deg[i] == 1)
+if (j % i == 0)
+good[i*j] = false;
+else
+++deg[i*j];
+cnt[i*j] += (n / i) * (deg[i]%2==1 ? +1 : -1);
+}
+}
+ans_bad += (cnt[i] - 1) * 1ll * (n-1 - cnt[i]);
+}
+
+return (n-1) * 1ll * (n-2) * (n-3) / 6 - ans_bad / 2;
+}
+\endcode
+
+Asíntotas de esta solución es de $O (n \log n)$, ya casi para cada número $i$, hace aproximadamente $n/i$ iteraciones de un bucle anidado.
+
+
+\h3{ el Número de permutaciones sin fijas de puntos }
+
+Demostramos que el número de permutaciones de longitud $n$ sin fijas de puntos es igual al siguiente número:
+
+$$ n! - C_n^1 \cdot (n-1)! + C_n^2 \cdot (n-2)! - C_n^3 \cdot (n-3)! + \ldots \pm C_n^n \cdot (n-n)! $$
+
+y es aproximadamente igual al número:
+
+$$ \frac{ n! }{ e } $$
+
+(además, si redondear esta expresión a través de una --- se obtiene exactamente el número de permutaciones sin fijas puntos)
+
+Se denota por $A_k$ muchas permutaciones de longitud $n$ con fija el punto en la posición $k$ ($1 \le k \le n$).
+
+Usaremos ahora la fórmula de inclusiones-exclusiones, para calcular el número de permutaciones de, al menos, un fijo en un punto. Para ello, debemos aprender a considerar las dimensiones de las multitudes de cruces de $A_i$, se ven de la siguiente manera:
+
+$$ \left| A_p \right| = (n-1)! ~, $$
+$$ \left| A_p \cap A_q \right| = (n-2)! ~, $$
+$$ \left| A_p \cap A_q \cap A_r \right| = (n-3)! ~, $$
+$$ \sum_ ~, $$
+
+porque si sabemos que el número fijas de puntos es igual a $x$, lo sabemos la posición de la $x$ de elementos de permutación, y el resto de $(n-x)$ elementos pueden estar en cualquier parte.
+
+Sustituyendo esto en la fórmula de las inclusiones-exclusiones y teniendo en cuenta que el número de maneras de seleccionar un subconjunto de tamaño $x$ de $n$-elemental de conjuntos es igual a $C_n^x$, obtenemos la fórmula para el número de permutaciones de, al menos, un fijo de partida:
+
+$$ C_n^1 \cdot (n-1)! - C_n^2 \cdot (n-2)! + C_n^3 \cdot (n-3)! - \ldots \pm C_n^n \cdot (n-n)! $$
+
+Entonces el número de permutaciones sin fijas de puntos es igual a:
+
+$$ n! - C_n^1 \cdot (n-1)! + C_n^2 \cdot (n-2)! - C_n^3 \cdot (n-3)! + \ldots \pm C_n^n \cdot (n-n)! $$
+
+Simplificando esta expresión, obtenemos \bf{exacta y aproximada de la expresión para el número de permutaciones sin fijas de puntos}:
+
+$$ n! \left( 1 - \frac{1}{1!} + \frac{1}{2!} - \frac{1}{3!} + \ldots \pm \frac{1}{n!} \right) \approx \frac{n!}{e}. $$
+
+(debido a la cantidad entre paréntesis --- esta es la primera de $n+1$ de los miembros de la descomposición en series de taylor de $e^{-1}$)
+
+En conclusión, vale la pena señalar que, igualmente, se resuelve la tarea, cuando es necesario que las fijas de los puntos no es entre $m$ los primeros elementos de permutaciones (y no entre todos, como hemos resuelto). La fórmula resultará tal como la anterior la fórmula exacta, sólo en ella el importe irá hasta $k$, y no a $n$.
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver utilizando el principio de inclusión-exclusión:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1266{UVA #10325 \bf{"The Lottery"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2906{UVA #11806 \bf{"Cheerleaders"} ~~~~ [dificultad: baja]}
+
+\li \href=http://www.topcoder.com/stat?c=problem_statement&pm=10875{TopCoder SRM 477 \bf{"CarelessSecretary"} ~~~~ [dificultad: baja]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=6658&rd=10068{TopCoder TCHS 16 \bf{"Divisibility"} ~~~~ [dificultad: baja]}
+
+\li \href=http://www.spoj.pl/problemas/NGM2/{SPOJ #6285 NGM2 \bf{"Another Game With Numbers"} ~~~~ [dificultad: baja]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=8470{TopCoder SRM 382 \bf{"CharmingTicketsEasy"} ~~~~ [dificultad media]}
+
+\li \href=http://www.topcoder.com/stat?c=problem_statement&pm=8307{TopCoder SRM 390 \bf{"SetOfPatterns"} ~~~~ [dificultad media]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=2013{TopCoder SRM 176 \bf{"Deranged"} ~~~~ [dificultad media]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=10702&rd=14144&rm=303184&cr=22697599{TopCoder SRM 457 \bf{"TheHexagonsDivOne"} ~~~~ [dificultad media]}
+
+\li \href=http://www.spoj.pl/problemas/MSKYCODE/{SPOJ #4191 MSKYCODE \bf{"Sky Code"} ~~~~ [dificultad media]}
+
+\li \href=http://www.spoj.pl/problemas/SQFREE/{SPOJ #4168 SQFREE \bf{"Square-free integers"} ~~~~ [dificultad media]}
+
+\li \href=http://www.codechef.com/JAN11/problemas/COUNTREL/{CodeChef \bf{"Count Relations} ~~~~ [dificultad media]}
+
+}
+
+
+
+\h2{ Literatura }
+
+\ul{
+
+\li \href=http://faculty.wheelock.edu/dborkovitz/articles/ngm6.htm{Debra K. Borkovitz. \bf{"Derangements and the Inclusion-Exclusion Principle"}}
+
+}
+
+

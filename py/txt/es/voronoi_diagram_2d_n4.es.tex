@@ -1,0 +1,82 @@
+\h1{Diagrama de voronoi en 2D}
+
+\h2{Definición}
+
+Dado $n$ puntos $P_i(x_i,y_i)$ en el plano. Considere la división del plano en $n$ áreas $V_i$ (llamados polígonos voronoi o celdas de voronoi, a veces --- polígonos cerca, celdas Дирихле, las divisiones del thyssen), donde $V_i$ --- el conjunto de todos los puntos del plano que están más cerca de un punto de $P_i$, que para todo el resto de los puntos de $P_k$:
+$$ V_i = \{ (x,y): \rho ((x,y), P_i) = \min_{ k = 1 \ldots, N } \rho ((x,y), P_k) \} $$
+
+La propia división del plano se llama diagrama de voronoi de este conjunto de puntos de $P_k$.
+
+Aquí $\rho(p,q)$ --- especificada métrica, normalmente es el estándar en Евклидова métrica: $\rho(p,q) = \sqrt{ (x_p-x_q)^2 + (y_p-y_q)^2 }$, sin embargo, a continuación se examinará y el caso de la denominada манхэттенской de la métrica. De aquí en adelante, si no se indica otra cosa, se considerará el caso de Евклидовой métrica
+
+Las celdas de voronoi son polígonos convexos, algunos son infinitas. Los puntos que pertenecen, según la definición de varias celdas de voronoi, por lo general llevan de inmediato a varias celdas, en el caso de Евклидовой la métrica de muchos de estos puntos tiene medida cero; en el caso de манхэттенской de la métrica, es más complicado).
+
+Estos polígonos, por primera vez, ha sido profundamente estudiado ruso matemático Вороным (1868-1908 de los ochenta).
+
+\h2{Propiedades}
+
+\ul{
+
+\li, el Diagrama de voronoi es планарным conde, por lo que tiene un $O(n)$ vértices y aristas.
+
+\li introduzcamos cualquier $i=1, \ldots, n$. Entonces para cada $j=1 \ldots, n, j \ne i$ podemos trazar la recta --- серединный la perpendicular del segmento $(P_i,P_j)$; considere la полуплоскость, compuesta por la recta, en el cual se encuentre el punto de $P_i$. Entonces, la intersección de todos los полуплоскостей para cada $j$ le dará una celda de voronoi $P_i$.
+
+\li Cada vértice de un diagrama de voronoi es el centro de la circunferencia, realizada a través de alguno de los tres puntos de la multitud de $P$. Estos círculos esencialmente se utilizan en muchas de las pruebas relacionadas con los diagramas de voronoi.
+
+\li Celda de voronoi $V_i$ es infinita, entonces, y sólo entonces, cuando el punto de $P_i$ recae en la frontera de la envoltura convexa de la multitud de $P_k$.
+
+\li Considere el conde, una doble vertiente al diagrama de voronoi, es decir, en este apartado vértices serán el punto de $P_i$, y el borde se realiza entre los puntos de $P_i$ y $P_j$, si su celda de voronoi $V_i$ y $V_j$ comparten una arista. Entonces, con la condición de que ninguno de los cuatro puntos no están en una misma circunferencia, una doble vertiente al diagrama de voronoi conde es триангуляцией delaunay (tiene muchos lugares interesantes propiedades).
+
+}
+
+\h2{Aplicación}
+
+El diagrama de voronoi es una forma compacta de la estructura de datos que contiene toda la información necesaria para resolver la multitud de tareas de cerca.
+
+En los siguientes objetivos el tiempo necesario en la construcción de más de diagrama de voronoi, en асимптотиках no se tiene en cuenta.
+
+\ul{
+
+\li Encontrar el punto más cercano para cada uno.
+
+Notaremos un simple hecho: si el punto de $P_i$ más cercano es el punto de $P_j$, entonces este es un punto de $P_j$ tiene "su" borde de la celda $V_i$. De aquí se sigue que, para encontrar, para cada punto más cercano a ella, basta con ver la aleta de la celda de voronoi. Sin embargo, cada arista pertenece a exactamente dos celdas, por lo que será visto exactamente dos veces, y debido a la linealidad del número de aristas obtenemos la solución de la tarea por el $O(n)$.
+
+\li Encontrar la convexidad de la shell.
+
+Recordemos, que pertenece a la cima de la convexidad de la shell, entonces, y sólo entonces, cuando su celda de voronoi es infinito. Entonces encontraremos en el diagrama de voronoi cualquier borde infinito, y empezar a moverse en cualquier fijo dirección (por ejemplo, en contra de las agujas del reloj) de la celda que contiene la arista, hasta que no lleguemos al próximo infinito de la aleta. Entonces pasaremos a través de la arista de la celda vecina y vamos a omitir. En consecuencia, todas las visitas a las costillas (además de infinitas) tendrán que ser buscada por las partes de la envoltura convexa. Obviamente, el tiempo de funcionamiento del algoritmo - $O(n)$.
+
+\li Encontrar Евклидова mínimo de árbol de extensión.
+
+Se desea encontrar el mínimo остовное árbol con vértices en los datos de puntos de $P$, conecta a todos los puntos. Si se aplican los métodos estándar de la teoría de grafos, ya que el conde, en este caso es $O(n^2)$ de los bordes, incluso algoritmo óptimo será no menor асимптотику.
+
+Considere el conde, una doble vertiente diagrama de voronoi, es decir, триангуляцию delaunay. Se puede mostrar que el hallazgo de Евклидова mínimo de la armadura equivalente a la construcción de un esqueleto de la triangulación de delaunay. De hecho, en el \algohref=mst_prim{algoritmo prima} cada vez que se busca el mínimo de una arista entre dos можествами puntos; si nos introduzcamos un punto de un conjunto, lo más cercano a ella un punto es una arista en la celda de voronoi, por lo tanto, en la triangulación de delaunay estará presente el borde al punto más cercano, que se quería demostrar.
+
+La triangulación es планарным conde, es decir, tiene lineal el número de aristas, por lo tanto, puede aplicarle \algohref=mst_kruskal_with_dsu{el algoritmo de kruskal -} y obtener un algoritmo con tiempo de trabajo $O(n \log n)$.
+
+\li Encontrar el mayor vacío de la circunferencia.
+
+Necesita encontrar un círculo de mayor radio, no contiene dentro de ninguna de puntos de $P_i$ (centro de la circunferencia debe estar dentro de la envoltura convexa de los puntos de $P_i$). Tenga en cuenta que, ya que la función de un mayor radio de un círculo, en este punto de $f(x,y)$ es estrictamente monótona en el interior de cada celda de voronoi, que alcanza su máximo nivel en uno de los vértices del diagrama de voronoi, o en el punto de intersección de las costillas del gráfico y de la envoltura convexa (y el número de estos puntos, no más de dos veces mayor que el número de aristas del gráfico). Por lo tanto, sólo queda recorrer los puntos especificados para cada uno encuentre la tienda más cercana, es decir, la decisión de a $O(n)$.
+
+}
+
+\h2{Simple algoritmo de construcción de diagramas de voronoi $O(n^4)$}
+
+Diagrama de voronoi --- bastante bien estudiado el objeto, y para ellos ha recibido un número de diferentes algoritmos que trabajan en el óptimo асимптотику $O (n \log n)$, y algunos de estos algoritmos incluso trabajan, en promedio, $O (n)$. Sin embargo, todos estos algoritmos son muy complejos.
+
+Aquí la forma más simple de un algoritmo basado en el ejemplo anterior, la propiedad de que cada celda de voronoi es la intersección del полуплоскостей. Introduzcamos $i$. Realizaremos entre el punto de $P_i$ y cada punto de $P_j$ directa --- серединный perpendicular, luego recorren el de dos en dos todos los directos --- obtenemos $O(n^2)$ de puntos, y cada comprobaremos en la afiliación del todo $n$ полуплоскостям. Como resultado de la $O(n^3)$ de acción recibiremos todos los vértices de la celda de voronoi $V_i$ (ya no será más de $n$, por lo tanto, podemos sin deterioro de la асимптотики ordenarlos de polar a derecha), y sólo en la construcción del diagrama de voronoi necesario $O(n^4)$ de acción.
+
+\h2{Caso especial de la métrica}
+
+Considere la siguiente métrica:
+
+$$ \rho(p,q) = \max (|x_p-x_q|, |y_p-y_q|) $$
+
+Comenzar el examen, debe analizar el caso más simple de la --- caso de dos puntos de $A$ y $B$.
+
+Si $A_x=B_x$ o $A_y=B_y$, entonces el diagrama de voronoi para ellos será, respectivamente, vertical u horizontal de la recta.
+
+De lo contrario, el diagrama de voronoi, tendrán un tipo de "rincón": el segmento bajo un ángulo de $los$ 45 grados en el interior de un rectángulo formado por los puntos de $A$ y $B$ y horizontales/verticales de los rayos de sus extremos, dependiendo de largo si el lado vertical del rectángulo u horizontal.
+
+Un caso especial --- cuando este rectángulo tiene la misma longitud y la anchura, es decir, $|A_x-B_x| = |A_y-B_y|$. En este caso, se dispondrá de dos infinitos materia ("los rincones", formado por dos rayos paralelos a los ejes), que, por definición, debe pertenecer a ambas celdas. En este caso, también se definen en condición de comprender estas áreas (a veces artificialmente introducen una regla que cada rincón llevan a su celda).
+
+Por lo tanto, para los dos puntos, el diagrama de voronoi en esta partida de nacimiento representa un objeto, y en el caso de un mayor número de puntos de estas figuras será necesario ser capaz de cruzar rápidamente.

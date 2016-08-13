@@ -1,0 +1,71 @@
+\h1{Mínimo común antepasado. Encontrar $O(1)$ en la línea (el algoritmo de Тарьяна)}
+
+Dado el árbol de $G$ c $n$ vértices y dado $m$ tipo de consultas $(a_i, b_i)$. Para cada consulta $(a_i, b_i)$ es necesario encontrar un mínimo común antepasado de los vértices de $a_i$ y $b_i$, es decir, esa cima de $c_i$, lo que más retiradas de la raíz del árbol, y cuando este es el ancestro de ambos vértices $a_i$ y $b_i$.
+
+Consideramos que la tarea en modo offline, es decir, teniendo en cuenta que todas las solicitudes se conocen de antemano. La siguiente algoritmo permite responder a todas las $m$ consulta, con el tiempo total de $O(n+m)$, es decir, lo suficientemente grande $m$ a $O(1)$ de la solicitud.
+
+\h2{el Algoritmo de Тарьяна}
+
+La base para el algoritmo es una estructura de datos \algohref=dsu{"Sistema de conjuntos disjuntos"}, que fue inventado Тарьяном (Tarjan).
+
+El algoritmo de hecho representa un rastreo en la profundidad de la raíz de un árbol, en la que poco a poco se encuentran las respuestas a las consultas. Es decir, la respuesta a la consulta $(v,u)$ es, cuando el rastreo de profundidad, se encuentra en la cima de la $u$, y el vértice $v$ ya fue visitada, o viceversa.
+
+Por tanto, que el rastreo de profundidad, se encuentra en la cima de $v$ (y ya se han realizado transferencias a sus hijos), y resultó que para cualquier consulta $(v,u)$ la cima de la $u$ ya fue visitada omisión en profundidad. Aprendamos entonces a encontrar $\rm LCA$ estos dos vértices.
+
+Tenga en cuenta que ${\rm LCA}(v,u)$ es la cima $v$, o alguno de sus antepasados. Resulta, tenemos que encontrar la más baja de la cima de los antepasados $v$ (incluida la propia), para que la cima de la $u$ es un descendiente. Tenga en cuenta que si se fija $v$ por tal razón (es decir, ¿cuál es el mínimo antepasado $v$ es el antepasado de algún cima) de la cima de un árbol de madera se dividen en un conjunto discontinuo de clases. Para cada antepasado $p \not= v$ la cima de $v$ su clase contiene esa misma cima, así como todos los subárboles con raíces en aquellos de sus hijos que se encuentran a la izquierda del camino hasta $v$ (es decir, los que han sido procesados anteriormente, que ha sido de $v$).
+
+Tenemos que aprender a soportar de forma efectiva cada una de estas clases, para qué estamos y se aplica la estructura de datos "Sistema de conjuntos disjuntos". En cada clase se va a cumplir dentro de esta estructura de la multitud, y para el representante de este conjunto de determinaremos la cantidad de $\rm ANCESTOR$ --- la cima de $p$, que es la que constituye esta clase.
+
+Vamos a examinar en detalle la implementación de la solución en profundidad. Supongamos que estamos en la cima de una cierta $v$. Los ponemos en una clase en la estructura de conjuntos disjuntos, ${\rm ANCESTOR}[v] = v$. Como es habitual en rastrear en profundidad, перебираем todos los salientes de la aleta $(v, a)$. Para cada uno de estos $to$ primero tenemos que llamar a un rastreo en la profundidad de la cima, para luego agregar esta cima con todo su поддеревом en la cima de la clase $v$. Esto se realiza por medio de la operación de $\rm Union$ de la estructura de datos "sistema de conjuntos disjuntos", y, posteriormente, ${\rm ANCESTOR} = v$ para el representante de la multitud (porque después de la unificación de representante de una clase puede haber cambiado). Finalmente, después de procesar todos los bordes nos перебираем todas las consultas de la vista $(v,u)$, si $u$ a se ha marcado como visitado omisión en profundidad, la respuesta a esta consulta sería la cima de ${\rm LCA}(v,u) = {\rm ANCESTOR}[{\rm FindSet}(u)]$. No es difícil observar que para cada consulta es la condición de (que el vértice de la consulta es la actual, y la otra fue visitada anteriormente) se ejecuta exactamente una vez.
+
+Ponemos \bf{асимптотику}. Se compone de varias partes. En primer lugar, es asíntotas de rastreo en profundidad, que en este caso es de $O(n)$. En segundo lugar, es una operación sobre la combinación de los conjuntos, que en total para todos los razonables $n$ gastan $O(n)$ de operaciones. En tercer lugar, para cada solicitud de verificación de las condiciones (dos veces en la consulta) y la determinación del resultado de la (una vez en la consulta), cada uno, una vez más, para todos razonable de $n$ se $O(1)$. Total asíntotas se obtiene $O(n+m)$, lo que significa bastante para grandes $m$ ($n = O(m)$ respuesta $O(1)$ de una consulta.
+
+\h2{Aplicación}
+
+Llevaremos la plena aplicación de este algoritmo, incluyendo ligeramente modificada (con el apoyo de $\rm ANCESTOR$) la implementación de un sistema de intersección de conjuntos (aleatorio de la opción).
+
+\code
+const int MAXN = número máximo de vértices en el grafo;
+vector<int> g[MAXN], q[MAXN]; // el conde y todas las solicitudes
+int dsu[MAXN], ancestor[MAXN];
+bool u[MAXN];
+
+int dsu_get (int v) {
+return v == dsu[v] ? v : dsu[v] = dsu_get (dsu[v]);
+}
+
+void dsu_unite (int a, int b, int new_ancestor) {
+a = dsu_get (a), (b = dsu_get (b);
+if (rand() & 1) swap (a, b);
+dsu[a] = b, ancestor[b] = new_ancestor;
+}
+
+void dfs (int v) {
+dsu[v] = v, ancestor[v] = v;
+u[v] = true;
+for (size_t i=0; i<g[v].size(); ++i)
+if (!u[g[v][i]]) {
+dfs (g[v][i]);
+dsu_unite (v, g[v][i], v);
+}
+for (size_t i=0; i<q[v].size(); ++i)
+if (u[q[v][i]]) {
+printf ("%d %d -> %d\n", v+1, q[v][i]+1,
+ancestor[ dsu_get(q[v][i]) ]+1);
+}
+
+int main() {
+... lectura del conde ...
+
+// lectura de consultas
+for (;;) {
+int a, b = ...; // ordinario de la consulta
+--a --b;
+q[a].push_back (b);
+q[b].push_back (a);
+}
+
+// rastreo de profundidad y de respuesta a las solicitudes de
+dfs (0);
+}
+\endcode

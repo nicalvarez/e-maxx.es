@@ -1,0 +1,305 @@
+\h1{ Código Прюфера. La Fórmula Кэли. El número de maneras de hacer que el conde coherente.}
+
+En este artículo vamos llamado \bf{código Прюфера}, que es una forma inequívoca de codificación marcado un árbol a través de la secuencia de números.
+
+A través de códigos de Прюфера se muestra la prueba de \bf{fórmula Кэли} (determina la cantidad de остовных de los árboles en su columna), así como la solución de la tarea sobre el número de formas de añadir en el gráfico de la costilla, para convertirlo en una presentación coherente.
+
+\bf{nota}. No vamos a considerar los árboles, constan de un único vértice --- este es un caso especial, en el que muchas denuncias se degeneran.
+
+
+
+\h2{ Código Прюфера }
+
+Código Прюфера --- es una manera mutuamente de manera inequívoca de la codificación de los árboles marcados con $n$ vértices mediante una secuencia de $n-2$ de números enteros en el tramo de $[1, n]$. En otras palabras, el código de Прюфера --- es \bf{биекция} entre todos остовными árboles completo conde y numéricas de las secuencias.
+
+A pesar de utilizar el código de Прюфера para el almacenamiento y manejo de los árboles no es práctico debido a la especificidad de la presentación, los códigos de Прюфера encuentran aplicación en la solución de комбинаторных de tareas.
+
+El autor --- heinz Прюфер (Heinz Prüfer) --- propuso este código en 1918, como una prueba de la fórmula Кэли (véase a continuación).
+
+
+\h3{ Generar el código de Прюфера de ese árbol }
+
+Código Прюфера se construye de la siguiente manera. Vamos a $n-2$ veces hacer el procedimiento: seleccionamos la hoja en el árbol con el número más bajo, la eliminamos de la madera, y se añade a la referencia Прюфера el número de vértices, que se ha relacionado con esta hoja de cálculo. Finalmente, en el árbol permanecerá sólo $2$ a la cima, y el algoritmo de este modo se completa (número de estas cimas de forma explícita en el código no se escribe).
+
+Por lo tanto, el código de Прюфера de un árbol --- es una secuencia de $n-2$ de números, donde cada número --- número de vértices, relacionada con el menor en el momento de la hoja --- es decir, es el número en el tramo de $[1, n]$.
+
+Un algoritmo para calcular el código de Прюфера fácil de implementar con асимптотикой $O (n \log n)$, simplemente manteniendo la estructura de los datos para extraer un mínimo (por ejemplo, $\rm set<>$ o $\rm priority\_queue<>$ en el lenguaje C++), contiene una lista de todas las hojas:
+
+\code
+const int MAXN = ...;
+int n;
+vector<int> g[MAXN];
+int degree[MAXN];
+bool killed[MAXN];
+
+vector<int> prufer_code() {
+set<int> leaves;
+for (int i=0; i<n; ++i) {
+degree[i] = (int) g[i].size();
+if (degree[i] == 1)
+leaves.insert (i);
+killed[i] = false;
+}
+
+vector<int> result (n-2);
+for (int iter=0; iter<n-2; ++iter) {
+int leaf = *leaves.begin();
+leaves.erase (leaves.begin());
+killed[hoja] = true;
+
+int v;
+for (size_t i=0; i<g[hoja].size(); ++i)
+if (!killed[g[hoja][i]])
+v = g[hoja][i];
+
+result[iter] = v;
+if (--degree[v] == 1)
+leaves.insert (v);
+}
+return result;
+}
+\endcode
+
+Sin embargo, generar el código de Прюфера puede implementar y lineal del tiempo, que se describe en la siguiente sección.
+
+
+\h3{ Generar el código de Прюфера de ese árbol por lineal del tiempo }
+
+Aquí un sencillo algoritmo que tiene асимптотику $O(n)$.
+
+La esencia del algoritmo consiste en el almacenamiento \bf{movimiento del puntero} $ptr$, que siempre va a avanzar sólo en la dirección de aumentar los números de los vértices.
+
+A primera vista, esto no es posible, ya que en el proceso de generación de código Прюфера habitaciones de las hojas pueden crecer y \bf{disminuir}. Sin embargo, es fácil observar que la reducción sólo se producen en un solo caso: el código cuando se quita la hoja de cálculo actual de su antecesor, tiene un número menor (este antepasado será el mínimo de la lámina y la saca de madera en el mismo paso de código Прюфера). Por lo tanto, los casos de reducción se puede procesar por hora $O(1)$, y nada impide la construcción de un algoritmo con \bf{lineal асимптотикой}:
+
+\code
+const int MAXN = ...;
+int n;
+vector<int> g[MAXN];
+int parent[MAXN], degree[MAXN];
+
+void dfs (int v) {
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (a != parent[v]) {
+parent[to] = v;
+dfs (to);
+}
+}
+}
+
+vector<int> prufer_code() {
+parent[n-1] = -1;
+dfs (n-1);
+
+int ptr = -1;
+for (int i=0; i<n; ++i) {
+degree[i] = (int) g[i].size();
+if (degree[i] == 1 && ptr == -1)
+ptr = i;
+}
+
+vector<int> result;
+int leaf = ptr;
+for (int iter=0; iter<n-2; ++iter) {
+int next = parent[hoja];
+result.push_back (next);
+--degree[next];
+if (degree[next] == 1 && next < ptr)
+leaf = next;
+else {
+++ptr;
+while (ptr<n && degree[ptr] != 1)
+++ptr;
+leaf = ptr;
+}
+}
+return result;
+}
+\endcode
+
+Прокомментируем este código. La función principal aquí --- $\rm prufer\_code()$, que devuelve el código de Прюфера para el árbol, con lo especificado en la variable global $n$ (número de vértices) y $g$ (listas de adyacencia, determinan el conde). Al principio nos encontramos para cada vértice de su antecesor ${\rm parent}[i]$ --- es decir, el de un antepasado que esta cima tenga, en el momento de la eliminación de madera (todo esto lo podemos encontrar de antemano, aprovechando el hecho de que la máxima cima de $n-1$ nunca se quita de la madera). También encontramos para cada vértice de su grado de ${\rm degree}[i]$. La variable $\rm ptr$ --- este es el que se mueve el puntero ("el solicitante" en el mínimo de la hoja, que cambia siempre en aumento. La variable $\rm leaf$ --- esta es la hoja de cálculo actual, con el mínimo número. Por lo tanto, en cada iteración del código Прюфера consiste en agregar $\rm leaf$ en la respuesta, así como la verificación, si no resultó de $\rm parent[hoja]$ menor que el actual candidato de $\rm ptr$: si fue menor, lo que simplemente nos apropiamos de $\rm leaf = parent[hoja]$, y en el caso contrario --- movemos el puntero $\rm ptr$ a de la siguiente hoja.
+
+Como fácilmente se ve en el código, asíntotas algoritmo realmente es $O(n)$: índice $\rm ptr$ sufre sólo $O(n)$ de cambios, y todo el resto del algoritmo es evidente trabajan en el lineal del tiempo.
+
+
+\h3{ Algunas de las propiedades de los códigos de Прюфера }
+
+\ul{
+
+\li cuando termine De generar el código Прюфера en el árbol de la permanecerán неудаленными dos picos.
+
+Una de ellas sea la cima con el número máximo --- $n-1$, y he aquí la otra cima de la nada específico no se puede decir que.
+
+\li Cada vértice se encuentra en el código de Прюфера un cierto número de veces igual a la potencia menos uno.
+
+Esto es fácil de comprender, si se observar que la punta de la quita de la madera en el momento en que su grado es igual a la unidad --- es decir, a este momento todo conexos de la costilla, a excepción de uno, han sido eliminados. (Para los dos restantes después de la generación del código de los vértices de esta afirmación también es cierto.)
+
+}
+
+
+\h3{ Restauración del árbol de código Прюфера }
+
+Para la recuperación de la madera lo suficiente como para notar en el punto anterior, que el grado de todos los vértices en искомом el árbol ya sabemos (y podemos contar y guardar en cierto matriz $degree[]$). Por lo tanto, podemos encontrar todas las hojas, y, en consecuencia, el número más bajo de la hoja --- que se ha eliminado en el primer paso. Esta hoja se ha conectado con un vértice número grabado en la primera celda de código Прюфера.
+
+Por lo tanto, hemos encontrado la primera costilla, remota de código Прюфера. Añadiremos el borde de la respuesta y, a continuación, reduciremos el grado de $degree[]$ a ambos extremos de la arista.
+
+Vamos a repetir esta operación hasta que hayamos revisado todo el código Прюфера: buscar mínima cima con $degree = 1$, para enlazarlo con otro vértice del código Прюфера, reducir $degree[]$ a en ambos extremos.
+
+Al final nos quedará sólo dos vértices con $degree = 1$ --- es de aquellos en la cima, que el algoritmo de Прюфера dejó неудаленными. Conectar su borde.
+
+El algoritmo finaliza, buscando el árbol construido.
+
+\bf{Implementar} este algoritmo es fácil por el tiempo $O (n \log n)$: se apoya en una estructura de datos para extraer un mínimo (por ejemplo, $\rm set<>$ o $\rm priority\_queue<>$ C++) habitaciones de todos los vértices con $degree=1$, y sacando de él cada vez menos.
+
+Llevaremos la implementación apropiada (donde la función $prufer\_decode()$ devuelve una lista de las aletas de búsqueda del árbol):
+
+\code
+vector < pair<int,int> > prufer_decode (const vector<int> & prufer_code) {
+int n = (int) prufer_code.size() + 2;
+vector<int> degree (n, 1);
+for (int i=0; i<n-2; ++i)
+++degree[prufer_code[i]];
+
+set<int> leaves;
+for (int i=0; i<n; ++i)
+if (degree[i] == 1)
+leaves.insert (i);
+
+vector < pair<int,int> > result;
+for (int i=0; i<n-2; ++i) {
+int leaf = *leaves.begin();
+leaves.erase (leaves.begin());
+
+int v = prufer_code[i];
+result.push_back (make_pair (leaf, v));
+if (--degree[v] == 1)
+leaves.insert (v);
+}
+result.push_back (make_pair (*leaves.begin(), *--leaves.end()));
+return result;
+}
+\endcode
+
+
+\h3{ Restauración del árbol de código Прюфера por lineal del tiempo }
+
+Para obtener un algoritmo lineal асимптотикой se puede aplicar la misma técnica que se utilizó para obtener lineal algoritmo para calcular el código de Прюфера.
+
+En realidad, para encontrar una hoja de cálculo con el menor número opcional de tener la estructura de los datos para extraer un mínimo. En lugar de ello, se puede observar que, después de que nos encontramos y procesar la hoja de trabajo actual, se añade en consideración sólo una nueva cima. Por lo tanto, podemos hacer un movimiento del puntero, junto con la variable que guarda en sí el actual mínimo de la hoja de cálculo:
+
+\code
+vector < pair<int,int> > prufer_decode_linear (const vector<int> & prufer_code) {
+int n = (int) prufer_code.size() + 2;
+vector<int> degree (n, 1);
+for (int i=0; i<n-2; ++i)
+++degree[prufer_code[i]];
+
+int ptr = 0;
+while (ptr < n && degree[ptr] != 1)
+++ptr;
+int leaf = ptr;
+
+vector < pair<int,int> > result;
+for (int i=0; i<n-2; ++i) {
+int v = prufer_code[i];
+result.push_back (make_pair (leaf, v));
+
+--degree[hoja];
+if (--degree[v] == 1 && v < ptr)
+leaf = v;
+else {
+++ptr;
+while (ptr < n && degree[ptr] != 1)
+++ptr;
+leaf = ptr;
+}
+}
+for (int v=0; v<n-1; ++v)
+if (degree[v] == 1)
+result.push_back (make_pair (v, n-1));
+return result;
+}
+\endcode
+
+
+\h3{ Mutuo y la univocidad de la conformidad entre los árboles y los códigos de Прюфера }
+
+Por un lado, para cada árbol, existe exactamente un código de Прюфера, correspondiente (esto se deduce de la definición del código Прюфера).
+
+Por otro lado, la corrección de un algoritmo de árbol de código Прюфера se desprende que cualquier código Прюфера (es decir, la secuencia de $n-2$ de números, donde cada número está en el tramo de $[1, n]$) corresponde a un árbol.
+
+Por lo tanto, todos los árboles y todos los códigos de Прюфера forman \bf{mutuamente correspondencia de uno a uno}.
+
+
+
+\h2{ Fórmula Кэли }
+
+La fórmula Кэли dice que \bf{número de остовных de los árboles en su rótulo la columna} $n$ de vértices es igual a:
+
+$$ n^{n-2}. $$
+
+Hay un montón de \bf{prueba} de esta fórmula, pero hay evidencia de que los códigos de Прюфера de forma clara y constructiva.
+
+En realidad, cualquier conjunto de $n-2$ de números de la corte $a[1, n]$ corresponde claramente a un árbol de $n$ vértices. A los distintos códigos de Прюфера $n^{n-2}$. Ya que en el caso del conde de $n$ vértices como la armadura se adapta a cualquier árbol, y el número de остовных de los árboles es igual a $n^{n-2}$, que se quería demostrar.
+
+
+
+\h2{ Número de maneras de hacer que el conde coherente.}
+
+El poder de los códigos de Прюфера es que permiten obtener más de la fórmula general, que la fórmula Кэли.
+
+Así, dado el conde de $n$ vértices y $m$ costillas; que $k$ --- el número de componente de la conectividad en este apartado. Necesita encontrar un número de maneras de agregar $k-1$ costilla, para que el conde se conectan (obviamente, $k-1$ arista --- el número mínimo de aristas, para hacer el conde conectan).
+
+Sacaremos terminados de la fórmula para la solución de este problema.
+
+Se denota por $s_1, \ldots, s_k$ dimensiones de la componente de la conectividad de este recuadro. Dado que agregar las costillas dentro de un componente de conectividad hotel, resulta que la tarea es muy similar a la búsqueda de la cantidad de остовных de los árboles en su columna de $k$ vértices: pero la diferencia aquí es que cada vértice tiene su "peso" $s_i$: cada arista, conexo con $i$-ésimo vértice, se multiplica la respuesta en $s_i$.
+
+Por lo tanto, para calcular el número de maneras resulta importante, ¿en qué medida tienen los $k$ vértices en el esqueleto. Para obtener la fórmula para la tarea hay que sumar las respuestas de todas las posibles grados.
+
+Que $d_1, \ldots, d_k$ --- grado de los vértices en el esqueleto. La suma de los grados de los vértices es igual a la удвоенному el número de aristas, por lo tanto:
+
+$$ \sum_{i=1}^k d_i = 2k-2. $$
+
+Si $i$-me vértice tiene grado $d_i$, entonces en el código de Прюфера entra $d_i-1$ más. Código Прюфера para el árbol de $k$ vértices tiene la longitud de la $k-2$. El número de maneras de seleccionar el conjunto de la $k-2$ de números, donde el número de $i$ se encuentra exactamente $d_i-1$ más, es igual a \bf{мультиномиальному factor} (por analogía con \algohref=binomial_coeff{биномиальным coeficiente}):
+
+$$ \binom{ k-2 }{ d_1-1, ~ d_2-1, ~ \ldots ~ , d_k-1 } = \frac{ (k-2)! }{ (d_1-1)! ~ (d_2-1)! ~ \ldots ~ (d_k-1)! }. $$
+
+Teniendo en cuenta que cada arista, conexo con $i$-ésimo vértice, se multiplica la respuesta en $s_i$, obtenemos que la respuesta, siempre que el grado de los vértices son iguales de $d_1, \ldots, d_k$, es igual a:
+
+$$ s_1^{d_1} \cdot s_2^{d_2} \cdot \ldots \cdot s_k^{d_k} \cdot \frac{ (k-2)! }{ (d_1-1)! ~ (d_2-1)! ~ \ldots ~ (d_k-1)! }. $$
+
+Para obtener la respuesta a un problema es necesario sumar a esta fórmula a todo válido conjunto $\{ d_i \}_{i=1}^{i=k}$:
+
+$$ \sum_{ \substack{ d_i \ge 1, \\ \sum_{i=1}^k d_i = 2k-2 } } s_1^{d_1} \cdot s_2^{d_2} \cdot \ldots \cdot s_k^{d_k} \cdot \frac{ (k-2)! }{ (d_1-1)! ~ (d_2-1)! ~ \ldots ~ (d_k-1)! }. $$
+
+Para la coagulación de esta fórmula, usaremos la definición de мультиномиального del factor:
+
+$$ (x_1 + \ldots x_m)^p = \sum_{ \substack{ c_i \ge 0, \\ \sum_{i=1}^{m} c_i = p } } x_1^{c_1} \cdot x_2^{c_2} \cdot \ldots \cdot x_m^{c_m} \cdot \binom{ m }{ c_1, ~ c_2, ~ \ldots ~ , c_k }. $$
+
+La comparación de esta con la fórmula anterior, obtenemos que si se introduce el símbolo $e_i = d_i-1$:
+
+$$ \sum_{ \substack{ e_i \ge 0, \\ \sum_{i=1}^k e_i = k-2 } } s_1^{e_1+1} \cdot s_2^{e_2+1} \cdot \ldots \cdot s_k^{e_k+1} \cdot \frac{ (k-2)! }{ e_1! ~ e_2! ~ \ldots ~ e_k! }, $$
+
+después de contraer \bf{respuesta a la tarea} es igual a:
+
+$$ s_1 \cdot s_2 \cdot \ldots \cdot s_k \cdot (s_1 + s_2 + \ldots + s_k)^{k-2} = s_1 \cdot s_2 \cdot \ldots \cdot s_k \cdot n^{k-2}. $$
+
+(Esta fórmula es correcta y si $k=1$, aunque formalmente de la prueba, esto no debería ser.)
+
+
+
+\h2{ Tareas en línea judges }
+
+Tareas en línea judges, en los que se aplican los códigos de Прюфера:
+
+\ul{
+
+\li \href=http://acm.uva.es/p/v108/10843.html{ UVA #10843 \bf{"Anne's game"} ~~~~~~ [dificultad: baja] }
+
+\li \href=http://acm.timus.es/problem.aspx?space=1&num=1069{ TIMUS #1069 \bf{"Código de Прюфера"} ~~~~~~ [dificultad: baja] }
+
+\li \href=http://codeforces.es/contest/156/problem/D{ CODEFORCES 110D \bf{"Pruebas"} ~~~~~~ [dificultad media] }
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=10774&rd=14146{ TopCoder SRM 460 \bf{"TheCitiesAndRoadsDivTwo"} ~~~~~~ [dificultad media] }
+
+}

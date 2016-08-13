@@ -1,0 +1,125 @@
+\h1{Encontrar caminos más cortos desde un determinado vértice a todos los demás vértices de un algoritmo Дейкстры}
+
+\h2{el Planteamiento de la tarea}
+
+Dan orientado o неориентированный ponderado conde con $n$ cimas $m$ las costillas. El peso de todos los bordes неотрицательны. Se muestra alguna plataforma de lanzamiento de la cima de la $s$. Es necesario encontrar la longitud de cortes cortos de la cima de la $s$ en el resto de la cima, así como proporcionar el tipo de salida de las propias cortes cortos.
+
+Esta tarea se llama "el objetivo de los más cortos caminos de la única fuente" (single-source shortest paths problem).
+
+\h2{el Algoritmo}
+
+Aquí se describe el algoritmo, en el que se propuso el investigador holandés \bf{Дейкстра} (Dijkstra) en 1959
+
+Podamos establecer una matriz $d[]$, en el que para cada vértice $v$ vamos a almacenar la longitud actual de $d[v],$ ruta más corta de $s$ $v$. Inicialmente $d[s]=0$, y para el resto de los vértices de esta longitud es igual a infinito (cuando la aplicación en el equipo normalmente como infinito eligen simplemente un número suficientemente alto, a sabiendas de que es más posible de la longitud de la ruta):
+$$ d[v] = \infty, v \ne s $$
+
+Además, para cada vértice $v$ vamos a almacenar, marcada aún o no, es decir, podamos establecer una булевский la matriz $u[]$. Inicialmente, todos los vértices no están etiquetados, es decir,
+$$ u[v] = {\rm false} $$
+
+El algoritmo de Дейкстры es de $n$ \bf{iteraciones}. En la siguiente iteración se selecciona el vértice $v$ con el menor valor de $d[v]$ entre todavía no están marcados, es decir:
+$$ d[v] = \min_{p:\ u[p]={\rm false}} d[p] $$
+
+(Claro que en la primera iteración se selecciona será la plataforma de lanzamiento de la cima de la $s$.)
+
+Seleccionada por lo tanto, la cima de $v$ se observa marcada. Más adelante, en la iteración actual, desde la cima de $v$ se fabrican \bf{relajación}: se ven todas las costillas $(v,a)$ salientes de la cima de $v$, y para cada una de esas cimas $to$ el algoritmo intenta mejorar el valor de $d[to]$. Supongamos que la longitud actual de la aleta es de $\rm len$, entonces en la forma de un código de relajación se ve como:
+$$ d[to] = \min (d[to], d[v] + {\rm len}) $$
+
+En la actual iteración termina el algoritmo pasa a la siguiente iteración (de nuevo selecciona un vértice con menor valor $, d$, a partir de ella se producen relajación, etc.). Al final de todo, después de $n$ iteraciones, todos los vértices del grafo serán marcadas, y el algoritmo de su obra completa. Se afirma que los valores encontrados para $d[v]$ y hay una búsqueda de la longitud de cortes cortos de $s$ $v$.
+
+Vale la pena señalar que, si no todos los vértices del grafo son alcanzables desde la cima de la $s$, entonces el valor de $d[v]$ para ellos seguirán interminables. Está claro que las últimas iteraciones del algoritmo se como elegir estos vértices, pero ningún trabajo útil para la fabricación de estos iteración no se (ya que la distancia es infinita no puede прорелаксировать otros, incluso también infinitas distancias). Por lo tanto, el algoritmo puede detener inmediatamente, tan pronto como el vértice seleccionado se toma la cima con una infinita distancia.
+
+\bf{la Recuperación de las vías}. Por supuesto, normalmente se necesita saber no sólo de la longitud de los cortes cortos, sino también para obtener las rutas. Mostraremos cómo guardar la información necesaria para la posterior recuperación de la ruta más corta de $s$ a cualquier cima. Para ello, basta con el llamado \bf{de la matriz de los antepasados}: la matriz $p[]$, en el que para cada vértice $v \ne s$ se almacena el número de vértices $p[v]$, que es la penúltima en una senda hasta la cima de la $v$. Aquí se utiliza el hecho de que si tomamos el camino más corto hasta un vértice de $v$, a continuación, eliminamos de este camino, la última cima, se obtiene la ruta de acceso, terminado cierta la cima $p[v]$, y esta ruta es la más corta de la cima de $p[v]$. Así que, si vamos a tener ese conjunto de los antepasados, la ruta se puede restaurar en él, simplemente cada vez tomando el antepasado de la actual a la cima, hasta que no lleguemos a la cima de la plataforma de lanzamiento de $s$ --- la manera de obtener el camino más corto, pero grabado en orden inverso. Así, el camino más corto $P$ a la cima de $v$ es igual a:
+$$ P = (s, \ldots, p[p[p[v]]], p[p[v]], p[v], v) $$
+
+Queda por entender cómo construir esta matriz de los antepasados. Sin embargo, esto se hace muy simple: cada vez que el éxito de la relajación, es decir, cuando desde el vértice seleccionado $v$, se produce una mejora de la distancia hasta cierto cima de $to$, anotamos que el ancestro de la cima de $to$ es la cima de $v$:
+$$ p[to] = v $$
+
+\h2{Prueba}
+
+\bf{la afirmación Fundamental}, en el que se basa la corrección de un algoritmo de Дейкстры, lo siguiente. Se afirma que, tras una cima $v$ se convierte marcada, la distancia hasta ella $d[v]$ es el camino más corto, y, en consecuencia, ya no se cambiará.
+
+\bf{Prueba} vamos a producir por inducción. Para la primera iteración de la justicia de su evidente --- para la punta de la $s$ tenemos $d[s]=0$, que es la longitud de la ruta más corta para llegar hasta ella. Que ahora esta afirmación se cumple para todas las iteraciones anteriores, es decir, de todos los ya marcados vértices; demostremos que no se rompe después de la ejecución de la iteración actual. Que $v$ --- vértice seleccionado en la iteración actual, es decir, la cima, que el algoritmo va a marcar. Demostramos que $d[v]$ es realmente igual a la longitud de la ruta más corta hasta ella (se denota esta longitud a través de la $l[v]$).
+
+Tomemos el camino más corto $P$ a la cima de $v$. Claro, esta ruta se puede dividir en dos vías: $P_1$, que consta de sólo marcados vértices (como mínimo de la plataforma de lanzamiento de la cima de la $s$, en este camino), y el resto de la ruta $P_2$ (ella también puede incluir marcados a la cima, pero comienza necesariamente con sin etiquetar). Se denota por $p$ primera cima de ruta $P_2$, y por $q$ --- la última cima de la ruta $P_1$.
+
+Demostremos primero de nuestra afirmación de la cima de $p$, es decir, probaremos la igualdad de $d[p] = l[p]$. Sin embargo, es casi evidente: de hecho, en una de las iteraciones anteriores hemos elegido la cima de la $q$ y que cumplan con la relajación de ella. Ya que (debido a la selección de la cima de $p$) el camino más corto hasta $p$ es el camino más corto hasta $q$ más arista $(p,q)$, entonces al realizar la relajación de $q$ valor $d[p]$ realmente se instalará en el valor deseado.
+
+Debido a неотрицательности valores de las costillas de la longitud de la ruta más corta $l[p]$ (y se acaba de доказанному es de $d[p]$) no excede de la longitud de la $l[v],$ ruta más corta para llegar a la cima de $v$. Teniendo en cuenta que $l[v] \le d[v]$ (ya que el algoritmo de Дейкстры no podía encontrar el más corto camino, que es posible), lo que finalmente obtenemos la relación:
+$$ d[p] = l[p] \le l[v] \le d[v] $$
+
+Por otro lado, dado que $p$ y $v$ --- cima sin etiquetar, así como en la iteración actual se ha elegido la cima de $v$, y no la cima de $p$, obtenemos otra desigualdad:
+$$ d[p] \ge d[v] $$
+
+De estas dos desigualdades de la conclusión de la igualdad de $d[p] = d[v]$, y entonces de los encontrados hasta ese relaciones recibimos y:
+$$ d[v] = l[v] $$
+
+que se quería demostrar.
+
+\h2{Aplicación}
+
+Así, el algoritmo de Дейкстры representa $n$ iteraciones, en cada una de las cuales se selecciona sin etiquetar la cima de menor valor $d[v]$, esta la cima de la marca, y se ven todas las costillas, la salida de este de la cima, y a lo largo de cada eje se hace un intento de mejorar el valor de $d[]$ en el otro extremo de la aleta.
+
+El tiempo de funcionamiento del algoritmo se compone de:
+\ul{
+\li $n$ más la búsqueda de la cima con el menor valor de $d[v]$ entre todos sin etiquetar los vértices, es decir, entre $O(n)$ vértices
+\li $m$ veces se intenta релаксаций
+}
+
+La forma más simple de la aplicación de estas operaciones en la búsqueda de la cima se затрачиваться $O(n)$ de operaciones, y una relajación de --- $O(1)$ de las operaciones, y la final \bf{asíntotas} el algoritmo es el siguiente:
+$$ O(n^2+m) $$
+
+\bf{Aplicación}:
+
+\code
+const int INF = 1000000000;
+
+int main() {
+int n;
+... la lectura de la n ...
+vector < vector < pair<int,int> > > g (n);
+... lectura del conde ...
+int s = ...; // inicio de la cima
+
+vector<int> d (n, INF), p (n);
+d[s] = 0;
+vector<char> u (n);
+for (int i=0; i<n; ++i) {
+int v = -1;
+for (int j=0; j<n; ++j)
+if (!u[j] && (v == -1 || d[j] < d[v]))
+v = j;
+if (d[v] == INF)
+break;
+u[v] = true;
+
+for (size_t j=0; j<g[v].size(); ++j) {
+int to = g[v][j].first,
+len = g[v][j].second;
+if (d[v] + len < d[to]) {
+d[to] = d[v] + len;
+p[to] = v;
+}
+}
+}
+}
+\endcode
+
+Aquí el conde de $g$ se almacena en forma de listas de adyacencia: para cada vértice $v$ lista $g[v]$ contiene la lista de los bordes salientes de esta cima, es decir, una lista de pares de $\rm pair<int,int>$, donde el primer elemento del par --- la cima, en la que lleva un borde, y el segundo elemento --- peso de la arista.
+
+Después de la lectura aparecen las matrices de distancias $d[]$, etiquetas de $u[]$ y antepasados $p[]$. A continuación, se ejecutan $n$ iteraciones. En cada iteración, primero se encuentra la cima $v$, mantenga una distancia mínima de $d[]$ entre sin etiquetar los vértices. Si la distancia hasta el vértice seleccionado $v$ resulta igual a infinito, entonces el algoritmo se detiene. De lo contrario, la cima de la marca como marcada, y se ven todas las costillas, la salida de este de la cima, y a lo largo de cada eje se realizan de relajación. Si la relajación es exitosa (es decir, la distancia $d[to]$ cambia), se vuelve a calcular la distancia $d[to]$ y se guarda el antepasado $p[]$.
+
+Después de realizar todas las iteraciones en el array $d[]$ relación con la longitud de cortes cortos hasta que todos los vértices y en el array $p[]$ --- los antepasados de todos los vértices (además de la plataforma de lanzamiento de $s$). Recuperar el camino hasta la cima de cualquier $t$ de la siguiente manera:
+\code
+vector<int> path.
+for (int v=t; v!=s; v=p[v])
+path.push_back (v);
+path.push_back (s);
+reverse path.begin(), path.end());
+\endcode
+
+\h2{Literatura}
+
+\ul{
+\li \book{thomas Кормен, charles Лейзерсон, ronald Ривест, clifford stein}{Algoritmos: diseño y análisis de}{2005}{cormen.djvu}
+\li \book{Edsger Dijkstra}{note on two problems in connexion with the}{1959}
+}

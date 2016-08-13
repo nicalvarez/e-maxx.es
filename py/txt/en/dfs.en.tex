@@ -1,0 +1,46 @@
+the <h1>Search in depth</h1>
+
+<p>This is one of the basic algorithms on graphs.</p>
+<p>as a result of depth-first search is the lexicographically first path in a graph.</p>
+<p>the Algorithm works for <b>O (N+M)</b>.</p>
+the <h2>the algorithm</h2>
+the <ul>
+the <li>Search for any path in the graph.</li>
+the <li>Find the lexicographically first path in a graph.</li>
+the <li>Check whether one vertex is an ancestor of another:<br>At the beginning and the end of an iteration of depth-first search will memorize, the time of entry and exit at each vertex. Now in O(1) can be found response: node i is an ancestor of vertex j if and only when start<sub>i</sub> < start<sub>j</sub> and end<sub>i</sub> > end<sub>j</sub>.</li>
+the <li><algohref=lca>Task LCA (lowest common ancestor)</algohref>.</li>
+the <li><algohref=topological_sort>Topological sort</algohref>:<br>Run a series of searches in depth to traverse all the vertices of the graph. Sort the vertices by descending - this will be the answer.</li>
+the <li><algohref=finding_cycle>Check the count on acyclicity and finding cycle</algohref></li>
+the <li><algohref=strong_connected_components>Search strongly connected components</algohref>:<br>First, do a topological sorting, then transponieren graph again and perform a series of searches in depth in the manner determined by topological sorting. Each tree search - silovana component.</li>
+the <li><algohref=bridge_searching>bridges</algohref>:<br>First, we transform the graph into oriented, making a series of searches in depth, and orienting each edge as we tried to follow it. Then find zelenovatye components. Bridges are those edges, the ends of which are owned by different sinneswandel components.</li>
+</ul>
+the <h2>Implementation</h2>
+<code>vector < vector<int> > g; // graph
+int n; // number of vertices
+
+vector<int> color; // color of vertex (0, 1, or 2)
+
+vector<int> time_in, time_out; // "times" for the entry and exit from the top
+dfs_timer int = 0; / / timer to determine the time
+
+void dfs (int v) {
+time_in[v] = dfs_timer++;
+color[v] = 1;
+for (vector<int>::iterator i=g[v].begin(); i!=g[v].end(); ++i)
+if (color[*i] == 0)
+dfs (*i);
+color[v] = 2;
+time_out[v] = dfs_timer++;
+}</code>
+<p>This is the most common code. In many cases, the times of entry and exit vertices are not important, and not important vertex colors (but then you will need to enter similar Boolean array used). Here's the simplest implementation:</p>
+<code>vector < vector<int> > g; // graph
+int n; // number of vertices
+
+vector<char> used;
+
+void dfs (int v) {
+used[v] = true;
+for (vector<int>::iterator i=g[v].begin(); i!=g[v].end(); ++i)
+if (!used[*i])
+dfs (*i);
+}</code>

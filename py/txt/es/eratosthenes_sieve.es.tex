@@ -1,0 +1,156 @@
+\h1{ Tamiz eratosfena }
+
+Tamiz eratosfena --- es un algoritmo que permite encontrar todos los primos en el tramo de $[1, n]$ a $O (n \log \log n)$ de operaciones.
+
+La idea es simple --- escribir una serie de números de $1 \ldots, n$, y vamos a centrado primero todos los números que se dividen en $2$, excepto el número $de$ 2 y, a continuación, деляющиеся $3$, excepto el número $3$, luego $5$, luego $7$, $11$, y todos los demás simples a $n$.
+
+
+\h2{ Aplicación }
+
+En seguida presentamos la implementación de un algoritmo:
+
+\code
+int n;
+vector<char> prime (n+1, true);
+prime[0] = prime[1] = false;
+for (int i=2; i<=n; ++i)
+if (prime[i])
+if (i * 1ll * i <= n)
+for (int j=i*i; j<=n; j+=i)
+prime[j] = false;
+\endcode
+
+Este código marca primero de todos los números, excepto el cero y la unidad, como simples y, a continuación, comienza el proceso de cribado de compuestos de números. Para ello, hemos перебираем en el ciclo de todos los números de 2 $a$ a $n$, y si el número actual de $i$ simple, помечаем todos los números múltiplos, como compuestos.
+
+Cuando empezamos a caminar desde $i^2$, ya que todos menos el número de múltiplos de $i$, necesariamente tienen un divisor primo menor que $i$, lo que significa que ya estaban cribado antes. (Pero ya que $i^2$ fácilmente puede desbordar el tipo de $int$, en el código antes de la segunda adjunto ciclo se hace una comprobación adicional con el uso de un tipo $long~long$.)
+
+Con esta implementación el algoritmo consume $O (n)$ de memoria (que es evidente) y realiza la $O (n \log \log n)$ de acción (esto se demuestra en la siguiente sección).
+
+
+\h2{ Asíntotas }
+
+Demostramos que asíntotas algoritmo es de O (n \log \log n)$.
+
+Así, para cada una simple $p \le n$ se ejecutará el bucle interior, que hará de $\frac{n}{p}$ de acción. Por lo tanto, necesitamos estimar el siguiente valor:
+
+$$ \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{n}{p} = n \cdot \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{1}{p}. $$
+
+Recordemos aquí dos importantes hechos: que el número de los simples, de menor o de la igualdad de $n$ es aproximadamente igual a $\frac{n}{\ln n}$ y que $k$-tes simple número es aproximadamente igual a $k \ln k$ (esto se deduce de la primera aprobación). Entonces la suma se puede escribir así:
+
+$$ \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{1}{p} \approx \frac{1}{2} + \sum_{k=2}^{\frac{n}{\ln n}} \frac{1}{k \ln k}. $$
+
+Aquí, hemos identificado el primer sencillo de esta cantidad, ya que si $k = 1$ de acuerdo a aproximar $k \ln k$ resultará $0$, lo que llevará a la división por cero.
+
+Ahora ponemos la misma cantidad con el desarrollo integral de la misma función de $k$ de $2 a$ a $\frac{n}{\ln n}$ (podemos producir esta aproximación, ya que, de hecho, la cantidad se refiere a la integral como una aproximación de la fórmula de los rectángulos):
+
+$$ \sum_{k=2}^{\frac{n}{\ln n}} \frac{1}{k \ln k} \approx \int\limits_2^{\frac{n}{\ln n}} \frac{1}{k \ln k}\ dk. $$
+
+Первообразная para подынтегральной de una función $\ln \ln k$. Realizando la sustitución y eliminación de los miembros de menor orden, obtenemos:
+
+$$ \int\limits_2^{\frac{n}{\ln n}} \frac{1}{k \ln k}\ dk = \ln \ln \frac{n}{\ln n} - \ln \ln 2 = \ln (\ln n - \ln \ln n) - \ln \ln 2 \approx \ln \ln n. $$
+
+Ahora, volviendo a la cantidad inicial, obtenemos su acercado evaluación:
+
+$$ \sum_{ \scriptstyle p \le n, \atop\scriptstyle p~is~prime } \frac{n}{p} \approx n \ln \ln n + o(n) $$
+
+que se quería demostrar.
+
+Más estricta de la prueba (y le da una estimación más exacta con una precisión hasta de constantes multiplicador) se puede encontrar en el libro de Hardy y Wright "An Introduction to the Theory of Numbers" (p. 349).
+
+
+\h2{ Diferentes optimizar el tamiz eratosfena }
+
+El mayor inconveniente del algoritmo --- lo que se "pasea" por la memoria, la constante más allá de la memoria caché, por lo que es una constante, oculta en $O (n \log \log n)$, es relativamente grande.
+
+Además, lo suficientemente grandes $n$ el cuello de botella se convierte en el consumo de memoria.
+
+A continuación se describen los métodos, la posibilidad de reducir el número de operaciones y reducir considerablemente el consumo de memoria.
+
+
+\h3{ Tamizado simples hasta la raíz }
+
+La más obvia momento --- que, a fin de encontrar todas las cosas simples a $n$, basta con realizar el tamizado sólo simples, no superiores a raíz de $n$.
+
+Por lo tanto, cambia el bucle exterior del algoritmo:
+
+\code
+for (int i=2; i*i<=n; ++i)
+\endcode
+
+En асимптотику esta optimización no afecta (de hecho, repitiendo la anterior prueba, obtenemos una estimación de $n \ln \ln \sqrt{n} + o(n)$, que, por las propiedades de los logaritmos, asintóticamente es lo mismo), aunque el número de operaciones visiblemente sucia.
+
+
+\h3{ Tamiz sólo por una extraña números }
+
+Ya que todos los números pares, además de los $2$, --- compuestas, puede no controlar de ningún modo, los números pares, y operar sólo números impares.
+
+En primer lugar, esto permitirá reducir a la mitad la cantidad de memoria requerida. En segundo lugar, se reducirá el número de делаемых el algoritmo de las operaciones en aproximadamente la mitad.
+
+
+\h3{ Reducción del volumen de consumo de memoria }
+
+Tenga en cuenta que el algoritmo de eratosfena en realidad opera con $n$ bits de memoria. Por lo tanto, se puede ahorrar el consumo de memoria, almacenando el no $n$ bytes --- variables bulevskogo tipo, y $n$ bits, es decir, $n/8$ bytes de memoria.
+
+Sin embargo, este enfoque --- \bf{"compresión de mapa de bits"} --- difícil la operación de estos bits. Cualquier lectura o escritura de un bit se presentar algunas de las operaciones aritméticas, lo que finalmente conduciría a la desaceleración del algoritmo.
+
+Por lo tanto, este enfoque es adecuado sólo si $n$ es tan grande, que el $n$ bytes de memoria para asignar ya no se puede. Ahorro de memoria (en $8$ más), te pagaremos por esto es importante desaceleración en el algoritmo.
+
+En conclusión, vale la pena señalar que en el lenguaje C++ se han aplicado los contenedores, automáticamente encargadas de bits compresión: vector<bool> y bitset<>. Sin embargo, si la velocidad de trabajo es muy importante, lo mejor es implementar bits compresión manual, con la ayuda de bit a bit --- hoy en día uno de los compiladores de los mismos no son capaces de generar suficiente código rápido.
+
+
+\h3{ Colocar el tamiz }
+
+De la optimización de la "tamizado simples hasta la raíz" que no hay necesidad de almacenar todo el tiempo todo el conjunto $prime[1 \ldots, n]$. Para realizar el tamizado suficiente para almacenar sólo simples hasta la raíz de $n$, es decir $prime[1 \ldots \sqrt{n}]$ y el resto de la matriz $prime$ a construir bloques, manteniendo en este momento, en un único bloque.
+
+Deje que el $s$ --- una constante que define el tamaño de la unidad, entonces el total sería de $\left\lceil \frac{n}{s} \right\rceil$ bloques, $k$-primer bloque ($k = 0 \ldots \left\lfloor \frac{n}{s} \right\rfloor$) contiene los números en el tramo de $[ks; ks+s-1]$. Vamos a procesar bloques de la cola, es decir, por cada $k$del bloque vamos a ordenar a través de todas las cosas simples (de $1 a$ a $\sqrt{n}$) y realizar sus tamizado sólo dentro del bloque actual. Suavemente vale la pena procesar el primer bloque --- en primer lugar, simples de $[1; \sqrt{n}]$ no tiene que quitar a nosotros mismos, y en segundo lugar, el número de de $0$ y $de 1$ se marcarán como no simples. Cuando se procesa el último bloque también no se debe olvidar que el último número deseado de $n$ no necesariamente está en la final de la unidad.
+
+Llevaremos la implementación del bloque de tamiz. El programa lee un número $n$ y encuentra una serie de sencillas desde $1 a$ a $n$:
+
+\code
+const int SQRT_MAXN = 100000; // la raíz de maximizar el valor de la N
+const int S = 10000;
+bool nprime[SQRT_MAXN], bl[S];
+int primos[SQRT_MAXN], la cnt;
+
+int main() {
+
+int n;
+cin >> n;
+int nsqrt = (int) sqrt (n + .0);
+for (int i=2; i<=nsqrt; ++i)
+if (!nprime[i]) {
+primos[cnt++] = i;
+if (i * 1ll * i <= nsqrt)
+for (int j=i*i; j<=nsqrt; j+=i)
+nprime[j] = true;
+}
+
+int result = 0;
+for (int k=0, maxk=n/S; k<=maxk; k++) {
+memset (bl, 0, sizeof bl);
+int start = k * S;
+for (int i=0; i<cnt; ++i) {
+int start_idx = (start + primos[i] - 1) / primos[i];
+int j = max(start_idx,2) * primos[i] - start;
+for (; j<S; j+=primos[i])
+bl[j] = true;
+}
+if (k == 0)
+bl[0] = bl[1] = true;
+for (int i=0; i<S && start+i<=n; ++i)
+if (!bl[i])
+++result;
+}
+cout << result;
+
+}
+\endcode
+
+Asíntotas de bloque tamiz mismo, como es normal y el tamiz eratosfena (si, por supuesto, el tamaño de la $s$ de los bloques no será muy pequeño), pero la cantidad de memoria que se reducirá a $O(\sqrt{n} + s)$, y en la menor "navegar" por la memoria. Pero, por otro lado, para cada bloque para cada simple de $[1; \sqrt{n}]$ se ejecutará la división, que será muy negativamente a menor tamaño de la unidad. Por tanto, la elección de la constante de $s$, debe lograrse un equilibrio.
+
+Como muestran los experimentos, mejor velocidad de trabajo se logra cuando el $s$ es el valor de aproximadamente $10^4$ a $10^5$.
+
+
+\h3{ Mejora de hasta línea de tiempo de trabajo }
+
+El algoritmo de eratosfena se puede convertir en un algoritmo diferente, que ya va a funcionar por un tiempo lineal --- véase el artículo \algohref=prime_sieve_linear{"Tamiz eratosfena con un tiempo de trabajo"}. (Sin embargo, este algoritmo tiene y desventajas.)

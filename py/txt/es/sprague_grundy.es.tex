@@ -1,0 +1,518 @@
+\h1{ la Teoría de Шпрага grande. Él }
+
+
+\h2{ Introducción }
+
+La teoría de la Шпрага grande --- es una teoría que describe los llamados \bf{las} (angl. "impartial") juego de dos jugadores, es decir, juegos en los que fija movimientos y выигрышность/проигрышность dependen sólo del estado del juego. Dependiendo de cuál de los dos jugadores va, no depende de nada: es decir, los jugadores totalmente coordinados.
+
+Además, se espera que los jugadores disponen de toda la información (sobre las reglas del juego, las posibles turnos, la posición de tu oponente).
+
+Se supone que el juego \bf{finito}, es decir, cuando cualquier estrategia de jugadores que tarde o temprano vendrán a \bf{проигрышную} posición, de que no hay otras transiciones en la posición. Esta es una posición perdedora para un jugador que debe hacer el curso de esta posición. En consecuencia, ella es la ganadora para el jugador, que ha venido a esta posición. Claro, empates resultados en este tipo de juego no es.
+
+En otras palabras, este juego se puede describir completamente \bf{orientado ациклическим el conde}: los vértices son el estado de los juegos y las costillas --- transiciones de un estado de un juego a otro como resultado de la marcha actual del jugador (de nuevo, en este primer y el segundo jugador son iguales). Uno o más vértices que no tienen salientes de las costillas, que es apuestas perdedoras vértices (para el jugador que debe realizar el curso de un vértice).
+
+Porque empates resultados no sucede, todo el progreso del juego se dividen en dos clases: \bf{ganadoras y apuestas perdedoras}. Ganadoras --- este es el tipo de estado que se hallare en el curso de la actual jugador que dará lugar a неминуемому la derrota de otro jugador, incluso el óptimo juego. En consecuencia, apuestas perdedoras del estado --- este es el estado de las transiciones que conducen en estado, que llevan a la victoria en el segundo jugador, a pesar de la "resistencia" del primer jugador. En otras palabras, el ganador será el estado, desde el cual hay una transición en la perdedora estado, y проигрышным es una condición de la que todas las transiciones conducen a las ganadoras del estado (o de la que en general no hay transiciones).
+
+Nuestra tarea --- para cualquier lado el juego de realizar la clasificación de los estados de este juego, es decir, para cada estado determinar ganadora o perdedora.
+
+La teoría de los juegos, con independencia desarrollado roland Шпраг (Roland Sprague) en 1935, y patrick michael grande (Patrick Michael Grundy) en 1939
+
+
+\h2{ Juego "Él" }
+
+Este juego es uno de los ejemplos descritos arriba juegos. Además, como veremos un poco más adelante, \bf{cualquier} coordinada de los juegos de dos jugadores, en realidad equivalente a la de un juego de "él" (angl. "nim"), por lo tanto, el estudio de este juego automáticamente nos permitirá resolver todos los demás juegos (sin embargo, sobre esto más adelante).
+
+Históricamente, este juego fue muy popular en los tiempos antiguos. Probablemente, el juego tiene sus orígenes en china --- por lo menos, es un juego chino "Jianshizi" muy similar a la de él. En europa, las primeras menciones de nîmes se refieren a la del siglo XVI, el nombre de "él" inventó el matemático charles Yema (Charles Bouton), que en el año 1901, publicó un análisis completo de este juego. El origen del nombre de "él" no se sabe.
+
+
+\h3{ Descripción del juego }
+
+El juego "él" es el siguiente juego.
+
+Hay varios кучек, en cada una de las cuales varias de las piedras. Por un turno, el jugador puede tomar de algún puñado de cualquier número distinto de cero piedras y tirarlas. En consecuencia, la pérdida se produce cuando los movimientos ya no quedan, es decir, todos los montones vacíos.
+
+Así, el estado del juego "él" inequívocamente se describe un desordenado conjunto de números naturales. En un único movimiento permitido estrictamente reducir cualquiera de los números (si, en consecuencia, el número será igual a cero, entonces se elimina del conjunto).
+
+
+\h3{ la Solución de neem }
+
+La solución de este juego publicado en el año 1901, la Yema de charles (Charles L. Bouton), y se ve de la siguiente manera.
+
+\bf{Teorema}. El actual jugador tiene una estrategia ganadora entonces, y sólo entonces, cuando XOR-la suma de los tamaños de кучек diferente de cero. En caso contrario, el actual jugador se encuentra en el perdidoso estado. (XOR de la cantidad de números de $a_i$ se llama la expresión $a_1 \oplus a_2 \oplus \ldots \oplus a_n$, donde $\oplus$ --- la operación or exclusivo bit a bit)
+
+\bf{Prueba}.
+
+La esencia principal de las siguientes pruebas --- disponible \bf{simétrica de la estrategia para el enemigo}. Vamos a mostrar que, estando en un estado de cero XOR de la cantidad, el jugador no podrá salir de ese estado de --- en cualquier entra en un estado distinto de cero XOR-la suma de los enemigos hay vuelta de la carrera, que devuelve el XOR-la suma de vuelta a cero.
+
+Se procede ahora a la formal de la prueba (será constructiva, es decir, vamos a mostrar exactamente cómo se ve simétrica de la estrategia del enemigo --- qué carrera le ser necesario realizar).
+
+Demostrar el teorema vamos a por inducción.
+
+Vacío de nîmes (cuando el tamaño de todos los кучек son iguales a cero) XOR-la suma es igual a cero, y el teorema es cierto.
+
+Supongamos ahora que queremos probar el teorema para un estado de juego, debido a que hay al menos una transición. Usando la hipótesis de inducción (y ацикличностью de juego, creemos que el teorema demostrado para todos los estados, a los que podemos acceder desde la actual.
+
+Entonces, la prueba se divide en dos partes: si XOR-la suma de $s$ en el estado actual de $a=0$, es necesario demostrar que el estado actual de la проигрышно, es decir, todas las transiciones de él conducen en estado de XOR $t \ne 0$. Si $s \ne 0$, entonces hay que demostrar que hay de transición que conduce a un estado de con $t = 0$.
+
+\ul{
+
+\li Que $a = 0$, entonces queremos demostrar que el estado actual de la --- проигрышно. Considere cualquier transición desde la situación actual de la ciudad: se denota por $p$ número variable de un puñado, a través de $x_i$ ($i = 1, \ldots, n$) --- las dimensiones de кучек antes de la carrera, a través de $y_i$ ($i = 1, \ldots, n$) --- después de un recorrido. Entonces, usando las propiedades elementales de la función $\oplus$, tenemos:
+
+$$ t = s \oplus x_p \oplus y_p = 0 \oplus x_p \oplus y_p = x_p \oplus y_p. $$
+
+Pero dado que $y_p < x_p$, entonces esto significa que $t \ne 0$. Entonces, el nuevo estado será ненулевую XOR-la suma, es decir, de acuerdo con la base de la inducción, será el ganador, que se quería demostrar.
+
+\li Que $s \ne 0$. Entonces, nuestra tarea-para-el - demostrar que el estado actual de la --- favorable, es decir, existe el progreso en la perdedora estado (con cero XOR de la cantidad).
+
+Considere una entrada de número de $s$. Tomemos senior cero el bit, que su número es de $d$. Que $k$ --- número de la kuchki, el tamaño de la $x_k$ que $d$el primer bit es distinto de cero ($k$ hay, de lo contrario sería XOR-la suma de $s$ este bit no ha resultado sería diferente de cero).
+
+Entonces, se afirma, se busca el progreso --- este es cambiar el $k$-una pila, haciendo de ella el tamaño de $y_k = x_k \oplus s$.
+
+Convencido de esto.
+
+Primero es necesario comprobar que es el correcto, es decir, que $y_k < x_k$. Sin embargo, esto es cierto, ya que todos los bits, los mayores $, d$, el $x_k$ y $y_k$ coinciden, y en $d$-ohm pedacito de el $y_k$ cero, y el $x_k$ será una unidad.
+
+Ahora contaremos qué XOR-el importe de la adaptacion de este curso:
+
+$$ t = s \oplus x_k \oplus y_k = s \oplus x_k \oplus (s \oplus x_k) = 0. $$
+
+Por tanto, el nosotros el curso --- realmente el curso de la perdedora en el estado, y esto demuestra que el estado actual favorable.
+
+}
+
+El teorema demostrado.
+
+\bf{Resultado}. Cualquier estado de él-el juego se puede sustituir el equivalente del estado, y consta de un único puñado de tamaño igual XOR-la suma de los tamaños кучек en el casco antiguo de estado.
+
+En otras palabras, el análisis de nimes, con varios kuchkami que se puede contar XOR $s$ de sus dimensiones, y pasar al análisis de nimes, de la única puñado de tamaño $s$ --- como se muestra sólo que demostrado el teorema, выигрышность/проигрышность de esto no cambiará.
+
+
+\h2{ la Equivalencia de cualquier juego ниму. El Teorema De Шпрага Grande }
+
+Aquí te mostraremos como cualquier juego (equitativa juego de dos jugadores) poner en el cumplimiento de ellos. En otras palabras, cualquier fecha cualquier juego aprenderemos a poner en el cumplimiento de él-pila, totalmente describe el estado del juego original.
+
+
+\h3{ lema de nîmes con aumentos }
+
+Demostremos primero es muy importante лемму --- \bf{лемму de nîmes a ampliaciones superiores a la}.
+
+Es decir, considere el siguiente modificado de él: todas de la misma, como en el de nimes, sin embargo, ahora se permite la vista adicional de carrera: en lugar de disminuir, por el contrario, \bf{aumentar el tamaño de cierta puñado}. Para ser más precisos, es el turno de un jugador ahora es que se recoge un número de piedras, de algún puñado, o aumenta el tamaño de cualquier puñado (de acuerdo con ciertos reglamentos, véase el siguiente párrafo).
+
+Aquí es importante entender que las reglas que el jugador puede hacer zoom, \bf{no nos interesan} --- sin embargo, estas reglas deberían ser, para nuestro juego todavía se \bf{ациклична}. A continuación en la sección "Ejemplos de juegos" ejemplos de estos juegos: "escaleras", "nimble-2", "turning tortugas".
+
+Una vez más, el lema será probada por nosotros, en general, para cualquier juego de este tipo --- juegos del tipo "él a ampliaciones superiores"; las reglas específicas de los aumentos en la evidencia no se utilizan.
+
+\bf{Redacción леммы}. Él, con el equivalente a ampliaciones superiores a la normal ниму, en el sentido de que выигрышность/проигрышность de estado se define por el teorema de la Yema de acuerdo con XOR-la suma de los tamaños кучек. (O, en otras palabras, la esencia de la леммы en el hecho de que el aumento de la inútil, no tiene sentido aplicar la estrategia óptima, y que no cambia en nada la выигрышность/проигрышность en comparación con el neem.)
+
+\bf{Prueba}.
+
+La idea de la prueba, como en el teorema de la Yema --- disponible \bf{simétrica de la estrategia}. Vamos a demostrar que el aumento no cambian nada, porque después de que uno de los jugadores que recurre a aumentar, el otro puede simétricamente contestar.
+
+En realidad, suponga que el actual jugador comete el progreso-el aumento de algún puñado. Entonces, su rival será capaz de contestarle, reduciendo de nuevo esta pila hasta el antiguo valor de --- ya habituales movimientos de nimes, tenemos todavía pueden utilizarse libremente.
+
+Por lo tanto, la respuesta en el curso-aumento sería del curso-reducción de la vuelta al casco antiguo de el tamaño de un puñado. Por lo tanto, después de esta respuesta, el juego volverá a la misma a las dimensiones de кучек, es decir, el jugador que haya cometido un aumento, nada de esto no va a ganar. Porque el juego ациклична, tarde o temprano, los movimientos de la ampliación a terminar, y el jugador tendrá que hacer el curso-reducción, y esto significa que aumentan la presencia de movimientos no cambia de impugnaciones.
+
+
+\h3{ Teorema de Шпрага grande de la equivalencia de cualquier juego ниму }
+
+Pasemos ahora a lo principal en este artículo el hecho de la --- el teorema de la equivalencia de la ниму cualquier equitativa, un juego de dos jugadores.
+
+\bf{Teorema de Шпрага grande}. Considere cualquier estado $v$, en cierta manera equitativa un juego de dos jugadores. Que de él hay transiciones en algunos estados de $v_i$ $(i=1, \ldots k)$ (donde $k \ge 0$). Se afirma que el estado $v$ en este juego se puede poner en correspondencia la pila de nimes, un tamaño de $x$ (que habrá de describir completamente el estado de $v$ de nuestro juego --- es decir, estos dos estados dos juegos diferentes serán equivalentes). Es el número de $x$ --- se llama \bf{valor Шпрага grande} estado $v$.
+
+Además, este número es de $x$ se puede encontrar recursiva de la siguiente manera: calcular el valor de Шпрага grande $x_i$ por cada transición $(v,v_i)$, y entonces se cumple:
+
+$$ x = {\rm mex} \{ x_1, \ldots, x_k \}, $$
+
+donde la función $\rm mex$ del conjunto de números devuelve el menor un número que no se encuentra en este conjunto (el nombre "mex" --- es la abreviatura de "minimum excludant").
+
+Por lo tanto, podemos, empezando desde los vértices sin salientes, bordes, poco a poco \bf{calcular el valor de Шпрага grande para todos los estados de nuestro juego}. Si el valor de la Шпрага grande de cualquier estado es igual a cero, es el estado de проигрышно, de lo contrario --- favorable.
+
+\bf{Prueba}. Demostrar el teorema vamos a por inducción.
+
+Para los vértices, de que no hay ninguna transición, el valor de $x$ de acuerdo con el teorema salga como $\rm mex$ de vacío de la multitud, es decir, $x = 0$. Pero, en realidad, el estado sin transición --- este es perdedora estado, y realmente le debe coincidir con la de él, un puñado de tamaño $0$.
+
+Consideremos ahora cualquier estado $v$, de la que hay transiciones. Por inducción podemos suponer que todos los estados de $v_i$, en el que podemos pasar de un estado actual, el valor de $x_i$ ya contados.
+
+Calcular la cantidad de $p = {\rm mex} \{ x_1, \ldots, x_k \}$. Entonces, según la definición de la función $\rm mex$, obtenemos que para cualquier número $i$ en el intervalo $[0; p)$ hay al menos una transición pertinente en alguna de $v_i$s el estado. Además, puede haber otras transiciones --- en el estado con los valores de grande, grandes $p$.
+
+Esto significa que el estado actual \bf{equivalente al estado de ниму a ampliaciones superiores a la de кучкой tamaño $p$}: en realidad, tenemos las transiciones desde el estado actual en el estado de kuchkami de todos los tamaños más pequeños, así como pueden ser las transiciones en el estado de grandes dimensiones.
+
+Por lo tanto, el valor de ${\rm mex} \{ x_1, \ldots, x_k \}$ es realmente buscamos el valor Шпрага grande para el estado actual, que se quería demostrar.
+
+
+\h2{ Aplicación del teorema de Шпрага grande }
+
+Describir por último integral de un algoritmo aplicable a cualquier equitativa juego de dos jugadores para determinar выигрышности/проигрышности el estado actual de $v$.
+
+La función que a cada estado de juego pone en el cumplimiento de ellos es el número que se llama \bf{la función de Шпрага grande}.
+
+Por lo tanto, para calcular la función de Шпрага grande para el estado actual de cierto juego, es necesario:
+
+\ul{
+
+\li lista de todos los posibles transiciones desde el estado actual.
+
+\li, en Cada transición puede llevar ya sea en un juego o en \bf{cantidad de juegos independientes}.
+
+En el primer caso --- simplemente calcular la función de grande, de forma recursiva para este nuevo estado.
+
+En el segundo caso, cuando la transición desde la situación actual se traduce en la suma de varios independientes de los juegos --- de forma recursiva calcular para cada uno de estos juegos la función de grande y, a continuación, diremos que la función de grande cantidad de juegos es igual a XOR-la suma de los valores de estos juegos.
+
+\li Después de que nos dimos cuenta de la función de grande para cada posible transición --- contamos $\rm mex$ de esos valores, y se halló el número de --- y hay la búsqueda de un valor grande para el estado actual.
+
+\li Si el valor resultante grande es igual a cero, entonces el estado actual de la проигрышно, de lo contrario --- favorable.
+
+}
+
+Por lo tanto, en comparación con el teorema de Шпрага grande aquí tenemos en cuenta que en el juego pueden ser las transiciones de cada estado en \bf{la suma de varios juegos}. Para trabajar con las sumas de los juegos, lo primero que cambiamos cada juego con su valor grande, es decir, un él-кучкой de un cierto tamaño. Después de esto llegamos a la suma de varios de ellos-кучек, es decir, a la ниму, la respuesta es que, de acuerdo con el teorema de la Yema --- XOR-la suma de los tamaños de кучек.
+
+
+\h2{ Patrones en los valores de Шпрага grande }
+
+Muy a menudo, cuando la realización de tareas específicas, cuando se requiere aprender a contar una función Шпрага grande para el juego, ayuda a \bf{el estudio de las tablas de valores} esta función en la búsqueda de patrones.
+
+Muchos de los juegos que parecen muy difíciles para el análisis teórico, la función Шпрага grande, en la práctica, resulta периодичной, o que tenga un aspecto muy directo, que es fácil de ver "a ojo". En la gran mayoría de los casos vistos los patrones son verdaderas, y si lo desea, доказываемыми con la ayuda de la inducción matemática.
+
+Sin embargo, no siempre la función de Шпрага grande contiene simples patrones, y para algunos incluso es muy simple en su formulación, de los juegos de la pregunta sobre la existencia de tales leyes todavía está abierto (por ejemplo, "Grundy's game" a continuación).
+
+
+\h2{ Ejemplos de juegos }
+
+Para ilustrar la teoría de la Шпрага grande, vamos a ver algunas tareas.
+
+Cabe prestar atención a la tarea de escaleras de él", "nimble-2", "turning tortugas", en la que se muestra no trivial reducir el problema inicial a ниму con los aumentos.
+
+
+\h3{ "Tic-tac-tic tac" }
+
+\bf{Condición}. Veamos celular rayas tamaño de $1 \times n$ de las células. En una jugada, el jugador debe poner una cruz, pero si esta prohibido poner dos de la cruz al lado (en las células vecinas). Pierde el que no puede hacer un movimiento. Decir quién gana con una óptima juego.
+
+\bf{para Decisión}. Cuando un jugador pone una cruz en cualquiera de los cuadros, se puede considerar que toda la barra se divide en dos mitades independientes: a la izquierda de la cruz y a la derecha de él. La misma jaula con una cruz, así como su izquierda y derecha del vecino se destruyen --- ya que en ellos nada más no se puede poner.
+
+Por lo tanto, si nos занумеруем las células de las tiras de $1 a$ a $n$, entonces, al colocar una x en la posición $1 < i < n$ racha se desintegra en dos tiras de la longitud de la $i-$ 2 y $n-i-1$, es decir, nos movemos en la suma de los dos juegos de la $i-$ 2 y $n-i-1$. Si la cruz se coloca en la posición $1$ y $n$, entonces este es un caso especial --- simplemente nos adentramos en el estado de $n-2$.
+
+Por lo tanto, la función de grande $g[n]$ tiene la apariencia de ($n \ge 3$):
+
+$$ g[n] = {\rm mex} \Bigg\{ g[n-2], \bigcup_{i=2}^{n-1} \Big( g[i-2] \oplus g[n-i-1] \Big) \Bigg\}. $$
+
+Es decir, $g[n]$ es como $\rm mex$ de la multitud, compuesta por un número de $g[n-2]$, así como de todo tipo de valores de expresión de $g[i-2] \oplus g[n-i-1]$.
+
+Por lo tanto, tenemos la solución a este problema por $O (n^2)$.
+
+En realidad, encontrando en el equipo de la tabla de valores para los primeros cien los valores de $n$, se puede ver que, a partir de $n=52$, la secuencia de $g[n]$ se convierte en периодичной con el período de $34$. Este patrón se conserva y más allá (que, probablemente, se puede demostrar por inducción).
+
+
+\h3{ "Tic-tac-tic-tac - - - 2" }
+
+\bf{Condición}. De nuevo, el juego se juega en una tira de $1 \times n$ de las células, y los jugadores, por turno, ponen una cruz que aparece. Gana el jugador que pondrá a la tres de la cruz consecutivos.
+
+\bf{para Decisión}. Tenga en cuenta que si $n>2$ y nos han dejado después de su marcha de dos de una cruz al lado o a través de un espacio, lo siguiente turno, el oponente gana. Por lo tanto, si un jugador colocado en algún lugar la cruz, el otro jugador se beneficiarán de poner la cruz en los países vecinos con él de la célula, así como en los países vecinos y vecinas (es decir, a una distancia de 1 $$ y $2$ poner desventajoso, esto llevará a la derrota).
+
+Entonces la solución se obtiene prácticamente el mismo la tarea anterior, sólo que ahora la cruz quita a cada una de las mitades de una sola vez, dos células.
+
+
+\h3{ "Peón" }
+
+\bf{Condición}. Hay un cuadro de $3 \times n$, en el que en la primera y en la tercera fila cuestan $n$ peones --- blancos y negros, respectivamente. El primer jugador camina blancas de los peones, la segunda --- negro. Las reglas de la marcha y de golpe --- estándar de ajedrez, excepto por el hecho de que el batir (si es posible).
+
+\bf{para Decisión}. Continuemos, que ocurre cuando un peón hará que el movimiento hacia adelante. Siguiente turno, el enemigo se verá obligado a comer, luego nos vamos a la obligación de comer el peón enemigo y, a continuación, vuelva a él comerá, y, por último, nuestro peón se come al enemigo peón y seguirá siendo, "упершись" en un peón enemigo. Por lo tanto, si en un principio fueron un peón en la columna de $1 < i < n$, en el resultado de tres columnas de $[i-1; i+1]$ tableros de hecho уничтожатся, y nos dirigimos a la suma de los juegos del tamaño de la $i-$ 2 y $n - i - 1$. Las restricciones de los casos $i=1$ y $i=n$ nos llevan simplemente a la pizarra de tamaño $n-2$.
+
+Por lo tanto, tenemos una expresión para la función de grande similares a la descrita anteriormente la tarea de "Tic-tac-tic tac".
+
+
+\h3{ "Lasker's nim" }
+
+\bf{Condición}. Hay $n$ кучек las piedras de un tamaño dados. Por un turno, el jugador puede tomar cualquier valor distinto número de piedras de un puñado, o dividir cualquier pila en dos no nulo un puñado. Pierde el que no puede hacer un movimiento.
+
+\bf{para Decisión}. Registrando ambos tipos de transiciones, es fácil obtener la función de Шпрага grande como:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=0}^{n-1} g[i], ~~ \bigcup_{i=1}^{n-1} \Big( g[i] \oplus g[n-i] \Big) \Bigg\}. $$
+
+Sin embargo, se puede construir una tabla de valores para las pequeñas $n$ y ver un patrón simple:
+
+$$ \matrix{
+n & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 \cr
+g[n] & 0 & 1 & 2 & 4 & 3 & 5 & 6 & 8 & 7 & 9 & 10 & 12 & 11 & 13 & 14 & 16 & 15 & 17 & 18 & 20 \cr
+} $$
+
+Aquí se ve que $g[n] = n$ para los números, la igualdad de $1$ o 2 $$ por módulo $4$ y $g[n] = n \pm 1$ para los números, la igualdad de $3,$ y $a$ 0. por módulo $4$. Demostrar que es posible por inducción.
+
+
+\h3{ "The game of Kayles" }
+
+\bf{Condición}. Es $n$ kegel, que hay en la serie. Por un golpe, el jugador puede golpear una кеглю o dos cerca de bolos que están de pie. Gana el jugador que superó al de la última кеглю.
+
+\bf{para Decisión}. Y cuando un jugador supera a una кеглю, y cuando se supera dos --- el juego se descompone en la suma de los dos juegos independientes.
+
+Es fácil obtener una expresión para la función de Шпрага grande:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=0}^{n-1} \Big( g[i] \oplus g[n-1-i] \Big), ~~ \bigcup_{i=0}^{n-2} \Big( g[i] \oplus g[n-2-i] \Big) \Bigg\}. $$
+
+Contaremos para la tabla de las primeras decenas de elementos:
+
+$$ \matrix{
+g[0 \ldots 11]: & 0 & 1 & 2 & 3 & 1 & 4 & 3 & 2 & 1 & 4 & 2 & 6 \cr
+g[12 \ldots 23]: & 4 & 1 & 2 & 7 & 1 & 4 & 3 & 2 & 1 & 4 & 6 & 7 \cr
+g[24 \ldots 35]: & 4 & 1 & 2 & 8 & 5 & 4 & 7 & 2 & 1 & 8 & 6 & 7 \cr
+g[36 \ldots 47]: & 4 & 1 & 2 & 3 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[48 \ldots 59]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 4 & 2 & 7 \cr
+g[60 \ldots 71]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 6 & 7 \cr
+g[72 \ldots 83]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[84 \ldots 95]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[96 \ldots 107]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+g[108 \ldots 119]: & 4 & 1 & 2 & 8 & 1 & 4 & 7 & 2 & 1 & 8 & 2 & 7 \cr
+} $$
+
+Se puede observar que, a partir de un cierto momento, la secuencia se convierte en периодичной con un período de $12$. En el futuro esta periodicidad no se romperá.
+
+
+\h3{ Grundy's game }
+
+\bf{Condición}. Es $n$ кучек piedras de un tamaño nos denota por $a_i$. Por un turno, el jugador puede tomar cualquier pila del tamaño de un mínimo de $3$, que se dividió en dos no nulo un puñado de desiguales dimensiones. Pierde el que no puede hacer un movimiento (es decir, cuando el tamaño de todos los restantes кучек menos o iguales a dos).
+
+\bf{para Decisión}. Si $n = 1$, entonces todos estos varios кучек, obviamente, --- juegos independientes. Por lo tanto, nuestra tarea-para-aprender a buscar la función de Шпрага grande para un puñado, y la respuesta para varios кучек salga como su XOR es la suma.
+
+Para un puñado de esta función se construye también es fácil, basta ver todas las transiciones posibles:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=[1 \ldots, n-1], \atop i \ne n-i } \Big( g[i] \oplus g[n-i] \Big) \Bigg\}. $$
+
+Lo que este juego es interesante --- el hecho de que, hasta ahora, ella no se encuentra el total de patrones. A pesar de la hipótesis de que la secuencia de $g[n]$ debe ser периодичной, fue calculada hasta un máximo de $2^{35}$, y los períodos en esta área no se ha detectado.
+
+
+\h3{ "Tramo de él" }
+
+\bf{Condición}. Hay una escalera con $n$ escalones (занумерованными de $1 a$ a $n$), $i$-oh escalón est $a_i$ monedas. En una jugada permite mover un distinto número de monedas de $i$-oh en la $i-1$-ésimo paso. Pierde el que no puede hacer carrera.
+
+\bf{para Decisión}. Si tratar de reducir esta tarea a ниму "de frente", resulta que la tenemos-es una reducción de un puñado de en cuánto, y al mismo tiempo el aumento de otro puñado en el mismo. El resultado es la modificación de nimes, decidir que es muy difícil.
+
+Haremos de otra manera: consideremos sólo los escalones de pares: $a_2, a_4, a_6, \ldots$. Vamos a ver cómo va a cambiar este conjunto de números en la comisión de un turno.
+
+Si el curso se realiza con un valor par de $i$, entonces este movimiento significa una disminución en el número $a_i$. Si el curso se realiza con un número impar de $i$ ($i > 1$), lo que significa un aumento de $a_{i-1}$.
+
+Resulta que nuestra tarea --- es normal ellos con aumentos con el tamaño кучек $a_2, a_4, a_6, \ldots$.
+
+Por lo tanto, la función grande de él -es un XOR-la suma de los números de la vista $a_{2i}$.
+
+
+\h3{ "Nimble" y "Nimble-2" }
+
+\bf{Condición}. Hay celular de la barra es de $1 \times n$ en $k$ monedas: $i$iv de la moneda se encuentra en $a_i$-oh jaula. Por un turno, el jugador puede tomar algún tipo de moneda y mover hacia la izquierda en un número arbitrario de las células, pero de un modo que ella no ha salido fuera de banda. En el juego "Nimble-2" opciones avanzadas está prohibido saltar por encima de otras monedas (o incluso poner dos monedas en una jaula). Pierde el que no puede hacer un movimiento.
+
+\bf{Solución "Nimble"}. Tenga en cuenta que las monedas en este juego son independientes entre sí. Además, si tenemos en cuenta un conjunto de números de $a_i-1$ $(i = 1, \ldots k)$, es claro que en una jugada el jugador puede tomar cualquiera de estos números y reducirlo, y la pérdida se produce cuando todos los números se dirigen a cero. Por lo tanto, el juego "Nimble" es-es \bf{normal de él}, y la respuesta a la tarea es XOR-la suma de los importes de $a_i-1$.
+
+\bf{Solución "Nimble-2"}. Перенумеруем monedas en el orden de izquierda a derecha. Entonces se denota por $d_i$ la distancia desde $i$-oh hasta $i-1$-oh monedas:
+
+$$ d_i = a_i - a_{i-1} - 1, ~~~~ (i = 1, \ldots k) $$
+
+(teniendo en cuenta que $a_0 = 0$).
+
+Entonces un jugador puede quitar de alguna de $d_p$ un número $q$, y añadir el mismo número $q$ a $d_{p+1}$. Por lo tanto, este juego-es, de hecho, \bf{"tramo de él"} sobre los números $d_i$ (sólo es necesario cambiar el orden de estos números a la inversa).
+
+
+\h3{ "Turning tortugas" y "Twins" }
+
+\bf{Condición}. Dana celular de la barra de tamaño $1 \times n$. En cada célula de la pena o de la cruz, o нолик. El juego puede tomar algún нолик y convertirlo en una cruz.
+
+Que \bf{opcional} permite seleccionar una de las casillas a la izquierda de la variable y cambiar el valor opuesto (es decir, нолик sustituir en la cruz, y la cruz --- нолик). En el juego de "turning tortugas" no es obligatorio hacerlo (es decir, el jugador puede limitarse a la transformación de la нолика en la cruz), y en "los gemelos" --- es necesario.
+
+\bf{Solución "turning tortugas"}. Se afirma que este juego --- es normal él sobre los números $b_i$, donde $b_i$ --- posición del $i$del нолика (1-índice). Veamos esta afirmación.
+
+\ul {
+
+\li Si el jugador sólo ha cambiado нолик en la cruz, no aprovechando adicional --- esto se puede entender como algo que simplemente se quitó toda la pila, que se corresponde con ese нолику. En otras palabras, si un jugador ha cambiado нолик en la cruz en la posición $x$ $(1 \le x \le n)$, lo tomó unas del tamaño de la $x$ y lo hizo de tamaño cero.
+
+\li Si el jugador aprovechó adicional, es decir, además de que ha cambiado нолик en la posición $x$ en la cruz, él cambió la jaula en la posición $y$ $(y < x)$, entonces se puede considerar que se redujo la pila $x$ a tamaño y $y$. En efecto, si en la posición $y$ antes era la cruz --- es, en realidad, después de la marcha de un jugador allí será нолик, es decir, aparecerá un puñado de tamaño $y$. Y si, en la posición $y$ antes era нолик, después de la marcha de un jugador, este puñado desaparece --- o lo que es lo mismo, fue una segunda puñado de exactamente el mismo tamaño y $y$ (ya que en nîmes dos montones iguales de tamaño, de hecho "destruyen" entre sí).
+
+}
+
+Por lo tanto, la respuesta a la tarea --- este es el XOR-la suma de los números --- las coordenadas de todos los ноликов en 1-indexación.
+
+\bf{la Decisión de "twins"}. Todos los razonamientos anteriores, siguen siendo fieles, excepto por el hecho de que la marcha de "poner unas" ahora el jugador no. Es decir, si estamos todos de coordenadas quitaremos la unidad --- de nuevo, el juego se convertirá en normal para él.
+
+Por lo tanto, la respuesta a la tarea --- este es el XOR-la suma de los números --- las coordenadas de todos los ноликов en 0-indexación.
+
+
+\h3{ Northcott's game }
+
+\bf{Condición}. Hay una tabla de tamaño $n \times m$: $n$ filas y $m$ columnas. En cada fila de la pena de dos fichas: uno negro y uno blanco. Por un turno, el jugador puede tomar cualquier ficha de su color y moverse dentro de la cadena hacia la derecha o hacia la izquierda un número arbitrario de pasos, pero no saltando a través de una ficha diferente (y no levantarse en ella). Pierde el que no puede hacer carrera.
+
+\bf{para Decisión}. En primer lugar, está claro que cada uno de $n$ filas del tablero de forma independiente el juego. Por lo tanto, la tarea consiste en el análisis de los juegos en una fila, y la respuesta a la tarea se XOR-la suma de los valores Шпрага grande para cada una de las líneas.
+
+Al abordar la tarea de una sola línea, se denota por $x$, la distancia entre el blanco y el negro chip (que puede variar de cero a $m-2$). En un turno, cada jugador puede reducir la $x$ en un valor arbitrario, o, posiblemente, para aumentar a un valor de (aumentar disponibles no siempre). Por lo tanto, esta es-es \bf{"él con los aumentos"}, y, como ya sabemos, el aumento en este juego inútil. Por lo tanto, la función de grande para una sola fila --- esta es la es la distancia que $x$.
+
+(Nótese que, formalmente, este razonamiento incompleto --- ya que en la "nîmes con los aumentos" se supone que el juego \bf{finito}, y aquí las reglas del juego permiten a los jugadores jugar indefinidamente. Sin embargo, el eterno juego no puede tener lugar cuando óptimo de juego --- ya vale la pena un jugador aumentar la distancia a la $x$ (precio de proximidad a la frontera de campo), el otro jugador se acerque a él, reduciendo la cantidad de $x$ de nuevo. Por lo tanto, cuando óptimo de juego del oponente, el jugador no podrá hacer aumentan los movimientos de forma indefinida, por lo que todo se describe la solución de la tarea permanece en vigor.)
+
+
+\h3{ Триомино }
+
+\bf{Condición}. Dado клетчатое el campo de tamaño de $2 \times n$. En un turno, un jugador puede apostar en el campo de una figura en forma de la letra "G" (es decir, coherente la forma de tres células, que no están en una misma recta). Está prohibido poner la figura para que пересеклась aunque sea una sola célula con alguna de sus figuras. Pierde el que no puede hacer un movimiento.
+
+\bf{para Decisión}. Tenga en cuenta que el planteamiento de una figurina divide el campo en dos independientes de campo. Por lo tanto, debemos analizar no sólo los campos rectangulares, pero y los campos, en los cuales la izquierda y/o derecha de la frontera irregular.
+
+Dibujando diferentes de configuración, se puede entender que sea cual sea la configuración de los campos, lo más importante --- sólo es la cantidad en este campo de las células. En realidad, si en el campo actual de $x$ libres de células, y queremos romper este campo en los dos campos de $y$ y $z$ (en $y+z+3 = x$), esto siempre se puede hacer, es decir, siempre se puede encontrar el lugar adecuado para figuras.
+
+Por lo tanto, nuestra tarea se convierte en una de esas: inicialmente tenemos un montón de piedras del tamaño de $2n$, y en una jugada podemos sacar de algún puñado de $3$ de la piedra y, a continuación, dividir la pila en dos montones aleatorias de tamaños. La función de grande para este tipo de juegos es la siguiente:
+
+$$ g[n] = {\rm mex} \Bigg\{ \bigcup_{i=0}^{n-3} \Big( g[i] \oplus g[n-i-3] \Big) \Bigg\}. $$
+
+
+\h3{ Fichas en el gráfico }
+
+\bf{Condición}. Dan orientado ациклический conde. En algunas de las cumbres del conde cuestan las fichas. Por un turno, el jugador puede tomar algún tipo de ficha y moverlo a lo largo de cualquiera de las costillas en una nueva cima. Pierde el que no puede hacer un movimiento.
+
+También es la segunda opción de esta tarea: cuando se considera que si dos fichas vienen en una cima, ambas se destruyen mutuamente.
+
+\bf{la Solución de la primera versión de la tarea}. En primer lugar, todas las fichas --- independientes unos de otros, por lo tanto, nuestra tarea-para-aprender a buscar la función de grande para una ficha en la columna.
+
+Teniendo en cuenta que el conde ацикличен, podemos hacerlo de forma recursiva: supongamos que hemos calculado la función de grande para todos los descendientes actuales de la cima. Entonces la función de grande en la cima de la -la-la - la es $\rm mex$ de este conjunto de números.
+
+Por lo tanto, la solución es la siguiente: para cada vértice de forma recursiva calcular la función de grande, si el chip estaba precisamente en esta cima. Después de esto, la respuesta a la tarea se XOR-la suma de los grande de los vértices de la gráfica, en los que por la condición de que cuestan las fichas.
+
+\bf{la Solución de la segunda opción, la tarea}. En realidad, la segunda opción de la tarea no es diferente de la primera. En realidad, si dos fichas están en la misma cima del conde, en la resultante de la XOR-la suma de los valores de grande destruyen mutuamente. Por lo tanto, en realidad es una y la misma tarea.
+
+
+\h2{ Aplicación }
+
+Desde la posición de la aplicación podría ser interesante la implementación de la función $\rm mex$.
+
+Si esto no es un cuello de botella en el programa, puede ser alguna variante simple por $O (c \log c)$ (donde $c$ --- número de argumentos):
+
+\code
+int mex(vector<int> a) {
+set<int> b(a.begin(), a.end());
+for (int i=0; ; ++i)
+if (!b.count(i))
+return i;
+}
+\endcode
+
+Sin embargo, no es tan difícil, es la opción \bf{por lineal del tiempo}, es decir, $O (c)$, donde $c$ --- el número de argumentos de la función $\rm mex$. Se denota por $D$ una constante, igual al máximo valor de $c$ (es decir, el grado máximo de la cima, en la columna de juegos). En este caso, el resultado de la función $\rm mex$ no será superior a $D$.
+
+Por lo tanto, la aplicación, basta con hacer una matriz de tamaño $D+1$ (matriz global, o estático --- lo principal es que él no ha creado cada vez que se llama a la función). Cuando se llama a la función $\rm mex$, lo primero que notaremos en la matriz de los $c$ argumentos (omitiendo los que más de $D$ --- estos valores, obviamente, no influyen en el resultado). A continuación, el paso de la matriz nos $O (c)$ encontraremos el primer desactivado el elemento. Por último, al final, se puede volver a ir a por todos los argumentos señalados y poner de nuevo la matriz para ellos. Por tanto, vamos a realizar todas las acciones por $O (c)$, lo que en la práctica puede ser considerablemente menor que el grado máximo de $D$.
+
+\code
+int mex (const vector<int> & a) {
+static bool used[D+1] = { 0 };
+int c = (int) a.size();
+
+for (int i=0; i<c; i++)
+if (a[i] <= D)
+used[a[i]] = true;
+
+int result;
+for (int i=0; ; ++i)
+if (!used[i]) {
+result = i;
+2 break;
+}
+
+for (int 1 i=0; i<c; i++)
+if (a[i] <= D)
+used[a[i]] = false;
+
+return result;
+}
+\endcode
+
+Otra opción --- utilizar la técnica de \bf{"numérico used"}. Es decir, hacer $\rm used$ matriz no булевских de las variables y números ("versiones"), y hacer una variable que indica el número de versión actual. Al entrar en la función $\rm mex$ aumentamos el número de la versión actual, en el primer ciclo hemos abierta estampada en el array $\rm used$ no $\rm true$, y el número de versión actual. Por último, en el segundo ciclo simplemente nos comparamos ${\rm used}[i]$ con el número de la versión actual --- si no es así, esto significa que el número actual no se encontraba en la matriz $a$. El tercer ciclo (que previamente занулял la matriz $\rm used$) en dicha decisión no es necesario.
+
+
+\h2{ Síntesis de nîmes: él moore ($k$ -) }
+
+Uno de los interesantes generalizaciones normal de nimes, se ha dado moore (Moore) en 1910
+
+\bf{Condición}. Es $n$ кучек de piedras de tamaño $a_i$. También se establece un número natural $k$. En una jugada, el jugador puede reducir el tamaño de la misma hasta $k$ кучек (es decir, ahora se resuelven los movimientos simultáneos en varios кучках a la vez). Pierde el que no puede hacer carrera.
+
+Obviamente, si $k=1$ él moore se convierte en normal para él.
+
+\bf{para Decisión}. La solución de esta tarea es muy fácil. Anote las dimensiones de cada puñado en el sistema binario de numeración. A continuación, просуммируем estos números en $k+1$-ичной el sistema numérico sin salto de dígitos. Si salió el número cero, entonces la posición actual de la perdidosa, de lo contrario --- ganadora (y fuera de ella hay movimiento en la posición cero de la velocidad).
+
+En otras palabras, para cada bit vemos, este bit vale la pena o no en la representación binaria de cada número $a_i$. Luego sumamos los ceros/unidades, y el importe de las tomamos por módulo $k+1$. Si al final esta cantidad para cada bit de obtener cero, entonces la posición actual --- perdidosa, de lo contrario --- ganadora.
+
+\bf{Prueba}. Como para el de nimes, la prueba consiste en la descripción de la estrategia de los jugadores: por un lado, demostramos que el juego es cero podemos entrar en el juego con un valor distinto de cero, y, por otra parte-que de los juegos con un valor distinto de cero es el progreso en el juego con el valor cero.
+
+En primer lugar, mostraremos que el juego con el valor cero se puede entrar en el juego con un valor distinto de cero. Esto es comprensible: si el monto por el módulo $k+1$ es igual a cero, después de cambiar de uno a $k$ bits no hemos podido obtener de nuevo el cero de la cantidad.
+
+En segundo lugar, mostraremos la forma de un juego de suma no nula ir en un juego de suma cero. Vamos a ordenar a través de los bits en los que el importe ha resultado distinto de cero, en orden de mayor a menor.
+
+Se denota por $u$ número de кучек, que ya hemos empezado a cambiar; inicialmente $u = 0$. Tenga en cuenta que en estos $u$ кучках ya podemos poner cualquier pedazos de nuestro deseo (porque cualquier puñado, que caía en el número de los $u$ кучек, ya se ha disminuido uno de los anteriores, más los mayores de bits).
+
+Así, que consideramos que el actual bits, en el que la suma en módulo $k+1$ ha resultado distinto de cero. Se denota por $s$ este importe, pero en la que no se tienen en cuenta los $u$ кучек, que ya hemos empezado a cambiar. Se denota por $q$ importe que se puede obtener, poniendo en estas $u$ кучек actual de bits igual a la unidad:
+
+$$ q = (s + u) \pmod{(k+1)} $$
+
+Tenemos dos opciones:
+
+\ul{
+
+\li Si $q \le de u$.
+
+Entonces podemos pasar sólo preseleccionados $u$ kuchkami: suficiente en $k+1-s = u-q$ de ellos poner actual de bits igual a la unidad, y, en los demás --- de cero.
+
+\li Si $q > u$.
+
+En este caso, nosotros, por el contrario, a poner en el ya seleccionados $u$ кучках actual bits en cero. Entonces, la cantidad actual de bit será igual a $s > 0$, y, por lo tanto, entre los no seleccionados $n-u$ кучек en la actual poco tiene, como mínimo, $s$ unidades. Seleccionamos alguna de $s$ кучек entre ellos, y reduciremos en ellos el actual bit de la unidad a cero.
+
+En consecuencia, el número total de $u$ modificables кучек aumentará en $s$ y $q \le k$.
+
+}
+
+Por lo tanto, hemos demostrado cómo seleccionar múltiples variables кучек y qué bits se debe a ellos, a cambiar, para el total de $u$ nunca excedió de $k$.
+
+Por lo tanto, hemos demostrado que el término de la transición de un estado de suma no nula en un estado de suma cero existe, que se quería demostrar.
+
+
+\h2{ "Él en el sorteo" }
+
+El de él, que hemos visto en todo este artículo --- también se denomina "normal neem" ("normal nim"). En cambio, existe también \bf{"él en el sorteo"} ("misère nim") --- cuando un jugador cometa un último movimiento, pierde (y no gana).
+
+(por cierto, al parecer, él como juego de mesa --- el más popular es en la versión de "el regalo", y no en la "normalidad" de la versión)
+
+\bf{para Decisión} este de la ciudad es muy fácil: vamos a actuar de la misma manera, como en el de nîmes (es decir, calcular el XOR-la suma de todos los tamaños кучек, y si es igual a cero, entonces perdemos al de cualquier estrategia, y de otro modo --- ganamos, encontrando que la transición en la posición cero Шпрага grande). Pero hay una \bf{excepción}: si el tamaño de todos los кучек son iguales a la unidad, lo выигрышность/проигрышность cambian de lugar en comparación con el neem.
+
+Por lo tanto, выигрышность/проигрышность de nîmes "de regalo" se definen por el número de:
+
+$$ a_1 \oplus a_2 \oplus \ldots \oplus a_n \oplus z, $$
+
+donde a través de la $z$ marcada булевская variable igual a la unidad, si $a_1 = a_2 = \sum_ = a_n = 1$.
+
+Teniendo en cuenta esta excepción, \bf{la estrategia óptima} para el jugador en una posición determinada de la siguiente manera. Encontraremos una jugada que el jugador habría cometido, si hubiera jugado en normal en él. Ahora, si este movimiento conduce a la posición en la que las dimensiones de todos los кучек son iguales a la unidad (y cuando este movimiento, fue un puñado de tamaño, de más de una unidad), entonces este curso es necesario cambiar: cambiar para que la cantidad permanecen vacías кучек cambió su paridad.
+
+\bf{Prueba}. Tenga en cuenta que, en general, la teoría de la Шпрага grande se refiere a la "normalidad" de los juegos, y no a los juegos de regalo. Sin embargo, él-es uno de esos juegos para los que la solución del juego "de regalo" no es muy diferente de la decisión de la "normal" del juego. (Por cierto, la decisión de nîmes "de regalo" fue dada el mismo por Yema, que describe la solución "normal" de la ciudad.)
+
+¿Cómo se puede explicar tan extraño patrón --- que выигрышность/проигрышность de nîmes "de regalo" coincide con la выигрышностью/проигрышностью "normal" de nimes, casi siempre?
+
+Veamos un poco de \bf{juego}: es decir, a elegir una posición de partida y daremos los movimientos de los jugadores hasta completar el juego. Es fácil comprender que, con sujeción óptima en el juego de los rivales --- el juego se producirá el hecho de que sólo un puñado de tamaño $1$, y el jugador se ve obligado a ir en ella y perder.
+
+Por lo tanto, en cualquier juego de dos óptimos jugadores tarde o temprano llega \bf{momento}, cuando las dimensiones de todas vacías кучек son iguales a la unidad. Se denota por $k$ número vacías кучек en este momento --- entonces el actual jugador de esta posición выигрышна entonces, y sólo entonces, cuando $k$ uniforme. Es decir, llegamos a la conclusión de que en estos casos выигрышность/проигрышность de nîmes "de regalo" \bf{opuesta} "normal" ниму.
+
+De nuevo, de vuelta a ese momento, cuando por primera vez en el juego todo un puñado de acero del tamaño de 1$$, y откатимся un paso atrás --- justo antes de que esta situación ha resultado. Nos encontramos en una situación en la que una banda tiene un tamaño de $>1$, y el resto de los montones (posiblemente, fue de cero piezas) --- tamaño de 1$$. Esta posición es evidente выигрышна (porque, en realidad, siempre podemos hacer un movimiento, a fin de que hubiera un número impar de кучек tamaño de 1$$, es decir, llevaremos rival a la derrota). Por otro lado, XOR-la suma de los tamaños de кучек en este momento es diferente de cero --- significa aquí "normal" de ella \bf{coincide} de neem "de regalo".
+
+Además, si seguimos revertirse por el juego atrás, vamos a entrar en el estado, cuando el juego era de dos puñado de tamaño $>1$, tres montones, y así sucesivamente Para todas las afecciones выигрышность/проигрышность también coincidirá con la "normalidad" de neem --- simplemente porque cuando tenemos más de un puñado de tamaño $>1$, todas las conducen en estado de uno o más кучкой el tamaño de la $>1$ --- y para todos ellos, como ya hemos demostrado, nada en comparación con la "normalidad" de neem \bf{no ha cambiado}.
+
+Por lo tanto, los cambios en nîmes "de regalo" sólo afectan a un estado en que todos puñado tienen un tamaño igual a la unidad --- que se quería demostrar.
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas en línea judges, que se pueden solucionar mediante la función de grande:
+
+\ul{
+
+\li \href=http://acm.timus.es/problem.aspx?space=1&num=1465{TIMUS #1465 \bf{"el Juego de peones"} ~~~~ [dificultad: baja]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=2529{UVA #11534 \bf{"Say Goodbye to de Tic-Tac-Toe"} ~~~~ [dificultad media]}
+
+\li \href=http://acm.sgu.es/problem.php?contest=0&problem=328{SGU #328 \bf{"A Coloring Game"} ~~~~ [dificultad media]}
+
+}
+
+
+\h2{ Literatura }
+
+\ul{
+
+\li \book{John Horton Conway}{On numbers and games}{1979}{conway.djvu}
+\li \href=http://jourdan.en la ens.fr/~laffargue/teaching/Incertain/Problemes/lectnotes.pdf{Bernhard von Stengel. \bf{Lecture Notes on Game Theory}}
+
+}

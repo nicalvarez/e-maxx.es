@@ -1,0 +1,212 @@
+\h1{Algorithm Ford-Bellman}
+
+Let be given a directed weighted graph $G$ with $n$ vertices and $m$ edges, and indicated some vertex $v$. You want to find \bf{length of shortest paths} from vertex $v$ to all other vertices.
+
+Unlike \algohref=dijkstra{Dijkstra's algorithm}, this algorithm also applies to graphs containing edges of negative weight. However, if the graph contains a negative cycle, then the shortest path to some vertices may not exist (due to the fact that the weight of the shortest path must be equal to minus infinity); however, this algorithm can be modified so that it signaled the presence of a cycle of negative weight, or even deduced this cycle.
+
+The algorithm bears the name of two American scientists: Richard \bf{Bellman} (Richard Bellman) and Leicester \bf{Ford} (Lester Ford). Ford actually invented this algorithm in 1956 in the study of other mathematical tasks, a subtask which has been reduced to finding a shortest path in a graph, and Ford gave a sketch of this decisive task of the algorithm. Bellman in 1958 published an article that deals specifically with the problem of finding the shortest path, and in this article he clearly stated the algorithm in the form in which it is known to us now.
+
+
+\h2{algorithm Description}
+
+We believe that the graph contains no cycle of negative weight. Having the negative cycle will be discussed below in a separate section.
+
+Will create an array of distances $d[0 \ldots n-1]$, which after development of the algorithm will contain the answer to the problem. In the beginning we fill it as follows: $d[v] = 0$, and all other elements $d[]$ to infinity $\infty$.
+
+The algorithm Ford-Bellman consists of several phases. At each phase all edges of a graph, and the algorithm tries to produce \bf{relaxation} (relax, easing) along each edge $(a,b)$ value of $c$. Relaxation along the edge --- this is an attempt to improve the value $d[b]$ the value $d[a] + c$. In fact, it means that we are trying to improve the answer for the vertex $b$, using the edge $(a,b)$ and the current response for the vertex $a$.
+
+It is argued that enough $n-1$ phases of the algorithm to correctly calculate the lengths of all shortest paths in the graph (again, we believe that the cycles of negative weight are missing). For unreachable vertices the distance $d[]$ will remain equal to infinity $\infty$.
+
+
+\h2{the Implementation}
+
+Algorithm Ford-Bellman, in contrast to many other graph algorithms, it is more convenient to present the graph in a single list of all edges (not $n$ lists of edges are edges from each vertex). In the start of the implementation of the data structure $\rm edge to edge. The input data for the algorithm are numbers $n, m$, list $e$ of edges, and the number of the starting vertex $v$. All the vertices are numbered from $0$ through $n-1$.
+
+\h3{the Simplest implementation}
+
+The constant $\rm INF$ stands for the number "infinity" --- it should be selected in such a way that it obviously exceeded all possible lengths of paths.
+
+\code
+struct edge {
+int a, b, cost;
+};
+
+int n, m, v;
+vector<edge> e;
+const int INF = 1000000000;
+
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+for (int i=0; i<n-1; ++i)
+for (int j=0; j<m; ++j)
+if (d[e[j].a] < INF)
+d[e[j].b] = min (d[e[j].b], d[e[j].a] + e[j].cost);
+// display d, for example, on the screen
+}
+\endcode
+
+The check "if (d[e[j].a] < INF)" is needed only if the graph contains negative weight edges: no such verification would place the relaxation from the vertices to which paths have not yet found, and would appear incorrect distances of the form $\infty - 1$, $\infty - 2$, etc.
+
+\h3{Improved implementation}
+
+This algorithm can be speed up: often the answer is already in several phases and the remaining phase no useful work occurs not only wasted all visible edges. Therefore we will store the flag also changed something on the current phase or not, and if at some phase, nothing happened, the algorithm can be stopped. (This optimization does not improve the asymptotic behavior, i.e., some graphs will still need all the $n-1$ phase, but significantly accelerates the behavior of the algorithm "in average", i.e., on random graphs.)
+
+This optimization is generally unnecessary to restrict manually the number of phases of the algorithm the number of $n-1$ --- he will stop within a desired number of phases.
+
+\code
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+for (;;) {
+bool any = false;
+for (int j=0; j<m; ++j)
+if (d[e[j].a] < INF)
+if (d[e[j].b] > d[e[j].a] + e[j].cost) {
+d[e[j].b] = d[e[j].a] + e[j].cost;
+any = true;
+}
+if (!any) break;
+}
+// display d, for example, on the screen
+}
+\endcode
+
+\h3{repairing paths}
+
+Let us now consider how to modify the algorithm Ford-Bellman so that he not only found the length of shortest paths, but also allows you to recover the shortest paths themselves.
+
+Let's create another array $p[0 \ldots n-1]$, where for each vertex we store its "ancestor", i.e. the penultimate vertex in the shortest path leading to it. In fact, the shortest path to some vertex $a$ is the shortest path to some vertices of $p[a]$, to which we added at the end of the vertex $a$.
+
+Note that the algorithm Ford-Bellman works on the same logic: he's assuming that the shortest distance to one vertex are counted, trying to improve the shortest distance to other vertices. Therefore, at the time of improvement, we just need to remember in $p[]$, the vertices from which this improvement occurred.
+
+Here is an implementation of the Ford-Bellman with the restoration paths to any given node $t$:
+
+\code
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+vector<int> p (n, -1);
+for (;;) {
+bool any = false;
+for (int j=0; j<m; ++j)
+if (d[e[j].a] < INF)
+if (d[e[j].b] > d[e[j].a] + e[j].cost) {
+d[e[j].b] = d[e[j].a] + e[j].cost;
+p[e[j].b] = e[j].a;
+any = true;
+}
+if (!any) break;
+}
+
+if (d[t] == INF)
+cout << "No path from" << v << " to " << t << ".";
+else {
+vector<int> path;
+for (int cur=t; cur!=-1; cur=p[cur])
+path.push_back (cur);
+reverse (path.begin(), path.end());
+
+cout << "Path from" << v << " to " << t << ": ";
+for (size_t i=0; i<path.size(); ++i)
+cout << path[i] << ' ';
+}
+}
+\endcode
+
+Here we first pass on the ancestors, starting with vertex $t$, and store the path in the list $\rm path$. This list is a shortest path from $v$ to $t$, but in reverse order, so we call $\rm reverse$ from it and then print.
+
+
+\h2{the Proof of the algorithm}
+
+First, note that unreachable from $v$ vertices, the algorithm will work correctly: label $d[]$ will remain equal to innity (because the algorithm Ford-Bellman'll find some paths to all reachable from $s$ of vertices and relaxing all other vertices will not happen never).
+
+We now prove the following \bf{adoption}: when $i$ phase algorithm Ford-Bellman correctly finds all the shortest paths whose length (number of edges) does not exceed $i$.
+
+In other words, for any vertex $a$ denote by $k$ the number of edges in the shortest path to it (if several such paths, you can take any). Then this statement says that after $k$ phases, this shortest path will be found guaranteed. 
+
+\bf{the Proof}. Consider an arbitrary vertex $a$ to which there is a path from the starting vertex $v$, and consider a shortest path to it: $(p_0=v, p_1, \ldots, p_k=a)$. Before the first phase of the shortest path to vertices $p_0=v$ was found correctly. During the first phase, the edge $(p_0,p_1)$ has been viewed by algorithm Ford-Bellman, therefore, the distance to vertex of $p_1$ was correctly calculated after the first phase. Repeating these statements are $k$ times, we find that after $k$-th phase, the distance to the vertices of $p_k=a$ counted correctly, that we wanted to prove.
+
+The last thing that should be noted is the fact that any shortest path cannot have more than $n-1$ edges. Therefore, the algorithm enough to produce only $n-1$ phase. After this, no relaxation is guaranteed cannot fail to improve the distances to some vertex.
+
+
+\h2{Case negative loop}
+
+Everywhere above we considered that a negative cycle in graph has no (precise, we are interested in the negative cycle reachable from the starting vertex $v$, and anything unreachable loops in the above algorithm do not change). If available, there are further complications associated with the fact that the distances to all vertices on this cycle, as well as distances to reachable from this cycle of the vertices is not defined --- they should be equal to minus infinity.
+
+It is easy to see that the algorithm Ford-Bellman can \bf{infinitely do relaxation} among all vertices of this cycle and the vertices reachable from it. Therefore, if you do not restrict the number of phases the number of $n-1$, the algorithm will run indefinitely, constantly improving the distances to these vertices.
+
+From here we get \bf{a criterion for the existence of a reachable cycle of negative weight}: if after $n-1$ phases we will perform another phase, and it will happen at least one relaxation, then the graph contains a negative weight cycle reachable from $v$; otherwise, there is no such cycle.
+
+Moreover, if such a cycle is found, the algorithm Ford-Bellman can be modified so that it could display himself this cycle as a sequence of vertices belonging to it. It is sufficient to remember the number of vertices $x$, in which there was relaxation in $n$-th phase. This vertex will either lie on a cycle of negative weight, or it is reachable from it. To get the top that is guaranteed on a cycle is enough, for example, $n$ times to pass on to the ancestors, starting from the vertex $x$. Got the number $y$ of vertices lying on a cycle, it is necessary to go from this vertex to the ancestors, until we get back to the same vertex of $y$ (and it will happen, because relaxation in a cycle of negative weight occur in a circle).
+
+Implementation:
+
+\code
+void solve() {
+vector<int> d (n, INF);
+d[v] = 0;
+vector<int> p (n, -1);
+int x;
+for (int i=0; i<n; ++i) {
+x = -1;
+for (int j=0; j<m; ++j)
+if (d[e[j].a] < INF)
+if (d[e[j].b] > d[e[j].a] + e[j].cost) {
+d[e[j].b] = max (-INF, d[e[j].a] + e[j].cost);
+p[e[j].b] = e[j].a;
+x = e[j].b;
+}
+}
+
+if (x == -1)
+cout << "No negative cycle from" << v;
+else {
+int y = x;
+for (int i=0; i<n; ++i)
+y = p[y];
+
+vector<int> path;
+for (int cur=y; ; cur=p[cur]) {
+path.push_back (cur);
+if (cur == y && path.size() > 1) break;
+}
+reverse (path.begin(), path.end());
+
+cout << "Negative cycle: ";
+for (size_t i=0; i<path.size(); ++i)
+cout << path[i] << ' ';
+}
+}
+\endcode
+
+Since the presence of a negative cycle for $n$ iterations of the algorithm, the distances have gone far in the negative (apparently, before negative integers of order $-2^n$), the code measures against such an integer overflow:
+
+\code
+d[e[j].b] = max (-INF, d[e[j].a] + e[j].cost);
+\endcode
+
+In the above implementation looks for a negative cycle reachable from some starting vertex $v$; however, the algorithm can be modified so that he was looking for \bf{any negative cycle} in the graph. For this we need to put all the distances $d[i]$ is zero and not infinity --- as if we are looking for the shortest path from all vertices simultaneously; on the correctness of detecting a negative cycle will not be affected.
+
+Additionally on the topic of this problem --- see separate article \algohref=negative_cycle{\bf {the"find a negative cycle in the graph"}}.
+
+
+\h2{ Problem in online judges }
+
+A list of tasks that can be solved using the algorithm Ford-Bellman:
+
+\ul{
+
+\li \href=http://www.e-olimp.com.ua/problems/1453{E-OLIMP #1453 \bf{"Ford-Bellman"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=364{UVA #423 \bf{"MPI Maelstrom"} ~~~~ [difficulty: easy]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=7&page=show_problem&problem=475{UVA #534 \bf{"Frogger"} ~~~~ [difficulty: medium]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=12&page=show_problem&problem=1040{UVA #10099 \bf{"The Tourist Guide"} ~~~~ [difficulty: medium]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=456{UVA #515 \bf{"King"} ~~~~ [difficulty: medium]}
+
+}
+
+Cm. also the task list in the article \algohref=negative_cycle{\bf{"Search negative cycle"}}.

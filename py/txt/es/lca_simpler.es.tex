@@ -1,0 +1,61 @@
+<h1>Mínimo común antepasado. La posicin de O (log N) (método binario de la elevación)</h1>
+
+<p>dado Que el árbol de G. En la entrada se recibe la solicitud de la vista (V1, V2), para cada consulta es necesario encontrar un mínimo común antepasado, es decir, el vértice de la V, que se encuentra en el camino desde la raíz hasta la V1, en el camino desde la raíz hasta la V2, y de todos esos vértices debe elegir la parte inferior. En otras palabras, buscando el vértice V - antecesor y V1 y V2, y entre todos los antepasados comunes, se selecciona el inferior. Es evidente que el más mínimo ancestro común de los vértices V1 y V2 es su ancestro común, que est en una senda de V1 a V2. En particular, por ejemplo, si V1 es el antepasado de la V2, V1 es menor el ancestro común.</p>
+<p>En inglés, esta tarea se llama objetivo LCA - Least Common Ancestor.</p>
+<p>Aquí se examinará el algoritmo que se escribe mucho más rápido de lo que se expone <algohref=lca>aquí</algohref>.</p>
+<p>Asíntotas recibido el algoritmo será igual a: препроцессинг por <b>O (N log N)</b> y la respuesta a cada consulta a un <b>O (log N)</b>.</p>
+<h2>el Algoritmo de</h2>
+<p>Предпосчитаем para cada vértice 1 del antepasado 2 del antepasado, 4, etc., se denota la matriz a través de P, es decir, P[i][j] es la 2<sup>j</sup>período de un ancestro de la cima i, i = 1..N, j = 0..⌈logN⌉. Para cada vértice encontraremos los tiempos de la puesta en ella y salir de la búsqueda en profundidad (véase <algohref=dfs>"Búsqueda en profundidad"</algohref>) es necesitaremos para determinar el O (1) si el vértice antepasado de otro (no necesariamente directa). Tal препроцессинг se pueden realizar en <b>O (N log N)</b>.</p>
+<p>Deje que se ha presentado una nueva consulta - el par de vértices (A,B). En seguida comprobaremos, ¿no es una cima antepasado de otro - en este caso, ella es el resultado. Si A no es un ancestro de B, y B no antepasado de A, entonces vamos a subir por los antepasados A, hasta encontrar la más alta (es decir, más cercano a la raíz) de la cima, que aún no es el ancestro (no necesariamente directa) B (es decir, esa cima de la X que X no antepasado B y P[X][0] - el antepasado B). Al encontrar esta cima X vamos a por el O (log N), usando una matriz de P.</p>
+<p>Describir este proceso con más detalle. Supongamos que L = ⌈logN⌉. Dejemos que I = L. Si P[A][I] no es el ancestro de la B, se asigna A = P[A][I], y reducimos I. Si P[A][I] es el antepasado de la B, es simplemente reducimos I. es Evidente que cuando I es inferior a cero, el vértice A veces será considerada la cima, es decir, tal que A no antepasado B, pero P[A][0] - el antepasado B.</p>
+<p>Ahora, obviamente, la respuesta de LCA será P[A][0] - es decir, la cima de la más baja entre los antepasados de origen de los vértices A, que es también el antepasado de la B.</p>
+<p>Asíntotas. Todo el algoritmo de la respuesta a la solicitud consta de cambios I de L = ⌈logN⌉ a 0, así como la validación en cada paso de O(1) si el vértice antepasado de otro. Por lo tanto, en cada consulta se encuentra la respuesta a O (log N).</p>
+<h2>Realización</h2>
+<code>int n, l;
+vector < vector<int> > g;
+vector<int> tin, tout;
+int timer;
+vector < vector<int> > up;
+
+void dfs (int v, int p = 0) {
+tin[v] = ++timer;
+up[v][0] = p;
+for (int i=1; i<=l; i++)
+up[v][i] = up[up[v][i-1]][i-1];
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (a != p)
+dfs (a, v);
+}
+tout[v] = ++timer;
+}
+
+bool upper (int a, int b) {
+return tin[a] <= tin[b] && tout[a] >= tout[b];
+}
+
+int lca (int a, int b) {
+if (upper (a, b)) return a;
+if (upper (b, a)) return b;
+for (int i=l; i>=0; --i)
+if (! upper (up) [b][i], b))
+a = up[a][i];
+return up[a][0];
+}
+
+int main() {
+
+... la lectura de n y g ...
+
+tin.resize (n), tout.resize (n), up.resize (n);
+l = 1;
+while ((1<<l) <= n) ++l;
+for (int i=0; i<n; ++i) up[i].resize (l+1);
+dfs (0);
+
+for (;;) {
+int a, b; // consulta actual
+int res = lca (a, b); // respuesta a la solicitud de
+}
+
+}</code>

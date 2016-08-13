@@ -1,0 +1,216 @@
+\h1{ Larga aritmética }
+
+Largo de la aritmética --- es un conjunto de herramientas de software (algoritmos y estructuras de datos), que permiten trabajar con números mucho más grandes, de valores, de lo que permiten los tipos de datos.
+
+
+\h2{ Tipo entero largo de la aritmética }
+
+En términos generales, aunque sólo en олимпиадных las tareas de un conjunto de herramientas es bastante grande, por lo tanto, haremos una clasificación de distintos tipos larga de la aritmética.
+
+
+\h3{ Clásica larga aritmética }
+
+La idea básica es que el número se almacena en una matriz de sus dígitos.
+
+Los números pueden utilizarse de forma o de otra, del sistema numérico, normalmente se utilizan en el sistema decimal de numeración y su grado (diez mil millones de dólares), o el sistema binario de numeración.
+
+Las operaciones sobre los números en este tipo de largo de la aritmética se realiza mediante un "escolares" de los algoritmos de la suma, la resta, la multiplicación, la división de la columna. Sin embargo, a ellos también se aplican algoritmos de rápida multiplicación: \algohref=fft_multiply{la transformación Rápida de fourier} y el Algoritmo de Карацубы.
+
+Aquí se describe el trabajo con números no negativos largas de números. Para apoyar a los números negativos se deben establecer y mantener un indicador adicional de la "negatividad" en el número, o trabajar en un complementarios de los códigos.
+
+
+\h4{ Estructura de datos }
+
+Almacenar los números largos estaremos en la forma de un vector de números de $int$, donde cada elemento --- esta es una cifra del número.
+
+\code
+typedef vector<int> lnum;
+\endcode
+
+Para mejorar la eficiencia vamos a trabajar en el sistema de plantación de millones de dólares, es decir, cada elemento del vector $lnum$ contiene no uno, sino inmediatamente $9$ dígitos:
+
+\code
+const int base = 1000*1000*1000;
+\endcode
+
+Las cifras se almacenará en el vector, en este orden, que primero van los menos dígitos significativos (es decir, unidades, decenas, cientos, etc.).
+
+Además, todas las operaciones se realizarán de tal manera que después de la ejecución de cualquiera de ellos líderes de ceros (es decir, exceso de ceros a la izquierda número) no (por supuesto, en el supuesto de que antes de cada operación de liderazgo ceros, faltan). Cabe señalar que en la aplicación para el número cero correctamente se admiten dos de presentación: vacío de un vector de números, y el vector de dígitos que contiene un único elemento --- cero.
+
+
+\h4{ Salida }
+
+Lo más fácil-es la conclusión de un largo número.
+
+Primero, simplemente nos muestra el último elemento del vector (o $0$, si el vector vacío) y, a continuación, sacamos el resto de los elementos del vector, completando con ceros a $9$ de caracteres:
+
+\code
+printf ("%d", a.empty() ? 0 : a.back());
+for (int i=(int)a.size()-2; i>=0; --i)
+printf ("%09d", a[i]);
+\endcode
+
+(hay una pequeña y fina: no hay que olvidar para grabar conversión $(int)$, ya que en caso contrario, el número de $a.size()$ serán sin signo, y si $a.size() \le 1$, al restar se producirá un desbordamiento)
+
+
+\h4{ Leer }
+
+Leyendo la cadena en la $cadena$, y luego transformamos en vector:
+
+\code
+for (int i=(int)s.length(); i>0; i-=9)
+if (i < 9)
+a.push_back (atoi (s.substr (0, i).c_str()));
+else
+a.push_back (atoi (s.substr (i-9, 9).c_str()));
+\endcode
+
+Si se utiliza en lugar de $string$ $matriz char$'s, el código de resultar aún más pequeños:
+
+\code
+for (int i=(int)strlen(s); i>0; i-=9) {
+s[i] = 0;
+a.push_back (atoi (i>=9 ? s+i-9 : s));
+}
+\endcode
+
+Si en la entrada como ya pueden ser líderes de los ceros, después de la lectura se puede eliminar de esta manera:
+
+\code
+while (a.size() > 1 && a.back() == 0)
+a.pop_back();
+\endcode
+
+
+\h4{ Suma }
+
+Añade entre $a$ número $b$ y guarda el resultado en $a$:
+
+\code
+int c = 0;
+for (size_t i=0; i<max(a.size () b.size()) || carry; ++i) {
+if (i == a.size())
+a.push_back (0);
+a[i] += c + (i < b.size() ? b[i] : 0);
+carry = a[i] >= base;
+if (carry) a[i] -= base;
+}
+\endcode
+
+
+\h4{ Resta }
+
+La quita del número $a$ número $b$ ($a \ge b$) y guarda el resultado en $a$:
+
+\code
+int c = 0;
+for (size_t i=0; i<b.size() || carry; ++i) {
+a[i] -= c + (i < b.size() ? b[i] : 0);
+carry = a[i] < 0;
+if (carry) a[i] += base;
+}
+while (a.size() > 1 && a.back() == 0)
+a.pop_back();
+\endcode
+
+Aquí estamos después de realizar la resta a eliminar el liderazgo de ceros, para mantener un predicado que no hay ninguno.
+
+
+\h4{ Multiplicación de largo a corto }
+
+Multiplica el largo $a$ poco $b$ ($b < {\rm base}$) y guarda el resultado en $a$:
+
+\code
+int c = 0;
+for (size_t i=0; i<a.size() || carry; ++i) {
+if (i == a.size())
+a.push_back (0);
+long long cur = carry + a[i] * 1ll * b;
+a[i] = int (cur % de la base);
+carry = int (cur / base);
+}
+while (a.size() > 1 && a.back() == 0)
+a.pop_back();
+\endcode
+
+Aquí estamos después de realizar la división eliminamos líderes de los ceros, para mantener un predicado que no hay ninguno.
+
+(Nota: el método \bf{adicional de la optimización de la}. Si la velocidad de trabajo es muy importante, puede intentar sustituir dos cuentas en una: la de contar sólo la parte entera de la división (en el código, esto es, la variable $c$), y luego ya contar de ella el resto de la división (en una operación de multiplicación). Como regla general, esta técnica permite acelerar el código, aunque no muy significativamente.)
+
+
+\h4{ Multiplicación de dos largos números }
+
+Multiplica $a$ a $b$, y el resultado se guarda en $c$:
+
+\code
+lnum c (a.size()+b.size());
+for (size_t i=0; i<a.size(); ++i)
+for (int j=0, c=0; j<(int)b.size() || carry; ++j) {
+long long cur = c[i+j] + a[i] * 1ll * (j < (int)b.size() ? b[j] : 0) + carry;
+c[i+j] = int (cur % de la base);
+carry = int (cur / base);
+}
+while (c.size() > 1 && c.back() == 0)
+c.pop_back();
+\endcode
+
+
+\h4{ División larga en el corto }
+
+Divide el largo $a$ poco $b$ ($b < {\rm base}$), privado de la guarda en $a$, el saldo de $llevar$:
+
+\code
+int c = 0;
+for (int i=(int)a.size()-1; i>=0; --i) {
+long long cur = a[i] + carry * 1ll * base;
+a[i] = int (cur / b);
+carry = int (cur % b);
+}
+while (a.size() > 1 && a.back() == 0)
+a.pop_back();
+\endcode
+
+
+\h3{ Larga aritmética en факторизованном forma }
+
+Aquí la idea es que, para conservar el número, y su factorización, es decir, el grado de cada entrada en él de sencillo.
+
+Este método también es muy fácil de implementar, y es muy fácil de realizar operaciones de multiplicación y división, sin embargo, no se puede realizar la suma o la resta. Por otro lado, este método ahorra memoria en comparación con el clásico" el enfoque, y permite la multiplicación y la división considerablemente (asintóticamente) más rápido.
+
+Este método se utiliza a menudo cuando se debe realizar la división de espinoso módulo: entonces suficiente para almacenar un número en forma de títulos por el simple делителям de este módulo, y un número de --- el saldo de este mismo módulo.
+
+
+\h3{ Larga aritmética por el sistema de módulos simples (el teorema Chino o el esquema de garner) }
+
+La idea es que se selecciona alguna el sistema de módulos (normalmente pequeños que caben en los tipos de datos), y el número se almacena en forma de vector de residuos de su división en cada uno de estos módulos.
+
+Como afirma el teorema Chino de los restos, es la forma exclusiva de almacenar cualquier número en el rango de 0 a obras de estos módulos menos uno. De este modo, existe \algohref=chinese_theorem{el Algoritmo de garner}, que permite la recuperación de modular la vista normal, "clásica", la forma de un número.
+
+Por lo tanto, este método le permite ahorrar memoria en comparación con la "clásica" de la larga aritmética (aunque en algunos casos no tan radicalmente como el método de факторизации). Kromu, de forma modular se puede producir, como la suma, la resta y la multiplicación, --- por asintóticamente однаковое tiempo, proporcional a la cantidad de módulos del sistema.
+
+Sin embargo, todo esto se da a costa de muy difícil traducción en el número de este modular de la vista en la vista normal, para lo cual, además de mucho tiempo, también, se requiere la implementación de una "clásica" de largo de la aritmética con la multiplicación.
+
+Además, de producir \bf{división} de números en esta vista, es un sistema simple de los módulos no es posible.
+
+
+\h2{ Tipos de fracciones largo de la aritmética }
+
+Las operaciones sobre los números fraccionarios se encuentran en олимпиадных tareas mucho menos, y trabajar con grandes números fraccionarios mucho más difícil, por lo que en olimpiadas se encuentra sólo un subconjunto específico de las fracciones largo de la aritmética.
+
+
+\h3{ Larga aritmética en несократимых дробях }
+
+El número que aparece en forma de несократимой fracción $\frac{a}{b}$, donde $a$ y $b$ --- enteros. Entonces, todas las operaciones sobre los números fraccionarios es fácil reducir a las operaciones sobre el числителями y denominador de estas fracciones.
+
+Generalmente, esto para almacenar el numerador y el denominador deben utilizar un aritmética, pero, sin embargo, la forma más fácil de su tipo --- "clásico" de la larga la aritmética, aunque a veces resulta bastante integrada de 64 bits de tipo numérico.
+
+
+\h3{ Selección de la posición de punto flotante en un tipo }
+
+A veces en la tarea desea realizar cálculos muy grandes o muy pequeños números, pero no evitar su desbordamiento. Integrado $8-10$bytes tipo $double$, como se sabe, permite valores de los expositores en el intervalo $[-308; 308]$, lo que a veces puede no ser suficiente.
+
+La recepción, en realidad, muy simple --- introduce otra una variable entera, responsable de la exponente, y después de la ejecución de cada operación de un número fraccionario "normal", es decir, se devuelve en el tramo de $[0.1; 1)$, mediante el aumento o la reducción de los expositores.
+
+Cuando перемножении o división de dos números en consecuencia es necesario sumar o restar los exponentes. Al sumar o restar antes de realizar esta operación, el número debe conducir a una forma exponencial, para lo cual uno de ellos домножается en $10$ en la medida de la diferencia de los exponentes.
+
+Por último, está claro que no es necesario elegir $10$ como base los exponentes. Sobre la base de los dispositivos integrados tipos de punto flotante, el más ventajoso parece poner los cimientos igual a $2$.

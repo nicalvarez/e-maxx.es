@@ -1,0 +1,57 @@
+\h1{ Teorema de Pico. El hallazgo de la plaza de la matriz del polígono }
+
+Polígono sin self-intersections se llama el protector de parrilla, si todos sus vértices están en los puntos con valores enteros coordenadas (cartesiano).
+
+
+\h2{ Teorema de Máxima }
+
+
+\h3{ Fórmula }
+
+Que dan un poco de listones de polígono, con cero de la plaza.
+
+Se denota a través de la superficie de $S$; el número de puntos con valores enteros coordenadas causas estrictamente dentro de un polígono --- a través de la $I$; el número de puntos con valores enteros coordenadas que se encuentran en los lados de un polígono a --- a través de la $B$.
+
+Entonces es justo relación, llamado \bf{fórmula Pico}:
+
+$$ S = I + \frac{B}{2} - 1. $$
+
+En particular, si se conocen los valores de I y B, para un polígono, su área se puede calcular por $O (1)$, aún no conociendo las coordenadas de sus vértices.
+
+Esta proporción se ha revelado y ha demostrado el matemático austriaco georg alexander Pico (Georg Alexander Pick) en 1899
+
+
+\h3{ Prueba }
+
+La prueba se realiza en varias etapas: desde las más simples formas hasta arbitrarias de polígonos:
+
+\ul{
+
+\li una unidad cuadrada. En realidad, para él $S=1$, $I=0$, $B=4$, y la fórmula es cierta.
+
+\li Arbitrario невырожденный rectángulo con lados paralelos a los ejes de coordenadas. Para la prueba de la fórmula se denota por $a$ y $b$ las longitudes de los lados de un rectángulo. Entonces encontramos: $S = ab$, $I = (a-1)(b-1)$, $B = 2(a+b)$. Estará sustituyendo convencidos de que la fórmula pesar de eso es cierto.
+
+\li triángulo rectángulo con катетами paralelas a los ejes de coordenadas. Para que la prueba tenga en cuenta que cualquier triángulo puede obtener un cierre simple rectángulo de su diagonal. Refiriéndose a través de la $c$ número entero de puntos que se encuentran en la diagonal, se puede mostrar que la fórmula de la Cúspide se realiza para este tipo de triángulo, independientemente del valor de $c$.
+
+\li Arbitrario triángulo. Tenga en cuenta que cualquier triángulo puede ser convertido en un rectángulo de encolado a sus partes rectangulares de triángulos con катетами paralelas a los ejes de coordenadas (es necesario no más de 3 triángulos). De aquí se puede obtener la corrección de la fórmula de la Cúspide, para cualquier triángulo.
+
+\li Arbitrario polígono. Para la prueba de триангулируем, es decir, dividimos en triángulos con vértices en puntos enteros. Para un triángulo fórmula pesar de eso ya hemos demostrado. Después, se puede demostrar que cuando se agrega un objeto de polígono de cualquier triángulo fórmula pesar de eso mantiene su corrección. De aquí por inducción se sigue que es verdadero para cualquier polígono.
+
+}
+
+
+\h2{ Síntesis de la más alta dimensión }
+
+Por desgracia, esta tan simple y hermosa fórmula de Máxima mal se resume en las instituciones de la dimensión.
+
+Demostró esto reeve (Reeve), propuso en 1957, considerar el tetraedro (llamado ahora \bf{тетраэдром de la riva}), con las siguientes vértices:
+
+$$ A = (0,0,0), $$
+$$ B = (1,0,0), $$
+$$ C = (0,1,0), $$
+$$ D = (1,1), k), $$
+
+donde $k$ --- cualquier número natural. Entonces este tetraedro $ABCD$ cualquier $k$ no contiene ningún punto de enteros coordenadas, y en su frontera --- se encuentran a sólo cuatro puntos de $A$, $B$, $C$, $D$ y no otros. Por lo tanto, la cantidad y el tamaño de la superficie de este tetraedro pueden ser diferentes, mientras que el número de puntos en el interior y en la frontera --- invariables; por lo tanto, la fórmula del Pico no permite generalizaciones, incluso en el caso tridimensional.
+
+Sin embargo, un poco de esta agregación en el espacio de una dimensión mayor de todo hay, --- es \bf{polinomios de Ehrhart} (Ehrhart Polynomial), pero son muy complejas y dependen no sólo del número de píxeles en el interior y en la frontera de la figura.
+

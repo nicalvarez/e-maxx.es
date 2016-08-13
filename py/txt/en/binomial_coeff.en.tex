@@ -1,0 +1,103 @@
+\h1{Binomial coefficients}
+
+The binomial coefficient $C_n^k$ is the number of ways to choose a set of $k$ objects from $n$ different objects without regard to order of these elements (i.e. the number of unordered sets).
+
+Also the binomial coefficients is cofficient in the expansion of $(a+b)^n$ (the so-called binomial theorem):
+
+$$ (a+b)^n = C_n^0 a^n + C_n^1 a^{n-1} b + C_n^2 a^{n-2} b^2 + \ldots + C_n^k a^{n-k} b^k + \ldots + C_n^n b^n $$
+
+It is believed that this formula, like the triangle, allowing effectively to find the coefficients, was opened by Blaise Pascal (Blaise Pascal), who lived in the 17th century However, it was known to Chinese mathematician Jan Huey (Yang Hui), who lived Probably in the 13th century, it was opened by the Persian scholar Omar Khayyam (Omar Khayyam). Moreover, the Indian mathematician Pingala (Pingala), who lived in 3rd century BC, got similar results. The merit of Newton is that he generalized this formula for the degrees that are not natural.
+
+\h2{the Calculation}
+
+\bf{Analytical formula} to compute:
+
+$$ C_n^k = \frac{n!}{k! (n-k)!} $$
+
+This formula is easily derived from the problem of irregular sampling (the number of unordered ways to choose $k$ items from $n$ elements). First, let's count the number of ordered samples. Select the first item there are $n$ ways, the second --- $n-1$, the third one, $n-2$, and so on. As a result, the number of ordered samples of the resulting formula: $ n (n-1) (n-2) \ldots (n-k+1) = \frac{n!}{(n-k)!} $. For disordered samples is easy to navigate if you notice that each unordered sample corresponds to exactly $k!$ ordered (because it is the number of possible permutations of $k$ elements). As a result, dividing $\frac{n!}{(n-k)!}$ by $k!$, we obtain the desired formula.
+
+\bf{Recurrent formula} (which is associated with the famous "Pascal's triangle"):
+
+$$ C_n^k = C_{n-1}^{k-1} + C_{n-1}^k $$
+
+It is easy to deduce using the previous formula.
+
+It is worth noting especially, when $n<k$ the value of $C_n^k$ is always assumed to be zero.
+
+\h2{Properties}
+
+Binomial coefficients have many different properties, here are the most simple ones are:
+
+\ul{
+\li the Rule of symmetry:
+$$ C_n^k = C_n^{n-k} $$
+\li the Making-the making:
+$$ C_n^k = \frac{n}{k} C_{n-1}^{k-1} $$
+\li the Summation over $k$:
+$$ \sum_{k=0}^n C_n^k = 2^n $$
+\li the Summation over $n$:
+$$ \sum_{m=0}^n C_m^k = C_{n+1}^{k+1} $$
+\li the Summation over $n$ and $k$:
+$$ \sum_{k=0}^{m} C_{n+k}^k = C_{n+m+1}^m $$
+\li the Summation of the squares:
+$$ (C_n^0)^2 + (C_n^1)^2 + \ldots + (C_n^n)^2 = C_{2n}^n $$
+\li the Weighted summation:
+$$ 1 C_n^1 + 2 C_n^2 + \ldots + C_n n^n = n 2^{n-1} $$
+\li Link with \algohref=fibonacci_numbers{Fibonacci numbers}:
+$$ C_n^0 + C_{n-1}^1 + \ldots + C_{n-k}^k + \ldots + C_0^n = F_{n+1} $$
+}
+
+
+\h2{ Computing in the program }
+
+\h3{ Direct computation of the analytical formula }
+
+The calculations made by first direct formula is very easy to program, however, this method is prone to overflows, even at relatively small values of $n$ and $k$ (even if the answer fits perfectly to any type of data, the calculation of the intermediate factorials can lead to overflow). Therefore, very often this method can only be used together with [[Long arithmetic|arithmetic]]:
+
+\code
+
+int C (int n, int k) {
+int res = 1;
+for (int i=n-k+1; i<=n; ++i)
+res *= i;
+for (int i=2; i<=k; ++i)
+res /= i;
+}
+\endcode
+
+\h3{ Improved implementation }
+
+You will notice that in the above implementation in the numerator and denominator is the same number of factors ($k$), each of which not less than one. Therefore, we can replace our fraction by the product of $k$ fractions, each of which is real-valued. However, you may notice that after multiplying the current response for each of the next roll will still be an integer (for example, it follows from the properties of "Deposit-making"). Thus we have the following implementation:
+
+\code
+
+int C (int n, int k) {
+double res = 1;
+for (int i=1; i<=k; ++i)
+res = res * (n-k+i) / i;
+return (int) (res + 0.01);
+}
+\endcode
+
+Here we carefully driven to a fractional number to an integer, given that because of accumulated errors, it may be slightly less than the true value (for example, $2.99999$ instead of three).
+
+\h3{ Pascal's Triangle }
+
+Using the same recurrence relations we can construct a table of binomial coefficients (in fact, Pascal's triangle), and from it to take the result. The advantage of this method is that the intermediate results never exceed the response, and to calculate each new element of the table need only one addition. The disadvantage is slow for large N and K, if in fact table is not needed, and need only value (because to compute $C_n^k$ will need to build a table for all $C_i^j,\ \ 1 \le i \le n,\ \ 1 \le j \le n$, or even $1 \le j \le \min(i,2k)$).
+
+\code
+
+const int maxn = ...;
+int C[maxn+1][maxn+1];
+for (int n=0; n<=maxn; ++n) {
+C[n][0] = C[n][n] = 1;
+for (int k=1; k<n; k++)
+C[n][k] = C[n-1][k-1] + C[n-1][k];
+}
+\endcode
+
+If the entire table of values is not needed, as it is easy to notice, enough to store only two lines (the current --- $n$-th line and previous --- $n-1$-th).
+
+\h3{ Computation O(1) }
+
+Finally, in some situations, it is advantageous to predpochitaete in advance the values of all of the factorials, in order to subsequently take any binomial coefficient, producing only two points. This may be advantageous when using \algohref=big_integer{Long arithmetic}, when the memory does not allow to predpochitaete the entire Pascal's triangle, or when you want to produce some simple module (if the module is not simple, difficulties arise when dividing the numerator of the fraction on the denominator; these can be overcome, if we factor out the module and store all the numbers as vectors of degrees of these simple; cm \algohref=big_integer{section "Long arithmetics in the factored form"}).

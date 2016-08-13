@@ -1,0 +1,108 @@
+\h1{ Heavy-light decomposition }
+
+\bf{Heavy-light decomposition} --- this is a fairly common technique that allows to efficiently solve many problems that can be reduced to \bf{queries on the tree}.
+
+The simplest \bf{example} problems of this kind is the following problem. Given a tree, each vertex of which is assigned a certain number. Receive requests of the form $(a,b)$, where $a$ and $b$ --- number of nodes in the tree, and you want to know the maximum number on the way between vertices $a$ and $b$.
+
+
+\h2{ algorithm Description }
+
+So, you are given a tree $G$ with $n$ vertices, suspended over a root.
+
+The essence of this decomposition is to \bf{we split the tree into multiple paths}, so that for any vertex $v$, it turned out that if we will climb from $v$ to the root, then the path will change no more than $\log n$ ways. In addition, all the paths must not intersect with each other in the ribs.
+
+It is clear that if we learn to look for such a decomposition for any tree, this will help to reduce any query of the form "to learn something on the way from $a$ to $b$" to multiple queries of the form "to learn something on the segment $[l;r]$ of $k$-th path."
+
+
+\h3{ Build heavy-light decomposition }
+
+Calculate for each vertex $v$ the size of its subtree $s(v)$ (i.e. the number of vertices in the subtree of a vertex $v$, including the very top).
+
+Next, consider all edges leading to the sons of any vertex $v$. We call an edge $(v,c)$ \bf{heavy}, if it leads to vertex $c$ such that:
+
+$$ s(c) \ge \frac{ s(v) }{ 2 } ~~~~ \Leftrightarrow ~~~~ {\rm edge} ~ (v,c) ~ {\rm is ~ heavy}. $$
+
+All remaining edges we will call \bf{light}. It is obvious that from one vertex $v$ can come down at most one heavy edge (since otherwise the vertices $v$ would be the two son of size $s(v)/2$, in terms of the vertex $v$ gives $2 \cdot s(v) / 2 + 1 > s(v)$, i.e. a contradiction).
+
+Now we construct the \bf{decomposition} of a tree on disjoint paths. Consider all vertices of which does not go down no hard edges, and we will follow each of them up, until we reach the root of the tree or get a slight edge. As a result we get a few ways --- will show that this is the desired path heavy-light decomposition.
+
+
+\h3{ Proof of correctness of algorithm }
+
+First, note that the resulting algorithm the path will be \bf{disjoint}. In fact, if two paths would have a common edge, it would mean that from some the top comes down two heavy ribs, which I can't be.
+
+Secondly, we show that descending from the tree root to an arbitrary vertex, we \bf{change the path of no more than $\log n$ paths}. In fact, the passage down a slight edge reduces the size of the current subtree more than twice:
+
+$$ s(c) < \frac{ s(v) }{ 2 } ~~~~ \Leftrightarrow ~~~~ {\rm edge} ~ (v,c) ~ {\rm is ~ light}. $$
+
+Thus, we could not get more than $\log n$ edges of the lungs. However, the transition from one track to another we can only through a slight edge (because each path ending at the root also contains a slight edge in the end; but to get directly in the middle of the way we can't).
+
+Therefore, the path from the root to any vertex we can't change more than $\log n$ ways, what we wanted to prove.
+
+
+\h2{ Application when solving problems }
+
+When solving problems it is sometimes more convenient to consider the heavy-light as a set of \bf{vertex-disjoint} - path (and not rebero-disjoint). It is enough of each path delete the last rib, if it are a slight edge --- then no properties are violated, but now each vertex will belong to exactly one path.
+
+Below we will consider some typical tasks that can be solved using heavy-light decomposition.
+
+We should also pay attention to the problem \bf{on the way} because it is an example of a problem that can be solved by simpler techniques.
+
+
+\h3{ Maximum number in the path between two nodes }
+
+Given a tree, each vertex of which is assigned a certain number. Receive requests of the form $(a,b)$, where $a$ and $b$ --- number of nodes in the tree, and you want to know the maximum number on the way between vertices $a$ and $b$.
+
+In advance let's build heavy-light decomposition. Over each by the resulting build \algohref=segment_tree{segment tree for maximum} that will allow you to search a vertex with maximum assigned number in the specified segment of the specified path $O (\log n)$. Although the number of paths in the heavy-light decomposition can be up to $n-1$, the total size of all the paths have size $O(n)$, so the total size of the trees will also be linear.
+
+Now, in order to respond to the query $(a,b)$ we find the lowest common ancestor of $l$ of these vertices (for example, \algohref=lca_simpler{method binary expansion}). Now the problem is reduced to two queries: $(a,l)$ and $(b,l)$, each of which we may reply thus: we find, in what ways is the lower the top, made a request to this path, go to the top-end of this road, again define in what way we turned out and made a request to him, and so on, until we reach a path that contains $l$.
+
+You should be carefully with the case when, for example, $a$ and $l$ were in the same way --- then the query high to this way to do not on the suffix, and the internal current segment.
+
+Thus, in the process of answering one subquery we get $O (\log n)$ paths, each of them making a request high on the suffix or the prefix/current segment (request prefix/current segment could be only once).
+
+So we got the solution for $O (\log^2 n)$ per query.
+
+If additional predpochitaete in every way the highs on all the suffixes, we get the solution for $O (n \log n)$ --- because the inquiry of the maximum is not on the suffix happens only once, when we reach the vertices of $l$.
+
+
+\h3{ sum of the numbers on the path between two nodes }
+
+Given a tree, each vertex of which is assigned a certain number. Receive requests of the form $(a,b)$, where $a$ and $b$ --- number of nodes in the tree, and you want to know the sum of the numbers on the path between vertices $a$ and $b$. A possible variant of the task, additionally there are requests to change the number assigned to a particular vertex.
+
+Although this problem can be solved using heavy-light decomposition, having constructed over each path segment tree for sum (or partial sum predpochitau, if in the problem there are no change requests), this problem can be solved in \bf{simpler techniques}.
+
+If modification requests are not available, it is possible to learn the amount on the path between two vertices can be done in parallel with finding the LCA of two vertices in \algohref=lca_simpler{the binary expansion algorithm} --- just during the preprocessing for LCA to calculate not only $2^k$-th ancestors of each vertex, but the sum of the numbers on the path to this ancestor.
+
+There is a fundamentally different approach to this problem is to consider the traversal of the tree, and construct a segment tree over him. This algorithm is discussed in \algohref=tree_painting{the article with the solution of similar problems}. (But if the modification requests are missing --- it is enough to do predpochla partial sums, without segment trees.)
+
+Both these methods give a relatively simple solution with the asymptotic $O (\log n)$ per query.
+
+
+\h3{ Repainting of edges of the path between two nodes }
+
+Given a tree, each edge initially painted white. Receive requests of the form $(a,b,c)$, where $a$ and $b$ of vertices of $c$ --- color, which means that all edges on the path from $a$ to $b$ should be repainted in the color $c$. After all the required repaints to tell, but in the end we got the edges of each color.
+
+Solution --- just make \algohref=segment_tree{segment tree with painting on the interval} over the set of paths heavy-light decomposition.
+
+Each request repainting in the path $(a,b)$ will turn into two subqueries $(a,l)$ and $(b,l)$, where $l$ --- the least common ancestor of vertices $a$ and $b$ (found, for example, \algohref=lca_simpler{algorithm binary expansion}), and each of these subqueries --- in $O (\log n)$ queries to the trees above the track.
+
+Total solution is obtained with the asymptotic $O (\log^2 n)$ per query.
+
+
+
+\h2{ Problem in online judges }
+
+A list of tasks that can be solved using heavy-light decomposition:
+
+\ul{
+
+\li \href=http://acm.timus.ru/problem.aspx?space=1&num=1553{TIMUS #1553 \bf{"Caves and Tunnels"} ~~~~ [difficulty: medium]}
+
+\li \href=http://ipsc.ksp.sk/contests/ipsc2009/real/problems/l.php{2009 IPSC L \bf{"Let there be rainbows!"} ~~~~ [difficulty: medium]}
+
+\li \href=http://www.spoj.pl/problems/QTREE3/{SPOJ #2798 \bf{"Query on a tree again!"} ~~~~ [difficulty: medium]}
+
+\li \href=http://codeforces.EN/contest/117/problem/E{Codeforces Beta Round #88 E \bf {a"Tree or not a tree"} ~~~~ [difficulty: high] }
+
+}

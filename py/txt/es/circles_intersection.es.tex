@@ -1,0 +1,18 @@
+<h1>la Intersección de dos circunferencias</h1>
+
+<p>se dan las dos de la circunferencia, cada una definida por las coordenadas de su centro y radio. Es necesario encontrar los puntos de intersección (o una, o dos, o ni un punto, o la circunferencia de la misma).</p>
+<h2>Solución</h2>
+<p>Сведем nuestra tarea a la tarea de <b><algohref=circle_line_intersection>Intersección de la circunferencia y la recta</algohref></b>.</p>
+<p>Supongamos, sin perder generalidad, que el centro de la primera circunferencia en el punto de origen (si no es así, lo llevaremos centro en el origen de coordenadas y, si se la respuesta vamos a volver sumar las coordenadas del centro). Entonces tenemos un sistema de dos ecuaciones:</p>
+<formula>x<sup>2</sup> + y<sup>2</sup> = r<sub>1</sub><sup>2</sup>
+(x - x<sub>2</sub>)<sup>2</sup> + (y - y<sub>2</sub>)<sup>2</sup> = r<sub>2</sub><sup>2</sup></formula>
+<p>Restar de la segunda ecuación de la primera, para deshacerse de los cuadrados de las variables:</p>
+<formula>x<sup>2</sup> + y<sup>2</sup> = r<sub>1</sub><sup>2</sup>
+x (-2x<sub>2</sub>) + y (-2y<sub>2</sub>) + (x<sub>2</sub><sup>2</sup> + y<sub>2</sub><sup>2</sup> + r<sub>1</sub><sup>2</sup> - r<sub>2</sub><sup>2</sup>) = 0</formula>
+<p>Por lo tanto, hemos reducido el problema de la intersección de dos círculos a la tarea de pasar la primera circunferencia y la siguiente recta:</p>
+<formula>Ax + By + C = 0,
+A = -2x<sub>2</sub>,
+B = -2y<sub>2</sub>,
+C = x<sub>2</sub><sup>2</sup> + y<sub>2</sub><sup>2</sup> + r<sub>1</sub><sup>2</sup> - r<sub>2</sub><sup>2</sup>.</formula>
+<p>Mientras que la solución de la última tarea se describe en <algohref=circle_line_intersection>artículo correspondiente</algohref>.</p>
+<p>Único <b>un caso de degeneración</b>, que es necesario considerar por separado - cuando los centros de las circunferencias son iguales. De hecho, en este caso, en lugar de la ecuación de la recta obtenemos la ecuación de tipo 0 = C, donde C es un número, y este caso se procesa correctamente. Por lo tanto, este caso es necesario considerar por separado: si los radios de las circunferencias son iguales, entonces la respuesta es infinito, de lo contrario - puntos de cruce no.</p>

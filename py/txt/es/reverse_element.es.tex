@@ -1,0 +1,116 @@
+\h1{ elemento de vuelta en el anillo por el módulo }
+
+
+\h2{ Definición }
+
+Que se especifica algo natural módulo $m$, y consideremos el anillo creado este módulo (es decir, compuesto de números de $0 a$ a $a m-1$). Entonces para algunos de los elementos de este anillo se puede encontrar \bf{elemento de vuelta}.
+
+El inverso de entre $a$ por módulo $m$ es un número $b$, que:
+
+$$ a \cdot b \equiv 1 \pmod m, $$
+
+y a menudo representan a través de $a^{-1}$.
+
+Está claro que para cero de devolución de un elemento no existe nunca; para el resto de los elementos de la inversa de como puede existir o no. Se afirma que la devolución sólo existe para los elementos de $a$, \bf{mutuamente fáciles} con el módulo $m$.
+
+Veamos a continuación dos formas de encontrar el inverso de un elemento que trabajan con la condición de que él existe.
+
+Finalmente, consideremos el algoritmo que permite encontrar las devoluciones de todos los números de un módulo por lineal del tiempo.
+
+
+\h2{ Encontrar con la ayuda del algoritmo Extendido de euclides }
+
+Considere la ecuación auxiliar (relativamente desconocido $x$ y $y$):
+
+$$ a \cdot x + m \cdot y = 1. $$
+
+Es \algohref=diofant_2_equation{lineal диофантово la ecuación de segundo orden}. Como se muestra en el artículo correspondiente, de las condiciones de ${\rm mcd}(a,m)=1$, la ecuación tiene una solución, que se puede encontrar con la ayuda de \algohref=extended_euclid_algorithm{del algoritmo Extendido de euclides} (de ahí mismo, por cierto, se sigue que cuando el ${\rm mcd}(a,m) \ne de$ 1, de la decisión y, por tanto, la devolución de un elemento que no existe).
+
+Por otro lado, si tomamos de ambas partes de la ecuación de saldo por módulo $m$, obtenemos:
+
+$$ a \cdot x = 1 \pmod m. $$
+
+Por lo tanto, se halló $x$ y será retroactiva a $a$.
+
+La implementación de la (teniendo en cuenta que se halló $x$ es necesario tomar en módulo $m$ y $x$ podría ser negativo):
+
+\code
+int x, y;
+int g = gcdex (a, m, x, y);
+if (c != 1)
+cout << "no solution";
+else {
+x = (x % m + m) % m;
+cout << x;
+}
+\endcode
+
+Asíntotas de esta solución se obtiene $O (\log m)$.
+
+
+\h2{ Encontrar con la ayuda de un Binario de exponenciación }
+
+Usaremos el teorema de euler:
+
+$$ a ^ {\phi(m)} \equiv 1 \pmod m, $$
+
+que es correcta para el caso mutuamente simples $a$ y $m$.
+
+Por cierto, en el caso de un simple módulo $m$ recibimos más simple afirmación --- el pequeño teorema de la Granja:
+
+$$ a^{m-1} \equiv 1 \pmod m. $$
+
+Multiplica ambos lados de la parte de cada una de las ecuaciones en $a^{-1}$, obtenemos:
+
+\ul{
+
+\li para cualquier módulo $m$:
+
+$$ a^{\phi(m)-1} \equiv a^{-1} \pmod m, $$
+
+\li para un simple módulo $m$:
+
+$$ a^{m-2} \equiv a^{-1} \pmod m. $$
+
+}
+
+Por lo tanto, tenemos la fórmula para el cálculo directo de la devolución. Para el uso práctico usan habitualmente eficaz \algohref=binary_pow{el algoritmo de exponenciación binaria}, que en nuestro caso permite hacer la exponenciación $O (\log m)$.
+
+Este método parece más fácil de lo descrito en el párrafo anterior, sin embargo, se requiere el conocimiento de los valores de la función de euler, que efectivamente requiere факторизации módulo $m$, que a veces puede ser una tarea compleja.
+
+Si факторизация número es conocida, entonces este método también funciona por асимптотику $O (\log m)$.
+
+
+\h2{ Encontrar todos los sencillos de un módulo por lineal del tiempo }
+
+Que dan un módulo simple $m$. Se requiere para cada número en el tramo de $[1; m-1]$ encontrar lo contrario a él.
+
+Mediante la aplicación de los algoritmos descritos anteriormente, obtenemos sólo de la decisión de асимптотикой $O (m \log m)$. Aquí presentamos una solución simple, con асимптотикой $O (m)$.
+
+\bf{para Decisión} esto se ve de la siguiente manera. Se denota por $r[i]$ el término de búsqueda inversa entre $i$ por módulo $m$. Entonces para $i > 1$ fielmente la identidad:
+
+$$ r[i] = - \left\lfloor \frac{m}{i} \right\rfloor \cdot r[m {\rm~mod~} i]. \pmod m $$
+
+\bf{Aplicación} de esta sorprendente declaración concisa de la decisión:
+
+\code
+r[1] = 1;
+for (int i=2; i<m; i++)
+r[i] = (m - (m/i) * r[m%i] % m) % m;
+\endcode
+
+\bf{Prueba} de esta decisión es la cadena de conversión sencilla:
+
+Escribimos un valor de $m {\rm~mod~} i$:
+
+$$ m {\rm~mod~} i = m - \left\lfloor \frac{m}{i} \right\rfloor \cdot i, $$
+
+de donde, tomando ambas partes por módulo $m$, obtenemos:
+
+$$ m {\rm~mod~} i = - \left\lfloor \frac{m}{i} \right\rfloor \cdot i. \pmod m $$
+
+Multiplicando ambos lados de la parte a la inversa, a $i$ e inversa de a $(m {\rm~mod~} i)$, obtenemos que busca la fórmula:
+
+$$ r[i] = - \left\lfloor \frac{m}{i} \right\rfloor \cdot r[m {\rm~mod~} i], \pmod m $$
+
+que se quería demostrar.

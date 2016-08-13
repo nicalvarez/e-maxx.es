@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Минимальное остовное дерево. Алгоритм Крускала</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Минимальное остовное дерево. Алгоритм Крускала</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Минимальное остовное дерево. Алгоритм Крускала&lt;/h1&gt;
+
+&lt;p&gt;Дан взвешенный неориентированный граф. Требуется найти такое поддерево этого графа, которое бы соединяло все его вершины, и при этом обладало наименьшим весом (т.е. суммой весов рёбер) из всех возможных. Такое поддерево называется минимальным остовным деревом или простом минимальным остовом.&lt;/p&gt;
+&lt;p&gt;Здесь будут рассмотрены несколько важных фактов, связанных с минимальными остовами, затем будет рассмотрен алгоритм Крускала в его простейшей реализации.&lt;/p&gt;
+&lt;h3&gt;Свойства минимального остова&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Минимальный остов &lt;b&gt;уникален, если веса всех рёбер различны&lt;/b&gt;. В противном случае, может существовать несколько минимальных остовов (конкретные алгоритмы обычно получают один из возможных остовов).&lt;/li&gt;
+&lt;li&gt;Минимальный остов является также и &lt;b&gt;остовом с минимальным произведением&lt;/b&gt; весов рёбер.&lt;br&gt;(доказывается это легко, достаточно заменить веса всех рёбер на их логарифмы)&lt;/li&gt;
+&lt;li&gt;Минимальный остов является также и &lt;b&gt;остовом с минимальным весом самого тяжелого ребра&lt;/b&gt;.&lt;br&gt;(это утверждение следует из справедливости алгоритма Крускала)&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Остов максимального веса&lt;/b&gt; ищется аналогично остову минимального веса, достаточно поменять знаки всех рёбер на противоположные и выполнить любой из алгоритм минимального остова.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Алгоритм Крускала&lt;/h3&gt;
+&lt;p&gt;Данный алгоритм был описан Крускалом (Kruskal) в 1956 г.&lt;/p&gt;
+&lt;p&gt;Алгоритм Крускала изначально помещает каждую вершину в своё дерево, а затем постепенно объединяет эти деревья, объединяя на каждой итерации два некоторых дерева некоторым ребром. Перед началом выполнения алгоритма, все рёбра сортируются по весу (в порядке неубывания). Затем начинается процесс объединения: перебираются все рёбра от первого до последнего (в порядке сортировки), и если у текущего ребра его концы принадлежат разным поддеревьям, то эти поддеревья объединяются, а ребро добавляется к ответу. По окончании перебора всех рёбер все вершины окажутся принадлежащими одному поддереву, и ответ найден.&lt;/p&gt;
+&lt;h3&gt;Простейшая реализация&lt;/h3&gt;
+&lt;p&gt;Этот код самым непосредственным образом реализует описанный выше алгоритм, и выполняется за &lt;b&gt;O (M log N + N&lt;sup&gt;2&lt;/sup&gt;)&lt;/b&gt;. Сортировка рёбер потребует O (M log N) операций. Принадлежность вершины тому или иному поддереву хранится просто с помощью массива tree_id - в нём для каждой вершины хранится номер дерева, которому она принадлежит. Для каждого ребра мы за O (1) определяем, принадлежат ли его концы разным деревьям. Наконец, объединение двух деревьев осуществляется за O (N) простым проходом по массиву tree_id. Учитывая, что всего операций объединения будет N-1, мы и получаем асимптотику &lt;b&gt;O (M log N + N&lt;sup&gt;2&lt;/sup&gt;)&lt;/b&gt;.&lt;/p&gt;
+&lt;code&gt;int m;
+vector &amp;lt; pair &amp;lt; int, pair&amp;lt;int,int&gt; &gt; &gt; g (m); // вес - вершина 1 - вершина 2
+
+int cost = 0;
+vector &amp;lt; pair&amp;lt;int,int&gt; &gt; res;
+
+sort (g.begin(), g.end());
+vector&amp;lt;int&gt; tree_id (n);
+for (int i=0; i&amp;lt;n; ++i)
+	tree_id[i] = i;
+for (int i=0; i&amp;lt;m; ++i)
+{
+	int a = g[i].second.first,  b = g[i].second.second,  l = g[i].first;
+	if (tree_id[a] != tree_id[b])
+	{
+		cost += l;
+		res.push_back (make_pair (a, b));
+		int old_id = tree_id[b],  new_id = tree_id[a];
+		for (int j=0; j&amp;lt;n; ++j)
+			if (tree_id[j] == old_id)
+				tree_id[j] = new_id;
+	}
+}&lt;/code&gt;
+&lt;h3&gt;Улучшенная реализация&lt;/h3&gt;
+&lt;p&gt;С использованием структуры данных &lt;algohref=dsu&gt;&quot;Система непересекающихся множеств&quot;&lt;/algohref&gt; можно написать более быструю реализацию &lt;algohref=mst_kruskal_with_dsu&gt;алгоритма Крускала с асимптотикой O (M log N)&lt;/algohref&gt;.&lt;/p&gt;</textarea></td></tr></table></body></html>

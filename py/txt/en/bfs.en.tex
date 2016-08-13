@@ -1,0 +1,118 @@
+\h1{ BFS }
+
+Breadth-first search (breadth-first search, breadth-first search) --- this is one of the basic algorithms on graphs.
+
+As a result of BFS is the shortest path length in an unweighted graph, i.e. a path containing the smallest number of edges.
+
+The algorithm runs in $O (n+m)$, where $n$ is the number of vertices, $m$ the number of edges.
+
+
+\h2{ algorithm Description }
+
+The input to the algorithm serves a given graph (unweighted), and the number of the starting vertex $s$. The count can be both oriented and non-oriented, algorithm-it doesn't matter.
+
+The algorithm can be understood as the process of "firing" of the graph: at a zero step ignites only vertex of $s$. On each following step the fire already burning with each vertex spreads to all its neighbors; i.e., for one iteration of the algorithm is the extension of the "ring of fire" in width by one (hence the name of the algorithm).
+
+More strictly, it can be represented as follows. Create a queue $q$, in which are placed burning the top, but we also need to create a Boolean array of $\rm used []$ in which each vertex will be noted that it is already lit or not (or in other words, whether it was visited).
+
+Initially the queue holds only the vertex $s$, and $\rm used[s] = true$, and for every other vertex $\rm used[] = false$. Then the algorithm is a loop: while queue is not empty, get out of her head one top, to see all edges outgoing from this vertex and if any of the visited vertices aren't burning, then burn them and put in the back of the queue.
+
+In the end, when the queue is empty, the BFS will visit all reachable from $s$ vertices, and to each will come the shortest way. You can also calculate the length of the shortest paths (which just needs to get an array of the lengths of the paths of $d[]$), and compact to store information sufficient to restore all those shortcuts (for this we need to have an array of "ancestors" $p[]$, where for each vertex storing the number of the vertex at which we got to the top).
+
+
+\h2{ the Implementation }
+
+Implement the above algorithm in C++.
+
+Input data:
+
+\code
+
+vector < vector<int> > g; // graph
+int n; // number of vertices
+int s; // starting vertex (vertices are numbered everywhere from scratch)
+
+// read count
+...
+\endcode
+
+The crawl:
+
+\code
+
+queue<int> q;
+q.push (s);
+vector<bool> used (n);
+vector<int> d (n), p (n);
+used[s] = true;
+p[s] = -1;
+while (!q.empty()) {
+int v = q.front();
+q.pop();
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (!used[to]) {
+used[to] = true;
+q.push (to);
+d[to] = d[v] + 1;
+p[to] = v;
+}
+}
+}
+\endcode
+
+If now we have to recover and output the shortest path to some vertices $\rm to$, this can be done as follows:
+
+\code
+
+if (!used[to])
+cout << "No path!";
+else {
+vector<int> path;
+for (int v=to; v!=-1; v=p[v])
+path.push_back (v);
+reverse (path.begin(), path.end());
+cout << "Path: ";
+for (size_t i=0; i<path.size(); ++i)
+cout << path[i] + 1 << " ";
+}
+\endcode
+
+
+\h2{ the Application of the algorithm }
+
+\ul{
+
+\li Search \bf{shortest path} in an unweighted graph.
+
+\li Search \bf{connected components} in a graph $O(n+m)$.
+
+For this, we just run BFS from every vertex, except the vertices, the remaining visited ($\rm used=true$) after previous runs. Thus, we perform a normal startup in width from each vertex, but cannot be reset each time the array $\rm used[]$, which we will skirt the new connected component, and the total time of the algorithm will be still $O(n+m)$ (such a few starts crawling on the graph without resetting the array $\rm used$ referred to as the series crawls in width).
+
+\li the solution of a task (games) \bf{with the least number of moves} if every system state can be represented by a vertex of the graph, and transitions from one state to another --- the edges of the graph.
+
+A classic example is the game where the robot moves on the field, he can move boxes on the same field, and requires the least number of moves to move the boxes in the required position. This is solved by breadth-first search on the graph, where a state (vertex) is the set of coordinates: the coordinates of the robot, and the coordinates of all boxes.
+
+\li finding the shortest path in \bf{a 0-1-graph} (i.e. the graph is weighted, but weights only equal to 0 or 1): it is enough to modify the breadth-first search: if the current edge weight of zero, and an improvement of the distance to any vertex, then this vertex is not added to the end, and in the beginning of the queue.
+
+\li the Finding of \bf{a shortest cycle} in a directed unweighted graph: produced by breadth-first search from each vertex; once in the crawling process we are trying to go from the current vertex to some edge in an already visited vertex, it means that we find the shortest cycle, and stop the BFS; among all such cycles was found (one from each run crawl) choose the shortest.
+
+\li to Find all edges that lie \bf{any shortest path} between a given pair of vertices $(a,b)$. You need to run a 2 breadth-first search: from $a$ and $b$. Denote by $d_a[]$ array of shortest distances resulting from the first crawl to and through $d_b[]$ --- as a result of the second bypass. Now for any edge $(u,v)$ is easy to check, whether it lies on any shortest path: the criterion will be a condition $d_a[u] + 1 + d_b[v] = d_a[b]$.
+
+\li to Find all the vertices that lie \bf{any shortest path} between a given pair of vertices $(a,b)$. You need to run a 2 breadth-first search: from $a$ and $b$. Denote by $d_a[]$ array of shortest distances resulting from the first crawl to and through $d_b[]$ --- as a result of the second bypass. Now for any vertex $v$ it is easy to check, whether it lies on any shortest path: the criterion will be a condition $d_a[v] + d_b[v] = d_a[b]$.
+
+\li Find \bf{shortest even path} in the graph (i.e. a path of even length). For this we need to construct an auxiliary graph, whose nodes are States $(v,c)$, where $v$ --- number of current node, $c = 0 \ldots 1$ --- current parity. Any edge $(a,b)$ of the original graph to this new graph will become two edges $((u,0),(v,1))$ and $((u,1),(v,0))$. After that on this graph we need a BFS to find the shortest path from the starting vertex to the destination, with parity equal to 0.
+
+}
+
+
+
+\h2{ Problem in online judges }
+
+The list of tasks that can be taken, using a breadth-first search:
+
+\ul{
+
+\li \href=http://acm.sgu.ru/problem.php?contest=0&problem=213{SGU #213 \bf {a"Strong Defence"} ~~~~ [difficulty: medium]}
+
+}

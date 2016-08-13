@@ -1,0 +1,46 @@
+\h1{Cálculo de факториала por el módulo}
+
+En algunos casos, debe considerarse como un simple módulo $p$ fórmulas complejas, que incluso pueden contener factoriales. Aquí vamos a ver el caso, cuando el módulo de $p$ es relativamente pequeño. Está claro que esta tarea sólo tiene sentido cuando factoriales se incluyen en el numerador y en el denominador de la fracción. De hecho, el factorial de $p!$ y todos los demás se dirigen a cero por módulo $p$, sin embargo, en дробях todos los factores primos que contienen $p$, pueden reducirse, y la expresión ya será distinto de cero por módulo $p$.
+
+Por lo tanto, formalmente \bf{meta} tal. Se desea calcular el $n!$ un simple módulo $p$, no teniendo en cuenta todos los múltiplos de $p$ multiplicadores de entrada en el factorial. Al aprender de manera eficaz calcular un factorial, podemos calcular rápidamente el valor de las distintas комбинаторных fórmulas (por ejemplo, \algohref=binomial_coeff{los coeficientes binomiales también}).
+
+
+\h2{el Algoritmo}
+
+Daremos el "modificado" el factorial de forma explícita:
+
+$$ n!_{\%p} = $$
+$$ = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot (p-2) \cdot (p-1) \cdot \underbrace{1}_{p} \cdot (p+1) \cdot (p+2) \cdot \ldots \cdot (2p-1) \cdot \underbrace{2}_{2p} \cdot (2p+1) \cdot \ldots \cdot $$
+$$ \cdot (p^2-1) \cdot \underbrace{1}_{p^2} \cdot (p^2+1) \cdot \ldots \cdot n = $$
+$$ = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot (p-2) \cdot (p-1) \cdot a \cdot \underbrace{1}_{p} \cdot 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot \underbrace{2}_{2p} \cdot 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot \underbrace{1}_{p^2} \cdot $$
+$$ \cdot 1 \cdot 2 \cdot \ldots \cdot (n\n%p) \pmod p. $$
+
+Con esta grabación se puede ver que el "modificado" factorial se divide en varios bloques de longitud $p$ (último bloque, quizás, el más corto), que son todos iguales, excepto el último elemento:
+
+$$ n!_{\%p} = \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (p-2) \cdot (p-1) \cdot 1}_{1st} \cdot \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot 2 }_{2} \cdot \ldots \cdot \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (p-1) \cdot 1 }_{p-th} \cdot \ldots \cdot $$
+$$ \cdot \underbrace{ 1 \cdot 2 \cdot \ldots \cdot (n\n%p)}_{tail} \pmod p. $$
+
+La parte general de los bloques de contar fácilmente --- eso es sólo $(p-1)!\ \rm{mod}\ p$, que se puede calcular mediante programación o por el teorema de wilson (Wilson) en seguida encontrar $(p-1)!\ {\rm mod}\ p = p-1$. Para multiplicar estas partes comunes a todos los bloques, es necesario encontrado el valor de elevar al grado de módulo $p$, lo que puede hacer por $O(\log n)$ de las operaciones (véase \algohref=binary_pow{Binario exponenciación}; sin embargo, se puede observar que realmente estamos construyendo menos de uno en algún grado, sino porque el resultado siempre será $1$, o $p-1$, dependiendo de la paridad de la métrica. El valor de la última, incompleta bloque también se puede calcular por separado por $O(p)$. Sólo quedan los últimos elementos de los bloques, echemos un vistazo más de cerca:
+
+$$ n!_{\%p} = \underbrace{ \ldots \cdot 1 } \cdot \underbrace{ \ldots \cdot 2 } \cdot \underbrace{ \ldots \cdot 3 } \cdot \ldots \cdot \underbrace{ \ldots \cdot (p-1) } \cdot \underbrace{ \ldots \cdot 1 } \cdot \underbrace{ \ldots \cdot 1 } \cdot \underbrace{ \ldots \cdot 2 } \ldots $$
+
+Y hemos llegado de nuevo a "модифицированному" факториалу, pero ya de menor dimensión (tanto como fue el de bloques completos, a $\left\lfloor n / p \right\rfloor$). Por lo tanto, el cálculo de la "modificado" факториала $n!_{\%p}$ nos han reducido a $O(p)$ operaciones en el cálculo ya $(n/p)!_{\%p}$. Revelar esta рекуррентную dependencia, conseguimos que la profundidad de la recursión se $O (\log_p n)$, total \bf{asíntotas} el algoritmo se obtiene $O(p \log_p n)$.
+
+\h2{Aplicación}
+
+Está claro que si la aplicación no es necesario utilizar la recursividad de forma explícita: debido a que la recursión de la cola, es fácil de implementar en el ciclo.
+
+\code
+int factmod (int n, int p) {
+int res = 1;
+while (n > 1) {
+res = res * ((n/p) % 2 ? p-1 : 1)) % p;
+for (int i=2; i<=n%p; ++i)
+res = res * i) % p;
+n /= p;
+}
+return res % p;
+}
+\endcode
+
+Esta aplicación funciona a $O(p \log_p n)$.

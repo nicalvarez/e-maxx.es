@@ -1,0 +1,109 @@
+\h1{Finding strongly connected components, graph condensation build}
+
+\h2{Defining, formulation of the problem}
+
+Given a directed graph $G$, the set of vertices $V$ and set of edges --- $E$. Loops and multiple edges allowed. Denote by $n$ the number of vertices of the graph, using $m$ --- number of ribs.
+
+\bf{Component strongly connected} (strongly connected component) is called (maximal) subsets of vertices $C$, that any two vertices of this subset reachable from each other, i.e. $\forall u,v \in C$:
+$$ u \mapsto v, v \mapsto u $$
+where the symbol $\mapsto$ here and henceforth we will denote the reachability, i.e. the existence of a path from the first node to the second.
+
+It is clear that the strongly connected components of this graph do not intersect, i.e., it is in fact a partition of all graph vertices. Hence, it is logical definition of \bf{condensation} $G^{\rm SCC}$ as the graph obtained from this graph by shrinking each strongly connected components into a single vertex. Each vertex of the graph corresponds to a condensation of the strongly connected component of a graph $G$, and oriented edge between two vertices of $C_i$ and $C_j$ of the graph condensation takes place if there is a pair of vertices $u \in C_i, v \in C_j$, between which existed an edge in the original graph, i.e. $(u,v) \in E$.
+
+The most important property of graph condensation is that it \bf{acyclic}. Indeed, suppose that $C \mapsto C^\prime$, prove that $C^\prime \not\mapsto C$. From the definition of condensation we get that there are two vertices $u \in C$ and $v \in C^\prime$, $u \mapsto v$. We will prove by contradiction, i.e. suppose that $C^\prime \mapsto C$, then there are two vertices $u^\prime \in C$ and $v^\prime \in C^\prime$, $v^\prime \mapsto u^\prime$. But since $u$ and $u^\prime$ are in the same strongly connected component, then between them there is a path; similarly for $v$ and $v^\prime$. In the end, combining paths, we obtain that $v \mapsto u$, while $u \mapsto v$. Therefore, $u$ and $v$ must belong to the same strongly connected component, i.e. a contradiction, as required to prove.
+
+As described below, the algorithm selects in this graph all strongly connected components. To build count on them condensation is not difficult.
+
+\h2{Algorithm}
+
+The described algorithm was proposed independently Kosaraju (Kosaraju) and Sharira (Sharir) in 1979, This is a very simple algorithm, based on two series \algohref=dfs{search depth}, and therefore works in time $O(n+m)$.
+
+\bf{the first step} algorithm executes a series of rounds in depth, visiting the entire graph. To do this, we go through the all vertices of the graph and of each not yet visited vertices called the depth. In this case, for each vertex $v$ remember \bf{time} ${\rm tout}[v]$. These times of output play a key role in the algorithm, and this role is expressed in the following theorem.
+
+First, we introduce the symbol: the output of ${\rm tout}[C]$ of the components $C$ strongly connected we Dene as the maximum of the values of ${\rm tout}[v]$ for all $v \in C$. In addition, the proof of the theorem will be mentioned, and the time of entrance to each vertex ${\rm tin}[v]$, and similarly define the login time of ${\rm tin}[C]$ for each strongly connected components of at least values of ${\rm tin}[v]$ for all $v \in C$.
+
+\bf{Theorem}. Let $C$ and $C^\prime$ --- two different strongly connected components, and let the graph of condensation between them there is an edge $(C,C^\prime)$. Then ${\rm tout}[C] > {\rm tout}[C^\prime]$.
+
+In the proof there are two fundamentally different cases, depending on which part of the first go round in depth, i.e. depending on the ratio between ${\rm tin}[C]$ and ${\rm tin}[C^\prime]$:
+
+\ul{
+\li the First was achieved component $C$. This means that at some time the DFS enters some vertex $v$ components of $C$, all other vertices of a component $C$ and $C^\prime$ not yet visited. But, as the condition of condensations in the graph has an edge $(C,C^\prime)$, then from vertex $v$ will be achievable not only the whole component $C$, but all of the component $C^\prime$. This means that when starting from the vertex $v$ DFS will be held on all vertices of a component $C$ and $C^\prime$, which means that they will be the descendants of in relation to $v$ in the tree traversal in depth, i.e. for any vertex $u \in C \cup C^\prime u \ne v$ will be executed ${\rm tout}[v] > {\rm tout}[u]$, h. etc.
+\li the First was achieved component $C^\prime$. Again, at some time the DFS enters some vertex $v \in C^\prime$, with all other vertices of a component $C$ and $C^\prime$ is not visited. Since the condition in the graph of condensations there was an edge $(C,C^\prime)$, then, due to the acyclicity of the graph of condensations, there is no way back to $C^\prime \not\mapsto C$, i.e., the DFS from vertex $v$ reaches the vertex $C$. This means that they will be visited in depth later, which implies ${\rm tout}[C] > {\rm tout}[C^\prime]$, h. etc.
+}
+
+The theorem is \bf{basis algorithm} finding strongly connected components. From this it follows that any edge $(C,C^\prime)$ in the graph of condensations comes from components with greater magnitude of ${\rm round}$ in the component with the smaller value.
+
+If we sort all vertices $v \in V$ in the descending order of the exit time of ${\rm tout}[v]$, we first prove some vertex $u$ that belongs to "root" component is strongly connected, i.e., which does not include any edges in the graph of condensations. Now we would like to start the traversal from this vertex $u$, which would be called for only this component strongly connected and not gone to any other; learning how to do this, we will be able gradually to distinguish all strongly connected components: removing from the graph the vertex first selected components, we again find the remaining vertex with the highest value of the ${\rm round}$, then start from this traversal, etc.
+
+To learn how to do this bypass, will consider \bf{transposed graph} $G^T$, i.e. the graph obtained from $G$ by changing the direction of each edge reversed. It is easy to see that this graph has the same strongly connected components as the original graph. Moreover, the condensation graph $(G^T)^{\rm SCC}$ will equal the transposed graph condensation of the initial graph $G^{\rm SCC}$. This means that it is now considered the "root" components will not be released edges to other components.
+
+Thus, to circumvent the whole "root" strongly connected component containing some vertex $v$, simply run the BFS from a vertex $v$ in the graph $G^T$. This traversal will visit all the vertices of this strongly connected components and only them. As already mentioned, we can mentally remove these vertices from the graph, find another vertex with a maximum value of ${\rm tout}[v]$ and run the bypass on the transposed graph from it, etc.
+
+Thus, we have constructed the following \bf{algorithm} highlight strongly connected components:
+
+Step 1. To run a series of crawls into the depth of a graph $G$, which returns vertices in order of increasing time ${\rm round}$, i.e. there are some $\rm order$.
+
+Step 2. To construct the transposed graph $G^T$. To run a series of crawls in the depth/width of this graph in the order determined by the list $\rm order$ (namely, in reverse order, i.e. in order of decreasing time). Each set of vertices reached as a result of another startup crawl, and will be another strong component of connectivity.
+
+\bf{Asymptotics} of algorithm is obviously $O(n+m)$, since it is only two depth/width.
+
+Finally, it is worth noting the link with the notion of \bf{\algohref=topological_sort{topological sorting}}. First, step 1 of the algorithm, that is, as a topological sorting of a graph $G$ (in fact this is what sorts the vertices by the time of departure). Secondly, the scheme of the algorithm is such that and strongly connected components it generates in descending order of their times of release, so it generates the components of the vertices of the graph condensation in topological sort order.
+
+\h2{the Implementation}
+
+\code
+vector < vector<int> > g, gr;
+vector<char> used;
+vector<int> order, component;
+
+void dfs1 (int v) {
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i)
+if (!used[ g[v][i] ])
+dfs1 (g[v][i]);
+order.push_back (v);
+}
+
+void dfs2 (int v) {
+used[v] = true;
+component.push_back (v);
+for (size_t i=0; i<gr[v].size(); ++i)
+if (!used[ gr[v][i] ])
+dfs2 (gr[v][i]);
+}
+
+int main() {
+int n;
+... read n ...
+for (;;) {
+int a, b;
+... reading the next edge (a,b) ...
+g[a].push_back (b);
+gr[b].push_back (a);
+}
+
+used.assign (n, false);
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs1 (i);
+used.assign (n, false);
+for (int i=0; i<n; ++i) {
+int v = order[n-1-i];
+if (!used[v]) {
+dfs2 (v);
+... the conclusion of the next component ...
+component.clear();
+}
+}
+}
+\endcode
+
+Here in $\rm g$ is stored the count, and $\rm gr$ --- the transposed graph. The function $\rm dfs1$ performs a DFS on a graph $G$, the function $\rm dfs2$ --- at is the transpose of $G^T$. The function $\rm dfs1$ populates the list $\rm order$ vertices in order of increasing time (in fact, doing topological sorting). The function $\rm dfs2$ preserves all achieved top in the list $\rm component$, which after each run will contain another component strongly connected.
+
+\h2{Literature}
+
+\ul{
+\li \book{Thomas Cormen, Charles Leiserson, Ronald Rivest, Clifford Stein}{Algorithms: Construction and analysis}{2005}{cormen.djvu}
+\li \book{M. Sharir}{A strong-connectivity algorithm and its applications in data-flow
+analysis}{1979}
+}

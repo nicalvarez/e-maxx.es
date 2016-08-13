@@ -1,0 +1,62 @@
+text/ru/
+├── algebra
+│   ├── big_integer.txt
+│   ├── binary_pow.txt
+│   ├── bpws_primalidad.txt
+│   ├── chinese.txt
+│   ├── difoantine1.txt
+│   ├── difoantine2.txt
+│   ├── discrete_log.txt
+│   ├── discrete_root.txt
+│   ├── egcd.txt
+│   ├── eratostenes.txt
+│   ├── euclides.txt
+│   ├── euler.txt
+│   ├── fact_mod.txt
+│   ├── factorial_div.txt
+│   ├── factorization.txt
+│   ├── fft_multiply.txt
+│   ├── fibo.txt
+│   ├── gray_code.txt
+│   ├── inverso.txt
+│   ├── primitive_root.txt
+│   ├── sieve_linear.txt
+│   ├── submasks.txt
+│   └── ternary.txt
+├── cadenas
+│   ├── aho-corasick.txt
+│   ├── duval.txt
+│   ├── hashes.txt
+│   ├── palindromes.txt
+│   ├── parsing.txt
+│   ├── prefix_function.txt
+│   ├── rabin_karp.txt
+│   ├── string_tandems.txt
+│   ├── suffix_array.txt
+│   ├── suffix_automata.txt
+│   ├── ukkonen.txt
+│   └── z_function.txt
+├── combinatoria
+├── estructuras
+│   ├── dsu.txt
+│   ├── fenwick-BIT.txt
+│   ├── randomized-heap.txt
+│   ├── segment-tree.txt
+│   ├── sqrt-decomposition.txt
+│   ├── stack-minima.txt
+│   └── treap.txt
+└── geometria
+    ├── complejos
+    └── elementales
+        ├── area.txt
+        ├── baricenter.txt
+        ├── covering-segments.txt
+        ├── lenght-segments.txt
+        ├── lines-inter.txt
+        ├── pick.txt
+        ├── polygon-area.txt
+        ├── segment-inter-check.txt
+        ├── segment-line.txt
+        └── segments-inter.txt
+
+7 directories, 52 files

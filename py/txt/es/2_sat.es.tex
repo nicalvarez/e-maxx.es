@@ -1,0 +1,93 @@
+<h1>Tarea 2-SAT</h1>
+<p>la Tarea 2-SAT (2-satisfiability) es una tarea de distribución de valores booleanos a las variables de tal manera que satisfagan a todos por las restricciones.</p>
+<p>la Tarea 2-SAT se puede presentar en forma de конъюнктивной forma normal, donde en cada una expresión entre paréntesis cuesta exactamente dos de la variable; de esta forma se llama 2-CNF (2-conjunctive normal form). Por ejemplo:</p>
+<formula>(a || c) && (a || !d) && (b | a| !d) && (b | a| !e) && (c || d)</formula>
+<h2>Aplicaciones</h2>
+<p>el Algoritmo para la solución de 2-SAT puede ser aplicable para todas las tareas, donde hay un conjunto de valores, cada uno de los cuales puede tomar 2 valores posibles, y hay una relación entre estos valores:</p>
+<ul>
+<li><b>Ubicación de los rótulos de texto en el mapa o gráfico</b>.<br>Tiene en cuenta la posicin y la ubicación de las etiquetas, en la que ninguna de las dos no se cruzan.<br>Vale la pena señalar que en el caso general, cuando cada marca puede ocupar muchas de las diferentes posiciones, tenemos la tarea general satisfiability, que es NP-completo. Sin embargo, si limitarse solamente dos posibles posiciones, obtenida de la tarea será la tarea 2-SAT.</li>
+<li><b>Ubicación de las costillas cuando se dibuja el grafo</b>.<br>Similar a la del párrafo anterior, si limitarse solamente dos posibles maneras de pasar el borde, entonces llegaremos a 2-SAT.</li>
+<li><b>programar juegos</b>.<br>se refiere a un sistema donde cada equipo debe jugar con cada uno, y desea distribuir el juego por tipo de hogar-events, con algunas restricciones restricciones.</li>
+<li>etc</li>
+</ul>
+<h2>el Algoritmo de</h2>
+<p>en primer lugar presentamos una tarea a otra forma de la llamada импликативной forma. Tenga en cuenta que la expresión del tipo a || b es equivalente a !a => b o !b => a. Esto puede entenderse de la siguiente manera: si la expresión a || b, y tenemos que conseguir tratos en true, entonces, si a=false, es necesario que b=true, y por el contrario, si b=false, se debe a=true.</p>
+<p>Construir ahora el llamado <b>el conde de импликаций</b>: para cada variable, en la columna será de dos picos, se denota a través de x<sub>i</sub> y !x<sub>i</sub>. La aleta de la columna se ajuste импликативным relaciones.</p>
+<p>por Ejemplo, para 2-CNF de la forma:</p>
+<formula>(a || b) && (b | a| !c)</formula>
+<p>el Conde de импликаций contendrá los siguientes costilla (orientado):</p>
+<formula>!a => b
+!b => a
+!b => !c
+c => b</formula>
+<p>hay que prestar atención a qué es la propiedad del conde de импликаций, que si hay una arista a => b, es decir, y en el borde !b => !a.</p>
+<p>Ahora, tenga en cuenta que si una variable x se cumple que x se puede lograr !x, y de !x alcanzable x, entonces la tarea de la decisión no tiene. Realmente, ¿cuál sería el valor de la variable x, nos gustaría elijas, nosotros siempre llegamos a una contradicción - que debe ser elegido y la inversa de su valor. Resulta que esta condición no sólo es suficiente, pero también es necesario (prueba de este hecho será el siguiente algoritmo). Переформулируем este criterio en términos de teoría de grafos. Recordemos que si desde un vértice alcanzable otra, así que de la cima de alcanzar la primera, estos dos picos se encuentran en una muy coherente de un componente. Entonces podemos formular <b>el criterio de la existencia de soluciones</b> de la siguiente manera:</p>
+<p>Para esta tarea 2-SAT <b>tenía la solución</b>, es necesario y suficiente que para cualquier variable x vértice x y !x estaban <b>en los diferentes componentes de una fuerte conectividad</b> conde импликаций.</p>
+<p>Este criterio se puede comprobar por un tiempo O (N + M) con <algohref=strong_connected_components>algoritmo de búsqueda fuertemente de las comunicaciones, el componente</algohref>.</p>
+<p>Ahora construiremos en realidad <b>el algoritmo</b> de encontrar una solución para la tarea 2-SAT en el supuesto de que existe una solución.</p>
+<p>tenga en cuenta que, a pesar de que existe una solución, para algunas de las variables, se puede realizar que de los x alcanzable !x, o (pero no al mismo tiempo), de !x alcanzable x. En este caso, la elección de uno de los valores de la variable x será generar un conflicto, mientras que la elección de otro que no lo hará. Aprendamos a elegir entre dos valores, lo que no conduce a la aparición de contradicciones. Inmediatamente tenga en cuenta que al seleccionar un valor, debemos iniciar desde él un rastreo en la profundidad, la anchura y marcar todos los valores que se derivan de él, es decir, alcanzables en el recuadro импликаций. En consecuencia, para ya marcados picos selección alguna entre x y !x, no necesitas hacer, para ellos, el valor seleccionado y confirmado. Нижеописанное regla sólo se aplica a sin etiquetar aún cimas.</p>
+<p><b>se Afirma</b> el siguiente. Deje que la comp[v] indica el número de componentes de una fuerte coherencia a la que pertenece el vértice v, y las habitaciones no están ordenados de topológicas de ordenación componente fuerte de la conectividad en el recuadro de componentes (es decir, más temprano en el orden de topológicas de ordenación corresponden a la ampliación de la habitación: si hay un camino de v a w, comp[v] <= comp[w]). Entonces, si la comp[x] < comp[!x], entonces escogemos el valor !x, de lo contrario, es decir, si comp[x] > comp[!x], entonces escogemos x.</p>
+<p><b>Prueba</b>, que con esta selección de valores no nos llegamos a una contradicción. Que, para la seguridad jurídica, se selecciona el vértice de x (el caso cuando se selecciona la cima !x, es simétrica).</p>
+<p>En primer lugar, demostramos que la de x no se puede lograr !x. De hecho, así como el número de componentes de una fuerte conectividad comp[x] mayor que el número de componentes de la comp[!x], entonces esto significa que el componente de conectividad, contiene la x situada a la izquierda de los componentes de la conectividad, contiene !x, y de la primera no puede ser posible la última.</p>
+<p>En segundo lugar, demostramos que ninguna cima y, alcanza de x, no es "malo", es decir, es cierto que de y alcanzable !y. Desde adentro de lo contrario. Supongamos que x es factible y y de y alcanzable !y. Así como de x es factible y, entonces, por la propiedad del conde de импликаций, de !y se puede lograr !x. Pero, por supuesto, de y alcanzable !y. Entonces tenemos que x se puede lograr !x, lo que contradice la condición de que se quería demostrar.</p>
+<p>por lo tanto, hemos construido un algoritmo que encuentra los valores de las variables en el supuesto de que para cualquier variable x vértice x y !x se encuentran en los diferentes componentes de una fuerte cohesión. Anteriormente han demostrado la exactitud de este algoritmo. Por lo tanto, nosotros, al mismo tiempo han demostrado anteriormente mencionado criterio de la existencia de la solución.</p>
+<p>Ahora podemos obtener de la <b>todo el algoritmo</b> de armar:</p>
+<ul>
+<li>Construir el conde импликаций.</li>
+<li>Encontramos en este apartado los componentes de una fuerte coherencia, por un tiempo O (N + M), que comp[v] es el número de componentes de una fuerte coherencia a la que pertenece el vértice v.</li>
+<li>Comprobaremos que para cada variable x vértice x y !x se encuentran en los diferentes componentes, es decir, comp[x] ≠ comp[!x]. Si esta condición no se cumple, entonces devolver "no hay ninguna solución".</li>
+<li>Si la comp[x] > comp[!x], entonces la variable x escogemos el valor true, false de lo contrario.</li>
+</ul>
+<h2>Realización</h2>
+<p>a Continuación la implementación de una solución de la tarea 2-SAT para ya construidas conde импликаций g y devolución de le el conde de gt (es decir, en el que la dirección de cada aleta cambiado a lo contrario).</p>
+<p>el Programa muestra los números de los vértices seleccionados, o la frase "NO SOLUTION", si no hay una solución.</p>
+<code>int n;
+vector < vector<int> > g, gt;
+vector<bool> used;
+vector<int> order, comp;
+
+void dfs1 (int v) {
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (!used[to])
+dfs1 (to);
+}
+order.push_back (v);
+}
+
+void dfs2 (int v, int cl) {
+comp[v] = cl;
+for (size_t i=0; i<gt[v].size(); ++i) {
+int to = gt[v][i];
+if (comp[to] == -1)
+dfs2 (to, cl);
+}
+}
+
+int main() {
+... la lectura de n, el conde de g, la construcción del grafo gt ...
+
+used.assign (n, false);
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs1 (i);
+
+comp.assign (n, -1);
+for (int i=0, j=0; i<n; ++i) {
+int v = order[n-i-1];
+if (comp[v] == -1)
+dfs2 (v, j++);
+}
+
+for (int i=0; i<n; ++i)
+if (comp[i] == comp[i^1]) {
+puts ("NO SOLUTION");
+return 0;
+}
+for (int i=0; i<n; ++i) {
+int ans = comp[i] > comp[i^1] ? i:^1;
+printf ("%d ", ans);
+}
+
+}</code>

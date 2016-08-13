@@ -1,0 +1,111 @@
+\h1{Euclidean Algorithm find GCD (greatest common divisor)}
+
+Given two nonnegative numbers $a$ and $b$. You want to find their greatest common divisor, i.e. the largest number that is the divisor and at the same time $a$ and $b$. In English "the greatest common divisor of" is "greatest common divisor", and its common symbol is ${\rm gcd}$:
+$$ {\rm gcd}(a,b) = \max_{k=1 \ldots \infty \ :\ k|a \ \&\ k|b} k $$
+(here the symbol "$|$" is marked by divisibility, i.e. "$k|a$" means "$k$ divides $a$")
+
+When it is zero, and the other is non-zero, their greatest common divisor, according to the definition, this will be the second number. When both numbers are zero, the result is undefined (any infinite number), we will put in this case, the greatest common divisor is equal to zero. Therefore, we can speak about such a rule: if one of the numbers is zero, their greatest common divisor is equal to the second number.
+
+\bf{Euclidean Algorithm}, discussed below, solves the problem of finding the greatest common divisor of two numbers $a$ and $b$ for $O (\log \min(a,b))$.
+
+This algorithm was first described in the book of Euclid "Beginnings" (about 300 BC), although it is quite possible that this algorithm has an earlier origin.
+
+
+\h2{Algorithm}
+
+The algorithm itself is extremely simple and is described by the following formula:
+
+$$ {\rm gcd}(a,b) = \cases{ a, & {\rm if} b=0 \cr {\rm gcd} (b, a\ {\rm mod}\ b), & {\rm otherwise} } $$
+
+
+\h2{the Implementation}
+
+\code
+int gcd (int a, int b) {
+if (b == 0)
+return a;
+else
+return gcd (b, a % b);
+}
+\endcode
+
+Using the ternary conditional operator is C++, the algorithm can be written even shorter:
+
+\code
+int gcd (int a, int b) {
+return b ? gcd (b, a % b) : a;
+}
+\endcode
+
+Finally, we present and non-recursive form of the algorithm:
+
+\code
+int gcd (int a, int b) {
+while (b) {
+a %= b;
+swap (a, b);
+}
+return a;
+}
+\endcode
+
+
+\h2{Proof of correctness}
+
+First note that at each iteration of Euclid's algorithm is its second argument strictly decreases, therefore, since it is non-negative, then the Euclidean algorithm \bf{ends}.
+
+For \bf{proof of correctness} we need to show that ${\rm gcd}(a,b) = {\rm gcd} (b, a\ {\rm mod}\ b)$ for any $a \ge 0, b > 0$.
+
+We will show that the quantity in the left part of equality, is divided into a real in the right, and standing right in --- shares standing to the left. Obviously, this would mean that the left and right side coincide, and prove the correctness of Euclid's algorithm.
+
+Denote $d = {\rm gcd}(a,b)$. Then, by definition, $d|a$ and $d|b$.
+
+Next, lay the remainder of dividing $a$ by $b$ through their private:
+$$ a\ {\rm mod}\ b = a - b \left\lfloor \frac{a}{b} \right\rfloor $$
+
+But then it follows:
+$$ d\ |\ (a\ {\rm mod}\ b) $$
+
+So, Recalling the statement $d|b$, we obtain the system:
+$$ \cases{ d\ |\ b, \cr d\ |\ (a\ {\rm mod}\ b) } $$
+
+Now let's use the following simple fact: if for any three integers $p,q,r$ done: $p|q$ and $p|r$, and: $p\ |\ {\rm gcd}(q,r)$. In our situation we get:
+$$ d\ |\ {\rm gcd}(b, a\ {\rm mod}\ b) $$
+Or, substituting $d$ the definition of ${\rm gcd}(a,b)$, we get:
+$$ {\rm gcd}(a,b)\ |\ {\rm gcd}(b, a\ {\rm mod}\ b) $$
+
+So, we spent half the evidence: showed that the left side divides the right. The second half of the proof is similar.
+
+
+\h2{the hours}
+
+The algorithm is evaluated \bf{theorem Lam}, which establishes the correlation of the Euclidean algorithm and the Fibonacci sequence:
+
+If $a > b \ge 1$ and $b < F_n$ for some $n$, then the Euclidean algorithm will perform no more than $n-2$ of recursive calls.
+
+Moreover, it can be shown that the upper bound of this theorem --- the best. When $a = F_n, b = F_{n-1}$ will be executed exactly $n-2$ of the recursive call. In other words, \bf{sequential Fibonacci numbers --- the worst input} for the Euclidean algorithm.
+
+Given that the Fibonacci numbers grow exponentially (as a constant in degree $n$), we find that the Euclidean algorithm is $O(\log \min(a,b))$ the multiplication operations.
+
+\h2{LCM (least common multiple)}
+
+Calculating least common multiple (least common multiplier, lcm) reduces to the calculation of $\rm gcd$ with the following simple statement:
+
+$$ {\rm lcm}(a,b) = \frac{ a \cdot b }{ {\rm gcd}(a,b) } $$
+
+Thus, the calculation of the NOC can also be done using the Euclidean algorithm with the same asymptotic behavior:
+
+\code
+int lcm (int a, int b) {
+return a / gcd (a, b) * b;
+}
+\endcode
+
+(here beneficial to first divide by $\rm gcd$, and only then domniate on $b$, as this will help to avoid overflows in some cases)
+
+
+\h2{Literature}
+
+\ul{
+\li \book{Thomas Cormen, Charles Leiserson, Ronald Rivest, Clifford Stein}{Algorithms: Construction and analysis}{2005}{cormen.djvu}
+}

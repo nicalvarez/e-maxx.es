@@ -1,0 +1,196 @@
+\h1{ Linear Diophantine equation with two variables }
+
+Diophantine equation with two unknowns has the form:
+
+$$ a \cdot x + b \cdot y = c $$
+
+where $a, b, c$ --- given integers, $x$ and $y$ --- unknown integers.
+
+Here are several classical problems on these equations: finding any solution, all solutions, counting solutions, and the solution in a certain interval, finding a solution with the least amount of unknowns.
+
+
+
+\h2{ Degenerate case }
+
+One degenerate case we exclude from consideration: when $a = b = 0$. In this case, it is clear that the equation either has infinitely many arbitrary decisions, or no decisions at all (depending, $c = 0$ or not).
+
+
+
+\h2{ Finding solutions }
+
+To find one solution to the Diophantine equation with two unknowns, you can use \algohref=extended_euclid_algorithm{Extended Euclidean algorithm}. Assume rst that the numbers $a$ and $b$ are non-negative.
+
+The extended Euclidean algorithm on a given non-negative numbers $a$ and $b$ and finds their greatest common divisor $g$, and coefficients $x_g$ and $y_g$, that:
+
+$$ a \cdot x_g + b \cdot y_g = g. $$
+
+It is stated that if $c$ divides $g = {\rm gcd} (a,b)$, then the Diophantine equation $a \cdot x + b \cdot y = c$ has a solution; otherwise, the Diophantine equation has no solutions. The proof follows from the obvious fact that a linear combination of two numbers remains should be divided by their common divisor.
+
+Suppose that $c$ divides $g$, then, obviously, is:
+
+$$ a \cdot x_g \cdot (c/g) + b \cdot y_g \cdot (c/g) = c, $$
+
+i.e. one solution of the Diophantine equation are the numbers:
+
+$$ \cases{
+x_0 = x_g \cdot (c / g) \cr
+y_0 = y_g \cdot (c / g).
+} $$
+
+We have described the solution in the case where the numbers $a$ and $b$ are non-negative. If one of them or both negative, then we can proceed thus: take them by module and apply the Euclidean algorithm, as described above, and then change the sign found $x_0$ and $y_0$ in accordance with the sign of the numbers $a$ and $b$ respectively.
+
+Implementation (recall that here we consider that the input is $a=b=0$ invalid):
+
+\code
+int gcd (int a, int b, int & x, int & y) {
+if (a == 0) {
+x = 0; y = 1;
+return b;
+}
+int x1, y1;
+int d = gcd (b%a, a, x1, y1);
+x = y1 - (b / a) * x1;
+y = x1;
+return d;
+}
+
+find_any_solution bool (int a, int b, int c, int & x0, int & y0, int & g) {
+g = gcd (abs(a) abs(b), x0, y0);
+if (c % g != 0)
+return false;
+x0 *= c / g;
+y0 *= c / g;
+if (a < 0) x0 *= -1;
+if (b < 0) y0 *= -1;
+return true;
+}
+\endcode
+
+
+
+\h2{ all solutions }
+
+We show how to obtain all solutions (and their number is infinite) Diophantine equation knowing one solution $(x_0,y_0)$.
+
+So, let $g = {\rm gcd}(a,b)$, and numbers $x_0, y_0$ satisfy the condition:
+
+$$ a \cdot x_0 + b \cdot y_0 = c. $$
+
+Then note that instead of $x_0$ a number $b/g$ and simultaneously subtracting $a/g$ from $y_0$, we do not violate equality:
+
+$$ a \cdot (x_0 + b/g) + b \cdot (y_0 - a/g) = a \cdot x_0 + b \cdot y_0 + a \cdot b/g b \cdot a/g = c. $$
+
+It is obvious that this process can be repeated any number, i.e. all numbers of the form:
+
+$$ \cases{
+x = x_0 + k \cdot b/g, \cr
+y = y_0 - k \cdot a/g,
+} ~~~~ k \in Z $$
+
+are solutions of Diophantine equations.
+
+Moreover, only numbers of this form are the solutions, i.e. we describe the set of all solutions of the Diophantine equation (it turned out to be an endless, if not imposed additional conditions).
+
+
+
+\h2{ finding the number of solutions and the solution in the given range }
+
+I suppose that there are two segments $[min_x;max_x]$ and $[min_y;max_y]$, and you want to find the number of solutions $(x,y)$ of the Diophantine equations that lie in these intervals, respectively.
+
+Note that if one of the numbers $a, b$ is zero, then the problem has at most one solution, so these cases, we will in this section be excluded from consideration.
+
+First we find the solution that minimizes a suitable $x$, i.e. $x \ge min_x$. To do this, first find the solution of any Diophantine equation (see point 1). Then get the solution with the smallest $x \ge min_x$ --- for this we use the procedure described in the preceding paragraph, and will decrease/increase $x$ until it will be $\ge min_x$, and with a minimum. It can be done in $O(1)$, considering the coefficient need to apply this conversion to obtain the minimum number greater than or equal to $min_x$. Let us denote the found $x$ via $lx1$.
+
+Similarly, you can find a solution with the maximum appropriate $x=rx1$, i.e. $x \le max_x$.
+
+Then move on to the satisfaction of the restrictions on $y$, i.e. to consider the segment $[min_y;max_y]$. As described above, we will find the solution that minimizes $y \ge min_y$, and the solution with maximum $y \le max_y$. Denote $x$-coefficients of these solutions through $lx2$ and $rx2$ respectively.
+
+Cross cuts $[lx1;rx1]$ and $[lx2;rx2]$; denote the resulting segment using $[lx;rx]$. It is argued that any decision which has $x$-coefficient is $[lx;rx]$ --- any such decision is appropriate. (This is true by construction of this segment: first, we separately satisfy the constraints on $x$ and $y$, having two segments, and then crossed them, obtaining the area in which both conditions are satisfied.)
+
+Thus, the number of solutions will be equal to the length of this section, divided by $|b|$ (since $x$-coefficient can only change by $\pm b$), and plus one.
+
+Here is an implementation (it was quite complex, since it is required to carefully consider the cases of positive and negative coefficients $a$ and $b$):
+
+\code
+shift_solution void (int & x, int & y, int a, int b, int cnt) {
+x += cnt * b;
+ y= cnt * a;
+}
+
+find_all_solutions int (int a, int b, int c, int minx, int maxx, int miny, int maxy) {
+int x, y, g;
+if (! find_any_solution (a, b, c, x, y, g))
+return 0;
+a /= g; b /= g;
+
+int sign_a = a>0 ? +1 : -1;
+int sign_b = b>0 ? +1 : -1;
+
+shift_solution (x, y, a, b, (minx - x) / b);
+if (x < minx)
+shift_solution (x, y, a, b, sign_b);
+if (x > maxx)
+return 0;
+int lx1 = x;
+
+shift_solution (x, y, a, b, (maxx - x) / b);
+if (x > maxx)
+shift_solution (x, y, a, b, -sign_b);
+int rx1 = x;
+
+shift_solution (x, y, a, b, - (miny - y) / a);
+if (y < miny)
+shift_solution (x, y, a, b, -sign_a);
+if (y > maxy)
+return 0;
+int lx2 = x;
+
+shift_solution (x, y, a, b, - (maxy - y) / a);
+if (y > maxy)
+shift_solution (x, y, a, b, sign_a);
+int rx2 = x;
+
+if (lx2 > rx2)
+swap (lx2, rx2);
+int lx = max (lx1, lx2);
+int rx = min (rx1, rx2);
+
+return (rx - lx) / abs(b) + 1;
+}
+\endcode
+
+Also it is easy to add to this implementation, the output of all found solutions: it is enough to iterate over $x$ in the interval $[lx;rx]$ with a step $|b|$, finding each of them corresponding to $y$ directly from the equation $ax+by=c$.
+
+
+\h2{ finding a solution in the given range with the lowest sum of x+y }
+
+Here $x$ and $y$ must also be imposed any restrictions, otherwise the answer will almost always be negative infinity.
+
+The solution is the same as in the previous paragraph: first, find any solution of the Diophantine equation, then, applying as in the previous paragraph the procedure, come to the best solution.
+
+Indeed, we have the right to perform the following transform (see previous paragraph):
+
+$$ \cases{
+x^\prime = x + k \cdot (b/g), \cr
+y^\prime = y - k \cdot (a/g),
+} ~~~~ k \in Z.$$
+
+Note that the sum $x+y$ changes as follows:
+
+$$x^\prime + y^\prime = x + y + k \cdot (b/g - a/g) = x + y + k \cdot (b - a) / g.$$
+
+I.e. if $a < b$, then you need to choose the least possible value of $k$, if $a > b$, then you need to choose the largest possible value of $k$.
+
+If $a = b$, then we won't be able to find a better solution, --- all decisions will have the same amount.
+
+
+
+\h2{ Problem in online judges }
+
+The list of tasks that can be taken on the subject of Diophantine equations with two unknowns:
+
+\ul{
+
+\li \href=http://acm.sgu.ru/problem.php?contest=0&problem=106{SGU #106 \bf{"The Equation"} ~~~~ [difficulty: medium]}
+
+}

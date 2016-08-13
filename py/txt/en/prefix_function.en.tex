@@ -1,0 +1,307 @@
+\h1{ Prefix-function. Algorithm The Knuth-Morris-Pratt }
+
+
+\h2{ Prefix-function. Definition }
+
+Given a string $s[0 \ldots n-1]$. You want to calculate for her the prefix function, i.e. an array of numbers $\pi[0 \ldots n-1]$, where $\pi[i]$ is defined as follows: is such the greatest length of the longest own suffix of the substring $s[0 \ldots i]$, which coincides with its prefix (suffix own --- so not matching the entire string). In particular, the value of $\pi[0]$ to be equal to zero.
+
+Mathematically the definition of the prefix function can be written as follows:
+
+$$ \pi[i] = \max_{k=0 \ldots i} ~ \{ ~ k ~ : ~ s[0 \ldots k-1] = s[i-k+1 \ldots i] ~ \}. $$
+
+For example, for the string "abcabcd" prefix-function is equal to: $[0, 0, 0, 1, 2, 3, 0]$, which means:
+\ul{
+\li the string "a" has no non-trivial prefix that matches a suffix;
+\li the string "ab" has no non-trivial prefix that matches a suffix;
+\li the string "abc" has no non-trivial prefix that matches a suffix;
+\li the string "abca" is the prefix of length $1$ coincides with a suffix;
+\li the string "abcab" is the prefix of length $2$ coincides with a suffix;
+\li the string "abcabc" is the prefix of length $3$ coincides with a suffix;
+\li the string "abcabcd" no non-trivial prefix that matches a suffix.
+}
+
+Another example --- for the line "aabaaab" it is: $[0, 1, 0, 1, 2, 2, 3]$.
+
+
+\h2{ a Trivial algorithm }
+
+Directly following the definition, we can write this algorithm for computing the prefix-function:
+
+\code
+vector<int> prefix_function (string s) {
+int n = (int) s.length();
+vector<int> pi (n);
+for (int i=0; i<n; ++i)
+for (int k=0; k<=i; ++k)
+if (s.substr(0,k) == s.substr(i-k+1,k))
+pi[i] = k;
+return pi;
+}
+\endcode
+
+As you can see, it will be $O(n^3)$, which is too slow.
+
+
+\h2{ Effective algorithm }
+
+This algorithm was developed by Knuth (Knuth) and Pratt (Pratt) and independently by Morris (Morris) in 1977 (as the main element for the search algorithm of substring in string).
+
+\h3{ First optimization }
+
+The first important observation is that the value of $\pi[i+1]$ is not more than one exceeds the value of $\pi[i]$ for any $i$.
+
+Indeed, otherwise, if $\pi[i+1] > \pi[i] + 1$, then consider this suffix ending at position $i+1$ and having length $\pi[i+1]$ --- removing the last character, we get the suffix ending at position $i$ and having length $\pi[i+1]-1$, like $\pi[i]$, i.e. a contradiction. An illustration of this contradiction (in this example, $\pi[i-1]$ should be equal to 3):
+
+$$ \underbrace{ \overbrace{s_0 \ s_1}^{\pi[i-1]=2} \ s_2 \ s_3}_{\pi[i]=4} \ \ldots\ \underbrace{ s_{i-3}\ \overbrace{s_{i-2}\ s_{i-1}}^{\pi[i-1]=2} \ s_i}_{\pi[i]=4} $$
+
+(in this diagram the upper braces indicate two identical substrings of length 2, lower brace --- two identical substrings of length 4)
+
+Thus, when you move to the next position of the next element of the prefix-function could either increase by one, or not change, or decrease to any size. This fact allows us to reduce the complexity to $O(n^2)$ --- because in one step the value could rise to a maximum per unit, then the total for the entire row can occur a maximum of $n$ increases by one, and, as a consequence (because the value could never be less than zero), the maximum of $n$ reductions. This will result in a $O(n)$ comparisons of strings, i.e. we already reached the asymptotic behavior of $O(n^2)$.
+
+\h3{ Second optimization }
+
+Go ahead --- \bf{get rid of explicit comparisons of substrings}. To do this, we will try to use the information computed in previous steps.
+
+So, suppose we calculated the value of the prefix function $\pi[i]$ for some $i$. Now, if $s[i+1] = s[\pi[i]]$, then we can safely say that $\pi[i+1] = \pi[i] + 1$, this illustrates the pattern:
+
+$$ \underbrace{ \overbrace{s_0 \ s_1 \ s_2}^{\pi[i]} \ \overbrace{s_3}^{s_3=s_{i+1}}}_{\pi[i+1]=\pi[i]+1} \ \ldots\ \underbrace{ \overbrace{s_{i-2}\ s_{i-1}\ s_i}^{\pi[i]} \ \overbrace{s_{i+1}}^{s_3=s_{i+1}}}_{\pi[i+1]=\pi[i]+1} $$
+
+(in this diagram, again the same curly brackets denote the same substring)
+
+Now suppose, on the contrary, was that the $s[i+1] \ne s[\pi[i]]$. Then we need to try to try a sub-string of a smaller length. For optimization purposes I would like to change to a (maximum) length $j < \pi[i]$ that still runs the prefix-property at position $i$, i.e. $s[0 \ldots j-1] = s[i-j+1 \ldots i]$:
+
+$$ \overbrace{\underbrace{s_0 \ s_1}_{j} \ s_2 \ s_3}^{\pi[i]} \ \ldots\ \overbrace{ s_{i-3}\ s_{i-2} \underbrace{s_{i-1}\ s_{i}}_{j}}^{\pi[i]} \ s_{i+1} $$
+
+Indeed, when we find a length of $j$, we will again compare the characters of $s[i+1]$ and $s[j]$ --- if they match, then it can be argued that $\pi[i+1] = j+1$. Otherwise we will have to find again smaller (the next largest) to the value of $j$ being the prefix property, and so on. It may happen that such values of $j$ over --- this happens when $j=0$. In this case, if $s[i+1]=s[0]$, then $\pi[i+1]=1$, otherwise $\pi[i+1]=0$.
+
+So, the General scheme of the algorithm we already have, unresolved remained only the question of finding the effective lengths of such $j$. We will put the question formally: the current length of the $j$ and $i$ (which is the prefix property, i.e., $s[0 \ldots j-1] = s[i-j+1 \ldots i]$) is required to find the largest $k < j$, which still is the prefix property:
+
+$$ \overbrace{\underbrace{s_0 \ s_1}_{k} \ s_2 \ s_3}^{j} \ \ldots\ \overbrace{ s_{i-3}\ s_{i-2} \underbrace{s_{i-1}\ s_{i}}_{k}}^{j} \ s_{i+1} $$
+
+After such a detailed description almost suggests that this value of $k$ is not that other, as the value of the prefix function $\pi[j-1]$, which has already been computed previously (the subtraction unit appears due to 0-indexing rows). Thus, find the length $k$, we may $O(1)$ each.
+
+\h3{ Final algorithm }
+
+So, finally we built an algorithm that does not contain an explicit string comparisons and performs $O(n)$ actions.
+
+We present here the resulting algorithm:
+
+\ul{
+
+\li to read the values of the prefix function $\pi[i]$ will be: $i=1$ to $i=n-1$ (the value $\pi[0]$ just assign zero).
+
+\li To calculate the current value of $\pi[i]$ we have $j$ denoting the current length of the considered sample. Start with $j = \pi[i-1]$.
+
+\li the Test sample of length $j$ for which compare the symbols $s[j]$ and $s[i]$. If they are the same --- we believe $\pi[i] = j+1$ and go to next index $i+1$. If the symbols differ, diminish the length of $j$, assuming it equal to $\pi[j-1]$, and repeat this step of the algorithm from the beginning.
+
+\li If we have reached lengths $j=0$ and so and not found a match, we stop the process of iterating through designs and assume $\pi[i] = 0$ and move on to next index $i+1$.
+}
+
+\h3{ Implementation }
+
+Algorithm the result is surprisingly simple and concise:
+
+\code
+vector<int> prefix_function (string s) {
+int n = (int) s.length();
+vector<int> pi (n);
+for (int i=1; i<n; ++i) {
+int j = pi[i-1];
+while (j > 0 && s[i] != s[j])
+j = pi[j-1];
+if (s[i] == s[j]) ++j;
+pi[i] = j;
+}
+return pi;
+}
+\endcode
+
+As you can see, this algorithm is \bf{online} algorithm, i.e. it processes data on-the-go receipt --- you can, for example, to read the string one character at once and to handle the character, finding the answer to the next position. The algorithm requires storage of the previous line and the calculated values for the prefix-function, however, as you can see, if we know in advance the maximum value that can take the prefix-function on the entire string, it will suffice to store only one more than the number of first characters of the string and the values of the prefix-function.
+
+
+\h2{ Application }
+
+
+\h3{ Search for substring in string. Algorithm The Knuth-Morris-Pratt }
+
+This is a classic use of the prefix-function (and, in fact, she was opened in this regard).
+
+Given a text $t$ and a string $s$, you want to find and print the positions of all occurrences of the string $s$ in a text $t$.
+
+We denote for convenience through $n$ the length of the string $s$ and using $m$ --- the length of the text $t$.
+
+Formed by the string $s + \# + t$ where the symbol $ \ # $ is a separator that not have nowhere else to meet. Calculate for the line the prefix function. Now consider values, except for the first $n+1$ (which, as seen, relate to the string $s$ and the separator). By definition, the value $\pi[i]$ indicates the length of the longest substring ending at position $i$ and matches the prefix. But in our case it is $\pi[i]$ --- in fact, the length of the longest block match with the string $s$ and ending at position $i$. More than $n$, this length can not be --- due to the separator. But the equality $\pi[i] = n$ (where it is achieved) indicates that in position $i$ ends desired occurrence of the string $s$ (just don't forget that all positions are measured in cemented string $s+\#+t$).
+
+Thus, if at some position $i$ was $\pi[i] = n$, the position $i - (n + 1) n + 1 = i - 2 n$ rows of $t$ will start the next occurrence of the string $s$ in the line $t$.
+
+As mentioned in the description of the algorithm for computing the prefix-function, if it is known that the values of the prefix-function does not exceed a certain value, it is sufficient to store the entire string and the prefix-function, but only its beginning. In our case, this means that you need to store in memory only a string $s + \#$ and the value of the prefix-function on it, and then read a single character a string $t$ and recalculate the current value of the prefix-function.
+
+So, the algorithm the Knuth-Morris-Pratt solves this problem in $O(n+m)$ time and $O(n)$ memory.
+
+
+\h3{ count the number of occurrences of each prefix }
+
+Here we consider two problems at once. Given a string $s$ of length $n$. In the first embodiment is required for each prefix $s[0 \ldots i]$ count the number of times it occurs in the same row of $s$. In the second embodiment, the tasks given another string $t$, and is required for each prefix $s[0 \ldots i]$ count the number of times it occurs in $t$.
+
+Decide the first task. Consider any $i$ the value of the prefix of the functions are $\pi[i]$. By definition, it means that in position $i$ ends with the occurrence of the prefix of the string $s$ of length $\pi[i]$, and no more prefix will end at position $i$. At the same time, in the position $i$ could end on the occurrence of prefixes smaller lengths (and, obviously, not necessarily of length $\pi[i]-1$). However, as you can see, we came to the same question that we already answered when considering the algorithm for computing the prefix-function: on the length of the $j$ I must say, what her own longest suffix match its prefix. We have found that the answer to this question will be $\pi[j-1]$. But then in this task, if at position $i$ ends with the occurrence of the substring of length $\pi[i]$, matches the prefix, then $i$ ends at occurrence of the substring of length $\pi[\pi[i]-1]$, match the prefix and apply the same reasoning, so $i$ ends and the entry of length $\pi[\pi[\pi[i]-1]-1]$ and so on (until the index becomes zero). Thus, to calculate the answer we must execute this loop:
+
+\code
+vector<int> ans (n+1);
+for (int i=0; i<n; ++i)
+++ans[pi[i]];
+for (int i=n-1; i>0; --i)
+ans[pi[i-1]] += ans[i];
+\endcode
+
+We are here for each value of the prefix-function is first counted how many times he had met in the array $\pi [a]$, then considered such kind of dynamics: if we know that the prefix of length $i$ met ${\rm ans}[i]$ times, then exactly this number must be added to the number of occurrences of its own longest suffix that matches its prefix; then from this suffix (of course, smaller than $i$ length) executed "probrasyvanie" this number to its suffix, etc.
+
+Now consider the second task. Apply the standard trick: we can assign to the string $s$ the line $t$ through the separator, i.e. get the string $s+\#+t$ and add it to the prefix function. The only difference from the first problem is that we need to consider only those values of the prefix-function, which belong to the line $t$, i.e. all $\pi[i]$ for $i \ge n+1$.
+
+
+\h3{ Number of different substrings in the string }
+
+Given a string $s$ of length $n$. You want to count the number of its distinct substrings.
+
+We solve this problem iteratively. Namely, learn by knowing the current count of different substrings, recalculate this amount when added to the end of one symbol.
+
+So, let $k$ --- the current number of distinct substrings of $s$, and we add to the end of the symbol $c$. Obviously, the result could be some new substrings ending in this new symbol $c$. Namely, are added as new those substrings that end in the character $c$ and not seen before.
+
+Take the line $t = s + c$ and invert it (write the characters in reverse order). Our task is to count the number of rows of $t$ such prefixes, are not found in it elsewhere. But if we count for the row $t$ prefix-function and find its maximum value $\pi_{\rm max}$, then, obviously, in the string $t$ occurs (not at the beginning) its prefix of length $\pi_{\rm max}$, but not greater length. Clearly, the prefixes of shorter length certainly meet it.
+
+Thus we have that the number of new substrings that appear when appending symbol $c$, is $s.{\rm length}() + 1 - \pi_{\rm max}$.
+
+Thus, for each symbol, we append $O(n)$ can count the number of different substrings of the string. Therefore, $O(n^2)$ we can find the number of different substrings of any given string.
+
+It is worth noting that no one can count the number of distinct substrings and the appending of the symbol in the beginning and when you remove character from the end or from the beginning.
+
+
+\h3{ row Compression }
+
+Given a string $s$ of length $n$. You want to find the shortest its "compressed" representation, i.e. to find a line $t$ of minimum length that $s$ can be represented as a concatenation of one or more copies of $t$.
+
+It is clear that the problem is in finding the length of a string $t$. Knowing the length, the answer to the problem would be, for example, the prefix of the string $s$ of this length.
+
+Count line $s$ prefix-function. Consider its last value, i.e. $\pi[n-1]$, and we introduce the notation $k = n - \pi[n-1]$. We show that if $n$ divides $k$, then $k$ will be the length of the response, otherwise effective compression does not exist, and the answer is $n$.
+
+Indeed, let $n$ divides $k$. Then the string can be represented in the form of several blocks of length $k$, and, by definition, the prefix options, the prefix of length $n-k$ will be the same as its suffix. But then the last block will be the same as the penultimate, the penultimate with preparedpattern, etc. the end result is that all the blocks blocks are the same, and such $k$ really fits the answer.
+
+We will show that this answer is optimal. Indeed, otherwise, if there were a smaller $k$, then the prefix-function in the end would be more than $n-k$, i.e. a contradiction.
+
+Now suppose that $n$ not divisible by $k$. We will show that this implies that the length of answer is equal to $n$. Let us prove by contradiction - - assume that the answer exists, and has length $p$ ($p$ a divisor of $n$). Note that the prefix function must be greater than $n - p$, i.e. the suffix to partially cover the first block. Now consider the second block row; since the prefix matches with the suffix, and the prefix and suffix cover this block, and their offsets relative to each other $k$ does not divide the length of the block $p$ (otherwise $k$ divide $n$), then all characters of the block are the same. But then the string consists of one symbol, hence $k=1$, the answer should exist, i.e. we arrive to the contradiction.
+
+$$ \overbrace{s_0\ s_1\ s_2\ s_3}^{p}\ \overbrace{s_4\ s_5\ s_6\ s_7}^{p} $$
+$$ s_0\ s_1\ s_2\ \underbrace{\overbrace{s_3\ s_4\ s_5\ s_6}^{p}\ s_7}_{\pi[7]=5} $$
+$$ s_4=s_3,\ \ s_5=s_4,\ \ s_6=s_5,\ \ s_7=s_6\ \ \ \ \Longrightarrow\ \ \ \ s_0=s_1=s_2=s_3 $$
+
+
+\h3{ Construction of automatic prefix-function }
+
+Back to have repeatedly used to receive a concatenation of two strings using a delimiter, i.e., given strings $s$ and $t$ the computation of the prefix function for a string $s+\#+t$. Obviously, because the symbol $\#$ is the delimiter, then the value of the prefix-function will never exceed $s.{\rm length} (a)$. It follows that, as mentioned in the description of algorithm of calculation a prefix function, one can just store a string $s+\#$ and the value of the prefix function for her, and for all subsequent characters to the prefix function to compute on the fly:
+
+$$ \underbrace{s_0\ s_1\ \ldots\ s_{n-1}\ \#}_{\rm need\ to\ save} \underbrace{t_0\ t_1\ \ldots\ t_{m-1}}_{\rm need\ not\ to\ save} $$
+
+Indeed, in such situations, knowing the next character $c \in t$ and the value of the prefix-function in the previous position, it will be possible to calculate the new value of the prefix-function does not using any previous characters in the string $t$ and the value of the prefix-function in them.
+
+In other words, we can build \bf{machine}: the state in it will be the current value of the prefix-function, transitions from one state to another will be carried out under the action of the character:
+
+$$ s_0\ s_1\ \ldots\ s_{n-1}\ \# \underbrace{\ldots}_{\pi[i-1]}\ \ \Longrightarrow\ \ s_0\ s_1\ \ldots\ s_{n-1}\ \# \underbrace{\ldots}_{\pi[i-1]} + t_i\ \ \Longrightarrow\ \ s_0\ s_1\ \ldots\ s_{n-1}\ \# \ldots \underbrace{t_i}_{\pi[i]} $$
+
+Thus, even lacking the string $t$, we can pre-build a table of transitions $({\rm old}\_\pi,c) \rightarrow {\rm new}\_\pi$ using the same algorithm for computing the prefix-function:
+
+\code
+string s; // input string
+const int alphabet = 256; // power of the alphabet of symbols, usually less
+
+s += '#';
+int n = (int) s.length();
+vector<int> pi = prefix_function (s);
+vector < vector<int> > aut (n, vector<int> (alphabet));
+for (int i=0; i<n; ++i)
+for (char c=0; c<alphabet; c++) {
+int j = i;
+while (j > 0 && c != s[j])
+j = pi[j-1];
+if (c == s[j]) ++j;
+aut[i][c] = j;
+}
+\endcode
+
+However, in this form, the algorithm will work for $O(n^2 k)$ ($k$ --- the power of the alphabet). But note that the inner loop is $\rm while$, which gradually shortens the response, we can use the already computed part of the table: passing the value of $j$ to the value $\pi[j-1]$, we actually say that the change from $(j, c)$ will lead to the same state as the transition $(\pi[j-1], c)$, and for him the answer is calculated exactly (since $\pi[j-1] < j$):
+
+\code
+string s; // input string
+const int alphabet = 256; // power of the alphabet of symbols, usually less
+
+s += '#';
+int n = (int) s.length();
+vector<int> pi = prefix_function (s);
+vector < vector<int> > aut (n, vector<int> (alphabet));
+for (int i=0; i<n; ++i)
+for (char c=0; c<alphabet; c++)
+if (i > 0 && c != s[i])
+aut[i][c] = aut[pi[i-1]][c];
+else
+aut[i][c] = i + (c == s[i]);
+\endcode
+
+The result was a very simple implementation of building a machine, working for $O(n k)$.
+
+When you may be useful such a machine? To begin, recall that we consider the prefix function for a string $s+\#+t$, and its values are usually used with a single purpose: to find all occurrences of the string $s$ in the line $t$.
+
+Therefore, the most obvious benefit of the construction of such a machine --- \bf{acceleration of computing the prefix-function} for the string $s+\#+t$. Building on the line $s+\#$ machine, we no longer need the string $s$, nor the value of the prefix-function in it, not needed and no calculation --- all transitions (i.e., how it will change the prefix-function) predpochytaly already in the table.
+
+But there's a second, less obvious application. This is the case when the line $t$ \bf{is a huge string constructed according to some rule}. This can be, for example, the gray line or the line formed by the recursive combination of several short strings fed to the input.
+
+Let for definiteness, we solve \bf{a problem}: given a number $k \le 10^5$ rows gray, and given a string $s$ of length $n \le 10^5$. You want to count the number of occurrences of the string $s$ in $k$-th row gray. Recall that the gray lines are defined as follows:
+
+$ g_1 = "a" $$
+$$ g_2 = "aba" $$
+$$ g_3 = "abacaba" $$
+$$ g_4 = "abacabadabacaba" $$
+$$ \ldots $$
+
+In such cases, even just to build a string $t$ will fail because of its astronomical length (for example, $k$-th row gray has length $2^k-1$). However, we can calculate the value of the prefix-function at the end of this line, knowing the meaning of the prefix-function, which was before the beginning of the line.
+
+So, in addition the machine will also calculate such values: $G[i][j]$ --- the value of the machine is achieved after "feeding" him a line of $g_i$, if the machine was in state $j$. The second value --- $K[i][j]$ --- the number of occurrences of the string $s$ in the line $g_i$, if "feeding" this string $g_i$ the machine was in state $j$. In fact, $K[i][j]$ is the number of times the machine took the value of $s.{\rm length} (a)$ during the "feeding" of the string $g_i$. It is clear that the answer to the problem is the value of $K[k][0]$.
+
+How to read these values? First, base values are $G[0][j] = j$, $K[0][j] = 0$. And all subsequent values can be calculated from the previous values and using the machine. So, to calculate these values for some $i$ we recall that the string $g_i$ consists of $g_{i-1}$ plus the $i$-th character of the alphabet plus again $g_{i-1}$. Then after "feeding" of the first piece ($g_{i-1}$), the automaton transitions to state $G[i-1][j]$, then after "feeding" symbol ${\rm char}_i$, he will become the state:
+
+$$ {\rm mid} = {\rm aut}[\ G[i-1][j]\ ][{\rm char}_i] $$
+
+After that the machine is "fed" the last piece, i.e., $g_{i-1}$:
+
+$$ G[i][j] = G[i-1][{\rm mid}] $$
+
+The number of $K[i][j]$ can be easily calculated as the sum of the amounts for the three pieces $g_i$: line $g_{i-1}$, the symbol ${\rm char}_i$, and again the line $g_{i-1}$:
+
+$$ K[i][j] = K[i-1][j] + ({\rm mid} == s.{\rm length}()) + K[i-1][mid] $$
+
+So, we have solved the problem for gray lines, similarly, you can solve a whole class of such problems. For example, exactly the same method is applied to the \bf{next task}: given a string $s$, and samples $t_i$, each of which is defined as follows: is a string of normal characters, which can meet recursive insert other strings in the form $t_k[\rm cnt]$, which means that this place should be inserted $\rm cnt$ instances of the string $t_k$. An example of such scheme:
+
+$$ t_1 = "abdeca" $$
+$$ t_2 = "abc" + t_1[30] + "abd" $$
+$$ t_3 = t_2[50] + t_1[100] $$
+$$ t_4 = t_2[10] + t_3[100] $$
+
+It is guaranteed that this description does not contain cyclic dependencies. The limitations are that if explicitly solve the recursion and find row $t_i$, then their length can reach about $100^{100}$.
+
+You want to find the number of occurrences of the string $s$ in each row $t_i$.
+
+The problem is solved in the same way, the construction machine prefix-function, then we have to calculate and add the transitions on the whole row $t_i$. In General, it's just a more General case compared to the gray lines.
+
+
+\h2{ Problem in online judges }
+
+The list of tasks that can be solved by using the prefix-function:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=396{UVA #455 \bf{"Periodic Strings"} ~~~~ [difficulty: medium]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1963{UVA #11022 \bf{"String Factoring"} ~~~~ [difficulty: medium]}
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=2447{UVA #11452 \bf{"Dancing the Cheeky-Cheeky"} ~~~~ [difficulty: medium]}
+
+\li \href=http://acm.sgu.ru/problem.php?contest=0&problem=284{SGU #284 \bf{"Grammar"} ~~~~ [difficulty: high]}
+
+}

@@ -1,0 +1,49 @@
+<h1>la Construcción de la envoltura convexa de omisión de graham</h1>
+
+<p>Dados N puntos en el plano. Construir su envoltura convexa, es decir, el mínimo polígono convexo que contiene todos los puntos.</p>
+<p>estudiaremos el método de <b>graham</b> (Graham) (propuesto en 1972) con mejoras andrew (Andrew) (1979). Con su ayuda se puede construir la envoltura convexa de tiempo de <b>O (N log N)</b> utilizando sólo las operaciones de comparación, la suma y la multiplicación. El algoritmo es asintóticamente óptimo (se ha demostrado que no existe un algoritmo con mejor асимптотикой), aunque en algunas tareas se inaceptable (en el caso de procesamiento en paralelo o en línea-procesamiento).</p>
+<h2>Descripción</h2>
+<p>el Algoritmo. Encontraremos a la izquierda y a la derecha los puntos A y B (si tales puntos varios, lo tomaremos más baja entre la izquierda y la superior entre la derecha). Está claro que A y B necesariamente llegarán a la envoltura convexa. Más adelante, pasaremos a través de ellos a la recta AB, dividiendo el conjunto de todos los puntos superior e inferior de los subconjuntos S1 y S2 (los puntos que se encuentran sobre la recta, se puede llevar a cualquier multitud - de todos modos, ellos no entrarán en la envoltura). Los puntos A y B a poner a ambos conjuntos. Ahora construiremos para S1 superior de la envoltura, y para el S2 - inferior de la envoltura, y a combinar, después de recibir la respuesta. Para conseguir, digamos, superior de la envoltura, se debe ordenar todos los puntos de abscisa y, a continuación, ir a por todos los puntos, considerando en cada paso, además de más de un punto, dos puntos anteriores, que han entrado en el contenedor. Si el actual trío de puntos constituye un giro a la derecha (que es fácil de comprobar con la ayuda de <algohref=oriented_area>Orientada hacia la plaza</algohref>), el vecino más cercano que hay que quitar de la cáscara. Al final, sólo será el punto de entrada en la envoltura convexa.</p>
+<p>por lo tanto, el algoritmo consiste en la ordenación de todos los puntos de abscisa y dos (en el peor caso) rastreos de todos los puntos, es decir, la necesaria asíntotas de O (N log N) se ha alcanzado.</p>
+<h2>Realización</h2>
+<code>struct pt {
+double x, y;
+};
+
+bool cmp (pt a, pt b) {
+return a.x < b.x || a.x == b.x && a.y < b.y;
+}
+
+bool cw (pt a, pt b pt c) {
+return a.x*b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y) < 0;
+}
+
+bool ccw (pt a, pt b pt c) {
+return a.x*b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y) > 0;
+}
+
+void convex_hull (vector<pt> & a) {
+if (a.size() == 1) return;
+sort (a.begin(), a.end(), &cmp);
+pt p1 = a[0], p2 = a.back();
+vector<pt> up, down;
+up.push_back (p1);
+down.push_back (p1);
+for (size_t i=1; i<a.size(); ++i) {
+if (i==a.size()-1 || cw (p1, a[i], p2)) {
+while (up).size()>=2 && !cw (up[up.size()-2], arriba[up.size()-1], a[i]))
+up.pop_back();
+up.push_back (a[i]);
+}
+if (i==a.size()-1 || ccw (p1, a[i], p2)) {
+while (down.size()>=2 && !ccw (down[abajo.size()-2], down[abajo.size()-1], a[i]))
+down.pop_back();
+down.push_back (a[i]);
+}
+}
+a.clear();
+for (size_t i=0; i<up.size(); ++i)
+a.push_back (up[i]);
+for (size_t i=down.size()-2; i>0; --i)
+a.push_back (down[i]);
+}</code>

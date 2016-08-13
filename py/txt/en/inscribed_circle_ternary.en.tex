@@ -1,0 +1,95 @@
+the <h1>Finding the incircle of a convex polygon with ternary search</h1>
+
+<p>Given a convex polygon with N vertices. You want to find the coordinates of the center and the radius of the largest inscribed circle.</p>
+<p>this describes a simple method of solving this problem by using two ternary search working for <b>O (N log<sup>2</sup> C)</b>, where C is a coefficient determined by the magnitude of the coordinates and the required accuracy (see below).</p>
+the <h2>the Algorithm</h2>
+<p>Define the <b>Radius (X, Y)</b>, returns the radius of the inscribed in the given polygon is a circle centered at point (X;Y). It is assumed that the points X and Y lie inside (or on the boundary of) the polygon. Obviously, this function is easily implemented with the asymptotic <b>O (N)</b> - just pass on all sides of the polygon, we consider for each the distance to the center (and the distance can be taken from a straight to the point, not necessarily be regarded as a segment), and return the minimum distance found - obviously, he will be the greatest radius.</p>
+<p>so, we need to maximize this function. Note that since the polygon is convex, this function will be suitable for <b>ternary search</b> in both arguments: for any xed X<sub>0</sub> (of course, such that the line X=X<sub>0</sub> intersects the polygon) function Radius(X<sub>0</sub>, Y) as a function of one argument Y will first increase, then decrease (again, we consider only such Y, the point (X<sub>0</sub>, Y) belongs to the polygon). Moreover, the max function (Y) { Radius (X, Y) } as a function of one argument X will first increase, then decrease. These properties are clear from geometric considerations.</p>
+<p>Thus, we need to make two ternary search: X and inside Y, by maximizing the value function of the Radius. The only special moment - you need to choose the boundaries of the ternary search, because the calculation of the Radius function outside of the polygon will not be correct. To search for X any difficulties, simply choose the abscissa of the leftmost and the rightmost point. To search Y find the line segments of the polygon, which gets the current X, and find the ordinates of points of these segments at the abscissa X (vertical line segments are not considered).</p>
+<p>it Remains to estimate <b>complexity</b>. Let the maximum value that can take the coordinates is a C<sub>1</sub>, and the required accuracy of order 10<sup>-C<sub>2</sub></sup>, and let C = C<sub>1</sub> + C<sub>2</sub>. Then the number of steps that will make each ternary search, there is a size O (log C), and total asymptotic form is obtained: O (N log<sup>2</sup> C).</p>
+the <h2>Implementation</h2>
+<p>Constant steps determines the number of steps of both ternary search.</p>
+<p>In implementation it should be noted that for each side immediately predpochitaut the coefficients in the equation of a line, and immediately normalized (divided into sqrt(A<sup>2</sup>+B<sup>2</sup>)) to avoid unnecessary operations inside ternary search.</p>
+<code>const double EPS = 1E-9;
+int steps = 60;
+
+struct pt {
+double x, y;
+};
+
+struct line {
+double a, b, c;
+};
+
+double dist (double x, double y, line & l) {
+return abs (x * l.a + y * l.b + l.c);
+}
+
+double radius (double x, double y, vector<line> & l) {
+int n = (int) l.size();
+double res = INF;
+for (int i=0; i<n; ++i)
+res = min (res, dist (x, y, l[i]));
+return res;
+}
+
+double y_radius (double x, vector<pt> & a, vector<line> & l) {
+int n = (int) a.size();
+double ly = INF, ry = -INF;
+for (int i=0; i<n; ++i) {
+int x1 = a[i].x, x2 = a[(i+1)%n].x, y1 = a[i].y, y2 = a[(i+1)%n].y;
+if (x1 == x2) continue;
+if (x1 > x2) swap (x1, x2), swap (y1, y2);
+if (x1 <= x+EPS && x-EPS <= x2) {
+double y = y1 + (x - x1) * (y2 - y1) / (x2 - x1);
+ly = min (ly, y);
+ry = max (ry, y);
+}
+}
+for (int sy=0; sy<steps; ++sy) {
+double diff = (ry - ly) / 3;
+double y1 = ly + diff, y2 = ry - diff;
+double f1 = radius (x, y1, l), f2 = (radius x, y2, l);
+if (f1 < f2)
+ly = y1;
+else
+ry = y2;
+}
+return radius (x, ly, l);
+}
+
+int main() {
+
+int n;
+vector<pt> a (n);
+... reading a ...
+
+vector<line> l (n);
+for (int i=0; i<n; ++i) {
+l[i].a = a[i].y - a[(i+1)%n].y;
+l[i].b = a[(i+1)%n].x - a[i].x;
+double sq = sqrt (l[i].a*l[i].a + l[i].b*l[i].b);
+l[i].a /= sq, l[i].b /= sq;
+l[i].c = - (l[i].a * a[i].x + l[i].b * a[i].y);
+}
+
+double lx = INF rx = -INF;
+for (int i=0; i<n; ++i) {
+lx = min (lx, a[i].x);
+rx = max (rx, a[i].x);
+}
+
+for (int sx=0; sx<stepsx; ++sx) {
+double diff = (rx - lx) / 3;
+double x1 = lx + diff; x2 = rx - diff;
+double f1 = y_radius (x1, a, l), f2 = y_radius (x2, a, l);
+if (f1 < f2)
+lx = x1;
+else
+rx = x2;
+}
+
+double ans = y_radius (lx, a, l);
+printf ("%.7lf", ans);
+
+}</code>

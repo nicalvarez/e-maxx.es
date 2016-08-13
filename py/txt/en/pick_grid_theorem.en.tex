@@ -1,0 +1,57 @@
+\h1{ Theorem Peak. Finding the square lattice polygon }
+
+The polygon without self-intersections is called a lattice if all its vertices are located at points with integer coordinates (in the Cartesian coordinate system).
+
+
+\h2{ Theorem Peak }
+
+
+\h3{ Formula }
+
+Suppose that we are given a lattice polygon with nonzero area.
+
+Let us denote its area through $S$; number of points with integer coordinates that lie strictly inside the polygon - - - $I$; number of points with integer coordinates lying on the sides of the polygon --- in $B$.
+
+Then the true ratio, called the \bf{formula Peak}:
+
+$$ S = I + \frac{B}{2} - 1. $$
+
+In particular, if the known values of I and B for a polygon, then its area can be computed in $O (1)$, not even knowing the coordinates of its vertices.
+
+This ratio is discovered and proved by the Austrian mathematician Georg Alexander Peak (Georg Alexander Pick) in 1899
+
+
+\h3{ Proof }
+
+The proof is done in several stages: from the simplest shapes to arbitrary polygons:
+
+\ul{
+
+\li Unit square. Indeed, for $S=1$, $I=0$, $B=4$, and the formula is true.
+
+\li an Arbitrary nondegenerate rectangle with sides parallel to the coordinate axes. To prove the formula, we denote by $a$ and $b$ the side lengths of a rectangle. Then find: $S = ab$, $I = (a-1)(b-1)$, $B = 2(a+b)$. Direct substitution verifies that the formula is correct Peak.
+
+\li right-angled triangle with legs parallel to the coordinate axes. For the proof note that any such triangle can be obtained by cutting off some rectangle by its diagonal. Designating by $c$ the number of integer points lying on the diagonal, one can show that the formula is for the Peak of this triangle, regardless of the value of $c$.
+
+\li an Arbitrary triangle. Note that any such triangle can be turned into a rectangle by attaching to the sides of rectangular triangles with legs parallel to the coordinate axes (this will need no more than 3 triangles). Here you can get the correct formulas for any Peak of the triangle.
+
+\li an Arbitrary polygon. Triangulorum to prove it, i.e. we divide into triangles with vertices at the integer points. For one triangle the formula of the Peak we have already proved. Further, it is possible to prove that when added to any arbitrary polygon triangle formula Peak retains its correctness. Hence by induction, it follows that it is true for any polygon.
+
+}
+
+
+\h2{ a Generalization to higher dimension }
+
+Unfortunately, this is so simple and beautiful formula of the Peak of the bad generalized to higher dimensions.
+
+Demonstrated that Reeve (Reeve), offering in 1957, to consider the tetrahedron (now called \bf{a tetrahedron Riva}) with the following peaks:
+
+$$ A = (0,0,0), $$
+$$ B = (1,0,0), $$
+$$ C = (0,1,0), $$
+$$ D = (1,1,k), $$
+
+where $k$ --- any natural number. Then the tetrahedron $ABCD$ with any $k$ contains no points with integer coordinates, and the border --- are only four points $A$, $B$, $C$, $D$ and no others. Thus, the volume and surface area of the tetrahedron may be different, while the number of points inside and on the border --- unchanged; hence, the formula of the Peak does not allow for generalizations to three-dimensional even case.
+
+However, such a generalization to spaces with higher dimension is still there, is the \bf{Ehrhart polynomials} (Ehrhart Polynomial), but they are very complex, and depend not only on the number of points inside and on the boundary of the figure.
+

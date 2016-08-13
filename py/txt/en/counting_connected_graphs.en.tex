@@ -1,0 +1,48 @@
+\h2{the Number of labeled graphs}
+
+Given a number $N$ vertices. You want to count the number $G_N$ different labelled graphs with $N$ vertices (i.e. the vertices marked with distinct numbers from $1$ to $N$, and the graphs are compared with that painting of the vertices). Neuorientierung edges of a graph, loops and multiple edges are forbidden.
+
+Consider the set of all possible edges in the graph. For any edge $(i,j)$ we assume that $i<j$ (based on reorientational count and the absence of loops). Then the set of all possible edges of the graph has a capacity of $C_N^2$, i.e. $\frac{ N (N-1) }{ 2 }$.
+
+Since every labeled graph is uniquely determined by its edges, the number of labeled graphs with $N$ vertices is equal to:
+$$ G_N = 2^{ \frac{ N (N-1) }{ 2 } } $$
+
+\h2{the Number of connected labeled graphs}
+
+Compared to the previous task, we additionally impose the restriction that the graph must be connected.
+
+We denote the number sought through $Conn_N$.
+
+Learn, conversely, to count the number of \bf{incoherent} graph; then the number of connected graphs happens as $G_N$ minus the number found. Moreover, learn to count the number of \bf{root} (i.e., with a distinguished vertex - the root) \bf{disconnected graph}; then the number of disconnected graphs will be obtained from it by dividing by $N$. Note that since the graph is disconnected, then it will be a connected component within which the root lies, and the rest of the graph will be a few more (at least one) connected components.
+
+Consider the number $K$ of vertices in this connected component containing the root (obviously, $K = 1 \ldots N-1$), and find the number of such graphs. First, we must choose $K$ vertices from $N$, i.e. the answer is multiplied by $C_N^K$. Secondly, the connected component with root gives the factor $Conn_K$. Third, the remaining graph of $N-K$ vertices is a random graph, and therefore it gives the factor $G_{N-K}$. Finally, the number of ways to allocate a root in the connected component of $K$ vertices is $K$. Total, for a fixed $K$ the number of \bf{disjoint root} of graphs is equal to:
+$$ K\ C_N^K\ Conn_K\ G_{N-K} $$
+
+Hence, the number of \bf{incoherent} graphs with $N$ vertices is equal to:
+$$ \frac{1}{N} \sum_{K=1}^{N-1} K\ C_N^K\ Conn_K\ G_{N-K} $$
+
+Finally, the required number \bf{connected} graphs is equal to:
+$$ Conn_N = G_N - \frac{1}{N} \sum_{K=1}^{N-1} K\ C_N^K\ Conn_K\ G_{N-K} $$
+
+\h2{the Number of labeled graphs with $K$ components}
+
+Based on the previous formula to compute the number of labeled graphs with $N$ vertices and $K$ components.
+
+This can be done using dynamic programming. Learn to count \bf{$D[N][K]$} --- the number of labeled graphs with $N$ vertices and $K$ components.
+
+Learn how to compute the element $D[N][K]$, knowing the previous value. We will use a standard technique in solving such tasks: take the vertex with number 1, it belongs to some component, this component and we will sort out. Consider the $S$ of this component, then the number of ways to choose a set of vertices is equal to $C_{N-1}^{S-1}$ (with one vertex --- vertex 1 --- to iterate is not necessary). The number of ways to construct a connected component of $S$ of vertices we already know how to count is $Conn_S$. After removal of this component from the graph we are left with a graph with $N-S$ vertices and $K-1$ components, i.e. our recursive dependency, which can calculate the values $D[][]$:
+
+$$ D[N][K] = \sum_{S=1}^{N} C_{N-1}^{S-1}\ Conn_S\ D[N-S][K-1] $$
+
+So you have code like this:
+\code
+int d[n+1][k+1]; // initially zero
+d[0][0][0] = 1;
+for (int i=1; i<=n; ++i)
+for (int j=1; j<=i && j<=k; ++j)
+for (int s=1; s<=i; ++s)
+d[i][j] += C[i-1][s-1] * conn[s] * d[i-s][j-1];
+cout << d[n][k][n];
+\endcode
+
+Of course, in practice, likely to need \algohref=big_integer{long arithmetic}.

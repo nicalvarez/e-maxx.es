@@ -1,0 +1,109 @@
+\h1{Buscar un componente fuerte de la conectividad, la construcción de la condensación del conde}
+
+\h2{Definición de los objetivos}
+
+Dan orientado hacia el conde de $G$, muchos picos que $V$ y un montón de aristas --- $E$. Bisagras y múltiples costillas están permitidos. Se denota por $n$ el número de vértices de la gráfica, a través de la $m$ --- el número de aletas.
+
+\bf{un Componente fuerte de la conectividad} (strongly connected component) es un (máximo de integración) un subconjunto de vértices $C$, que cualquier par de vértices de este subconjunto son alcanzables entre sí, es decir, $\forall u,v \in C$:
+$$ u \mapsto v, v \mapsto u $$
+donde el símbolo $\mapsto$ de aquí en adelante nos vamos a referir de comunicación, es decir, la existencia de la ruta de la primera cima en la segunda.
+
+Está claro que los componentes de una fuerte conectividad para este punto no se cruzan, es decir, de hecho, es la ruptura de todos los vértices de la gráfica. De ahí es lógico definición de \bf{condensación} $G^{\rm SCC}$ como el conde, procedente del conde de compresión de cada uno de los componentes de una fuerte coherencia en una cima. Cada vértice del conde de condensación corresponde a un componente fuerte de la conectividad de grafo de $G$, y orientada hacia la arista entre dos vértices $C_i$ y $C_j$ el conde de la condensación se lleva a cabo, si hay dos vértices $u \in C_i, v \in C_j$, entre los cuales había una arista en el grafo, es decir, $(u,v) \in E$.
+
+Una propiedad fundamental del conde de condensación, es lo que él \bf{ацикличен}. En efecto, supongamos que $C \mapsto C^\prime$, demostramos que $C^\prime \not\mapsto C$. A partir de la definición de la condensación, encontramos que hay dos picos de $u \in C$ y $v \in C^\prime$ que $u \mapsto v$. Vamos a demostrar de lo contrario, es decir, supongamos que $C^\prime \mapsto C$, entonces hay dos picos de $u^\prime \in C$ y $v^\prime \in C^\prime$ que $v^\prime \mapsto u^\prime$. Pero ya que $u$ y $u^\prime$ están en la misma componente fuerte de la conectividad, entre ellos hay un camino; lo mismo para $v$ y $v^\prime$. Finalmente, uniendo la ruta, obtenemos que $v \mapsto u$ al mismo tiempo $u \mapsto v$. Por lo tanto, $u$ y $v$ deben pertenecer a una componente fuerte de la conectividad, es decir, han recibido la contradicción que se quería demostrar.
+
+Descrito a continuación, el algoritmo asigna en este apartado todos los componentes de una fuerte cohesión. Construir sobre ellos el conde de condensación no es fácil.
+
+\h2{el Algoritmo}
+
+Se describe aquí el algoritmo fue propuesto independientemente Косараю (Kosaraju) y Шариром (Sharir) en 1979, Es muy simple, en la aplicación de un algoritmo basado en dos series \algohref=dfs{búsquedas en profundidad}, y ya trabaja en el tiempo $O(n+m)$.
+
+\bf{En el primer paso} el algoritmo se realiza una serie de recorridos en profundidad, el todo el gráfico. Para ello, hemos проходимся de todas las cimas del conde y de cada uno de los que aún no ha visitado la cima de la llamamos rastreo en profundidad. En este caso, para cada vértice $v$, recordemos \bf{salida} ${\rm tout}[v]$. Estos tiempos de salida desempeñan un papel fundamental en el algoritmo, y esta función se expresa en el siguiente teorema.
+
+Primero vamos a introducir la notación: tiempo de salida de ${\rm tout}[C]$ de los componentes de $C$ fuerte de la conectividad puede definir como el máximo de los valores de ${\rm tout}[v]$ para todo $v \in C$. Además, en la prueba del teorema de mencionar y los tiempos de inicio de sesión en cada cima de ${\rm tin}[v]$, y similar a la de definir los tiempos de la entrada ${\rm tin}[C]$ para cada componente fuerte de la conectividad, como mínimo, a partir de los valores de ${\rm tin}[v]$ para todo $v \in C$.
+
+\bf{Teorema}. Que $C$ y $C^\prime$ --- dos los diversos componentes de una fuerte coherencia, y que en la columna de la condensación entre ellos hay una arista $(C,C^\prime)$. Entonces ${\rm tout}[C] > {\rm tout}[C^\prime]$.
+
+Cuando la evidencia se produce dos fundamentalmente diferentes casos dependiendo de en qué componente de la primera para que se ponga un rastreo en la profundidad, es decir, en función de la relación entre el ${\rm tin}[C]$ y ${\rm tin}[C^\prime]$:
+
+\ul{
+\li de la Primera se ha alcanzado un componente $C$. Esto significa que en algún momento en el tiempo rastreo en la profundidad de la trata en cierta cima $v$ componentes de $C$, el resto de la cima de la componente $C$ y $C^\prime$ aún no visitados. Pero, ya que por la condición de que en la columna de la конденсаций hay una arista $(C,C^\prime)$, entonces desde la cima de $v$ se puede alcanzar no sólo la componente $C$, sino de todo el componente $C^\prime$. Esto significa que cuando se ejecuta desde la cima de $v$ rastreo en profundidad pasará por todos los vértices de la componente $C$ y $C^\prime$, y, entonces, se convertirán en los descendientes con respecto a $v$ en el árbol de la solución en la profundidad, es decir, para cualquier cima de $u \in C \cup C^\prime, u \ne v$ realizará ${\rm tout}[v] > {\rm tout}[u]$, h, etc.
+\li de la Primera se ha alcanzado un componente $C^\prime$. Una vez más, en algún momento en el tiempo rastreo en la profundidad de la trata en cierta cima $v \in C^\prime$, y el resto de la cima de la componente $C$ y $C^\prime$ no visitados. Ya que por la condición de que en la columna de la конденсаций había arista $(C,C^\prime)$, entonces, como consecuencia de ацикличности conde конденсаций, no existe un camino de regreso $C^\prime \not\mapsto C$, es decir, el rastreo en la profundidad de la cima de $v$ no alcanza cimas $C$. Esto significa que serán visitados omisión en profundidad más adelante, desde que ${\rm tout}[C] > {\rm tout}[C^\prime]$, h, etc.
+}
+
+Comprobado el teorema es \bf{la base del algoritmo} la búsqueda de un componente fuerte de la conectividad. De ello se desprende que cualquier arista $(C,C^\prime)$ en la columna de la конденсаций va de los componentes con mayor valor de ${\rm tout}$ en el componente de menor magnitud.
+
+Si nos ordenará todos los vértices $v \in V$ en orden descendente de tiempo de la salida ${\rm tout}[v]$, la primera será cierta la cima de la $u$, propiedad de la "raíz" de un componente fuerte de la conectividad, es decir, que no incluye ninguna arista en el grafo de конденсаций. Ahora nos gustaría iniciar un rastreo de la cima de la $u$, que sólo visitó este componente fuerte de la conectividad y no ha pasado en ninguna otra; aprender a hacer esto, podemos gradualmente seleccionar todos los componentes de una fuerte conectividad: mediante la eliminación del conde de la cima de la primera selección de los componentes, de nuevo nos encontramos entre el resto de la cima de mayor magnitud ${\rm tout}$, vuelva a arrancar de ella este rastreo, etc.
+
+Para aprender a hacer un rastreo, considere \bf{la transposición de una conde} $G^T$, es decir, el conde, que se obtiene de $G$ en un cambio de sentido de cada una de las costillas a lo contrario. Es fácil comprender que en este apartado serán los mismos componentes fuerte de la conectividad, que en el recuadro. Además, el conde de condensación $G^T)^{\rm SCC}$ para él es транспонированному la columna de la condensación inicial del conde de $G^{\rm SCC}$. Esto significa que ahora pendiente de nosotros "raíz" de los componentes ya no va a salir de la aleta en otros componentes.
+
+Por lo tanto, para evitar toda la "raíz" de un componente fuerte de la conectividad, contiene un poco de la cima de la $v$, es suficiente para iniciar el rastreo de la cima de $v$ en el punto $G^T$. Este recorrido por la visita todos los vértices de este componente fuerte de la conectividad y sólo de ellos. Como ya se mencionó, en el más allá, podemos repasar mentalmente eliminar estos picos de la gráfica, encontrar otra cima con un valor máximo de ${\rm tout}[v]$ y ejecutar un rastreo en транспонированном el apartado de ella, etc.
+
+Así, hemos construido el siguiente \bf{el algoritmo} asignación de un componente fuerte de la conectividad:
+
+1 paso. Poner en marcha una serie de rastreo en la profundidad del conde de $G$, lo que devuelve a la cima en orden creciente de tiempo de la salida de ${\rm tout}$, es decir, una lista de $\rm order$.
+
+2 paso. Construir la transposición de una conde de $G^T$. Ejecutar una serie de recorridos en profundidad/ancho de esta recuadro en la forma que determine la lista de $\rm order$ (a saber, en orden inverso, es decir, en orden de reducir el tiempo de salida). Cada conjunto de vértices logrado como consecuencia de un próximo lanzamiento de rastreo, y será el ordinario de un componente fuerte de la conectividad.
+
+\bf{Asíntotas} algoritmo, obviamente, es igual a $O(n+m)$, ya que es sólo dos de rastreo en profundidad/ancho.
+
+Por último, cabe señalar relación con el concepto de \bf{\algohref=topological_sort{topológicas de ordenación}}. En primer lugar, el paso 1 del algoritmo no es más que otro, como топологическую ordenación del conde de $G$ (de hecho, eso es lo que significa la ordenación de los vértices de la hora de salida). En segundo lugar, el propio esquema del algoritmo de tal manera que los componentes de una fuerte conectividad se genera en el orden de la reducción de los tiempos de salida, por lo tanto, se genera componentes de vértices del grafo de la condensación en el orden topológicas de ordenación.
+
+\h2{Aplicación}
+
+\code
+vector < vector<int> > g, gr;
+vector<char> used;
+vector<int> order, component;
+
+void dfs1 (int v) {
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i)
+if (!used[ g[v][i] ])
+dfs1 (g[v][i]);
+order.push_back (v);
+}
+
+void dfs2 (int v) {
+used[v] = true;
+component.push_back (v);
+for (size_t i=0; i<gr[v].size(); ++i)
+if (!used[ gr[v][i] ])
+dfs2 (gr[v][i]);
+}
+
+int main() {
+int n;
+... la lectura de la n ...
+for (;;) {
+int a, b;
+... la lectura ordinaria de la aleta (a,b) ...
+g[a].push_back (b);
+gr[b].push_back (a);
+}
+
+used.assign (n, false);
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs1 (i);
+used.assign (n, false);
+for (int i=0; i<n; ++i) {
+int v = order[n-1-i];
+if (!used[v]) {
+dfs2 (v);
+... ordinario de salida component ...
+component.clear();
+}
+}
+}
+\endcode
+
+Aquí en $\rm g$ se almacena el conde, y $\rm gr$ --- la transposición de una columna. La función $\rm dfs1$ rastrea en la profundidad en la columna de $G$, la función $\rm dfs2$ --- транспонированном $G^T$. La función $\rm dfs1$ rellena la lista con $\rm order$ vértices en orden creciente de tiempo de la salida (de hecho, hace топологическую ordenación). La función $\rm dfs2$ guarda de todos los de la cima en la lista de $\rm component$, que después de cada inicio contendrá la siguiente componente fuerte de la conectividad.
+
+\h2{Literatura}
+
+\ul{
+\li \book{thomas Кормен, charles Лейзерсон, ronald Ривест, clifford stein}{Algoritmos: diseño y análisis de}{2005}{cormen.djvu}
+\li \book{M. Sharir}{A strong-connectivity algorithm and its applications in data-flow
+analysis}{1979}
+}

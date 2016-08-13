@@ -1,0 +1,77 @@
+\h1{ Landmark area of a triangle and the predicate "clockwise" }
+
+
+\h2{ Definition }
+
+Let the given three points $p_1$, $p_2$, $p_3$. Find the value of \bf{landmark square} $S$ of the triangle $p_1 p_2 p_3$, i.e. the square of this triangle, taken with the sign plus or minus depending on the type of rotation formed by the points $p_1$, $p_2$, $p_3$: counterclockwise or her accordingly.
+
+It is clear that, if we learn to compute such a landmark ("targeted") area, we will be able to find a regular area of any triangle, and also can check clockwise or counterclockwise directed any of the three points.
+
+
+\h2{ the Calculation }
+
+We use the notion of \bf{skew} (pseudoscalar) products of vectors. It just doubles the emblematic area of a triangle:
+
+$$ a \land b = |a| |b| \sin \angle (a, b) = 2 S, $$
+
+where the angle $\angle (a, b)$ is taken oriented, i.e. it is the rotation angle between these vectors is counterclockwise.
+
+(Module skew product of two vectors is equal to the module \bf{vector} works.)
+
+Oblique work is calculated as the value of the determinant composed of coordinates of points:
+
+$$ 2 S = \left| \matrix{
+x_1 & y_1 & 1 \cr
+x_2 & y_2 & 1 \cr
+x_3 & y_3 & 1 \cr
+} \right| . $$
+
+Expanding the determinant, we can obtain the following formula:
+
+$$ 2 S = x_1 (y_2 - y_3) + x_2 (y_3 - y_1) + x_3 (y_1 - y_2). $$
+
+You can group the third ingredient with the first two, getting rid of one multiplication:
+
+$$ S 2 = (x_2 - x_1) (y_3 - y_1) - (y_2 - y_1) (x_3 - x_1). $$
+
+The last formula is convenient to spell and remember in matrix form as the following determinant:
+
+$$ 2 S = \left| \matrix{
+x_2 - x_1 & y_2 - y_1 \cr
+x_3 - x_1 & y_3 - y_1 \cr
+} \right| . $$
+
+
+\h2{ the Implementation }
+
+A function that computes twice the significant area of a triangle:
+
+\code
+int triangle_area_2 (int x1, int y1, int x2, int y2, int x3, int y3) {
+return (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+}
+\endcode
+
+A function that returns the normal area of a triangle:
+
+\code
+double triangle_area (int x1, int y1, int x2, int y2, int x3, int y3) {
+return abs (triangle_area_2 (x1, y1, x2, y2, x3, y3)) / 2.0;
+}
+\endcode
+
+Function that checks, forms this three points of a clockwise rotation:
+
+\code
+bool clockwise (int x1, int y1, int x2, int y2, int x3, int y3) {
+return triangle_area_2 (x1, y1, x2, y2, x3, y3) < 0;
+}
+\endcode
+
+Function that checks, forms this three points of rotation counter-clockwise:
+
+\code
+bool counter_clockwise (int x1, int y1, int x2, int y2, int x3, int y3) {
+return triangle_area_2 (x1, y1, x2, y2, x3, y3) > 0;
+}
+\endcode

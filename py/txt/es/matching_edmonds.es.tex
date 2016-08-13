@@ -1,0 +1,304 @@
+\h1{el Algoritmo de Эдмондса encontrar la mayor паросочетания en el arbitrarias columnas}
+
+Dan неориентированный sin ponderar el conde de $G$ c $n$ vértices. Es necesario encontrar en él la mayor паросочетание, es decir la mayor (de potencia) de la multitud de $m$ sus costillas, que ninguno de los dos bordes de una selección no инцидентны unos a los otros (es decir, no son comunes los vértices).
+
+A diferencia del caso de двудольного conde (véase \algohref=kuhn_matching{el Algoritmo de kuhn}), en la columna de $G$, pueden existir ciclos de longitud impar, lo que complica la búsqueda de incrementar las vías.
+
+Veamos primero el teorema de Бержа, de lo que se deduce que, como en el caso de dicotiledóneas de los condes, el mayor паросочетание se puede encontrar con la ayuda amplían las vías.
+
+
+\h2{Aumentan el camino. El Teorema De Бержа}
+
+Que registró un паросочетание $M$. Entonces la cadena simple $P = (v_1, v_2, \ldots, v_k)$ se llama rotatoria de la cadena, si la aleta de la cola pertenecen - no pertenecen паросочетанию $M$. Alternante de un centinela efectuada la cadena se llama lo que, si la primera y la última cima no pertenecen паросочетанию. En otras palabras, la cadena simple $P$ es lo que entonces, y sólo entonces, cuando la cima de $v_1 \not\in M$, la arista $(v_2,v_3) \in M$, la arista $(v_4,v_5) \in M$, ..., la arista $(v_{k-2},v_{k-1}) \in M$, y la cima de $v_k \not\in M$.
+
+\img{edmonds_1.png}
+
+\bf{Teorema de Бержа} (Claude Berge, 1957). Паросочетание $M$ es mayor entonces, y sólo entonces, cuando para él no existe lo de la cadena.
+
+\bf{Prueba de la necesidad de}. Deje que паросочетания $M$ hay incrementa la cadena $P$. Mostraremos cómo ir a паросочетанию de mayor potencia. Vamos a realizar la rotación de паросочетания $M$ a lo largo de esta cadena $P$, es decir, pagaremos en паросочетание de la aleta $(v_1,v_2)$, $(v_3,v_4)$, ..., $(v_{k-1},v_k)$, y eliminamos паросочетания de la aleta $(v_2,v_3)$, $(v_4,v_5)$, ..., $(v_{k-2},v_{k-1})$. En consecuencia, es evidente, se ha recibido la correcta паросочетание, la potencia que sea una unidad mayor que el de паросочетания $M$ (ya que agregamos $k/2$ de los bordes, y eliminado $k/2-1$ arista).
+
+\bf{Prueba de suficiencia}. Deje que паросочетания $M$ no existe lo de la cadena, se demostrará que es el más grande. Que $\overline M$ --- el mayor паросочетание. Veamos симметрическую diferencia $\overline G = M \oplus \overline M$ (es decir, la multitud de aristas, de propiedad de o $M$ o $\overline M$, pero no ambos a la vez). Mostraremos que $\overline G$ contiene el mismo número de aristas de $M$ y $\overline M$ (ya que hemos eliminado de $\overline G$ sólo para ellos, de costilla, de ahí va a seguir y $|M| = |\overline M|$). Tenga en cuenta que $\overline G$ es sólo de simples cadenas y ciclos (porque de lo contrario, una cima sería инцидентны en seguida dos bordes de cualquier паросочетания, lo cual es imposible). Además, los ciclos no pueden tener una longitud impar ((por la misma razón). El circuito en $\overline G$ no puede tener una longitud impar (o, de lo contrario hubiera sido amplificada de la cadena para $M$, lo que contradice la condición, o para $\overline M$, lo que contradice su максимальности). Por último, en pares ciclos y cadenas de longitudes de pares en $\overline G$ costillas alternativamente se incluyen $M$ y $\overline M$, lo que significa que $\overline G$ incluye el mismo número de aristas de $M$ y $\overline M$. Como se mencionó anteriormente, se deduce que $|M| = |\overline M|$, es decir $M$ es el valor más alto паросочетанием.
+
+El teorema de Бержа proporciona una base para el algoritmo Эдмондса --- buscar aumentan las cadenas y bandas a lo largo de ellos, mientras que aumentan el circuito está.
+
+
+\h2{el Algoritmo de Эдмондса. La compresión de las flores}
+
+El principal problema es cómo encontrar aumenta la ruta. Si en el grafo tiene ciclos de longitud impar, entonces simplemente ejecutar un rastreo en la profundidad, la anchura, no se puede.
+
+Se puede poner fácil контрпример, cuando desde uno de los vértices de un algoritmo, no se procesa especialmente los ciclos de longitud impar (de hecho, \algohref=kuhn_matching{el Algoritmo de kuhn}) no se encuentra aumenta la ruta, aunque debería. Es un ciclo de longitud 3 colgado en ella el borde, es decir, el conde de 1-2, 2-3, 3-1, 2-4, y el borde de 2-3 tomado en паросочетание. Entonces cuando se inicia desde la cima de la 1, si el rastreo de ir el primero en la cima de la 2, "toque" en la cima de la 3, en lugar de encontrar mejoran la cadena de 1-3-2-4. Es cierto que, en este ejemplo, cuando se ejecuta desde un vértice 4 el algoritmo de kuhn todo se encuentra esta aumenta el circuito.
+
+\img{edmonds_2.png}
+
+Sin embargo, se puede construir el gráfico, en el que durante un cierto orden en las listas de adyacencia, el algoritmo de kuhn entra en un callejón sin salida. Como ejemplo se puede citar un gráfico con 6 vértices y 7 de las costillas: 1-2, 1-6, 2-6, 2-4, 4-3, 1-5, 4-5. Si se aplica aquí el algoritmo de kuhn, él encuentra паросочетание 1-6, 2-4, después de lo cual se deberá detectar mejoran la cadena de 5-1-6-2-4-3, sin embargo, puede no detectar (si desde un vértice 5 se irá primero a 4, y luego a 1, y cuando se ejecuta desde un vértice 3 de la cima de la 2 va primero en la 1, y a continuación, en el 6).
+
+\img{edmonds_3.png}
+
+Como hemos visto en este ejemplo, todo el problema es que cuando se entra en un ciclo de longitud impar, el rastreo de ir por el ciclo en la dirección equivocada. En realidad, sólo nos interesan "saturados" de los ciclos, es decir, que disponen de $k$ saturadas de los bordes, donde la longitud del ciclo es de $2k+1$. En este ciclo hay exactamente un vértice, no saturado las costillas de este ciclo, la llamaremos \bf{base} (base). A la base del ápice adecuado segmentado ruta de par (posiblemente cero) de longitud, comienza en el libre (es decir, no pertenece a паросочетанию) la parte superior, y ese camino se llama \bf{tallo} (stem). Por último, подграф, educada "saturado" impar ciclo, se llama \bf{flor} (blossom).
+
+\img{edmonds_4.png}
+
+La idea del algoritmo Эдмондса (Jack Edmonds, 1965) - en \bf{compresión de las flores} (blossom shrinking). La compresión de la flor - - es la compresión de todo el ciclo impar en una pseudo-cima (respectivamente, cada una de sus costillas, инцидентные las cimas de este ciclo, se convierten en инцидентными pseudo-cima). El algoritmo de Эдмондса busca en la columna de las flores, los comprime, después de que en el recuadro no hay "malos" de los ciclos de longitud impar, y en un recuadro (conocido como "superficial" (surface) por el conde) ya se puede buscar mejoran la cadena de simple omisión en profundidad/ancho. Después de encontrar lo que aumenta la cadena superficial de la columna debe "implementar" las flores, restaurando así aumenta el circuito en el recuadro.
+
+Sin embargo, claro que después de la compresión de la flor no alteraría la estructura de grafo, es decir, que si en la columna G $$ existía incrementa la cadena, lo que existe, y en la columna de $\overline G$ que recibió después de la compresión de la flor, y viceversa.
+
+\bf{Teorema de Эдмондса}. En la columna de $\overline G$ hay incrementa la cadena de entonces, y sólo entonces, cuando hay que eleva el circuito de $G$.
+
+\bf{Prueba}. Por tanto, que el conde de $\overline G$ recibido del conde de $G$ compresión de una flor (se denota por $B$ el ciclo de la flor, y a través de $\overline B$ correspondiente comprimida cima), demostramos la aprobación del teorema. Primero, tenga en cuenta que basta con considerar el caso, cuando la base de la flor es libre de cima (no perteneciente a паросочетанию). De hecho, en el caso contrario, en la base de la flor termina con bandas ruta par de longitud, comienza en la parte superior. Прочередовав паросочетание a lo largo de este camino, la potencia паросочетания no cambiará, pero la base de la flor será libre de la cima. Así que, si hay una prueba, se puede considerar que la base de la flor es libre de la cima.
+
+\bf{Prueba de la necesidad de}. Deje que la ruta $P$ es la mejora en la columna de $G$. Si no se pasa a través de la $B$, entonces, obviamente, se extiende, y en la columna de $\overline G$. Que $P$ pasa a través de la $B$. Entonces no se puede perder de la comunidad de considerar que la ruta $P$ es una cierta manera de $P_1$, no pasa por las cumbres de $B$, además de una cierta manera $P_2$, que pasa por las cumbres de $B$ y, posiblemente, otras cimas. Pero entonces la ruta de $P_1 + \overline B$ será extiende a través de la columna $\overline G$, que se quería demostrar.
+
+\bf{Prueba de suficiencia}. Deje que la ruta $\overline P$ es la mejora a través de la columna $\overline G$. De nuevo, si la ruta de acceso de $\overline P$ no pasa a través de $\overline B$, entonces la ruta $\overline P$ sin cambios es la mejora a través de $G$, por lo que este caso hemos de considerar no vamos a.
+
+Examinaremos por separado el caso, cuando $\overline P$ se inicia con un comprimido de la flor de $\overline B$, es decir, tiene la apariencia de $(\overline B, c, \ldots)$. Entonces en flor de $B$ se encontrará el correspondiente a la cima de $v$, lo que está relacionado (no saturada)) el borde con $c$. Solo queda destacar que de la base de la flor, siempre hay bandas ruta par de longitud hasta la cima de la $v$. Teniendo en cuenta todo lo anterior, tenemos que la ruta $P = (b, \ldots, v, c, ...)$ es la mejora a través de la columna de $G$.
+
+Supongamos ahora la ruta $\overline P$ pasa a través de pseudo-cima de $\overline B$, pero no empieza ni termina en ella. Entonces $\overline P$ es dos costillas, pasan a través de un $\overline B$, que es de $(a, \overline B)$ y $(\overline B, c)$. Uno de ellos necesariamente debe pertenecer паросочетанию $M$, sin embargo, ya que la base de la flor no está saturada, y el resto de los vértices del ciclo de la flor de $B$ son ricas las costillas de un ciclo, entonces llegamos a una contradicción. Por lo tanto, este caso es simplemente imposible.
+
+Entonces, hemos analizado todos los casos y en cada uno de ellos mostró la justicia del teorema de Эдмондса.
+
+\bf{esquema General de un algoritmo de Эдмондса} adopta la siguiente forma:
+
+\code
+void edmonds() {
+for (int i=0; i<n; ++i)
+if (vértice i no en паросочетании) {
+int last_v = find_augment_path (i);
+if (last_v != -1)
+realizar la rotación a lo largo del camino de i a last_v;
+}
+}
+
+int find_augment_path (int root) {
+el rastreo de ancho:
+int v = текущая_вершина;
+recorrer todas las aristas de la v
+si encuentras un ciclo de longitud impar, exprimir
+cuando llegaron a la libre cima, return
+si llegaron privativa de la cima, agregar
+en lugar adyacente a ella en паросочетании
+return -1;
+}
+\endcode
+
+
+\h2{implementación Efectiva}
+
+Inmediatamente ponemos асимптотику. Hay un total de $n$ iteraciones, en cada una de las cuales se realiza el rastreo de ancho por $O(m)$, además, se pueden producir operaciones de reducción de las flores --- puede ser $O(n)$. Por lo tanto, si aprendemos a comprimir la flor $O(n)$, entonces el total de asíntotas algoritmo de $O(n \cdot (m + n^2)) = O(n^3)$.
+
+El reto representan la operación de reducción de las flores. Si las realice, directamente combinando las listas de adyacencia en uno y quitando de conde exceso de la cima, asíntotas de la compresión de una flor se $O(m)$, además, problemas en el caso de la "implementación" de las flores.
+
+En lugar de ello, vamos a para cada una de vértices del grafo G $$ mantener el puntero sobre la base de la flor, al que pertenece (o, si la cima no pertenece a ningún flor). Tenemos que resolver dos problemas: la compresión de la flor por el $O(n)$ a su detección, así como la buena conservación de toda la información para su posterior rotación a lo largo de la mejora de la ruta.
+
+Así, una iteración del algoritmo Эдмондса es un rastreo de ancho, ejecutada dado libre a la cima de $\rm root$. Poco a poco se va a trazar el árbol de rastreo de ancho, y la ruta de acceso a él a toda la cima va a ser alternas mediante, que comienza con el libre cima de $\rm root$. Para facilitar la programación, vamos a poner en la cola sólo los vértices y la distancia hasta que en el árbol de rutas uniforme (vamos a llamar a las cimas de even --- es decir, la raíz del árbol, y los otros extremos de las costillas en паросочетании). El árbol mismo, vamos a almacenar en forma de matriz los antepasados de $\rm p[]$, en el que para cada vértice impar (es decir, antes de que la distancia en el árbol de rutas es impar, es decir, los primeros de los extremos de las costillas en паросочетании) vamos a almacenar antepasado será par cima. Por lo tanto, para la recuperación de la ruta de la madera debemos alternativamente utilizar matrices de $\rm p[]$ y $\rm match[]$, donde $\rm match[]$ --- para cada vértice contiene adyacente a ella en паросочетании, o $-1$, si tal no existe.
+
+Ahora queda claro cómo detectar los ciclos de longitud impar. Si somos de la cima de $v$ en el proceso de rastreo en el ancho de llegar a esa cima de la $u$, que es la raíz de la $\rm root$ o que pertenezca a la паросочетанию y el árbol de rutas de acceso (es decir, $\rm p[match[]]$ que no es igual a -1), hemos encontrado la flor. De hecho, cuando se cumplen estas condiciones y la cima de $v$, y la cima de la $u$ son pares de vértices. Su distancia de su menor ancestro común tiene una paridad, por lo que la encontrada por nosotros ciclo tiene una longitud impar (.
+
+Aprenderemos a \bf{comprimir el ciclo}. Así, nos encontramos con número impar de ciclo durante el examen de la costilla $(v,u)$, donde $u$ y $v$ --- pares de la cima. Encontraremos su menor antecesor común, $b$, es y será la base de la flor. No es difícil observar que la base también es par la cima (porque impar de vértices en el árbol de caminos sólo hay un hijo). Sin embargo, es necesario notar que $b$ --- este es, quizás, псевдовершина, por lo que realmente nos encontramos con la base de la flor, que es el menor el ancestro común de los vértices $v$ y $u$. Realizamos la vez encontrar un mínimo común antepasado (nosotros bastante satisfecho asíntotas $O(n)$):
+
+\code
+int lca (int a, int b) {
+bool used[MAXN] = { 0 };
+// montar desde la cima de la a a la raíz, marcar todos los números pares de la cima
+for (;;) {
+a = base[a];
+used[a] = true;
+if (match[a] == -1); break; / / llegaron hasta la raíz
+a = p[match[a]];
+}
+// subimos desde el vértice b, hasta encontrar marcada cima
+for (;;) {
+b = base[b];
+if (used[b]) return b;
+b = p[match[b]];
+}
+}
+\endcode
+
+Ahora debemos identificar el ciclo --- paseo de los picos $v$ y $de u$ a base $b$ de la flor. Sería mucho más útil si tenemos hasta que simplemente пометим en un especial de la matriz (lo llamaremos $\rm blossom[]$) de la cima, propiedad actual de la flor. Después de esto, necesitamos reproducir un rastreo en el ancho de la pseudo-vértices --- para ello, basta con poner en la cola de rastreo en el ancho de todos los vértices que están en el ciclo de la flor. Así nos evitaremos explícita de la unificación de las listas de adyacencia.
+
+Sin embargo, todavía queda un problema: la correcta recuperación de las vías de finalizar el rastreo de ancho. Para él, que mantengamos la matriz de los antepasados de $\rm p[]$. Pero después de la compresión de las flores se produce el único problema: el rastreo de ancho continuó de inmediato de todos los vértices del ciclo, incluyendo e impares, y la matriz de los antepasados tenemos destinado para la recuperación de las vías de par cimas. Además, cuando en una columna hay incrementa la cadena, que pasa a través de la flor, no se llevará a cabo en este ciclo en este sentido, que en el árbol de rutas de esto se presentará en un movimiento hacia abajo. Sin embargo, todos estos problemas se resuelven con gracia tal maniobra: al reducir el ciclo, проставим antepasados para todos los pares de vértices (excepto base), para que estos "antepasados" apunten a la vecina de la cima en el ciclo. Para los vértices $u$ y $v$, en caso de que no de la base, la enviaremos los punteros de los antepasados de uno al otro. En consecuencia, si al restaurar el aumento de la ruta llegaremos en el ciclo de la flor en el impar (cima, el camino de los antepasados será restaurado correctamente, y se traducirá en la base de la flor (de la cual él ya se va recuperando bien).
+
+\img{edmonds_5.png}
+
+Por tanto, estamos dispuestos a realizar la compresión de la flor:
+
+\code
+int v, u; // la arista (v,u), en el que se ha detectado la flor
+int b = lca (v, u);
+memset (blossom, 0, sizeof blossom);
+mark_path (v, b, u);
+mark_path (u, b, v);
+\endcode
+
+donde la función $\rm mark\_path()$ recorre el camino desde la cima hasta la base de la flor, de la estampa, en especial el array $\rm blossom[]$ ellos $\rm true$ y la referencia a los antepasados de pares de vértices. El parámetro $\rm children --- el hijo de la cima de la $v$ (con esta opción nos замкнем el ciclo de los antepasados).
+
+\code
+void mark_path (int v, int b, int children) {
+while (base[v] != b) {
+blossom[base[v]] = blossom[base[match[v]]] = true;
+p[v] = children;
+children = match[v];
+v = p[match[v]];
+}
+}
+\endcode
+
+Por último, realizamos la función principal --- $\rm find\_path ~ (int ~ root)$, que buscan aumenta la ruta de acceso libre de la cima de $\rm root$ y devolver el último punto de este camino, o $-1$, si aumenta la ruta de acceso no se ha encontrado.
+
+Primero haremos la inicialización:
+
+\code
+int find_path (int root) {
+memset (used, 0, sizeof used);
+memset (p, -1, sizeof p);
+for (int i=0; i<n; ++i)
+base[i] = i;
+\endcode
+
+El siguiente es el rastreo de ancho. Considerando ordinaria de la arista $(v, a)$, tenemos varias opciones:
+
+\ul{
+
+\li Arista que no existe. Con esto queremos decir, que $v$ e $to$ pertenecen a una concisa pseudo-punta (${\rm base}[v] == {\rm base}[to]$), por lo que en la actual superficial de la columna de esta costilla no. Además de este caso, hay otro caso: cuando el borde de $(v, a)$ ya pertenece a la actual паросочетанию; porque creemos que la punta de la $v$ es par la cima, el paso por la arista significa en el árbol de rutas de ascenso al antecesor de la cima de $v$, lo cual es inaceptable.
+
+\code
+if (base[v] == base[to] || match[v] == to) continue;
+\endcode
+
+\li Borde cierra el ciclo de longitud impar, es decir, se detecta una flor. Como se mencionó anteriormente, el ciclo de longitud impar se detecta cuando se cumple la condición:
+
+\code
+if (a == root || match[to] != -1 && p[match[to]] != -1)
+\endcode
+
+En este caso, es necesario realizar la compresión de la flor. Anteriormente ya se sabía nada de este proceso, aquí presentamos su implementación:
+
+\code
+int curbase = lca (v, a);
+memset (blossom, 0, sizeof blossom);
+mark_path (v, curbase, to);
+mark_path (to, curbase, v);
+for (int i=0; i<n; ++i)
+if (blossom[base[i]]) {
+base[i] = curbase;
+if (!used[i]) {
+used[i] = true;
+q[qt++] = i;
+}
+}
+\endcode
+
+\li de otro modo --- esto es "normal" de la costilla, actuamos como en el de la búsqueda en anchura. La única finura - - - - - la comprobación de que esta cima que todavía no hemos visitado, es necesario mirar no al conjunto $\rm used$, y en la matriz $p$ --- es que se llena para visitadas impar de vértices. Si estamos en la cima de $to$ aún no ha visitado, y se encontraba a poco, hemos encontrado más de la cadena, заканчивающуюся en la cima de $to$, devolvemos.
+
+\code
+if (p[to] == -1) {
+p[to] = v;
+if (match[to] == -1)
+return to;
+to = match[to];
+used[to] = true;
+q[qt++] = to;
+}
+\endcode
+
+}
+
+Así, la implementación completa de la función $\rm find\_path()$:
+
+\code
+int find_path (int root) {
+memset (used, 0, sizeof used);
+memset (p, -1, sizeof p);
+for (int i=0; i<n; ++i)
+base[i] = i;
+
+used[root] = true;
+int qh=0, qt=0;
+q[qt++] = root;
+while (qh < qt) {
+int v = q[qh++];
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (base[v] == base[to] || match[v] == to) continue;
+if (a == root || match[to] != -1 && p[match[to]] != -1) {
+int curbase = lca (v, a);
+memset (blossom, 0, sizeof blossom);
+mark_path (v, curbase, to);
+mark_path (to, curbase, v);
+for (int i=0; i<n; ++i)
+if (blossom[base[i]]) {
+base[i] = curbase;
+if (!used[i]) {
+used[i] = true;
+q[qt++] = i;
+}
+}
+}
+else if (p[to] == -1) {
+p[to] = v;
+if (match[to] == -1)
+return to;
+to = match[to];
+used[to] = true;
+q[qt++] = to;
+}
+}
+}
+return -1;
+}
+\endcode
+
+Por último, se presentan las definiciones de todos los mundiales de matrices, y la implementación de un programa principal de encontrar el mayor паросочетания:
+
+\code
+const int MAXN = ...; // número máximo de vértices en la entrada de la columna
+
+int n;
+vector<int> g[MAXN];
+int match[MAXN], p[MAXN], base[MAXN], q[MAXN];
+bool used[MAXN], blossom[MAXN];
+
+...
+
+int main() {
+... lectura del conde ...
+
+memset (match, -1, sizeof match);
+for (int i=0; i<n; ++i)
+if (match[i] == -1) {
+int v = find_path (i);
+while (v != -1) {
+int pv = p[v], ppv = match[pv];
+match[v] = pv, match[pv] = v;
+v = ppv;
+}
+}
+}
+\endcode
+
+
+\h2{Optimización: preliminar la construcción de паросочетания}
+
+Como en el caso de \algohref=kuhn_matching{el Algoritmo de kuhn}, antes de ejecutar el algoritmo de Эдмондса puede algún mediante un simple algoritmo para construir previo паросочетание. Como, por ejemplo, el algoritmo codicioso:
+\code
+for (int i=0; i<n; ++i)
+if (match[i] == -1)
+for (size_t j=0; j<g[i].size(); ++j)
+if (match[g[i][j]] == -1) {
+match[g[i][j]] = i;
+match[i] = g[i][j];
+break;
+}
+\endcode
+
+Esta optimización considerablemente (hasta varias veces) acelerar el trabajo del algoritmo aleatorias de la mitral.
+
+
+\h2{Caso двудольного conde}
+
+En las dicotiledóneas no hay ciclos de longitud impar, y, por lo tanto, el código que realiza la compresión de las flores, nunca se ejecutará. Quitando mentalmente todas las partes de código que procesan la compresión de las flores, obtenemos \algohref=kuhn_matching{el Algoritmo de kuhn} prácticamente en su forma más pura. Por lo tanto, en las dicotiledóneas, el algoritmo Эдмондса degenera en \algohref=kuhn_matching{el algoritmo de kuhn} y trabaja por $O (n m)$.
+
+
+\h2{optimización de la}
+
+En todos los anteriores operaciones con flores de fácil угадываются operaciones con непересекающимися conjuntos, que se puede hacer mucho más eficiente (véase \algohref=dsu{Sistema de conjuntos disjuntos}). Si reescribir el algoritmo con el uso de esta estructura, asíntotas algoritmo se reducirá a $O (n m)$. Por lo tanto, para arbitrarios de los condes hemos recibido la misma асимптотическую de evaluación, que en el caso de dicotiledóneas de los condes (algoritmo de kuhn), pero notablemente más complejo algoritmo.

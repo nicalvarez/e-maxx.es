@@ -1,0 +1,75 @@
+the <h1>Levit Algorithm finding shortest paths from a given vertex to all other vertices</h1>
+
+<p>Suppose we are given a graph with N vertices and M edges, each of which specified the weight of L<sub>i</sub>. Also given a starting vertex V<sub>0</sub>. You want to find the shortest path from node V<sub>0</sub> to all other vertices.</p>
+<p>the Algorithm Leviticus solves this problem very efficiently (about asymptotics and speed see below).</p>
+<h2>Description</h2>
+<p>Let array D[1..N] contains the current shortest-length paths, i.e., D<sub>i</sub> is the current length of the shortest path from vertex V<sub>0</sub> to the top i. Initially, the D array is filled with values of "infinity", in addition to D<sub>V<sub>0</sub></sub> = 0. At the end of the algorithm this array will contain the final shortest possible distance.</p>
+<p>Let the array P[1..N] contains the current ancestors, i.e., P<sub>i</sub> is the vertex preceding the vertex i in the shortest path from vertex V<sub>0</sub> to i. As well as an array D array P is changed gradually in the course of the algorithm, and by the end it takes the final value.</p>
+<p> </p>
+<p>Now in fact the algorithm of Leviticus. Each step is supported by three sets of vertices:</p>
+the <ul>
+the <li>M<sub>0</sub> - vertices, the distance of which has already been computed (but possibly not permanently)</li>
+the <li>M<sub>1</sub> - vertices, the distance is calculated;</li>
+the <li>M<sub>2</sub> - vertices, the distance is not yet calculated.</li>
+</ul>
+<p>the Vertices in the set M<sub>1</sub> are stored in the bidirectional queue (deque).</p>
+<p> </p>
+<p>Initially, all vertices are placed in the set M<sub>2</sub>, except for the vertices V<sub>0</sub>, which is placed in the set M<sub>1</sub>.</p>
+<p>At each step of the algorithm we take a vertex from the set M<sub>1</sub> (get top element from the queue). Let V is the selected vertex. Translate this node in the set M<sub>0</sub>. Then scan all edges outgoing from this vertex. Let T is the second end of the fin (i.e., not equal to V), and L is the length of the current edge.</p>
+the <ul>
+the <li>If T belongs to M<sub>2</sub>, T move in the set M<sub>1</sub> at the end of the queue. D<sub>T</sub> believe is D<sub>V</sub> + L.</li>
+the <li>If T belongs to M<sub>1</sub>, we are trying to improve the value of D<sub>T</sub>: D<sub>T</sub> = min (D<sub>T</sub>, D<sub>V</sub> + L). The top of the T does not move in the queue.</li>
+the <li>If T belongs to M<sub>0</sub>, if D<sub>T</sub> can be improved (D<sub>T</sub> > D<sub>V</sub> + L), we improve the D<sub>T</sub>, and the vertex T are returned in the set M<sub>1</sub>, placing it in the front of the queue.</li>
+</ul>
+<p>of Course, every update to the array D should be updated and the value in the array P.</p>
+the <h2>implementation Details</h2>
+<p>Create an array ID[1..N], where for each vertex we keep, what set it belongs to: 0 - if M<sub>2</sub> (i.e., the distance is infinity), 1 - if M<sub>1</sub> (i.e. the vertex is in the queue), and 2 - if M<sub>0</sub> (some path was found, the distance is less than infinity).</p>
+<p>the processing Queue can be implemented by standard data structure deque. However, there is a more efficient way. First, obviously, in the queue at any time to store the maximum of N elements. But, secondly, we can add elements in the beginning and at the end of the queue. Therefore, we can arrange the queue for the array of size N, however, need to loop it. Ie make an array Q[1..N] pointers to (int) to the first element QH and the element after the last QT. The queue is empty, when QH == QT. Add in the end - just the entry in Q[QT] and increased QT 1; if QT then went outside of the queue (QT == N) then do QT = 0. Adding up the line - decrease QH 1, if she went outside of the turn (QH == -1) then do QH = N-1.</p>
+<p>the algorithm implementing exactly according to the description above.</p>
+the <h2>Asymptotics</h2>
+<p>I am not aware of more or less good asymptotic evaluation of this algorithm. I have met only O (M N) similar algorithm.</p>
+<p>However, in practice the algorithm has proven itself very well: its running time I estimate how <b>O (M log N)</b>, although, again, it is solely a <b>pilot</b> rating.</p>
+the <h2>Implementation</h2>
+<code>typedef pair<int,int> rib;
+typedef vector < vector<rib> > graph;
+
+const int inf = 1000*1000*1000;
+
+
+int main()
+{
+int n, v1, v2;
+graph g (n);
+
+... reading graph ...
+
+vector<int> d (n, inf);
+d[v1] = 0;
+vector<int> id (n);
+deque<int> q;
+q.push_back (v1);
+vector<int> p (n, -1);
+
+while (!q.empty())
+{
+int v = q.front(), q.pop_front();
+id[v] = 1;
+for (size_t i=0; i<g[v].size(); ++i)
+{
+int to = g[v][i].first, len = g[v][i].second;
+if (d[to] > d[v] + len)
+{
+d[to] = d[v] + len;
+if (id[to] == 0)
+q.push_back (to);
+else if (id[to] == 1)
+q.push_front (to);
+p[to] = v;
+id[to] = 1;
+}
+}
+}
+
+... result output ...
+
+}</code>

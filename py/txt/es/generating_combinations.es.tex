@@ -1,0 +1,73 @@
+<h1>Generación de combinaciones de N elementos</h1>
+<h2>Combinaciones de N elementos en K en orden alfabético</h2>
+<p>el Planteamiento de la tarea. Se dan números enteros N y K. Considere una gran cantidad de números de 1 hasta N. Desea mostrar todos los diferentes subconjuntos de la potencia de K, y en orden alfabético.</p>
+<p>el Algoritmo es muy simple. La primera combinación, obviamente, es la combinación de (1,2,...,K). Aprendamos de la actual combinación de encontrar лексикографически siguiente. Para ello, en la actual combinación encontraremos más el elemento del lado derecho, no ha alcanzado aún su valor máximo; entonces aumentaremos su unidad, y todos los siguientes elementos, demos un menor valor.</p>
+<code>bool next_combination (vector<int> & a, int n) {
+int k = (int)a.size();
+for (int i=k-1; i>=0; --i)
+if (a[i] < n-k+i+1) {
+++a[i];
+for (int j=i+1; j<k; j++)
+a[j] = a[j-1]+1;
+return true;
+}
+return false;
+}</code>
+<p>Desde el punto de vista del rendimiento, este algoritmo es lineal (en promedio), si K no está cerca de N (es decir, si no se cumple que K = N - o(N)). Para ello, basta con demostrar que la comparación", a[i] < n-k+i+1" se realizan en la suma de C<sub>n+1</sub><sup>k</sup> veces, es decir, en (N+1) / (N-K+1) veces más que el total de combinaciones de N elementos de K.</p>
+<h2>Combinaciones de N elementos en K con los cambios de exactamente un elemento</h2>
+<p>es Necesario apuntar todas las combinaciones de N elementos en K, pero en ese orden, que cualquiera de los dos vecinos de la combinación será diferente exactamente un elemento.</p>
+<p>de manera Intuitiva, se puede señalar desde el principio que esta tarea es similar a la tarea de generación de todos los subconjuntos de un conjunto dado, en ese orden, cuando dos vecinos de subconjuntos diferentes de exactamente un elemento. Esta tarea se resuelve directamente con <algohref=gray_code>Código gray</algohref>: si hemos de cada subconjunto a poner en el cumplimiento de la máscara de bits, generando a través de códigos de gray estos mapas de bits, obtendremos la respuesta.</p>
+<p>Puede parecer sorprendente, pero la tarea de generación de combinaciones también directamente se resuelve mediante el <b>el código de gray</b>. Es decir, generaremos los códigos de gray para los números de 0 a 2<sup>N</sup>-1, y dejar sólo los códigos que contienen exactamente K unidades. Es un hecho sorprendente es que en la secuencia de las dos vecinos de la máscara (así como la primera y la última de la máscara) será diferente de exactamente dos pedazos, que nos justamente necesario.</p>
+<p><b>Prueba</b>.</p>
+<p>Para la prueba recordemos el hecho de que la secuencia de G(N) de los códigos que se puede obtener de la siguiente manera:</p>
+<formula>G(N) = 0G(N-1) ∪ 1G(N-1)<sup>R</sup></formula>
+<p>es decir, tomamos una secuencia de códigos de gray de N-1, agregamos en el comienzo de cada máscara de 0, añadimos a la respuesta; a continuación, de nuevo tomamos una secuencia de códigos de gray de N-1, invertir, agregamos en el comienzo de cada máscara 1 y se añade a la respuesta.</p>
+<p>Ahora podemos hacer la prueba.</p>
+<p>en primer lugar demostramos que la primera y la última de la máscara será diferente exactamente en dos bits. Para ello, basta con observar que la primera máscara será de la forma N-K ceros y K unidades, y la última máscara será de la forma: la unidad, luego N-K-1 ceros, entonces K-1 unidad. Demostrarlo fácilmente por inducción sobre N, usando la fórmula anterior para la secuencia de códigos de gray.</p>
+<p>Ahora se demostrará que cualquiera de los dos vecinos de código será diferente exactamente en dos bits. Para ello, de nuevo volvemos a la fórmula para la secuencia de códigos de gray. Que dentro de cada una de las mitades (compuestas de G(N-1)) cierto, se demostrará que es cierto para toda la secuencia. Para ello, es suficiente para demostrar que es correcto en el lugar de "la unión" de dos mitades G(N-1), y esto es fácil de demostrar, en base a lo que sabemos, el primer y el último elemento de estas mitades.</p>
+<p>Veamos ahora la simple aplicación que se ejecuta por la 2<sup>N</sup>:</p>
+<code>int gray_code (int n) {
+return n ^ (n >> 1);
+}
+
+int count_bits (int n) {
+int res = 0;
+for (; n; n>>=1)
+res += n & 1;
+return res;
+}
+
+void all_combinations (int n, int k) {
+for (int i=0; i<(1<<n); ++i) {
+int cur = gray_code (i);
+if (count_bits (cur) == k) {
+for (int j=0; j<n; ++j)
+if (cur & (1<<j))
+printf ("%d ", j+1);
+puts ("");
+}
+}
+}</code>
+<p>Vale la pena señalar que es posible y, en cierto sentido, una implementación más eficaz es la que va a construir todo tipo de combinaciones en el camino, y por lo tanto a trabajar por O (C<sub>n</sub><sup>k</sup> n). Por otro lado, esta aplicación es un recursiva de la función, y por lo tanto, para los pequeños de n, probablemente, tiene más oculta una constante, que la solución anterior.</p>
+<p>en Realidad la aplicación es directa siguiendo la fórmula:</p>
+<formula>G(N,K) = 0G(N-1,K) ∪ 1G(N-1,K-1)<sup>R</sup></formula>
+<p>Esta fórmula fácil de obtener de la fórmula anterior para la secuencia que se calienta y solo elegimos подпоследовательность de adecuados nos de los elementos.</p>
+<code>bool ans[MAXN];
+
+void gen (int n, int k, int l, int r, bool rev int old_n) {
+if (k > n || k < 0) return;
+if (!n) {
+for (int i=0; i<old_n; ++i)
+printf ("%d", (int)ans[i]);
+puts ("");
+return;
+}
+ans[rev?r:l] = false;
+gen (n-1, k, !rev?l+1:l, !rev?r:r-1, rev, old_n);
+ans[rev?r:l] = true;
+gen (n-1, k-1, !rev?l+1:l, !rev?r:r-1, !rev, old_n);
+}
+
+void all_combinations (int n, int k) {
+gen (n, k, 0, n-1, false, n);
+}</code>

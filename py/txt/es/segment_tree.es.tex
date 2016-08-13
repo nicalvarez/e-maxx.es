@@ -1,0 +1,739 @@
+\h1{Árbol de regiones}
+
+El árbol de los trozos --- es una estructura de datos que permite de manera efectiva (es decir, por la асимптотику $O (\log n)$) realizar una operación similar a la siguiente: encontrar la suma de/del mínimo de los elementos de la matriz en un determinado periodo ($a[l \ldots r]$, donde $l$ y $r$ dirigen a la entrada del algoritmo), además es posible el cambio de los elementos de la matriz: como cambiar el valor de un elemento, y el cambio de elementos en un conjunto de подотрезке de la matriz (es decir, se permite establecer todos los elementos de $a[l \ldots r]$ cualquier valor, o añadir a todos los elementos de la matriz de cualquier número).
+
+En general, el árbol de los trozos --- muy flexible, y el número de tareas decididas por ella, teóricamente ilimitado. Además de los anteriores tipos de operaciones con árboles de regiones, también son posibles y son mucho más complejos de operación (consulte la sección "Engorrosos de la versión del árbol de regiones"). En particular, el árbol de los trozos fácilmente se resume en la ampliación de la dimensión: por ejemplo, para resolver la tarea de la búsqueda de la suma y mínimo en cierto подпрямоугольнике de esta matriz (la verdad es que ya sólo por el tiempo $O (\log^2 n)$).
+
+Una característica importante de los árboles de regiones es lo que consumen lineal de la cantidad de memoria: estándar de los trozos de madera se requiere en el orden de $4n$ los elementos de la memoria para trabajar en una matriz de tamaño $n$.
+
+
+\h2{Descripción de los trozos de madera en el caso base}
+
+Para empezar, consideremos el caso más simple de un árbol trozos --- el árbol de regiones para cantidades. Si poner la tarea formalmente, tenemos la matriz $a[0..n-1]$, y nuestro árbol de regiones debe ser capaz de encontrar la suma de los elementos con $l$a $r$-sima (se trata de una solicitud de dinero), así como manejar el cambio de los valores en el mismo especificado en el elemento de la matriz, es decir, el hecho de responder a la asignación de $a[i]=x$ (se trata de una solicitud de modificación). Otra vez de nuevo, el árbol de regiones debe ser capaz de manejar ambos consulta por hora $O (\log n)$.
+
+
+\h3{la Estructura de árbol de regiones}
+
+Entonces, ¿qué es un árbol de regiones?
+
+Calculamos y recordaremos algún lugar de la suma de los elementos a la matriz, es decir, del corte $a[0 \ldots, n-1]$. También calcula la suma de las dos mitades de este array: $a[0 \ldots, n/2]$ y $a[n/2+1 \ldots, n-1]$. Cada una de estas dos mitades, a su vez, dividimos por la mitad, de observar y de preservar la suma de ellos, luego dividimos por la mitad, y así sucesivamente, hasta que el actual tramo alcanza una longitud de 1$$. En otras palabras, nos стартуем con tronzado $[0, n-1]$ y cada vez que compartimos el actual tramo de la mitad de tamaño (si es que todavía no se ha convertido en un segmento unitario de longitud), causando a continuación, este mismo procedimiento de las dos mitades; para cada segmento almacenamos la suma de los números en él.
+
+Se puede decir que estos trozos en los que pensábamos que el importe forman el árbol: la raíz de este árbol-de-la - corte $[0 \ldots, n-1]$, y cada vértice tiene exactamente dos hijos (además de los vértices de las hojas, en los cuales el tramo tiene una longitud de 1$$). De aquí proviene el nombre de --- "el árbol de regiones" (aunque cuando la aplicación normalmente ningún árbol claramente no se construye, pero más sobre esto más adelante en la sección de implementación).
+
+Así, hemos descrito la estructura de árbol de regiones. Inmediatamente tenga en cuenta que se tiene \bf{cota lineal}, es decir, contiene menos de $2n$ vértices. Entender esto de la siguiente manera: en el primer nivel del árbol de regiones contiene una cima (tramo $[0 \ldots, n-1]$), el segundo nivel --- en el peor de los caso, las dos de la cima, en el tercer nivel, en el peor de los casos sería cuatro de la cima, y así sucesivamente hasta que el número de vértices no llegue a $n$. Por lo tanto, el número de vértices en el peor de los caso, se estima la suma de $n + n/2 + n/4 + n/8 + \ldots + 1 < 2n$.
+
+Vale la pena señalar que si $n$, distintos de los grados de dos, no de todos los niveles del árbol de regiones se está completamente lleno. Por ejemplo, si $n=3$ hijo izquierdo de la raíz de corto $[0 \ldots 1]$, tiene dos descendientes, mientras que el de la derecha el hijo de la raíz-el tramo de $[2 \ldots 2]$, que es una hoja de cálculo. No hay especiales dificultades al implementar este no es, pero no obstante es necesario tener en cuenta.
+
+\bf{Altura} el árbol de regiones es la cantidad de $O (\log n)$ --- por ejemplo, debido a que la longitud del segmento en la raíz del árbol es de $n$, y al pasar de un nivel hacia abajo de la longitud de segmentos de línea se reduce aproximadamente a la mitad.
+
+
+\h3{Construcción}
+
+El proceso de generación del árbol de regiones en torno a la matriz $a$ se puede hacer de manera eficiente, de la siguiente manera, de abajo hacia arriba: primero escribimos los valores de los elementos $a[i]$ en las correspondientes hojas de árbol y, a continuación, a partir de ellos calcular los valores de los vértices del nivel anterior como la suma de los valores de dos de las hojas y, a continuación, de manera similar calcular los valores para un nuevo nivel, y así sucesivamente, es Conveniente describir esta operación de forma recursiva: ponemos en marcha el procedimiento de generación de la raíz del árbol de las líneas, y el propio procedimiento de generación, si han llamado a no de la hoja, llama a sí mismo de cada uno de los dos hijos y la suma de los valores calculados, y si han llamado de la hoja --- simplemente escribe en el valor de este elemento de la matriz.
+
+Asíntotas de construcción del árbol de regiones será, por lo tanto, $O(n)$.
+
+
+\h3{Solicitud de la suma}
+
+Veamos ahora la solicitud de la suma. La entrada llegan dos números $l$ y $r$, y debemos por hora $O (\log n)$ calcular la suma de los números en el tramo de $a[l \ldots r]$.
+
+Para ello vamos a descender por la que fue construido el árbol de las líneas, utilizando para el cálculo de la respuesta посчитанные antes de la suma en cada cima del árbol. Inicialmente nos levantamos en la raíz del árbol de regiones. Vamos a ver, ¿cuál de sus dos hijos cae el trozo de la consulta $[l \ldots r]$ (recordemos que los hijos de la raíz del árbol de regiones --- este es el tronzado de $[0 \ldots, n/2]$ y $[n/2+1 \ldots, n-1]$). Hay dos opciones: que el tramo de $[l \ldots r]$ encuentra sólo en un hijo de la raíz, y que, por el contrario, la línea se cruza con dos hijos.
+
+El primer caso es fácil: simplemente pasaremos en que el hijo, en el que se asienta nuestro tramo de la solicitud, y se aplica el descrito aquí, el algoritmo actual de la parte superior.
+
+En el segundo caso, no nos queda otra opción que ir primero a la izquierda del hijo, y de contar con la respuesta a la solicitud en él, y luego --- ir a la derecha del hijo, contar en él la respuesta y la añadimos a nuestra respuesta. En otras palabras, si el de la izquierda hijo representó el tramo de $[l_1 \ldots r_1]$, mientras que la derecha-el tramo de $[l_2 \ldots r_2]$ (tenga en cuenta que $l_2 = r_1 + 1$), nos adentramos en el de la izquierda hijo con la consulta $[l \ldots r_1]$, y el de la derecha --- con la consulta $[l_2 \ldots r]$.
+
+Así, el procesamiento de una consulta de la suma es un \bf{recursiva de la función}, que cada vez llama a sí mismo, o de izquierda a su hijo, o de la derecha (no borrar las fronteras de la consulta en ambos casos), o de ambos a la vez (cuando este compartiendo nuestra solicitud a las dos de la subconsulta). Sin embargo, las llamadas recursivas vamos a hacer, no siempre: si la solicitud actual coincide con los límites del corte en la cima de un árbol de regiones, como respuesta vamos a devolver предвычисленное el valor de la suma en este tramo, grabado en el árbol de regiones.
+
+En otras palabras, el cálculo de la consulta es un descenso por el árbol de regiones, que se extiende por todo el oportuno a las ramas de un árbol, y para acelerar el trabajo utiliza ya посчитанные de la suma de cada segmento en el árbol de regiones.
+
+¿Por qué \bf{asíntotas} este algoritmo se $O (\log n)$? Para ello, vamos a ver en cada nivel del árbol de regiones, cuánto máximo de trozos podía visitar nuestra función recursiva durante el procesamiento de una consulta. Se afirma que tales regiones no podía ser de más de cuatro; entonces, teniendo en cuenta la evaluación de la $O (\log n)$ para la altura de un árbol, y recibimos la асимптотику el tiempo de funcionamiento del algoritmo.
+
+Mostraremos que esta evaluación acerca de los cuatro segmentos de verne. En realidad, en el nivel cero del árbol de la consulta aborda el único vértice --- la raíz de un árbol. Más lejos en el primer nivel de la llamada recursiva, en el peor de los caso se divide en dos recursivos de la llamada, pero lo importante aquí es que las consultas en estos dos llamadas serán vecino, es decir, la cantidad de $l^{\prime\prime}$ consulta en la segunda llamada recursiva sea una unidad mayor que el número de $r^\prime$ consulta en la primera llamada recursiva. De aquí se desprende que en el siguiente nivel de cada uno de estos dos llamadas podía engendrar dos recursivos de la llamada, pero en este caso, la mitad de estas consultas se cumplirá de forma no recursiva, tomando el valor de las copas de los árboles de regiones. Por lo tanto, cada vez tendremos más de dos que funcionan realmente las ramas de recursividad (se puede decir que una rama se acerca al borde izquierdo de la consulta, y la segunda rama de la --- a la derecha), y en total el número de afectados por regiones no podía exceder de la altura del árbol de regiones, multiplicado por cuatro, es decir, es decir, la cantidad de $O (\log n)$.
+
+En conclusión, se puede hacer y qué es la comprensión de la labor de consulta de la suma de: entrada trozo $[l \ldots r]$ divide en varias подотрезков, la respuesta a cada uno de los cuales ya calculado y almacenado en el árbol. Si el hacer es el análisis de forma correcta, gracias a la estructura de árbol de los trozos de la cantidad necesaria de подотрезков siempre será $O (\log n)$, que es el que da la eficiencia de trabajo de los trozos de madera.
+
+
+\h3{Solicitud de actualización}
+
+Recordemos que la solicitud de actualización se recibe en la entrada de índice $i$ y el valor de $x$, y vuelve a generar el árbol de regiones, de tal manera que coincida con el nuevo valor de $a[i]=x$. Esta consulta debe realizarse también por el tiempo $O (\log n)$.
+
+Es una consulta más simple en comparación con una consulta de totales. El hecho de que el elemento $a[i]$ participado sólo en un número relativamente pequeño de vértices del árbol de regiones, es decir, en $O (\log n)$ cimas --- uno a cada nivel.
+
+Entonces es comprensible que la solicitud de actualización se puede implementar como una función: recibe actual de la cima del árbol de regiones, y esta función realiza una llamada recursiva a la de uno de sus dos hijos (de lo que contiene la posición de la $i$ en su tramo), y después de esto --- vuelve a calcular el valor de la suma en la cima de la misma forma como lo hicimos al construir el árbol de regiones (es decir, como la suma de los valores de los dos hijos de la cima de la actual).
+
+
+\h3{Aplicación}
+
+El principal реализационный momento --- esto es algo como \bf{guardar} el árbol de regiones en la memoria. Para simplificar, no vamos a almacenar la madera en forma explícita, y usamos este truco: digamos que la raíz de un árbol es el número de 1$$, sus hijos --- números de $de$ 2 y $3$, sus hijos --- habitaciones con $4$ $7$, y así sucesivamente. Es fácil de entender la corrección de la siguiente fórmula: si el vértice es el número de la $i$, lo que a su izquierda el hijo de --- este es el pináculo con el número de $2i$, y el de la derecha --- con un número de $2i+1$.
+
+Esta técnica facilita la programación de los trozos de madera, --- ahora bien, no es necesario almacenar en la memoria la estructura de árbol de las líneas, sino de hacer cualquier matriz para la suma en cada tramo del árbol de regiones.
+
+Vale la pena señalar que el tamaño de esta matriz con esta numeración es necesario poner de $2n$ y $4n$. El caso es que esa numeración no funciona en el caso de que, cuando $n$ no es el grado de doses --- entonces aparecen perdidas de la habitación, que no corresponden a ninguna de las copas de los árboles (de hecho, la numeración se comporta igual que si $n$ округлили sería hacia arriba hasta la parada de grado dos). Esto no crea ninguna dificultad en su aplicación, sin embargo, hace que el tamaño de la matriz es necesario aumentar hasta $4n$.
+
+Así que, el árbol de regiones nosotros \bf{guardamos} simplemente en la forma de la matriz $t[]$, tamaño cuatro veces mayor que el tamaño de $n$ de entrada de datos:
+
+\code
+int n, t[4*MAXN];
+\endcode
+
+El procedimiento de \bf{la construcción del árbol de regiones} específico de la matriz $a[]$ es la siguiente: es la función recursiva, se le pasa la matriz $a []$ número $v$ actual de las copas de los árboles, y la frontera de $tl$ y $tr$ del corte correspondiente a la actual de la parte superior del árbol. Desde el programa de llamar a esta función con los parámetros de $v=1$, $tl=0$, $tr=n-1$.
+
+\code
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = a[tl];
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl tm);
+build (a, v*2+1, tm+1, tr);
+t[v] = t[v*2] + t[v*2+1];
+}
+}
+\endcode
+
+Además, la función de \bf{consulta de la suma} es también una función que de la misma manera se transmite la información sobre la versión actual, la parte superior del árbol (es decir, el número de $v$, $tl$, $tr$, que en el programa principal debe enviar el valor de 1$$, $0$, $n-1$, respectivamente), y además de eso, - - - de la frontera, $l$ y $r$ de la consulta actual. Para simplificar el código de esta función siempre se hace de dos recursivos de la llamada, incluso si en realidad se necesita un --- simplemente exceso llamada recursiva se transmitirá la solicitud, el cual es $l > r$, que es fácil de cortar una verificación adicional en el principio de la función.
+
+\code
+int sum (int v, int tl, int tr, int l, int r) {
+if (l > r)
+return 0;
+if (l == tl && r = a= tr)
+return t[v];
+int tm = (tl + tr) / 2;
+return sum (v*2, tl, tm, l, min(r,tm))
++ sum (v*2+1, tm+1, tr, max(l,tm+1), r);
+}
+\endcode
+
+Por último, \bf{solicitud de modificación}. Él de la misma manera se transmite la información sobre la cima de un árbol de regiones, y, además, se indica el índice de la evolución de un elemento, así como su nuevo valor.
+
+\code
+void update (int v, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+t[v] = new_val;
+else {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+t[v] = t[v*2] + t[v*2+1];
+}
+}
+\endcode
+
+Vale la pena señalar que la función $\rm update$ fácil de hacer нерекурсивной, ya que la recursividad en ella la cola, es decir, de la bifurcación se produce nunca: una llamada puede producir sólo una llamada recursiva. Cuando нерекурсивной la aplicación de la velocidad de trabajo puede crecer en varias veces.
+
+De otros \bf{optimizaciones} vale la pena mencionar que la multiplicación y la división por dos, es recomendable sustituir el mapa de bits de operaciones --- también es un poco mejora el rendimiento de los trozos de madera.
+
+
+\h2{Engorrosos de la versión del árbol de regiones}
+
+El árbol de los trozos --- muy flexible, y permite hacer generalizaciones en muchas direcciones diferentes. Trataremos a continuación su clasificación.
+
+
+\h3{Más complejas funciones y consultas}
+
+La mejora de los trozos de madera en este sentido pueden ser muy simples (como en el caso de mínimo/máximo en lugar de dinero), y muy, muy нетривиальными.
+
+\h4{la Búsqueda del mínimo/máximo}
+
+Un poco cambiaremos el planteo del problema descrito más arriba: en lugar de solicitar una cantidad vamos a producir ahora, la solicitud de un mínimo/máximo en el tramo.
+
+Entonces el árbol de regiones para esta tarea prácticamente no difiere de la de los trozos de madera que se menciona anteriormente. Sólo hay que cambiar el método de cálculo a $t[v]$ en las funciones $\rm build$ y $\rm update$, así como el cálculo de la respuesta devuelta en función $\rm suma de$ (reemplazar la suma de mínimo/máximo).
+
+\h4{la Búsqueda del mínimo/máximo y el número de veces que se ha reunido}
+
+La tarea es similar a la anterior, sólo que ahora, además de máximo desea devolver el número de sus apariciones. Esta tarea se plantea de manera natural, por ejemplo, a la hora de tratar con el árbol de los trozos de esta tarea: encontrar el número de наидлиннейших crecientes подпоследовательностей en una matriz.
+
+Para resolver este problema, en cada vértice del árbol de regiones vamos a almacenar un par de números: además del máximo número de repeticiones en el tramo. Entonces, al construir el árbol debemos simplemente de dos parejas, recibida de los hijos de la actual a la cima, recibir un par actual de la cima.
+
+De la combinación de dos de estos pares en una sola vale la pena resaltar en su propia función, ya que esta operación será necesario producir y en la solicitud de modificación, y en la consulta de búsqueda del máximo.
+
+\code
+pair<int,int> t[4*MAXN];
+
+pair<int,int> combine (pair<int,int> a, pair<int,int> b) {
+if (a.first > b.first)
+return a;
+if (b.first > a.first)
+return b;
+return make_pair (a.first, a.second + b.second);
+}
+
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = make_pair (a[tl], 1);
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl tm);
+build (a, v*2+1, tm+1, tr);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+
+pair<int,int> get_max (int v, int tl, int tr, int l, int r) {
+if (l > r)
+return make_pair (-INF, 0);
+if (l == tl && r = a= tr)
+return t[v];
+int tm = (tl + tr) / 2;
+return combine (
+get_max (v*2, tl, tm, l, min(r,tm)),
+get_max (v*2+1, tm+1, tr, max(l,tm+1), r)
+);
+}
+
+void update (int v, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+t[v] = make_pair (new_val, 1);
+else {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+ update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+\endcode
+
+\h4{Buscar el mayor común divisor / mínimo común múltiplo}
+
+Es decir, queremos aprender a buscar el NOD/noche todos los números en un determinado tramo de la matriz.
+
+Es bastante interesante síntesis de la madera de regiones resulta absolutamente de la misma manera que los árboles de regiones para la suma de/mínimo/máximo: basta con almacenar en cada vértice del árbol de NOD/noche todos los números en el tramo de la matriz.
+
+\h4{Recuento de la cantidad de ceros, la búsqueda de $k$del cero}
+
+En esta tarea queremos aprender a responder a la solicitud de la cantidad de ceros en un determinado tramo de la matriz, así como a la solicitud encontrar $k$del cero del elemento.
+
+De nuevo un poco cambiaremos los datos almacenados en el árbol de regiones: ahora vamos a almacenar en el array $t[]$ el número de ceros que aparecen en los segmentos de la matriz. Claro, ¿cómo mantener y utilizar estos datos, en las funciones de $\rm build$, $\rm sum$, $\rm update$, --- lo que hemos decidido tarea sobre el número de ceros en un determinado tramo de la matriz.
+
+Ahora aprender a resolver un problema sobre la búsqueda de la posición de la $k$del apariciones de cero en la matriz. Para ello, vamos a bajar por el árbol de regiones, desde la raíz, y pasando cada vez más a la izquierda o la derecha del hijo, dependiendo de en qué regiones está buscando $k$el primer cero. En realidad, para entender, un hijo nos es necesario pasar, basta con mirar el valor que anotó en la del hijo: si es mayor o igual que $k$, entonces pasar a la izquierda del hijo (porque en su tramo hay un mínimo de $k$ ceros), y de otro modo --- de pasar a la derecha del hijo.
+
+Cuando la aplicación se puede recortar el caso, cuando la $k$del cero no existe, aún cuando la entrada de la función, devolviendo como respuesta, por ejemplo, $-1$.
+
+\code
+int find_kth (int v, int tl, int tr, int k) {
+if (k > t[v])
+return -1;
+if (tl == tr)
+return tl;
+int tm = (tl + tr) / 2;
+if (t[v*2] >= k)
+return find_kth (v*2, tl, tm, k);
+else
+return find_kth (v*2+1, tm+1, tr, k - t[v*2]);
+}
+\endcode
+
+\h4{Buscar el prefijo de la matriz con respecto a la suma}
+
+La tarea es: se requiere por el valor de $x$ rápida de encontrar una $i$, que es la suma de los primeros $i$ de los elementos de la matriz $a[]$ es mayor o igual que $x$ (teniendo en cuenta que la matriz $a[]$ contiene sólo un número no negativo).
+
+Esta tarea se puede resolver binarios de búsqueda, computando cada vez más dentro de ella, el monto en uno u otro prefijo de la matriz, pero esto va a resolver por hora $O (\log^2 n)$.
+
+En lugar de ello, se puede utilizar la misma idea que en el párrafo anterior, y buscar lo que busca la posición de un descenso de madera: pasando cada vez más a la izquierda o la derecha del hijo en función de la magnitud de la suma de la izquierda y el hijo. Entonces la respuesta a la consulta de búsqueda se constituirá en un descenso por el árbol, y, por lo tanto, se ejecutará por el $O (\log n)$.
+
+\h4{Buscar подотрезка con la cantidad máxima}
+
+Todavía en la entrada se da $a[0 \ldots, n-1]$, y que se reciben las solicitudes de $(l,r)$, que es el significado de encontrar un подотрезок $a[l^\prime \ldots r^\prime]$ que $l \le l^\prime$, $r^\prime \le r$, y la suma de este segmento de $a[l^\prime \ldots r^\prime]$ es mayor. Las solicitudes de modificación de los elementos individuales de la matriz se permiten. Los elementos de la matriz pueden ser negativos (y, por ejemplo, si todos los números son negativos, lo mejor подотрезком será en blanco --- cantidad igual a cero).
+
+Esto es muy inusual síntesis de los trozos de madera se obtiene de la siguiente manera. Vamos a almacenar en cada vértice del árbol de los trozos de cuatro valores: el importe de este tramo, el importe máximo entre todos los prefijos de este segmento, el importe máximo entre todos los sufijos, así como la cantidad máxima подотрезка en él. En otras palabras, para cada tramo de la madera de los trozos de la respuesta, ya предпосчитан, así como, además, la respuesta juzgado de entre todos los segmentos, упирающихся en el borde izquierdo de la corte, y también entre todas las regiones, упирающихся en el borde derecho.
+
+Cómo construir un árbol de regiones con esos datos? De nuevo nos acercaremos a este con recursiva punto de vista: que para la cima de los cuatro valores de la izquierda, el hijo y en el derecho del hijo ya contados, consideramos ahora para la cima. Tenga en cuenta que la respuesta en lo más alto, es igual a:
+
+\ul{
+\li o respuesta en la del hijo, lo que significa que la mejor подотрезок en la cima de la totalidad se coloca en el segmento de la izquierda hijo,
+\li o respuesta en el derecho del hijo, lo que significa que la mejor подотрезок en la cima de la totalidad se coloca en el segmento de la derecha del hijo,
+\li o monto máximo sufijo de la izquierda, el hijo y el máximo de prefijo en el derecho del hijo, lo que significa que la mejor подотрезок radica su comienzo en la margen izquierda del hijo, y el final --- en el derecho.
+}
+
+Entonces, la respuesta a la cima de la actual igual al máximo de estas tres cantidades. Recalcular la misma cantidad máxima de prefijos y sufijos aún más fácil. Veamos la implementación de la función $\rm combine$, que se transmitirán dos estructuras de $\rm data$, que contengan datos sobre el izquierdo y el derecho de los hijos, y que devuelve los datos en la parte superior.
+
+\code
+struct data {
+int sum, pref, suff, ans;
+};
+
+data combine (data l, data r) {
+data res;
+res.sum = l.sum + r.sum;
+res.pref = max (l.pref, l.sum + r.pref);
+res.suff = max (r.suff, r.sum + l.suff);
+res.ans = max (max (l.ans, r.ans), l.suff + r.pref);
+return res;
+}
+\endcode
+
+Por lo tanto, hemos aprendido a construir el árbol de regiones. Desde aquí es fácil de obtener y de realización de la solicitud de modificación, como en el caso más simple árbol de regiones, llevamos a cabo la conversión de valores en todos los cambios en las cimas de los trozos de madera, para lo cual usamos todos la misma función $\rm combine$. Para el cálculo de los valores de la madera en las hojas también de auxiliar de la función $\rm make\_data$, que devuelve una estructura $\rm data$, calculada de uno en uno el número de $\rm val$.
+
+\code
+data make_data (int val) {
+data res;
+res.sum = val;
+res.pref = res.suff = res.ans = max (0, val);
+return res;
+}
+
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = make_data (a[tl]);
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl tm);
+build (a, v*2+1, tm+1, tr);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+
+void update (int v, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+t[v] = make_data (new_val);
+else {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+t[v] = combine (t[v*2], t[v*2+1]);
+}
+}
+\endcode
+
+Queda lidiar con la respuesta a la solicitud. Para ello, estamos igual que antes, bajamos por el árbol, rompiendo así el tramo de la consulta $[l \ldots r]$ en varios подотрезков, coincidentes con trozos de madera de las líneas, y unimos las respuestas en ellos una respuesta única para toda la tarea. Entonces es comprensible que el trabajo no es diferente de la de funcionamiento normal de los trozos de madera, sólo es necesario en lugar de una simple suma/mínimo/máximo de los valores de utilizar la función $\rm combine$. La siguiente aplicación es un poco diferente de la aplicación de la consulta $\rm suma de$: que no permite a los casos, cuando el límite izquierdo de $l$ consulta supera el borde derecho de la $r$ (de lo contrario, surgirán desagradables casos - - - ¿cuál es la estructura de la $\rm data$ возврашать, cuando el segmento de la consulta en blanco?..).
+
+\code
+data query (int v, int tl, int tr, int l, int r) {
+if (l == tl && tr = r=)
+return t[v];
+int tm = (tl + tr) / 2;
+if (r <= tm)
+return query (v*2, tl, tm, l, r);
+if (l > tm)
+return query (v*2+1, tm+1, tr, l, r);
+return combine (
+query (v*2, tl, tm, l, tm),
+query (v*2+1, tm+1, tr, tm+1, r)
+);
+}
+\endcode
+
+
+\h3{Guardar todo подмассива en cada vértice del árbol de regiones}
+
+Es un tema independiente, que está separado del resto, ya que en cada vértice del árbol de regiones vamos a almacenar algún tipo de información resumida sobre este подотрезке (suma, mínimo, máximo, etc.), y \bf{todos} los elementos de la matriz, el razonamiento en este подотрезке. Por lo tanto, la raíz de un árbol de regiones se almacenan todos los elementos de la matriz, el hijo izquierdo de la raíz --- la primera mitad de la matriz a la derecha, el hijo de la raíz --- la segunda mitad, y así sucesivamente.
+
+La opción más simple de aplicación de esta técnica --- cuando en cada vértice del árbol de regiones se almacena una lista ordenada de todos los números que aparecen en el tramo. En escenarios más complejos, no se almacenan las listas, de ninguna estructura de datos que se generan sobre estas listas ($\rm set$, $\rm map$, etc.). Pero todos estos métodos tienen en común es que en cada vértice del árbol de regiones se almacena una estructura de datos que tiene en la memoria el tamaño del orden de la longitud de la correspondiente línea.
+
+La primera pregunta natural, el que se levanta durante el examen de los árboles de los trozos de esta clase --- es \bf{el consumo de memoria}. Se afirma que, si en cada vértice del árbol de regiones se almacena la lista de todos los presentes en este trozo de números, o cualquier otra estructura de datos el tamaño del mismo orden, en la suma de todo el árbol de regiones ocupará $O (n \log n)$ de celdas de memoria. ¿Por qué es esto así? Porque cada número es $a[i]$ cae en $O (\log n)$ de los trozos de madera de regiones (aunque sólo sea porque la altura del árbol de regiones es $O (\log n)$).
+
+Así, a pesar de la aparente extravagancia de tal árbol de regiones, se consume la memoria no es mucho más de lo normal árbol de regiones.
+
+A continuación se indican algunas aplicaciones típicas de esta estructura de datos. Hay que destacar la analogía evidente de los árboles de los trozos de este tipo con \bf{двумерными estructuras de datos} (en realidad, en cierto sentido, esto es en dos dimensiones, la estructura de datos, pero con bastante movilidad reducida).
+
+\h4{Búsqueda de menor número, mayor o igual especificado, en ese tramo. Solicitudes de modificación no}
+
+Es necesario responder a la siguiente: $(l,r,x)$, lo que significa encontrar el número mínimo en el tramo de $a[l \ldots r]$, que es mayor o igual que $x$.
+
+\bf{Construiremos} el árbol de las líneas, en el que en cada vértice vamos a mantener ordenada la lista de todos los números que aparecen en el correspondiente tramo. Por ejemplo, la raíz contendrá la matriz $a[]$ en forma ordenada. Cómo construir un árbol de regiones más eficaz posible? Para ello, nos acercaremos a la tarea, como de costumbre, desde el punto de vista de la recursividad: que para el izquierdo y el derecho de los hijos de la actual cima de estas listas ya construidos, y necesitamos construir esta lista para la cima. Con este planteamiento se hace casi evidente que esto se puede hacer por lineal del tiempo: sólo nos es necesario combinar los dos clasificados de la lista en una sola, lo que se hace en una sola pasada con dos punteros. Los usuarios de C++, es aún más fácil, ya que este algoritmo de mezcla ya está incluido en la biblioteca STL:
+
+\code
+vector<int> t[4*MAXN];
+
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = vector<int> (1, a[tl]);
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl tm);
+build (a, v*2+1, tm+1, tr);
+merge (t[v*2].begin(), t[v*2].end(), t[v*2+1].begin(), t[v*2+1].end(),
+back_inserter (t[v]));
+}
+}
+\endcode
+
+Ya sabemos que el edificio de este modo, el árbol de regiones ocupará $O (n \log n)$ de memoria. Y gracias a esta aplicación el tiempo de su construcción, también tiene un valor de $O (n \log n)$ --- ya que cada lista se construye de forma lineal en relación a su tamaño. (Por cierto, aquí se observa una evidente analogía con el algoritmo de \bf{ordenación de mezcla}: sólo aquí guardamos la información de todos los pasos del algoritmo, y no sólo el total.)
+
+Consideremos ahora \bf{respuesta a la solicitud}. Vamos a bajar por el árbol, como lo hace el estándar de la respuesta a la solicitud en el árbol de regiones, rompiendo nuestro segmento $a[l \ldots r]$ en varios подотрезков (aproximadamente $O (\log n)$ de piezas). Está claro que la respuesta a toda la tarea es igual al mínimo entre las respuestas en cada uno de estos подотрезков. Entendemos ahora, como responder a una solicitud de un tal подотрезке, simplemente con un poco de la cima del árbol.
+
+Por lo tanto, llegamos a una cima del árbol de regiones y queremos calcular la respuesta en ella, es decir, a menor número, mayor o igual a este $x$. Para ello, sólo es necesario ejecutar \bf{binario de búsqueda} en la lista, посчитанному en la cima de un árbol, y devolver el primer número de esta lista, es mayor o igual a $x$.
+
+Por lo tanto, la respuesta a la solicitud en un подотрезке pasa a $O (\log n)$, y todo se procesa una solicitud por hora $O (\log^2 n)$.
+
+\code
+int query (int v, int tl, int tr, int l, int r, int x) {
+if (l > r)
+return INF;
+if (l == tl && tr == r) {
+vector<int>::iterator pos = lower_bound (t[v].begin(), t[v].end(), x);
+if (pos != t[v].end())
+return *pos;
+return INF;
+}
+int tm = (tl + tr) / 2;
+return min (
+query (v*2, tl, tm, l, min(r,tm), x),
+query (v*2+1, tm+1, tr, max(l,tm+1), r, x)
+);
+}
+\endcode
+
+La constante de $\rm INF$ es cierto, un gran número, a sabiendas de que es más grande que cualquier número en la matriz. Ella es el significado de "respuesta" en un tramo no existe".
+
+\h4{Búsqueda de menor número, mayor o igual especificado, en ese tramo. Se admiten las solicitudes de modificación}
+
+La tarea es similar a la anterior, sólo que ahora aceptan las solicitudes de modificación: procesar la asignación de $a[i] = y$.
+
+Además, la solución es similar a la decisión de la tarea anterior, sólo que en lugar de simples listas en cada vértice del árbol de regiones vamos a mantener equilibrada la lista que le permite buscar rápidamente el número deseado, eliminar, insertar un nuevo número. Teniendo en cuenta que en general el número en la entrada de la matriz se pueden repetir, la mejor opción es la estructura de datos STL $\rm multiset$.
+
+\bf{Construcción} de tal árbol de regiones se produce de una manera similar como en la tarea anterior, sólo que ahora hay que combinar no ordenados listas y $\rm multiset$, lo que provocará que asíntotas de generación de empeorar a $n \log^2 n$ (aunque, al parecer, rojo-negro árboles permiten combinar dos árboles lineal del tiempo, sin embargo la biblioteca STL no garantiza).
+
+La respuesta a \bf{búsqueda} en general, casi el equivalente del citado código, sólo que ahora de $\rm lower\_bound$ es necesario llamar desde $t[v]$.
+
+Por último, \bf{solicitud de modificación}. Para su procesamiento debemos bajar por el árbol, después de realizar los cambios en los $O (\log n)$ de las listas que contienen el elemento afectado. Simplemente vamos a eliminar el antiguo valor de este elemento (no olvidarse de que no necesitamos eliminar junto con él todas las repeticiones de este número) y pegamos su nuevo valor.
+
+\code
+void update (int v, int tl, int tr, int pos, int new_val) {
+t[v].erase (t[v].find (a[pos]));
+t[v].insert (new_val);
+if (tl != tr) {
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+update (v*2, tl, tm, pos, new_val);
+else
+update (v*2+1, tm+1, tr, pos, new_val);
+}
+else
+a[pos] = new_val;
+}
+\endcode
+
+El procesamiento de esta solicitud se produce también por el tiempo $O (\log^2 n)$.
+
+\h4{Búsqueda de menor número, mayor o igual especificado, en ese tramo. La aceleración con la ayuda de la tecnología, "parcial cascada"}
+
+Cómo mejorar el tiempo de respuesta en la consulta de la búsqueda antes de la hora $O (\log n)$ mediante la aplicación de la técnica \bf{"parcial cascada"} ("fractional cascading").
+
+Parcial de la cascada --- es una sencilla técnica que permite mejorar el tiempo de trabajo de varios binarios de búsqueda, de las negociaciones en curso, por el mismo valor. En realidad, la respuesta a la consulta de búsqueda es que partimos de nuestra tarea en varias subtareas, cada una de las cuales luego se decide binarios de búsqueda por el número de $x$. Parcial de la cascada permite reemplazar todos estos binarios de búsqueda en uno.
+
+El más simple y el más claro ejemplo parcial de la cascada es \bf{el siguiente desafío}: hay varias listas ordenadas de números, y debemos en cada lista de encontrar el primer número, mayor o igual a la especificada.
+
+Si hemos decidido tarea "en la frente", habrían tenido que ejecutar el binario de búsqueda en cada una de estas listas, que si estas listas de muchos, se convierte en un muy importante factor: si el total de las listas de $k$, asíntotas resultará $O (k \log(n/k))$, donde $n$ --- el tamaño total de todas las listas (asíntotas es tal, porque el peor caso cuando todas las listas son aproximadamente iguales entre sí por la longitud, es decir, son iguales a $n/k$).
+
+En lugar de ello, podríamos combinar todas estas listas en una lista ordenada, en la que para cada número $n_i$ vamos a almacenar la lista de posiciones: posición en la primera lista del primer número, mayor o igual $n_i$, una posición similar en la segunda lista, y así sucesivamente. En otras palabras, para cada aparezca el número de almacenamos junto con esto por el número de resultados binarios de búsqueda de él en cada una de las listas. En este caso, asíntotas de una respuesta a una solicitud es $O (\log n + k)$, que es mucho mejor, sin embargo, nos hemos visto obligados a pagar el alto consumo de memoria: es decir, necesitamos $O (nk)$ de celdas de memoria.
+
+La técnica parcial de la cascada, va más allá en la realización de esta tarea, y obtiene el consumo de memoria $O (n)$ al mismo tiempo una respuesta a la consulta $O (\log n + k)$. (Para ello, mantenemos no es una lista grande de la longitud de la $n$, y de nuevo volvemos a $k$ listas, pero junto con cada una de las listas almacenamos cada segundo elemento de la siguiente lista; tendríamos que volver a junto con cada número de grabar su posición en ambas listas (la actual y la próxima), sin embargo, esto le sigue responder con eficacia a la consulta: hacemos una búsqueda binaria sobre el primero de la lista y, a continuación, vamos de esas listas por orden, pasando cada vez más en la siguiente lista con la ayuda de предпосчитанных punteros, y dando un paso hacia la izquierda, teniendo en cuenta lo que la mitad de los números de la siguiente lista registrado no fue).
+
+Pero nosotros en nuestra aplicación a un árbol de regiones \bf{no necesita} completa de la potencia de esta técnica. El hecho de que la lista en la cima de una contiene a todos los números que se pueden encontrar en la izquierda y la derecha hijos. Por lo tanto, para evitar binario de búsqueda en la lista del hijo, nos es suficiente para cada lista en el árbol de los trozos de contar para cada número de su posición en las listas de la izquierda y derecha de los hijos (más exactamente, la posición del primer número, menor o igual a la actual).
+
+Por lo tanto, en lugar de la habitual lista de todos los números mantenemos una lista de triples: el número, la posición en la lista de la izquierda hijo, posición en la lista de la derecha de su hijo. Esto nos permitirá por $O (1)$ de determinar la posición en la lista de la izquierda o la derecha del hijo, en vez de hacer un binario de la lista por él.
+
+Es más fácil aplicar esta técnica a la tarea, cuando las solicitudes de modificación de ausentes, --- entonces estas posiciones son simplemente números y contar al construir el árbol es muy fácil dentro de los algoritmos de fusión de las dos secuencias ordenadas.
+
+En el caso de que se permitan las solicitudes de modificaciones, algunas se complica: estas posiciones ahora se debe almacenar en forma de iteración dentro de los $\rm multiset$, y cuando consulta de actualización --- correctamente reducir/aumentar para los elementos para los cuales es necesario.
+
+De una u otra manera, la tarea ya se reduce a la pura реализационным los entresijos y la idea principal --- sustitución de la $O (\log n)$ binarios de búsqueda de una binarios de búsqueda de la lista en la raíz del árbol --- se describe completamente.
+
+\h4{Otros posibles destinos}
+
+Tenga en cuenta que esta técnica supone una clase entera de las posibles aplicaciones --- todo depende de la estructura de datos elegida para el almacenamiento en cada vértice del árbol. Más arriba hemos examinado la aplicación con el uso de la $\rm vector$ $\rm multiset$, mientras que en absoluto se puede utilizar cualquier otra estructura compacta de los datos: el otro árbol de regiones (sobre esto un poco más adelante en la sección sobre multidimensionales de los árboles de regiones), \algohref=fenwick_tree{árbol Fenwicks}, \algohref=treap{un producto cartesiano árbol}, etc.
+
+
+\h3{Actualización en el tramo}
+
+Se han analizado las tareas, cuando la solicitud de modificación afecta a un único elemento de la matriz. En realidad, el árbol de regiones permite hacer las consultas que se aplican a la totalidad bloques de elementos contiguos, y realizar estas solicitudes por el mismo tiempo $O (\log n)$.
+
+\h4{el Aumento en el tramo de la}
+
+Comenzaremos el examen de los árboles de los trozos de este tipo con el más simple de los casos: la solicitud de modificación representa la suma de todos los números en cierto подотрезке $a[l \ldots r]$ un cierto número de $x$. Una solicitud de lectura --- sigue la lectura de los valores de un cierto número de $a[i]$.
+
+Para hacer la solicitud de incorporación efectivamente, vamos a almacenar en cada vértice del árbol de regiones, cuánto hay que añadir a todos los números de este segmento completo. Por ejemplo, si llega una petición de "añadir a todo a la matriz $a[0 \ldots, n-1]$ número 2", lo pondremos en la raíz del árbol número $de$ 2. Así podemos procesar la solicitud de incorporación en cualquier подотрезке de manera eficiente, en lugar de cambiar todo $O (n)$ de valores.
+
+Si ahora llega una solicitud de lectura de los valores de uno u otro de los números, nos basta con bajar por el árbol, la suma de todos los encontrados por el camino de los valores registrados en las cimas de los árboles.
+
+\code
+void build (int a[], int v, int tl, int tr) {
+if (tl == tr)
+t[v] = a[tl];
+else {
+int tm = (tl + tr) / 2;
+build (a, v*2, tl tm);
+build (a, v*2+1, tm+1, tr);
+}
+}
+
+void update (int v, int tl, int tr, int l, int r, int add) {
+if (l > r)
+return;
+if (l == tl && tr = r=)
+t[v] += add;
+else {
+int tm = (tl + tr) / 2;
+update (v*2, tl, tm, l, min(r,tm), add);
+update (v*2+1, tm+1, tr, max(l,tm+1), r, add);
+}
+}
+
+int get (int v, int tl, int tr, int pos) {
+if (tl == tr)
+return t[v];
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+return t[v] + get (v*2, tl, tm, pos);
+else
+return t[v] + get (v*2+1, tm+1, tr, pos);
+}
+\endcode
+
+\h4{Asignación en el tramo}
+
+Que ahora, la solicitud de modificación representa la asignación de todos los elementos de un corte $a[l \ldots r]$ de un valor de $p$. Como segunda consulta, vamos a considerar la lectura de los valores de la matriz $a[i]$.
+
+Para hacer la modificación en el tramo tiene que en cada vértice del árbol de regiones almacenar, pintado si este tramo en su totalidad en cualquier número o no (y si es pintado, almacenar este mismo número). Esto nos permitirá hacer \bf{"retrasado" actualización} el árbol de segmentos de línea: cuando la solicitud de modificación de nosotros, en lugar de cambiar los valores en el conjunto de vértices del árbol de regiones, cambiaremos sólo algunos de ellos, dejando las banderas de "pintado" de otras regiones, lo que significa que todo este tramo, junto con sus подотрезками debe ser pintados en este color.
+
+Así que, después de realizar la solicitud de modificación de los trozos de madera se convierte, en general, irrelevante --- en él se han quedado недовыполненными algunas modificaciones.
+
+Por ejemplo, si llegó la solicitud de modificación de asignar todo el conjunto $a[0 \ldots, n-1]$ algún número", en el árbol de regiones haremos el único cambio --- пометим la raíz de un árbol que había pintado en su totalidad en este número. El resto de la cima del árbol quedarán guardados, aunque en realidad todo el árbol debe ser pintado en el mismo número.
+
+Supongamos ahora que en el mismo árbol de regiones vino la segunda solicitud de modificación --- pintar la primera mitad de la matriz $a[0 \ldots, n/2]$ en cualquier otro número. Para procesar esta solicitud, debemos pintar la totalidad hijo izquierdo de la raíz en este nuevo color, sin embargo, antes de hacerlo, debemos entender la raíz del árbol. La finura de aquí es que en el árbol debe conservarse, que la mitad derecha pintado en el color anterior, y en este momento, en el árbol de ningún tipo de información para la derecha de la mitad no se ha guardado.
+
+La salida es la siguiente: producir \bf{empujando a través de} la información desde la raíz, es decir, si la raíz de un árbol fue pintada en algún número, pintar en este número a su derecha y a la izquierda del hijo y de la raíz de esta marca de borrar. Después de esto, podemos tranquilamente pintar el hijo izquierdo de la raíz, sin perder ninguna de la información necesaria.
+
+Resumiendo, obtenemos: en todas las consultas con tal de madera (solicitud de modificación o de lectura) durante el descenso por el árbol siempre tenemos que hacer empujando a través de la información de la cima en ambos de sus hijos. Se puede entender esto es así, que al descender por el árbol de la aplicamos rezagados de la modificación, pero lo suficiente para que, en la medida de lo necesario (para no empeorar асимптотику con $O (\log n)$).
+
+Al implementar esto significa que tenemos que hacer la función $\rm push$, que será transferido a la cima del árbol de regiones, y se va a producir empujando a través de la información de esta cima en ambos de sus hijos. Llamar a esta función debe al principio de las funciones de procesamiento de consultas (pero no llamarla de las hojas, ya que de la hoja de mover la información no es necesario, sí y dónde).
+
+\code
+void push (int v) {
+if (t[v] != -1) {
+t[v*2] = t[v*2+1] = t[v];
+t[v] = -1;
+}
+}
+
+void update (int v, int tl, int tr, int l, int r, int color) {
+if (l > r)
+return;
+if (l == tl && tr = r=)
+t[v] = color;
+else {
+push (v);
+int tm = (tl + tr) / 2;
+update (v*2, tl, tm, l, min(r,tm), color);
+update (v*2+1, tm+1, tr, max(l,tm+1), r, color);
+}
+}
+
+int get (int v, int tl, int tr, int pos) {
+if (tl == tr)
+return t[v];
+push (v);
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+return get (v*2, tl, tm, pos);
+else
+return get (v*2+1, tm+1, tr, pos);
+}
+\endcode
+
+La función $\rm get$ se podrían realizar de otra manera: no hacer en ella desfasados de las actualizaciones y, a la vez devolver la respuesta, una vez que entra en la cima del árbol de regiones, enteramente pintada en uno u otro color.
+
+\h4{el Aumento en el tramo de la a, la solicitud de un máximo}
+
+Supongamos ahora la solicitud de modificación será de nuevo la solicitud de agregar a todos los números de una cierta подотрезка mismo número, y la consulta de la lectura es encontrar el máximo en cierto подотрезке.
+
+Entonces en cada vértice del árbol de regiones a necesitar almacenar un máximo en todo este подотрезке. Pero la finura de aquí es que, como es necesario volver a calcular estos valores.
+
+Por ejemplo, supongamos que se ha producido la consulta "añadir a toda la primera mitad, es decir, $a[0 \ldots, n/2]$, el número 2". Entonces en el árbol de los cambios de grabar el número $de$ 2 en el hijo izquierdo de la raíz. Como ahora calcular el nuevo valor máximo en la margen izquierda del hijo y en la raíz? Es importante que no se confunda - - - ¿cuál es el máximo se almacena en la parte superior del árbol: máximo, sin considerar la incorporación en toda esta cima, o teniendo en cuenta su. Puede seleccionar cualquiera de estos enfoques, pero lo más importante --- secuencial para usarlo en todas partes. Por ejemplo, si el primer enfoque, el máximo en la raíz salga como máximo de dos números: el máximo a la izquierda del hijo, más el aumento en la del hijo, y el máximo en el derecho del hijo, más el aumento en el mismo. En el segundo enfoque máximo en la raíz salga como el aumento en la raíz más el máximo de los máximos de la izquierda y el derecho de los hijos.
+
+\h4{Otros destinos}
+
+Aquí fueron considerados básicos de la aplicación de los árboles de regiones en las tareas con modificaciones en el tramo. El resto de tareas se obtienen en base a las mismas ideas que se describen aquí.
+
+Es importante tener mucho cuidado cuando se trabaja con pendientes modificaciones: tenga en cuenta que incluso si la cima ya hemos протолкнули" una modificación, en el izquierdo y el derecho de los hijos, lo más probable, es que todavía no lo han hecho. Por lo tanto, a menudo es necesario llamar a $\rm push$ también de la izquierda y derecha de los hijos de la actual a la cima, o cuidadosamente pendientes modificación en los mismos.
+
+
+\h3{Síntesis de la ampliación de la dimensión}
+
+El árbol de regiones resume muy naturalmente en dos dimensiones y en general multidimensional de la caja. Si en el caso unidimensional, nos rompieron los índices de la matriz en segmentos, en dos dimensiones, ahora primero vamos a romper todos los primeros índices, y para cada tramo de la primera índices --- construir normal árbol de regiones por el segundo en los índices. Por lo tanto, la idea básica de la solución --- es la inversion de los árboles de regiones por el segundo de los índices en el interior de los trozos de madera de la primera índices.
+
+Vamos a explicar esta idea en el ejemplo de una tarea específica.
+
+\h4{Bidimensional árbol de regiones en la versión más simple}
+
+Dana rectangular de la matriz $a[0 \ldots, n-1, 0 \ldots m-1]$, y se envían las consultas de búsqueda de la suma (o mínimo/máximo) en algunos подпрямоугольниках $a[x_1 \ldots x_2, y_1 \ldots y_2]$, así como las solicitudes de modificaciones de los elementos individuales de la matriz (es decir, consultas de la vista $a[x][y] = p$).
+
+Así, vamos a construir bidimensional árbol tramos: el primero de los trozos de madera de la primera coordenada ($x,$ y, a continuación, - - - por segundo ($y$).
+
+Para \bf{el proceso de compilación} más comprensible, puede olvidar que la matriz original era bidimensional, y dejar sólo la primera coordenada. Vamos a construir normal de un ente unidimensional árbol de regiones, trabajando solo con la primera coordenada. Pero como el valor de cada segmento se lo vamos a grabar algún número, como en el caso unidimensional, y por todo el árbol de regiones: es decir, en este punto, recordamos que aún tenemos y la segunda coordenada; pero ya que en este momento ya se ha establecido que la primera coordenada hay algún tramo de $[l \ldots r]$, entonces realmente estamos trabajando con una raya $a[l \ldots r, 0 \ldots m-1]$, y para ella construimos el árbol de regiones.
+
+Veamos la implementación de la operación de generación bidimensional de un árbol. Ella se compone de dos bloques: construcción del árbol de regiones de la coordenada de $x$ ($\rm build\_x$) y por la coordenada $y$ ($\rm build\_y$). Si la primera función casi no difiere de la normal unidimensional del árbol, la segunda obligada a comprender por separado en dos casos: cuando el actual tramo de la primera coordenada ($[tlx \ldots trx]$) tiene una única longitud, y cuando --- longitud mayor que la unidad. En el primer caso, simplemente nos tomamos el valor de la matriz $a[][]$, y en la segunda --- unimos los valores de los dos árboles de regiones de hijo izquierdo y derecho de un hijo a la coordenada de $x$.
+
+\code
+void build_y (int vx, int lx, int rx, int vy, int ly, int ry) {
+if (ly == ry)
+if (lx == rx)
+t[vx][vy] = a[lx][ly];
+else
+t[vx][vy] = t[vx*2][vy] + t[vx*2+1][vy];
+else {
+int my = (ly + ry) / 2;
+build_y (vx, lx, rx, vy*2, ly, my);
+build_y (vx, lx, rx, vy*2+1, my+1, ry);
+t[vx][vy] = t[vx][vy*2] + t[vx][vy*2+1];
+}
+}
+
+void build_x (int vx, int lx, int rx) {
+if (lx != rx) {
+int mx = (lx + rx) / 2;
+build_x (vx*2, lx, mx);
+build_x (vx*2+1, mx+1, rx);
+}
+build_y (vx, lx, rx, 1, 0, m-1);
+}
+\endcode
+
+Qué es el árbol de regiones ocupa todavía lineal de la cantidad de memoria, pero ya con más constante: $16 n m$ celdas de memoria. Está claro que se basa ha descrito anteriormente, el procedimiento de $\rm build\_x$, también, por el tiempo lineal.
+
+Pasemos ahora a \bf{procesamiento de consultas}. Responder bidimensional vamos a la consulta sobre el mismo principio: primero dividir la solicitud de la primera coordenada, y luego, cuando hemos llegado a algún tipo de las copas de los árboles de regiones por primera coordenada --- llamar a la consulta del árbol de regiones por la segunda coordenada.
+
+\code
+int sum_y (int vx, int vy, int tly, int try_, int ly, int ry) {
+if (ly > ry)
+return 0;
+if (ly == tly && try_ == ry)
+return t[vx][vy];
+int tmy = (tly + try_) / 2;
+return sum_y (vx, vy*2, tly, tmy, ly, min(ry,tmy))
++ sum_y (vx, vy*2+1, tmy+1, try_, max(ly,tmy+1), ry);
+}
+
+int sum_x (int vx, int tlx, int trx, int lx, int rx, int ly, int ry) {
+if (lx > rx)
+return 0;
+if (lx == tlx && trx == rx)
+return sum_y (vx, 1, 0, m-1, ly, ry);
+int tmx = (tlx + trx) / 2;
+return sum_x (vx*2, tlx, tmx, lx, min(rx,tmx), ly, ry)
++ sum_x (vx*2+1, tmx+1, trx, max(lx,tmx+1), rx, ly, ry);
+}
+\endcode
+
+Esta función trabaja por hora $O (\log n \log m)$, ya que primero desciende por el árbol de la primera coordenada, y para cada recorre la cima de este árbol --- hace una petición a un árbol de regiones por la segunda coordenada.
+
+Por último, considere \bf{solicitud de modificación}. Queremos aprender a modificar el árbol de regiones de acuerdo con el cambio de valor de un elemento $a[x][y] = p$. Está claro que los cambios se producirán sólo en los vértices del primer árbol de regiones, que se sirve de la coordenada de $x$ de $O (\log n)$), y para los árboles de regiones, sus --- los cambios serán sólo en las cimas de las que se sirve la coordenada $y$ (y como se $O (\log m)$). Por lo tanto, la implementación de la solicitud de modificación no será muy diferente a la del caso unidimensional, sólo que ahora lo primero que cae en la primera coordenada y, a continuación, - - - por la segunda.
+
+\code
+void update_y (int vx, int lx, int rx, int vy, int ly, int ry, int x, int y, int new_val) {
+if (ly == ry) {
+if (lx == rx)
+t[vx][vy] = new_val;
+else
+t[vx][vy] = t[vx*2][vy] + t[vx*2+1][vy];
+}
+else {
+int my = (ly + ry) / 2;
+if (y <= mi)
+update_y (vx, lx, rx, vy*2, ly, my, x, y, new_val);
+else
+update_y (vx, lx, rx, vy*2+1, my+1, ry, x, y, new_val);
+t[vx][vy] = t[vx][vy*2] + t[vx][vy*2+1];
+}
+}
+
+void update_x (int vx, int lx, int rx, int x, int y, int new_val) {
+if (lx != rx) {
+int mx = (lx + rx) / 2;
+if (x <= mx)
+update_x (vx*2, lx, mx, x, y, new_val);
+else
+update_x (vx*2+1, mx+1, rx, x, y, new_val);
+}
+update_y (vx, lx, rx, 1, 0, m-1, x, y, new_val);
+}
+\endcode
+
+\h4{Compresión bidimensional de un árbol de regiones}
+
+Deje que la tarea es la siguiente: hay $n$ de puntos en el plano, dadas sus coordenadas $(x_i,y_i)$, y se recibe la solicitud tipo "contar el número de puntos que yacen en el interior de un rectángulo $((x_1,y_1),(x_2,y_2))$". Está claro que en el caso de que esta tarea se convierte en un derroche injustificado de construir bidimensional árbol de regiones con $O (n^2)$ elementos. La mayor parte de esta memoria es en vano, ya que cada una por separado tomada punto puede llegar sólo en $O (\log n)$ de los trozos de madera de los trozos de la primera coordenada, y, entonces, la suma de "útil" el tamaño de todos los árboles de regiones por la segunda coordenada es la cantidad de $O (n \log n)$.
+
+Entonces se procede de la siguiente manera: en cada vértice del árbol de regiones por primera coordenada vamos a almacenar el árbol de regiones, construido sólo por el fin de la segunda de las coordenadas que se encuentran en el actual tramo del primer lugar de las coordenadas. En otras palabras, al construir el árbol de regiones dentro de una especie de cima con el número de $vx$ y los de la $tlx, trx$ vamos a considerar sólo aquellos puntos que caen en este segmento de $x \in [tlx; trx]$, y para construir el árbol de regiones sólo por encima de ellos.
+
+Así lograremos que cada árbol de regiones por la segunda coordenada se va a ocupar exactamente la cantidad de memoria que debe ser. En resumen, la suma de \bf{memoria} se reduce a $O (n \log n)$. \bf{Responder a la solicitud} continuaremos por $O (\log^2 n)$, sólo ahora, cuando se llama a la solicitud del árbol de regiones por la segunda coordenada tendremos que hacer un binario de búsqueda por la segunda coordenada, pero асимптотику no es a empeorar.
+
+Pero el premio será la imposibilidad de hacer arbitrario \bf{solicitud de modificación}: en realidad, si aparece un nuevo punto, que dará lugar a lo que tendremos en algún árbol de los trozos de la segunda coordenada de añadir un nuevo elemento en el medio, que efectivamente no se puede hacer.
+
+En conclusión, observamos que el gesto del descritas de manera bidimensional de los trozos de madera se convierte en casi \bf{equivalente} descrito anteriormente, la modificación unidimensional del árbol de regiones (véase "almacenamiento de todo подмассива en cada vértice del árbol de regiones"). En particular, resulta que se describe aquí bidimensional árbol trozos --- este es sólo un caso especial de la conservación de la подмассива en cada vértice de un árbol, donde подмассив mismo se almacena en forma de árbol de regiones. De aquí se deduce que si tiene que renunciar bidimensional de los trozos de madera debido a la imposibilidad de llevar a cabo cada una consulta, no tiene sentido intentar cambiar el adjunto de un árbol de regiones en alguna más potente de la estructura de los datos, por ejemplo, \algohref=treap{un producto cartesiano árbol}.
+
+
+\h3{Árbol de regiones con la conservación de la historia de sus valores (mejora de hasta un persistent-estructura de datos)}
+
+Persistent-estructura de datos se llama esta estructura de datos, que en cada revisión recuerda su estado anterior. De esta forma, si es necesario, consultar a cualquiera de los que nos interesa la versión de esta estructura de datos y realizar una consulta sobre ella.
+
+El árbol de regiones, es una de las estructuras de datos, que puede ser transformada en persistent-la estructura de los datos (por supuesto, consideramos eficaz persistent-estructura, y no tal, que copia todo completo antes de cada actualización).
+
+En realidad, cualquier solicitud de cambio en el árbol de regiones conduce a la modificación de datos en $O (\log n)$ vértices, y a lo largo de la ruta, que comienza desde la raíz. Entonces, si vamos a almacenar el árbol de regiones en las señales (es decir, punteros en el izquierdo y el derecho de los hijos a hacer los punteros, almacenados en la parte superior), al consultar la actualización debemos simplemente, en lugar de modificar los vértices de crear nuevas cimas, las referencias de los cuales dirigir a los viejos de la cima. Por tanto, cuando se consulta la actualización se crea $O (\log n)$ a nuevas alturas, incluso se crea una nueva raíz del árbol de trozos, y toda la предыдующая versión de madera, colgado por el viejo de la raíz, se mantendrá sin cambios.
+
+Por ejemplo, la aplicación de un sencillo árbol de regiones: cuando sólo hay una consulta de totales en подотрезке y la solicitud de modificación del singular.
+
+\code
+struct vertex {
+vertex * l, * r;
+int suma;
+
+vertex (int val)
+: l(NULL), r(NULL), sum(val)
+{ }
+
+vértice (vertex * l, vertex * r)
+: l(l), r(r), sum(0)
+{
+if (l) sum += l->sum;
+if (r) sum += r->sum;
+}
+};
+
+vertex * build (int a[], int tl, int tr) {
+if (tl == tr)
+return new vertex (a[tl]);
+int tm = (tl + tr) / 2;
+return new vertex (
+build (a, tl, tm),
+build (a, tm+1, tr)
+);
+}
+
+int get_sum (vertex * t, int tl, int tr, int l, int r) {
+if (l > r)
+return 0;
+if (l == tl && tr = r=)
+return t->sum;
+int tm = (tl + tr) / 2;
+return get_sum (t->l, tl, tm, l, min(r,tm))
++ get_sum (t->r, tm+1, tr, max(l,tm+1), r);
+}
+
+vertex * update (vertex * t, int tl, int tr, int pos, int new_val) {
+if (tl == tr)
+return new vertex (new_val);
+int tm = (tl + tr) / 2;
+if (pos <= tm)
+return new vertex (
+update (t->l, tl, tm, pos, new_val),
+t->r
+);
+else
+return new vertex (
+t->l,
+update (t->r, tm+1, tr, pos, new_val)
+);
+}
+\endcode
+
+Con este enfoque, se puede convertir en un persistent-estructura de datos en casi cualquier árbol de regiones.

@@ -1,0 +1,55 @@
+\h1{ Algoritmo de búsqueda de la componente de la conectividad en el recuadro }
+
+Dan неориентированный el conde de $G$ c $n$ cimas $m$ las costillas. Es necesario encontrar en él todos los componentes de la conectividad, es decir, dividir vértices del grafo en varios grupos, de modo que dentro de un mismo grupo puede ir de un vértice a cualquier otro, y entre diferentes grupos de --- la ruta no existe.
+
+
+\h2{ el Algoritmo de solución }
+
+Para la solución se puede utilizar como \algohref=dfs{omisión en profundidad} y \algohref=bfs{omisión de ancho}.
+
+De hecho, vamos a producir \bf{una serie de rastreos}: primero ejecutamos el rastreo de la primera a la cima, y todos los vértices, que está batiendo --- forman la primera componente de la conectividad. A continuación, encontramos el primero de los restantes vértices, que aún no han sido visitados, y ejecutamos el rastreo de ella, encontrando así el segundo componente de la conectividad. Y así sucesivamente, hasta que todos los vértices no serán marcados.
+
+Total \bf{asíntotas} $O(n + m)$: en realidad, este algoritmo no se ejecutará de la misma cima de la doble y, por lo tanto, cada arista se ha visto exactamente dos veces (con un extremo y el otro extremo).
+
+
+\h2{ Aplicación }
+
+Para la aplicación de un poco más conveniente es \algohref=dfs{rastreo en profundidad}:
+
+\code
+int n;
+vector<int> g[MAXN];
+bool used[MAXN];
+vector<int> comp;
+
+void dfs (int v) {
+used[v] = true;
+comp.push_back (v);
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (! used[to])
+dfs (to);
+}
+}
+
+void find_comps() {
+for (int i=0; i<n; ++i)
+used[i] = false;
+for (int i=0; i<n; ++i)
+if (! used[i]) {
+comp.clear();
+dfs (i);
+
+cout << "componente:";
+for (size_t j=0; j<comp.size(); ++j)
+cout << '' << comp[j];
+cout << endl;
+}
+}
+\endcode
+
+La función principal de la llamada --- $\rm find\_comps()$, ella encuentra y muestra los componentes de conectividad de grafo.
+
+Creemos que el conde se especifica listas de adyacencia, es decir, $g[i]$ contiene una lista de vértices, en la que hay de la aleta de la cima de la $i$. La constante de $\rm MAXN$ debe establecer el valor de la mayor cantidad posible de vértices en el grafo.
+
+El vector de $\rm comp$ contiene una lista de vértices en el actual componente de la conectividad.

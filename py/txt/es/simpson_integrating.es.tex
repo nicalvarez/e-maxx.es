@@ -1,0 +1,51 @@
+\h1{Integración de la fórmula de simpson}
+
+Se requiere calcular el valor de un determinado desarrollo integral:
+
+$$ \int_a^b f(x) dx $$
+
+La solución que se describe aquí, se ha publicado en una de las tesis \bf{thomas simpson} (Thomas Simpson) en el año 1743
+
+
+\h2{la Fórmula de simpson}
+
+Pida a $n$ --- un poco de un número natural. Dividimos el segmento de integración de $[a;b]$ $2n$ partes iguales:
+
+$$ x_i = a + i h,~~i = 0, \ldots 2n, $$
+$$ h = \frac{ b-a }{ 2n }. $$
+
+Ahora consideramos la integral por separado en cada uno de los trozos de $[x_{2i-2}, x_{2i}], i = 1, \ldots, n$, y luego detenemos a sumar las cifras de todos los valores.
+
+Así, que consideramos otro intervalo $[x_{2i-2}, x_{2i}], i = 1, \ldots, n$. Sustituir la función $f(x)$ en él параболой que pasa por 3 puntos $(x_{2i-2},x_{2i-1},x_{2i})$. Esta parábola siempre existe y es único. Puede encontrar analíticamente y, a continuación, sólo quedará проинтегрировать expresión para ella, y finalmente obtenemos:
+
+$$ \int_{x_{2i-2}}^{x_{2i}} f(x) dx = \left( f(x_{2i-2}) + 4 f(x_{2i-1}) + f(x_{2i}) \right) \frac{ h }{ 3 }. $$
+
+Plegable de estos valores en todas las regiones, obtenemos la final \bf{la fórmula de simpson}:
+
+$$ \int_a^b f(x) dx = \left( f(x_0) + 4 f(x_1) + 2 f(x_2) + 4 f(x_3) + 2 f(x_4) + \ldots + 4 f(x_{2N-1}) + f(x_{2N}) \right) \frac{ h }{ 3 }. $$
+
+
+\h2{Error}
+
+Error, даваемая la fórmula de simpson, no supera el módulo de magnitud:
+
+$$ \frac{ 1 }{ 180 } h^4 (b - a) \max_{a \le x \le b} \left| f^{(4)}(x) \right|. $$
+
+Por lo tanto, el error es de orden de reducción de $O (n^4)$.
+
+
+\h2{Aplicación}
+
+Aquí $f(x)$ --- alguna función definida por el usuario.
+
+\code
+double a, b; // datos de entrada
+const int N = 1000*1000; // el número de pasos (ya multiplicado por 2)
+double s = 0;
+double h = (b - a) / N;
+for (int i=0; i<=N; ++i) {
+double x = a + h * i;
+s += f(x) * ((i==0 || i==N) ? 1 : ((i&1)==0) ? 2 : 4);
+}
+s *= h / 3;
+\endcode

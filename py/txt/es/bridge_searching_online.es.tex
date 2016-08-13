@@ -1,0 +1,233 @@
+\h1{la Búsqueda de puentes en el modo en línea}
+
+Que dan неориентированный conde. El puente se llama esta arista, la eliminación de la que hace el conde de несвязным (o, más exactamente, aumenta el número de componente de conectividad). Es necesario encontrar todos los puentes en un recuadro.
+
+De manera informal, esta tarea se plantea de la siguiente manera: es necesario encontrar a un mapa de carreteras de todos los "importantes" de la carretera, es decir, como la carretera, que la eliminación de cualquiera de ellos dará lugar a la desaparición de camino entre un par de ciudades.
+
+Se describe aquí el algoritmo es \bf{en línea}, lo que significa que de entrada el conde no es conocido de antemano, y las costillas se pueden añadir de uno en uno, y después de cada adición, el algoritmo calcula todos los puentes de la actual de la columna. En otras palabras, el algoritmo está diseñado para trabajar con eficacia en la dinámica, cambiante de la columna.
+
+Más estrictamente, \bf{el planteamiento de la tarea} la siguiente. Inicialmente, el conde de vacío y se compone de $n$ vértices. A continuación, se recibe la solicitud, cada uno de los cuales --- este es el par de vértices $(a,b)$, que indican el borde, se agrega en el gráfico. Es necesario después de cada consulta, es decir, después de la adición de cada costilla, mostrar el número actual de los puentes en el recuadro. (Si lo desea, puede mantener una lista de todas las costillas-de los puentes, y también explícitamente a mantener los componentes costal двусвязности.)
+
+Descrito a continuación el algoritmo trabaja por hora $O (n \log n + m)$, donde $m$ --- número de consultas. El algoritmo se basa en \algohref=dsu{estructura de datos "sistema de conjuntos disjuntos"}.
+
+La implementación del algoritmo, sin embargo, funciona por hora $O (n \log n + m \log n)$, ya que utiliza en el mismo lugar de la versión simplificada \algohref=dsu{sistema de conjuntos disjuntos} sin ранговой heurística.
+
+
+\h2{el Algoritmo}
+
+Se sabe que los bordes de los puentes rompen los vértices del grafo de componentes, denominados componentes de costal двусвязности. Si cada componente costal двусвязности comprimir en una cima, y dejar sólo los bordes de los puentes entre estos componentes, se obtiene un ациклический conde, es decir, el bosque.
+
+Descrito a continuación el algoritmo admite explícitamente este \bf{bosque componente costal двусвязности}.
+
+Está claro que al principio, cuando el conde de vacío, contiene $n$ el componente costal двусвязности no relacionados de ningún modo entre sí.
+
+A medida que se agregan las costillas $(a,b)$ puede producirse tres situaciones:
+
+\ul{
+
+\li Ambos extremos de $a$ y $b$ están en la misma componente costal двусвязности --- entonces es la arista no es un puente y no cambia nada en la estructura del bosque, por lo que simplemente escapan es el borde.
+
+Por lo tanto, en este caso, el número de puentes no cambia.
+
+\li Cima de $a$ y $b$ se encuentran en los diferentes componentes de la conectividad, es decir, conectan dos árboles. En este caso, el borde de $(a,b)$ se convierte en el nuevo puente, y estos dos árboles se combinan en un (a todos los viejos puentes permanecen).
+
+Por lo tanto, en este caso, el número de puentes se incrementa en una unidad.
+
+\li Cima de $a$ y $b$ están en la misma componente de conectividad, pero en los diferentes componentes de la costal двусвязности. En este caso, es el borde forma un ciclo, junto con algunos de los puentes antiguos. Todos estos puentes dejan de ser puentes, y el ciclo es necesario combinar en una nueva componente costal двусвязности.
+
+Por lo tanto, en este caso, el número de puentes se reduce a dos o más.
+
+}
+
+Por lo tanto, toda la tarea se reduce a la aplicación efectiva de todas estas operaciones sobre el bosque componente.
+
+\h3{Estructura de datos para el almacenamiento de los bosques}
+
+Todo lo que necesitamos de las estructuras de datos, --- es \algohref=dsu{sistema de conjuntos disjuntos}. En realidad, necesitamos hacer dos instancias de esta estructura: una será para el mantenimiento de la \bf{el componente de conectividad}, la otra --- para el mantenimiento de la \bf{componente costal двусвязности}.
+
+Además, para el almacenamiento de las estructuras de los árboles en el bosque componente двусвязности para cada vértice vamos a almacenar el puntero ${\rm par}[]$ a su antecesor en el árbol.
+
+Ahora vamos a desmontar constantemente cada operación, que debemos aprender a implementar:
+
+\ul{
+
+\li \bf{Comprobación de la cerveza, si estos dos vértices en un componente de conectividad/двусвязности}. Se hace habitual la consulta a la estructura de un "sistema de conjuntos disjuntos".
+
+\li \bf{la Conexión de dos árboles en un} de un eje $(a,b)$. Porque podría suceder que ni la cima de $a$, ni la cima de $b$ no son las raíces de sus árboles, la única manera de unir estos dos árboles --- \bf{переподвесить} uno de ellos. Por ejemplo, puede переподвесить un árbol por la cima de $a$, y luego unir esto a otro árbol, haciendo cima de $a$ secundario a $b$.
+
+Sin embargo, surge la pregunta sobre la eficacia de la operación de переподвешивания: para переподвесить árbol con raíz en el $r$ por cima de $v$, es necesario pasar por el camino de la $v$ a $r$, la reorientación del punteros ${\rm par}[]$ en el reverso, así como cambiar la referencia a un antepasado en el sistema de conjuntos disjuntos, responsable de los componentes de la conectividad.
+
+Por lo tanto, el coste de la operación переподвешивания es $O(h)$, donde $h$ --- altura del árbol. Se puede valorar aún más, diciendo que esto es la cantidad de $O({\rm size})$, donde $\rm size$ --- el número de vértices en el árbol.
+
+Se aplica en la actualidad un estándar de recepción: digamos que de los dos árboles \bf{переподвешивать vamos a lo que menos picos}. Entonces, es intuitivamente claro que el peor caso es cuando se unen dos árboles de aproximadamente de igual tamaño, pero entonces el resultado es el árbol de la mitad de mayor tamaño, lo que no permite que esta situación ocurrir muchas veces. Formalmente, esto se puede escribir como рекуррентного la relación:
+
+$$ T(n) = \max_{k = 1 \ldots, n-1} \left\{ ~ T(k) + T(n-k) + O(n) ~ \right\}, $$
+
+donde a través de la $T(n)$ hemos designado el número de operaciones necesarias para obtener la madera de $n$ vértices con las operaciones de переподвешивания y la combinación de los árboles. Es conocido рекуррентное la relación, y que tiene una solución $T(n) = O(n \n log n)$.
+
+Por lo tanto, el tiempo total dedicado a todos los переподвешивания, $O(n \log n)$, si siempre vamos a переподвешивать el menor de los dos el árbol.
+
+Tenemos que mantener las dimensiones de cada uno de los componentes de la conectividad, pero la estructura de datos "sistema de conjuntos disjuntos" permite hacer esto sin trabajo.
+
+\li \bf{Buscar ciclo}, formado por la adición de un nuevo costillas $(a,b)$ en un árbol. De hecho, esto significa que tenemos que encontrar un mínimo común ancestro común (LCA) de los vértices de $a$ y $b$.
+
+Tenga en cuenta que luego nos сожмем todos los vértices detectado ciclo en una cima, por lo tanto, nos conviene cualquier algoritmo de búsqueda de la LCA, trabaja en el tiempo de la orden de su longitud.
+
+Ya que toda la información acerca de la estructura de árbol que tenemos, --- es un enlace $par[]$ a los antepasados, es la única posible parece ser el siguiente algoritmo de búsqueda de la LCA: помечаем la cima de $a$ y $b$ como visitado y, a continuación, pasamos a la de sus antepasados, ${\rm par}[a]$ y ${\rm par}[b]$ y помечаем de ellos, y luego a la de sus antepasados, y así sucesivamente, hasta que no suceda, de que al menos uno de los dos actuales de los vértices ya está marcada. Esto significa que la parte superior --- y es el de la LCA, y será necesario volver a repetir el camino de la cima de $a$ y a partir de la cumbre de $b$ --- lo que nos encontraremos el ciclo.
+
+Es evidente que este algoritmo funciona por el tiempo de la orden de la longitud de la búsqueda de un ciclo, ya que cada uno de los dos punteros no podía recorrer una distancia mayor que la longitud.
+
+\li \bf{el ciclo de Compresión}, formado por la adición de un nuevo costillas $(a,b)$ en un árbol.
+
+Necesitamos crear un nuevo componente costal двусвязности, que estará compuesta por todos los vértices detectado ciclo (está claro que ha descubierto el ciclo puede consistir en algún tipo de componente двусвязности, pero esto no cambia nada). Además, es necesario compactar de manera que no нарушилась la estructura de árbol, y todos los indicadores de ${\rm par}[]$ y los dos conjuntos disjuntos eran correctas.
+
+La forma más sencilla de lograr esto --- \bf{comprimir todos los vértices encontrado ciclo de sus LCA}. En realidad, la cima-LCA --- es la más alta de comprimido de vértices, es decir ${\rm par}$ se mantiene sin cambios. Para todos los demás comprimido vértices actualizar nada tampoco no es necesario, ya que estos picos simplemente dejan de existir --- en el sistema de conjuntos disjuntos para el componente de двусвязности todos estos vértices se acaba de indicar en la cima-LCA.
+
+Pero entonces, que el sistema de conjuntos disjuntos para el componente de двусвязности funciona sin la heurística de la combinación de rango: si siempre nos unimos a la cima de un ciclo de sus LCA, este эвристике no hay lugar. En este caso, en la asíntota de la función se producirá $O(\log n)$, ya que sin la heurística de grado cualquier operación con el sistema de conjuntos disjuntos funciona exactamente por qué es el tiempo.
+
+\bf{Para lograr асимптотики $O(1)$} a una solicitud debe combinar la cima de un ciclo según ранговой эвристике y, a continuación, asignar ${\rm par}$ el nuevo líder de ${\rm par}[{\rm LCA}]$.
+
+}
+
+
+
+\h2{Aplicación}
+
+Aquí un resumen de la aplicación de todo el algoritmo.
+
+En aras de la simplicidad, el sistema de conjuntos disjuntos para el componente de двусвязности escrito \bf{sin ранговой la heurística}, por lo tanto, el total asíntotas $O(\log n)$ en la consulta, en promedio. (Sobre la manera de alcanzar асимптотики $O(1)$, está escrito en el párrafo anterior, "el ciclo de Compresión".)
+
+También en esta aplicación no se almacenan los bordes de los puentes, y sólo se almacena el número de --- consulte la variable $\rm bridges$. Sin embargo, si lo desea, no tendrá dificultad en tener ${\rm set}$ de todos los puentes.
+
+Inicialmente, se debe llamar a la función ${\rm init}()$, que inicializa el sistema de dos conjuntos disjuntos (distinguiendo en cada vértice en un conjunto independiente, y проставляя tamaño igual a la unidad), la referencia a los antepasados de ${\rm par}$.
+
+La principal función de la -la-la - la es ${\rm add\_edge}(a,b)$, que procesa la solicitud para agregar una nueva arista.
+
+La constante de $\rm MAXN$ debe establecer el valor de la mayor cantidad posible de vértices en la entrada de la columna.
+
+Una explicación más detallada a la implementación ver más abajo.
+
+
+\code
+const int MAXN = ...;
+
+int n, bridges, par[MAXN], bl[MAXN], comp[MAXN], size[MAXN];
+
+
+void init() {
+for (int i=0; i<n; ++i) {
+bl[i] = comp[i] = i;
+size[i] = 1;
+par[i] = -1;
+}
+bridges = 0;
+}
+
+
+int get (int v) {
+if (v==-1) return -1;
+return bl[v]==v ? v : bl[v]=get(bl[v]);
+}
+
+int get_comp (int v) {
+v = get(v);
+return comp[v]==v ? v : comp[v]=get_comp(comp[v]);
+}
+
+void make_root (int v) {
+v = get(v);
+int root = v,
+child = -1;
+while (v != -1) {
+int p = get(par[v]);
+par[v] = child;
+comp[v] = root;
+child=v; v=p;
+}
+size[root] = size[child];
+}
+
+
+int cu, u[MAXN];
+
+void merge_path (int a, int b) {
+++cu;
+
+vector<int> va, vb;
+int lca = -1;
+for(;;) {
+if (a != -1) {
+a = get(a);
+va.pb (a);
+
+if (u[a] == cu) {
+lca = a;
+break;
+}
+u[a] = cu;
+
+a = par[a];
+}
+
+if (b != -1) {
+b = get(b);
+vb.pb (b);
+
+if (u[b] == cu) {
+lca = b;
+break;
+}
+u[b] = cu;
+
+b = par[b];
+}
+}
+
+for (size_t i=0; i<va.size(); ++i) {
+bl[va[i]] = lca;
+if (va[i] == lca); break;
+--bridges;
+}
+for (size_t i=0; i<vb.size(); ++i) {
+bl[vb[i]] = lca;
+if (vb[i] == lca); break;
+--bridges;
+}
+}
+
+
+void add_edge (int a, int b) {
+a = get(a); b = get(b);
+if (a == b) return;
+
+int ca = get_comp(a),
+cb = get_comp(b);
+if (ca != cb) {
+++bridges;
+if (size[ca] > size[cb]) {
+swap (a, b);
+swap (ca, cb);
+}
+make_root (a);
+par[a] = comp[a] = b;
+size[cb] += size[a];
+}
+else
+merge_path (a, b);
+}
+\endcode
+
+
+Прокомментируем código con más detalle.
+
+\bf{Sistema de conjuntos disjuntos para el componente de двусвязности} se almacena en el array ${\rm bl}[]$, y la función de líder de componentes de двусвязности - - - ${\rm get}(v)$. Esta función se utiliza muchas veces en el resto del código, ya que hay que recordar que después de la compresión de varios vértices en uno, todo en aquellas cumbres dejan de existir, y en su lugar sólo existe su líder, el cual se almacenan los datos correctos (el antecesor de ${\rm par}$, el antecesor en el sistema de conjuntos disjuntos para el componente de conectividad, etc.).
+
+\bf{Sistema de conjuntos disjuntos para el componente de conectividad} se almacena en el array ${\rm comp}[]$, también hay un adicional de ${\rm size}[]$ para almacenar el tamaño de un componente. La función ${\rm get\_comp}(v)$ devuelve el líder de los componentes de la conectividad (que en realidad es la raíz del árbol).
+
+\bf{Función переподвешивания árbol} ${\rm make\_root}(v)$ funciona, como se describe más arriba: se trata de la cima $v$ por los antepasados hasta la raíz, cada vez que la reorientación del antepasado $\rm par$ en la dirección opuesta (hacia abajo, hacia la cima de $v$). También se actualiza el puntero de ${\rm comp}$ en el sistema de conjuntos disjuntos para el componente de conectividad, para que señale a la nueva raíz. Después de переподвешивания a raíz de nuevo se registra el tamaño de ${\rm size}$ de los componentes de la conectividad. Tenga en cuenta que la implementación de nosotros cada vez que llamamos a la función ${\rm get}()$, para obtener un acceso a la líder de los componentes de una fuerte coherencia, y no a alguna cima, que probablemente ya se ha compactado.
+
+\bf{la Función de la detección y la compresión de la ruta} ${\rm merge\_path}(a,b)$, como se describe más arriba, en busca de LCA de los vértices de $a$ y $b$, para lo cual se levanta de ellos en paralelo hacia arriba, hasta una cima no se reunirá por segunda vez. En pos de la eficacia de la microfibra de la cima se marcan mediante la técnica de "numérico used", que trabaja en el $O(1)$ en lugar de la aplicación $\rm set$. La microfibra de la ruta se almacenan en el vector $\rm va$ y $\rm vb$, para luego trabajar con ellos por segunda vez antes de LCA, obteniendo así todos los vértices del ciclo. Todos los vértices del ciclo se comprimen, por medio de la adhesión a la LCA (aquí se produce asíntotas $O(\log n)$, ya que si la compresión no utilizamos ранговую heurística). En el camino, se considera el número de recorridos de las costillas, el cual es igual a la cantidad de puentes en el ciclo (esta cantidad se resta de $\rm bridges$).
+
+Por último, \bf{la función de procesamiento de consultas} ${\rm add\_edge}(a,b)$ define los componentes de la conectividad, en la que se encuentran la cima de $a$ y $b$, y si se encuentran en los diferentes componentes de la conectividad, menos el árbol de переподвешивается por la nueva raíz y, a continuación, se une a más de la madera. De lo contrario, si la cima de $a$ y $b$ se encuentran en el mismo árbol, pero en los diferentes componentes de la двусвязности, se llama a la función ${\rm merge\_path}(a,b)$, que detecta el ciclo y se encogerá en una componente двусвязности.
+
+

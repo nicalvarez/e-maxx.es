@@ -1,0 +1,75 @@
+\h1{ Código gray }
+
+
+\h2{ Definición }
+
+El código gray es un sistema de нумерования de números no negativos, cuando los códigos de los dos países vecinos números difieren exactamente en un bit.
+
+Por ejemplo, para los números de la longitud de 3 bits tenemos una secuencia de códigos de gray: $000$, $001$, $011$, $010$, $110$, $111$, $101$, $100$. Por Ejemplo, $G(4)=6$.
+
+Este código fue inventado por frank Грэем (Frank Gray) en 1953.
+
+
+\h2{ Encontrar el código de gray }
+
+Considere el número de bits de $n$ y el número de bits de $G(n)$. Tenga en cuenta que $i$el primer bit $G(n)$ es igual a uno solo en caso de que cuando $i$el primer bit $n$ es igual a uno, y $i+1$el primer bit es igual a cero, o viceversa ($i$el primer bit es igual a cero, $i+1$-ro es igual a uno). Por lo tanto, tenemos: $G(n) = n \oplus (n>>1)$:
+
+\code
+int g (int n) {
+return n ^ (n >> 1);
+}
+\endcode
+
+
+\h2{ Encontrar la inversa de código gray }
+
+Requerido por el código de gray $g$ recuperar el original, el número de $n$.
+
+Vamos a ir de bits altos a los más jóvenes (que el bit menos significativo es el número 1, sino el mayor --- $k$). Recibimos esta relación entre los bits de $n_i$ número $n$ y los bits de $g_i$ número $g$:
+
+$$ n_k = g_k, $$
+$$ n_{k-1} = g_{k-1} \oplus n_k = g_k \oplus g_{k-1}, $$
+$$ n_{k-2} = g_{k-2} \oplus n_{k-1} = g_k \oplus g_{k-1} \oplus g_{k-2}, $$
+$$ n_{k-3} = g_{k-3} \oplus n_{k-2} = g_k \oplus g_{k-1} \oplus g_{k-2} \oplus g_{k-3}, $$
+$$ \ldots $$
+
+En forma de código es mucho más fácil escribir como:
+
+\code
+int rev_g (int g) {
+int n = 0;
+for (; g; g>>=1)
+n ^= g;
+return n;
+}
+\endcode
+
+
+\h2{ Aplicación }
+
+Los códigos que se tienen varias aplicaciones en diferentes sectores, a veces bastante inesperados:
+
+\ul{
+
+\li $n$-bit del código gray corresponde гамильтонову ciclo de $n$-мерному cuba.
+
+\li En la técnica, los códigos que se utilizan para \bf{minimizar los errores} cuando la conversión de señales analógicas en digitales (por ejemplo, los sensores). En particular, los códigos que se calienta y se han abierto en relación con este uso.
+
+\li Códigos que se aplican en la solución de la tarea de \bf{Ханойских torres}.
+
+Pida a $n$ --- número de discos. Empecemos con el código gray de longitud $n$, que consta de unos y de ceros (es decir, $G(0)$), y vamos a seguir por los códigos de gray ($G(i)$ pasar $G(i+1)$). Poner en el cumplimiento de cada una $i$-ésimo bit de código actual que se calienta $i$el primer disco (y el más pequeño bit corresponde a la de menor tamaño de la unidad y, a mayor bate --- el más grande). Ya que en cada paso se cambia exactamente un bit, podemos entender el cambio del bit de $i$ como el movimiento de la $i$del disco. Tenga en cuenta que para todas las unidades excepto la de la menor, en cada paso hay exactamente una opción de carrera (a excepción de la plataforma de lanzamiento de final de posiciones). Para la unidad más pequeña de siempre hay dos opciones de carrera, sin embargo, tiene una estrategia de selección de marcha, siempre conducen a la respuesta: si $n$ es impar, entonces la secuencia de movimientos de la unidad más pequeña tiene la apariencia de $f \rightarrow t \rightarrow r \rightarrow f \rightarrow t \rightarrow r \rightarrow \ldots$ (donde $f$ --- inicio de la varilla, $t$ --- final de la varilla, $r$ --- resto de la barra), y si $n$ uniforme, entonces $f \rightarrow r \rightarrow t \rightarrow f \rightarrow r \rightarrow t \rightarrow \ldots$.
+
+\li Códigos de gray también encuentran aplicación en la teoría de la \bf{algoritmos genéticos}.
+
+}
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que puede realizar usando códigos de gray:
+
+\ul{
+
+\li \href=http://acm.sgu.es/problem.php?contest=0&problem=249{SGU #249 \bf {Matrix} ~~~~ [dificultad media]}
+
+}

@@ -1,0 +1,168 @@
+the <h1>hash Algorithms in problems on strings</h1>
+
+<p>hashes of the strings help to solve many problems. But they have one major disadvantage: most often they are not 100% us, since there are a lot of strings, hashes that match. Another thing that most tasks can be ignored, since the probability of matching hashes still very small.</p>
+
+<p> </p>
+
+the <h2>the Definition of hash and its calculation</h2>
+<p>One of the best ways to define a hash function from the string S the following:</p>
+<formula>h(S) = S[0] + S[1] * P + S[2] * P^2 + S[3] * P^3 + ... + S[N] * P^N</formula>
+<p>where P is some number.</p>
+<p>it is Reasonable to choose for P a Prime number, approximately equal to the number of characters in the input alphabet. For example, if predpolagaetsya string consisting only of lowercase English letters, then a good choice is P = 31. If the letters may be uppercase, and small, then, for example, P = 53.</p>
+<p>all code snippets in this article will be used P = 31.</p>
+<p>the hash value should be stored in the largest numeric type - int64, he's long long. It is obvious that when the string length of 20 characters will result in an overflow value. The key point is that we do not pay attention to the overflow, as if taking the hash modulo 2^64.</p>
+<p>an example of a hash calculation, if valid only lowercase Latin letters:</p>
+<code>const int p = 31;
+long long hash = 0, p_pow = 1;
+for (size_t i=0; i<s.length(); ++i)
+{
+// want to subtract 'a' from the code letters
+// add the unit to the string 'aaaaa' hash was non-zero
+hash += (s[i] - 'a' + 1) * p_pow;
+p_pow *= p;
+}</code>
+<p>In most of the tasks makes sense to first compute all the desired degree P in some array.</p>
+
+<p> </p>
+
+the <h2>Example of the problem. Find duplicate lines</h2>
+<p>now we are able to effectively solve this problem. Given a list of strings S[1..N], each of length at most M characters. Let's say you want to find all duplicate rows and divide them into groups so that each group was only identical strings.</p>
+<p>the Usual sort of strings we would have an algorithm with complexity O (N M log N), while using the hashes, we get O (N M + N log N).</p>
+<p>the Algorithm. Calculate the hash of each row and sort the rows on this hash.</p>
+<code>vector<string> s (n);
+// ... reading lines ...
+
+// count all of degree p, say, to 10,000 - the maximum length of strings
+const int p = 31;
+vector<long long> p_pow (10000);
+p_pow[0] = 1;
+for (size_t i=1; i<p_pow.size(); ++i)
+p_pow[i] = p_pow[i-1] * p;
+
+// count all hashes from strings
+// in the array stored the hash value and line number in the array s
+vector < pair<long long, int> > hashes (n);
+for (int i=0; i<n; ++i)
+{
+long long hash = 0;
+for (size_t j=0; j<s[i].length(); ++j)
+hash += (s[i][j] - 'a' + 1) * p_pow[j];
+hashes[i] = make_pair (hash, i);
+}
+
+// sort the hashes
+sort (hashes.begin(), hashes.end());
+
+// output the response
+for (int i=0, group=0; i<n; ++i)
+{
+if (i == 0 || hashes[i].first != hashes[i-1].first)
+cout << "\nGroup " << ++group << ":";
+cout << '' << hashes[i].second;
+}</code>
+
+<p> </p>
+
+the <h2>the Hash of the substring and its fast calculation</h2>
+<p>Suppose we are given a string S, and given indices I and J. Need to find the hash of substring S[I..J].</p>
+<p>definition:</p>
+<formula>H[I..J] = S[I] + S[I+1] * P + S[I+2] * P^2 + ... + S[J] * P^(J-I)</formula>
+<p>where:</p>
+<formula>H[I..J] * P[I] = S[I] * P[I] + ... + S[J] * P[J],
+H[I..J] * P[I] = H[0..J] - H[0..I-1]</formula>
+<p>the resulting property is very important.</p>
+<p>Indeed, it turns out that, <b>knowing only the hashes of all prefixes of string S, we can in O (1) get the hash of any substring</b>.</p>
+<p>the Only problem is that you need to be able to divide by P[I]. Actually, it's not easy. Because we calculate the hash modulo 2^64, for dividing by P[I] we have to find him to return the item to field (for example, using <algohref=extended_Euclid_algorithm>the Extended Euclidean algorithm</algohref>), and to multiply this inverse element.</p>
+<p>However, there is a more simple way. In most cases, <b>instead of sharing the hashes on the degree P, it is possible, conversely, to multiply them by these degree</b>.</p>
+<p>for example, given two hashes: one multiplied by P[I] and the other to P[J]. If I < J, we multiply the first hash to P[J-I], otherwise multiply the second hash to P[I-J]. Now we have brought the hashes to the same degree, and can safely be compared.</p>
+<p>for Example, code that calculates the hashes of all prefixes, and then in O (1) compares two substrings:</p>
+<code>string s; int i1, i2, len; // the input data
+
+// count all degrees of p
+const int p = 31;
+vector<long long> p_pow (s.length());
+p_pow[0] = 1;
+for (size_t i=1; i<p_pow.size(); ++i)
+p_pow[i] = p_pow[i-1] * p;
+
+// count the hashes of all prefixes
+vector<long long> h (s.length());
+for (size_t i=0; i<s.length(); ++i)
+{
+h[i] = (s[i] - 'a' + 1) * p_pow[i];
+if (i) h[i] += h[i-1];
+}
+
+// get the hashes of the two substrings
+long long h1 = h[i1+len-1];
+if (i1) h1= h[i1-1];
+long long h2 = h[i2+len-1];
+if (i2) h2= h[i2-1];
+
+// compare them
+if (i1 < i2 && h1 * p_pow[i2-i1] == h2 ||
+i1 > i2 && h1 == h2 * p_pow[i1-i2])
+cout << "equal";
+else
+cout << "different";</code>
+
+the <h2>Using hash</h2>
+<p>Here are some typical applications of hashing:</p>
+the <ul>
+the <li><algohref=rabin_karp>Algorithm Rabin-Karp substring search in a string in O (N)</algohref></li>
+the <li>determine the number of different substrings in O (N^2 log N) (see below)</li>
+the <li>determine the number of palindromes within a string</li>
+</ul>
+
+the <h2>determine the number of different substrings of</h2>
+
+<p>Suppose you are given string S of length N consisting only of lowercase English letters. You want to find the number of different substrings in this string.</p>
+
+<p>To solve iterate on the queue length of a substring: L = 1 .. N.</p>
+<p>For each L, we construct an array of hashes of substrings of length L, and let us give the hashes to the same degree, and sort this array. The number of different elements in this array is added to the response.</p>
+
+<p>Implementation:</p>
+
+<code>string s; // input string
+int n = (int) s.length();
+
+// count all degrees of p
+const int p = 31;
+vector<long long> p_pow (s.length());
+p_pow[0] = 1;
+for (size_t i=1; i<p_pow.size(); ++i)
+p_pow[i] = p_pow[i-1] * p;
+
+// count the hashes of all prefixes
+vector<long long> h (s.length());
+for (size_t i=0; i<s.length(); ++i)
+{
+h[i] = (s[i] - 'a' + 1) * p_pow[i];
+if (i) h[i] += h[i-1];
+}
+
+int result = 0;
+
+// iterate through the length of the substring
+for (int l=1; l<=n; ++l)
+{
+// looking for an answer to the current length
+
+// get the hashes of all substrings of length l
+vector<long long> hs (n-l+1);
+for (int i=0; i<n-l+1; ++i)
+{
+long long cur_h = h[i+l-1];
+if (i) cur_h -= h[i-1];
+// here is everything hashes to the same degree
+cur_h *= p_pow[n-i-1];
+hs[i] = cur_h;
+}
+
+// count the number of unique hashes
+sort (hs.begin(), hs.end());
+hs.erase (unique (hs.begin(), hs.end()), hs.end());
+result += (int) hs.size();
+}
+
+cout << result;</code>

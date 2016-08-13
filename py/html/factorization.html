@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Эффективные алгоритмы факторизации: Полларда p-1, Полларда p, Бента, Полларда Монте-Карло, Ферма</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Эффективные алгоритмы факторизации: Полларда p-1, Полларда p, Бента, Полларда Монте-Карло, Ферма</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Эффективные алгоритмы факторизации&lt;/h1&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;Здесь приведены реализации нескольких алгоритмов факторизации, каждый из которых по отдельности может работать как быстро, так и очень медленно, но в сумме они дают весьма быстрый метод.&lt;/p&gt;
+&lt;p&gt;Описания этих методов не приводятся, тем более что они достаточно хорошо описаны в Интернете.&lt;/p&gt;
+
+&lt;h2&gt;Метод Полларда p-1&lt;/h2&gt;
+&lt;p&gt;Вероятностный тест, быстро даёт ответ далеко не для всех чисел.&lt;/p&gt;
+&lt;p&gt;Возвращает либо найденный делитель, либо 1, если делитель не был найден.&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T&gt;
+T pollard_p_1 (T n)
+{
+	// параметры алгоритма, существенно влияют на производительность и качество поиска
+	const T b = 13;
+	const T q[] = { 2, 3, 5, 7, 11, 13 };
+
+	// несколько попыток алгоритма
+	T a = 5 % n;
+	for (int j=0; j&amp;lt;10; j++)
+	{
+
+		// ищем такое a, которое взаимно просто с n
+		while (gcd (a, n) != 1)
+		{
+			mulmod (a, a, n);
+			a += 3;
+			a %= n;
+		}
+
+		// вычисляем a^M
+		for (size_t i = 0; i &amp;lt; sizeof q / sizeof q[0]; i++)
+		{
+			T qq = q[i];
+			T e = (T) floor (log ((double)b) / log ((double)qq));
+			T aa = powmod (a, powmod (qq, e, n), n);
+			if (aa == 0)
+				continue;
+			
+			// проверяем, не найден ли ответ
+			T g = gcd (aa-1, n);
+			if (1 &amp;lt; g &amp;&amp; g &amp;lt; n)
+				return g;
+		}
+
+	}
+
+	// если ничего не нашли
+	return 1;
+
+}&lt;/code&gt;
+
+&lt;h2&gt;Метод Полларда &quot;Ро&quot;&lt;/h2&gt;
+&lt;p&gt;Вероятностный тест, быстро даёт ответ далеко не для всех чисел.&lt;/p&gt;
+&lt;p&gt;Возвращает либо найденный делитель, либо 1, если делитель не был найден.&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T&gt;
+T pollard_rho (T n, unsigned iterations_count = 100000)
+{
+	T
+		b0 = rand() % n,
+		b1 = b0,
+		g;
+	mulmod (b1, b1, n);
+	if (++b1 == n)
+		b1 = 0;
+	g = gcd (abs (b1 - b0), n);
+	for (unsigned count=0; count&amp;lt;iterations_count &amp;&amp; (g == 1 || g == n); count++)
+	{
+		mulmod (b0, b0, n);
+		if (++b0 == n)
+			b0 = 0;
+		mulmod (b1, b1, n);
+		++b1;
+		mulmod (b1, b1, n);
+		if (++b1 == n)
+			b1 = 0;
+		g = gcd (abs (b1 - b0), n);
+	}
+	return g;
+}&lt;/code&gt;
+
+&lt;h2&gt;Метод Бента (модификация метода Полларда &quot;Ро&quot;)&lt;/h2&gt;
+&lt;p&gt;Вероятностный тест, быстро даёт ответ далеко не для всех чисел.&lt;/p&gt;
+&lt;p&gt;Возвращает либо найденный делитель, либо 1, если делитель не был найден.&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T&gt;
+T pollard_bent (T n, unsigned iterations_count = 19)
+{
+	T
+		b0 = rand() % n,
+		b1 = (b0*b0 + 2) % n,
+		a = b1;
+	for (unsigned iteration=0, series_len=1; iteration&amp;lt;iterations_count; iteration++, series_len*=2)
+	{
+		T g = gcd (b1-b0, n);
+		for (unsigned len=0; len&amp;lt;series_len &amp;&amp; (g==1 &amp;&amp; g==n); len++)
+		{
+			b1 = (b1*b1 + 2) % n;
+			g = gcd (abs(b1-b0), n);
+		}
+		b0 = a;
+		a = b1;
+		if (g != 1 &amp;&amp; g != n)
+			return g;
+	}
+	return 1;
+}&lt;/code&gt;
+
+&lt;h2&gt;Метод Полларда Монте-Карло&lt;/h2&gt;
+&lt;p&gt;Вероятностный тест, быстро даёт ответ далеко не для всех чисел.&lt;/p&gt;
+&lt;p&gt;Возвращает либо найденный делитель, либо 1, если делитель не был найден.&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T&gt;
+T pollard_monte_carlo (T n, unsigned m = 100)
+{
+	T b = rand() % (m-2) + 2;
+
+	static std::vector&amp;lt;T&gt; primes;
+	static T m_max;
+	if (primes.empty())
+		primes.push_back (3);
+	if (m_max &lt; m)
+	{
+		m_max = m;
+		for (T prime=5; prime&amp;lt;=m; ++++prime)
+		{
+			bool is_prime = true;
+			for (std::vector&amp;lt;T&gt;::const_iterator iter=primes.begin(), end=primes.end();
+				iter!=end; ++iter)
+			{
+				T div = *iter;
+				if (div*div &gt; prime)
+					break;
+				if (prime % div == 0)
+				{
+					is_prime = false;
+					break;
+				}
+			}
+			if (is_prime)
+				primes.push_back (prime);
+		}
+	}
+
+	T g = 1;
+	for (size_t i=0; i&amp;lt;primes.size() &amp;&amp; g==1; i++)
+	{
+		T cur = primes[i];
+		while (cur &amp;lt;= n)
+			cur *= primes[i];
+		cur /= primes[i];
+		b = powmod (b, cur, n);
+		g = gcd (abs(b-1), n);
+		if (g == n)
+			g = 1;
+	}
+
+	return g;
+}&lt;/code&gt;
+
+&lt;h2&gt;Метод Ферма&lt;/h2&gt;
+&lt;p&gt;Это стопроцентный метод, но он может работать очень медленно, если у числа есть маленькие делители.&lt;/p&gt;
+&lt;p&gt;Поэтому запускать его стоит только после всех остальных методов.&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T, class T2&gt;
+T ferma (const T &amp; n, T2 unused)
+{
+	T2
+		x = sq_root (n),
+		y = 0,
+		r = x*x - y*y - n;
+	for (;;)
+		if (r == 0)
+			return x!=y ? x-y : x+y;
+		else
+			if (r &gt; 0)
+			{
+				r -= y+y+1;
+				++y;
+			}
+			else
+			{
+				r += x+x+1;
+				++x;
+			}
+}&lt;/code&gt;
+
+&lt;h2&gt;Тривиальное деление&lt;/h2&gt;
+&lt;p&gt;Этот элементарный метод пригодится, чтобы сразу обрабатывать числа с очень маленькими делителями.&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T, class T2&gt;
+T2 prime_div_trivial (const T &amp; n, T2 m)
+{
+	
+	// сначала проверяем тривиальные случаи
+	if (n == 2 || n == 3)
+		return 1;
+	if (n &lt; 2)
+		return 0;
+	if (even (n))
+		return 2;
+
+	// генерируем простые от 3 до m
+	T2 pi;
+	const vector&amp;lt;T2&gt; &amp; primes = get_primes (m, pi);
+
+	// делим на все простые
+	for (std::vector&amp;lt;T2&gt;::const_iterator iter=primes.begin(), end=primes.end();
+		iter!=end; ++iter)
+	{
+		const T2 &amp; div = *iter;
+		if (div * div &gt; n)
+			break;
+		else
+			if (n % div == 0)
+				return div;
+	}
+	
+	if (n &lt; m*m)
+		return 1;
+	return 0;
+
+}&lt;/code&gt;
+
+&lt;h2&gt;Собираем всё вместе&lt;/h2&gt;
+&lt;p&gt;Объединяем все методы в одной функции.&lt;/p&gt;
+&lt;p&gt;Также функция использует тест на простоту, иначе алгоритмы факторизации могут работать очень долго. Например, можно выбрать тест BPSW (&lt;algohref=bpsw&gt;читать статью по BPSW&lt;/algohref&gt;).&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T, class T2&gt;
+void factorize (const T &amp; n, std::map&amp;lt;T,unsigned&gt; &amp; result, T2 unused)
+{
+	if (n == 1)
+		;
+	else
+		// проверяем, не простое ли число
+		if (isprime (n))
+			++result[n];
+		else
+			// если число достаточно маленькое, то его разлагаем простым перебором
+			if (n &lt; 1000*1000)
+			{
+				T div = prime_div_trivial (n, 1000);
+				++result[div];
+				factorize (n / div, result, unused);
+			}
+			else
+			{
+				// число большое, запускаем на нем алгоритмы факторизации
+				T div;
+				// сначала идут быстрые алгоритмы Полларда
+				div = pollard_monte_carlo (n);
+				if (div == 1)
+					div = pollard_rho (n);
+				if (div == 1)
+					div = pollard_p_1 (n);
+				if (div == 1)
+					div = pollard_bent (n);
+				// придётся запускать 100%-ый алгоритм Ферма
+				if (div == 1)
+					div = ferma (n, unused);
+				// рекурсивно обрабатываем найденные множители
+				factorize (div, result, unused);
+				factorize (n / div, result, unused);
+			}
+}&lt;/code&gt;
+
+&lt;hr&gt;
+
+&lt;h2&gt;Приложение&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;factorization.zip&quot;&gt;Скачать [5 КБ]&lt;/a&gt; исходник программы, которая использует все указанные методы факторизации и тест BPSW на простоту.&lt;/p&gt;</textarea></td></tr></table></body></html>

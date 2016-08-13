@@ -1,0 +1,133 @@
+the <h1>Games on arbitrary graphs</h1>
+
+<p>Let the game is played by two players on a graph G. i.e., the current state of the game is some vertex of the graph, and each vertex of the edges go to the vertices, in which you can go on the next move.</p>
+<p>We consider the most General case - the case of an arbitrary directed graph with cycles. Required for a given initial position to determine who will win under optimal play of both players (or to determine that the result will be a draw).</p>
+<p>We will solve this problem very effectively - we'll find the answers to all vertices of the graph in linear relation to the number of edges of the time - <b>O (M)</b>.</p>
+the <h2>algorithm Description</h2>
+<p>some vertex of the graph is known in advance that they are winning or losing; obviously, these vertices do not have outgoing edges.</p>
+<p>has the following <b>facts</b>:</p>
+the <ul>
+the <li>if some vertex has an edge to a losing vertex, then this vertex is winning;</li>
+the <li>if at some point all the edges come in a winning vertex, then this vertex is a loser;</li>
+the <li>if at some point still left uncertain peaks, but none of them fit neither under the first nor under the second rule, all of these tops as I'm concerned.</li>
+</ul>
+<p>Thus, clear algorithm with work complexity O (N M) - we iterate over all vertices, each trying to apply the first or the second rule, and if we made any changes, then repeat all over again.</p>
+<p>However, this process of searching and updating can be accelerated considerably, increasing the complexity to linear.</p>
+<p>iterate Over all vertices, which is initially known that they are winning or losing. Each of them let the next search depth. This depth-first search will move on the backward edges. First of all, it will not go into the vertices already defined as winning or losing. Further, if the depth-first search tries to go from losing vertices in some vertex, it marks her as the winner and goes to her. If the depth-first search tries to go from a winning vertex in some vertex, it must check that all edges lead from the top in a winning. This test is easy to implement in O (1), if in each vertex we will store the count of edges that lead into a winning vertex. So, if the depth-first search tries to go from a winning vertex in some vertex, it increases in the counter and if the counter is equal to the number of edges emanating from this vertex, then this vertex is marked as the loser, and the search depth is in this top. Otherwise, if the target vertex is not defined as winning or losing, then the search depth it does not go.</p>
+<p>overall, we have that each winning and losing each vertex is visited by our algorithm exactly once, and draw the vertices not visited. Therefore, the asymptotic behavior is really <b>O (M)</b>.</p>
+the <h2>Implementation</h2>
+<p>Consider the implementation of depth-first search, assuming that the graph of the game constructed in memory, the degree of outcome are counted and recorded in degree (that is the counter, it will decrease if there is an edge in winning the top), and initially winning or losing one of the vertices already marked.</p>
+<code>vector<int> g [100];
+bool win [100];
+loose bool [100];
+bool used[100];
+int degree[100];
+
+void dfs (int v) {
+used[v] = true;
+for (vector<int>::iterator i = g[v].begin(); i != g[v].end(); ++i)
+if (!used[*i]) {
+if (loose[v])
+win[*i] = true;
+else if (--degree[*i] == 0)
+loose[*i] = true;
+else
+continue;
+dfs (*i);
+}
+}</code>
+the <h2>Example of the problem. "Police and thief"</h2>
+<p>To the algorithm became more clear, let us consider a concrete example.</p>
+<p><b>problem statement</b>. There is a field of size MxN cells, some cells can not come. Known initial coordinates of policeman and thief. Also on the card, there may be a way out. If a police officer will be in the same cell with a thief, the police won. If the thief will be in the cage with the release (and in this cell is not a police officer), you will win a thief. Police can walk in 8 directions, a thief - only 4 (along the coordinate axes). Both the police and the thief may skip your move. The first move is made by a police officer.</p>
+<p><b>graph</b>. Construct the graph of the game. We need to formalize the rules of the game. The current state of the game is determined by the coordinates P of the police, the thief T and a Boolean variable Pstep, which determines who will make the next move. Therefore, the vertex of the graph defined by the triple (P,T,Pstep). Graph to build is easy, just matching the condition.</p>
+<p>Next you need to determine which vertices are winning or losing initially. There is <b>fine point</b>. Winning/lose-lose tops in addition to coordinate Pstep depends on whose turn it is. If now the speed of the police, the top is winning, if the coordinates of policeman and thief are the same, the top of losing, if she's not winning and the thief is on the way out. If now the speed of the thief, the top is winning, if the thief is on the way out, and losing if it is not winning and the coordinates of policeman and thief are the same.</p>
+<p>the Only point which you need to decide whether to build a <b>graph explicitly, or</b>, do this "<b>on the move</b>", right in the depth-first search. On the one hand, if graph beforehand, you will be less likely to go wrong. On the other hand, it will increase the amount of code, and working time will be several times slower than if you build the graph on-the-go.</p>
+<p><b>Sales</b> the whole program:</p>
+<code>struct state {
+char p, t;
+bool pstep;
+};
+
+vector<state> g [100][100][2];
+// 1 = coords policeman; 2 = thief coords; 3 = 1 if policeman\'s step or 0 if the thief\'s.
+bool win [100][100][2];
+bool loose [100][100][2];
+bool used[100][100][2];
+int degree[100][100][2];
+
+void dfs (char p, char t, bool pstep) {
+used[p][t][pstep] = true;
+for (vector<state>::iterator i = g[p][t][pstep].begin(); i != g[p][t][pstep].end(); ++i)
+if (!used[i->p][i->t][i->pstep]) {
+if (loose[p][t][pstep])
+win[i->p][i->t][i->pstep] = true;
+else if (--degree[i->p][i->t][i->pstep] == 0)
+loose[i->p][i->t][i->pstep] = true;
+else
+continue;
+dfs (i->p, i->t, i->pstep);
+}
+}
+
+
+int main() {
+
+int n, m;
+cin >> n >> m;
+vector<string> a (n);
+for (int i=0; i<n; ++i)
+cin >> a[i];
+
+for (int p=0; p<n*m; ++p)
+for (int t=0; t<n*m; ++t)
+for (char pstep=0; pstep<=1; ++pstep) {
+int px = p/m, py = p%m, tx=t/m, ty=t%m;
+if (a[px][py]==\'*\' || a[tx][ty]==\'*\') continue;
+
+bool & wwin = win[p][t][pstep];
+bool & lloose = loose[p][t][pstep];
+if (pstep)
+wwin = px==tx && py==ty, lloose = !wwin && a[tx][ty] == \'E\';
+else
+wwin = a[tx][ty] == \'E\', lloose = !wwin && px==tx && py==ty;
+if (wwin || lloose) continue;
+
+state st = { p, t, !pstep };
+g[p][t][pstep].push_back (st);
+st.pstep = pstep != 0;
+degree[p][t][pstep] = 1;
+
+const int dx[] = { -1, 0, 1, 0, -1, -1, 1, 1 };
+const int dy[] = { 0, 1, 0, -1, -1, 1, -1, 1 };
+for (int d=0; d<(pstep?8:4); ++d) {
+int ppx=px, ppy=py, ttx=tx + tty=ty;
+if (pstep)
+ppx += dx[d], ppy += dy[d];
+else
+ttx += dx[d], tty += dy[d];
+if (ppx>=0 && ppx<n && ppy>=0 && ppy<m && a[ppx][ppy]!=\'*\' &&
+ttx>=0 && ttx<n && tty>=0 && tty<m && a[ttx][tty]!=\'*\')
+{
+g[ppx*m+ppy][ttx*m+tty][!pstep].push_back (st);
+++degree[p][t][pstep];
+}
+}
+}
+
+for (int p=0; p<n*m; ++p)
+for (int t=0; t<n*m; ++t)
+for (char pstep=0; pstep<=1; ++pstep)
+if ((win[p][t][pstep] || loose[p][t][pstep]) && !used[p][t][pstep])
+dfs (p, t, pstep!=0);
+
+int p_st, t_st;
+for (int i=0; i<n; ++i)
+for (int j=0; j<m; ++j)
+if (a[i][j] == \'C\')
+p_st = i*m+j;
+else if (a[i][j] == \'T\')
+t_st = i*m+j;
+
+cout << (win[p_st][t_st][true] ? 'WIN': loose[p_st][t_st][true] ? "LOSS" : "DRAW");
+
+}</code>

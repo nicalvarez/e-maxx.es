@@ -1,0 +1,46 @@
+\h1{Optimal selection of tasks with known times of completion and durations of the execution}
+
+Let the given set of jobs, each job known point in time to which the tasks should be completed, and the duration of the job. The process of performing a job cannot be interrupted until its completion. You want to make a schedule to perform the greatest number of jobs.
+
+\h2{Solution}
+
+Solution algorithm --- \bf{greedy} (greedy). Sort all tasks by their deadline, and will consider them in turn in descending order of deadline. Will also create the queue $q$, which we will gradually put tasks, and retrieve from the queue the task with the lowest runtime (for example, you can use set or priority_queue). Originally $q$ is empty.
+
+Let us consider $i$-th task. First put it in $q$. Consider the length of time between the completion date of the $i$-th task and the completion date of the $i-1$th job --- is a segment of some length $T$. Will be extracted from $q$ job (in the order of increasing the remaining time of their execution) and to put on performance in this segment, until you complete the entire interval $T$. Important point --- if, at any time once removed from the structure the job you can manage to partially complete in the interval $T$, we perform this task partially --- that's as much as possible, i.e. within $T$ time units, and the remaining part of the task is placed back into $q$.
+
+At the end of this algorithm we will choose the optimal solution (or, at least, one of several solutions). Asymptotics of the solution --- $O (n \log n)$.
+
+
+\h2{the Implementation}
+
+
+\code
+int n;
+vector < pair<int,int> > a; // job pairs (deadline, duration)
+... read n and a ...
+
+sort (a.begin(), a.end());
+
+typedef set < pair<int,int> > t_s;
+t_s s;
+vector<int> result;
+for (int i=n-1; i>=0; --i) {
+int t = a[i].first - (i ? a[i-1].first : 0);
+s.insert (make_pair (a[i].second, i));
+while (t && !s.empty()) {
+t_s::iterator it = s.begin();
+if (it->first <= t) {
+t -= it->first;
+result.push_back (it->second);
+}
+else {
+s.insert (make_pair (it->first - t, it->second));
+t = 0;
+}
+s.erase (it);
+}
+}
+
+for (size_t i=0; i<result.size(); ++i)
+cout << result[i] << ' ';
+\endcode

@@ -1,0 +1,218 @@
+\h1{Finding all faces, the outer face of the planar graph}
+
+Given a planar stowed in the plane graph $G$ with $n$ vertices. You want to find all of its faces. The face is the part of the plane bounded by edges of this graph.
+
+One of the faces will be different from others in that it will have an infinite area, such a face is called outer face. In some tasks it is required to find only the outer face, the algorithm for finding which, as we will see, is essentially no different from the algorithm for all edges.
+
+
+\h2{Euler's Theorem}
+
+We present here the Euler's theorem and several corollaries from it, from which will follow that the number of edges and faces of a planar simple (without loops and multiple edges) of a graph are the quantities on the order of $O(n)$.
+
+Let the planar graph $G$ is connected. Denote by $n$ the number of vertices in the graph, $m$ the number of edges, $f$ --- the number of faces. Then fair \bf{Euler's theorem}:
+$$ f + n - m = 2 $$
+To prove this formula easily follows. In the case of wood ($m=n-1$) the formula can be checked easily. If the graph is not a tree, remove any edge belonging to any cycle; thus, the value of $f+n-m$ will not change. Repeat this process until we come to the tree for which the identity $f+n-m=2$ is already installed. Thus, the theorem is proved.
+
+\bf{Result}. For an arbitrary planar graph and let $k$ --- the number of connected components. Then:
+$$ f + n - m = 1 + k $$
+
+\bf{Result}. The number of edges $m$ a simple planar graph is the size of $O(n)$.
+
+Proof. Let graph $G$ is connected and $n \ge 3$ (in case $n < 3$ the assertion is obtained automatically). Then, on the one hand, each face is limited to a minimum of three ribs. On the other hand, every edge limits a maximum of two faces. Therefore, $3f \le 2m$, where substituting this into Euler's formula we get:
+$$ f + n - m = 2\ \ \Leftrightarrow\ \ 3f = 6 - 3n + 3m\ \ \Leftrightarrow\ \ 6 - 3n + 3m \le 2m\ \ \Leftrightarrow\ \ m \le 3n - 6 $$
+I.e. $m = O(n)$.
+
+If the graph is not connected, then, summing up the obtained estimations for its components of connectivity, again we get $m = O(n)$, what we wanted to prove.
+
+\bf{Result}. The number of faces $f$ of a simple planar graph is the size of $O(n)$.
+
+This result follows from the previous corollary and the connection $f = 2 - n + m$.
+
+
+\h2{Bypass all faces}
+
+We will always assume that the graph, if it is not connected, stowed in the plane such that no connected component lies inside the other (like a square with lies strictly inside segment --- incorrect algorithm for our test).
+
+Of course, it is believed that the count of correctly placed on the plane, i.e. no two vertices coincide, and the edges do not intersect in "unauthorized" locations. If the input graph has allowed such intersecting edges, we need to get rid of them, introducing to each additional point of intersection of the top (it should be noted that in this process, instead of $n$ points we can get $n^2$ points). Learn more about this process, refer to the appropriate section below.
+
+Suppose that for every vertex all outgoing edges from it are ordered by polar angle. If not, then they should be streamlined by sorting each adjacency list (because $m = O(n)$, it takes $O (n \log n)$ operations).
+
+Now we choose an arbitrary edge $(a,b)$ and let the next crawl. Coming to a vertex $v$ along some edge, go from this vertex we need for the next in the sort order edge.
+
+For example, in the first step we are at vertex $b$, and need to find the vertex $a$ in the adjacency list of the vertex $b$, then denote by $c$ the next vertex in adjacency list (if $a$ was the last one, as $c$ will take the first vertex), and go through the edge $(b,c)$.
+
+By repeating this process many times, we will sooner or later come back to the starting edge $(a,b)$, then we have to stop. It is easy to see that with this traversal we traverse exactly one face. Moreover, the direction of traversal will be counter-clockwise for outside edges and clockwise for internal faces. In other words, with this bypass, the inside faces will always be on the right side of the current edge.
+
+So we've learned to avoid one face, starting from any edge on its boundary. Then, how to choose the starting edge so that the resulting faces are not repeated. Note that at each edge there are two directions in which it can be avoided: each of them will get their faces. On the other hand, it is clear that one such oriented edge belongs to exactly one face. Thus, if we mark all edges of each detected face in some array of $\rm used$, and not to run the bypass from the already marked edges, we traverse all the faces (including the external), though exactly once.
+
+We will give at once \bf{implementation} of the bypass. We assume that the graph $G$ the adjacency lists are already ordered by angle, and multiple edges and loops are absent.
+
+The first embodiment is simplified, the next vertex in the adjacency list he is looking for a simple search. This implementation theoretically work for $O(n^2)$, although in practice many tests it works very quickly (with a hidden constant that is much smaller than unity).
+
+\code
+int n; // number of vertices
+vector < vector<int> > g; // graph
+
+vector < vector<char> > used (n);
+for (int i=0; i<n; ++i)
+used[i].resize (g[i].size());
+for (int i=0; i<n; ++i)
+for (size_t j=0; j<g[i].size(); ++j)
+if (!used[i][j]) {
+used[i][j] = true;
+int v = g[i][j], pv = i;
+vector<int> facet;
+for (;;) {
+facet.push_back (v);
+vector<int>::iterator it = find (g[v].begin(), g[v].end(), pv);
+if (++it == g[v].end()) it = g[v].begin();
+if (used[v][it-g[v].begin()]) break;
+used[v][it-g[v].begin()] = true;
+pv = v, v = *it;
+}
+... conclusion facet - current faces ...
+}
+\endcode
+
+Another, more optimized version of the implementation --- use the fact that vertex in the adjacency list ordered by angle. If you implement the function $\rm cmp\_ang$ compares two points by polar angle with respect to the third point (for example by filling it in the form class, as in the example below), the search point in the adjacency list you can use binary search. The result is the implementation of $O(n \log n)$.
+
+\code
+class cmp_ang {
+int center;
+public:
+cmp_ang (int center) : center(center)
+{ }
+bool operator() (int a, int b) const {
+... should return true if the point a has
+smaller than b is the polar angle relative to center ...
+}
+};
+
+
+int n; // number of vertices
+vector < vector<int> > g; // graph
+
+vector < vector<char> > used (n);
+for (int i=0; i<n; ++i)
+used[i].resize (g[i].size());
+for (int i=0; i<n; ++i)
+for (size_t j=0; j<g[i].size(); ++j)
+if (!used[i][j]) {
+used[i][j] = true;
+int v = g[i][j], pv = i;
+vector<int> facet;
+for (;;) {
+facet.push_back (v);
+vector<int>::iterator it = lower_bound (g[v].begin(), g[v].end(),
+pv, cmp_ang(v));
+if (++it == g[v].end()) it = g[v].begin();
+if (used[v][it-g[v].begin()]) break;
+used[v][it-g[v].begin()] = true;
+pv = v, v = *it;
+}
+... conclusion facet - current faces ...
+}
+\endcode
+
+It is also possible, based on the container $map$, because we only need to quickly see the position of the numbers in the array. Of course, such an implementation will also work in $O(n \log n)$.
+
+It should be noted that the algorithm is not quite working correctly with \bf{isolated} vertices --- these tops it just will not detect as separate faces, although, from a mathematical point of view, they must be a single connected components and edges.
+
+In addition, a special line is \bf{outer edge}. How to distinguish from "ordinary" faces that are described in the next section. It should be noted that if the graph is not connected, then the outer face will consist of multiple contours, and each of these circuits will be found by the algorithm separately.
+
+
+\h2{the Allocation of the outer faces}
+
+The above code displays all the facets, making no distinction between the external face and internal faces. In practice, Vice versa, or the outer face only, or internal only. There are several methods of highlight the outside face.
+
+For example, it can be defined by area --- external line must have the largest area (should only take into account that the inner face can have the same area, and external). This method will not work if the given planar graph $G$ is not connected.
+
+Another more reliable criterion --- in the direction of the traversal. As noted above, all faces except the external cost in the direction of clockwise. The outer face, even if it consists of multiple contours, will cost the algorithm in a counterclockwise direction. To determine the direction of traversal is possible, just believing \algohref=polygon_area{landmark area polygon}. The area can be considered during the inner loop. However, this method has its fineness --- the treatment of the faces of zero area. For example, if the graph consists of only edges, the algorithm will find only the face the area which will be zero. Apparently, if the face has zero area, it is the outer face.
+
+In some cases it applies this criterion, as the number of vertices. For example, if the graph is a convex polygon with an non-intersecting diagonals, the outer face contains all vertices. But again we must be careful with the case where both the outer and inner faces have the same number of vertices.
+
+Finally, there is the following method of finding external faces: you can start from that edge that was found as a result, the face will be external. For example, you can take the left-most vertex (if there are some, any) and select the edge that goes first in the sort order. As a result, the traversal of this edge will find the outer face. This method can be extended to the case of disconnected graph: we need each connected component to find the leftmost vertex and run the bypass from the first rib.
+
+Here is a simple implementation of the method based on the sign of the square (the traversal for this example I took $O(n^2)$, it doesn't matter here). If the graph is not connected, the code "... a face is external ..." will be executed for each circuit constituting the external face.
+
+\code
+... normal code to detect faces ...
+... immediately after the loop that detect the next line: ...
+
+// count size
+double area = 0;
+// add fake point to simplify the calculation of area
+facet.push_back (facet[0]);
+for (size_t k=0; k+1<facet.size(); ++k)
+area += (p[facet[k]].first + p[facet[k+1]].first)
+* (p[facet[k]].second - p[facet[k+1]].second);
+if (area < EPS)
+ ... the face is the external ...
+}
+\endcode
+
+
+\h2{the Construction of a planar graph}
+
+For the above algorithms is essential that the input graph is correctly placed planar graph. However, in practice, often the input to the program is a set of segments, possibly overlapping each other in an "unauthorized" outlets, and the need for these segments to build a planar graph.
+
+To realize the construction of a planar graph as follows. Fix any input segment. Now cross this segment with all other segments. Find the points of intersection and the ends of the cut put into the vector, and its sort of standard way (i.e. first by one coordinate, if the equality --- for the other). Then iterate over that vector and add edges between adjacent in this vector points (of course, making sure we haven't added loop). After completing this process for all segments, i.e. $O(n^2 \log n)$, we construct a corresponding planar graph (which will be $O(n^2)$ points).
+
+Implementation:
+
+\code
+const double EPS = 1E-9;
+
+struct point {
+double x, y;
+bool operator< (const point & p) const {
+return x < p.x - EPS || abs (x - p.x) < EPS && y < p.y - EPS;
+}
+};
+
+map<point,int> ids;
+vector<point> p;
+vector < vector<int> > g;
+
+int get_point_id (point pt) {
+if (!ids.count(pt)) {
+ids[pt] = (int)p.size();
+p.push_back (pt);
+g.resize (g.size() + 1);
+}
+return ids[p];
+}
+
+void intersect (pair<point,point> a, pair<point,point> b, vector<point> & res) {
+... standard procedure, crosses two segments a and b and throws the result in res ...
+... if the segments overlap, then throws the ends that were cut into the first one ...
+}
+
+int main() {
+// the input data
+int m;
+vector < pair<point,point> > a (m);
+... reading ...
+
+// build graph
+for (int i=0; i<m; ++i) {
+vector<point> cur;
+for (int j=0; j<m; ++j)
+intersect (a[i], a[j], cur);
+sort (cur.begin(), cur.end());
+for (size_t j=0; j+1<cur.size(); ++j) {
+int x = get_id (cur[j]), y = get_id (cur[j+1]);
+if (x != y) {
+g[x].push_back (y);
+g[y].push_back (x);
+}
+}
+}
+int n = (int) g.size();
+// sort by angle, and deleting multiple edges
+for (int i=0; i<n; ++i) {
+sort (g[i].begin(), g[i].end(), cmp_ang (i));
+g[i].erase (unique (g[i].begin(), g[i].end()), g[i].end());
+}
+}
+\endcode

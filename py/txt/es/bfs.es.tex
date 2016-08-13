@@ -1,0 +1,118 @@
+\h1{ la Búsqueda en anchura }
+
+La búsqueda en anchura (omisión de ancho, breadth-first search) --- este es uno de los principales algoritmos de las columnas.
+
+En el resultado de la búsqueda en anchura es una ruta recta de longitud en невзвешенном la columna, es decir, la ruta que contiene el menor número de aristas.
+
+El algoritmo trabaja por $O (n+m)$, donde $n$ --- el número de vértices, $m$ --- número de aristas.
+
+
+\h2{ Descripción del algoritmo }
+
+En el algoritmo se sirve especificado conde (no ponderada), y el número de la plataforma de lanzamiento de la cima de la $s$. El gráfico puede ser orientado y неориентированным, para el algoritmo no es importante.
+
+El algoritmo se puede entender como un proceso de "su mundo" columna: en el cero de paso поджигаем sólo la cima de la $s$. En cada siguiente paso de fuego con cada una ya de la quema de la cima se extiende a todos sus vecinos; es decir, una iteración del algoritmo es una extensión de "anillo de fuego" en el ancho de la unidad (de ahí el nombre del algoritmo).
+
+Más estrictamente, esto se puede presentar de la siguiente manera. Vamos a crear la cola de $q$, en la que se publicarán ofertas de la cima, y podamos establecer una булевский la matriz $\rm used[]$, en el que para cada vértice vamos a celebrar, se enciende ya o no (o, en otras palabras, si era visitada).
+
+Inicialmente, en la cola se pone solo la $s$ y $\rm used[s] = true$, mientras que para el resto de los vértices de $\rm used[] = false$. A continuación, el algoritmo es un ciclo: hasta que la cola no está vacía, sacar de su cabeza una cima, ver todas las aristas salientes de esta cima, y si alguna de las páginas de los vértices aún no se encienden, encender y colocar al final de la cola.
+
+Finalmente, cuando la cola vacía, el rastreo de ancho y superará todos los realistas de $s$ a la cima, y que, antes de cada llegará por el camino más corto. También se puede calcular la longitud de cortes cortos (para lo cual sólo hay que hacer una matriz de las longitudes de las rutas de $d[]$), y de una forma compacta de guardar la información suficiente para la recuperación de todos estos cortes cortos (para ello es necesario tener una matriz de "antepasados" $p[]$, en el que para cada vértice, almacenar el número de vértices, de la que hemos caído en esta cima).
+
+
+\h2{ Aplicación }
+
+Realizamos descrito en el algoritmo en lenguaje C++.
+
+Datos de entrada:
+
+\code
+
+vector < vector<int> > g; // el conde de
+int n; // el número de vértices
+int s; // inicio de la cima (de la cima en todas partes se numeran desde cero)
+
+// lectura del conde
+...
+\endcode
+
+El rastreo:
+
+\code
+
+queue<int> q;
+q.push (s);
+vector<bool> used (n);
+vector<int> d (n), p (n);
+used[s] = true;
+p[s] = -1;
+while (!q.empty()) {
+int v = q.front();
+q.pop();
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (!used[to]) {
+used[to] = true;
+q.push (to);
+d[to] = d[v] + 1;
+p[to] = v;
+}
+}
+}
+\endcode
+
+Si ahora es necesario recuperar y mostrar el camino más corto hasta un vértice de $\rm to$, esto se puede hacer de la siguiente manera:
+
+\code
+
+if (!used[to])
+cout << "No path!";
+else {
+vector<int> path.
+for (int v=to; v!=-1; v=p[v])
+path.push_back (v);
+reverse path.begin(), path.end());
+cout << "Path: ";
+for (size_t i=0; i<path.size(); ++i)
+cout << path[i] + 1 << " ";
+}
+\endcode
+
+
+\h2{ Aplicación de un algoritmo }
+
+\ul{
+
+\li Buscar \bf{de la ruta más corta} en невзвешенном la columna.
+
+\li Buscar \bf{el componente de conectividad} en el recuadro $O(n+m)$.
+
+Para ello, simplemente debemos ejecutar un rastreo en el ancho de cada vértice, a excepción de los vértices restantes visitados ($\rm used=true$) después de ejecuciones anteriores. Así cumplimos con el inicio normal y altura de cada vértice, pero no vaciaremos cada vez que la matriz $\rm used[]$, por lo que nosotros cada vez que vamos a sortear una nueva componente de la conectividad, y el tiempo total de trabajo del algoritmo será todavía $O(n+m)$ (unos arranques de rastreo en el recuadro sin puesta a cero de la matriz $\rm used$ se denominan una serie de rastreos de ancho).
+
+\li Hallar la solución de una tarea (juego) \bf{con el menor número de movimientos}, si cada estado del sistema se puede presentar el vértice de la gráfica, y las transiciones de un estado a otro --- aletas de la columna.
+
+Un ejemplo clásico es el juego, donde el robot se mueve por el campo, que se puede mover buzones que se encuentran en el mismo campo, y se requiere el menor número de movimientos para mover cajas en las posiciones deseadas. Se resuelve es la omisión en el ancho de la columna, donde el estado (cima) es un conjunto de coordenadas: coordenadas del robot, y las coordenadas de todas las cajas.
+
+\li Encontrar la ruta más corta en \bf{0-1-columna} (es decir, la columna suspensión, pero con pesos iguales sólo 0 o 1): basta con modificar ligeramente la búsqueda en anchura: si el borde de cero peso, y se produce una mejora de la distancia hasta un punto más alto de esta cima no añadimos al final y al principio de la cola.
+
+\li Encontrar \bf{más corta del ciclo} en el sector de невзвешенном la gráfica: hacemos la búsqueda en anchura de cada vértice; como sólo en el proceso de rastreo tratamos de ir de la cima de una arista en la ya visitada cima, esto significa que hemos encontrado el breve ciclo, y dejemos el rastreo de ancho; y entre todos los encontrados ciclos (uno de cada inicio de rastreo) elegimos la más corta.
+
+\li Encontrar todas las costillas, situadas \bf{en cualquier senda} entre una pareja de vértices $(a,b)$. Para ello, es necesario iniciar el 2 de búsqueda en anchura: de $a$ y $b$. Se denota por $d_a[]$ matriz de los más cortos de la distancia, el resultado del primer rastreo, y a través de $d_b[]$ --- a consecuencia de la segunda de rastreo. Ahora para cualquier aleta $(u,v)$ es fácil de comprobar, se encuentra en alguna senda: un criterio es una condición $d_a[u] + 1 + d_b[v] = d_a[b]$.
+
+\li Encontrar todos los vértices, situadas \bf{en cualquier senda} entre una pareja de vértices $(a,b)$. Para ello, es necesario iniciar el 2 de búsqueda en anchura: de $a$ y $b$. Se denota por $d_a[]$ matriz de los más cortos de la distancia, el resultado del primer rastreo, y a través de $d_b[]$ --- a consecuencia de la segunda de rastreo. Ahora para cualquier vértice $v$ es fácil de comprobar, se encuentra en alguna senda: un criterio es una condición $d_a[v] + d_b[v] = d_a[b]$.
+
+\li \bf{más breve posible, incluso la ruta} en la columna (es decir, la ruta de longitudes de pares). Para ello, es necesario construir un auxiliar de conde de cumbres que serán estado $(v,c)$, donde $v$ --- el número actual de la cima, $c = 0 \ldots 1$ --- actual paridad. Cualquier arista $(a,b)$ original del conde en este nuevo apartado se convertirá en dos costillas $((u,0),(v,1))$ y $((u,1),(v,0))$. Después de ello, en este apartado hay que rastrear en el ancho de encontrar el camino más corto desde la plataforma de lanzamiento de la cima en la final, con la información de paridad igual a 0.
+
+}
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que puede realizar, mediante el rastreo de ancho:
+
+\ul{
+
+\li \href=http://acm.sgu.es/problem.php?contest=0&problem=213{SGU #213 \bf{"Strong Defence"} ~~~~ [dificultad media]}
+
+}

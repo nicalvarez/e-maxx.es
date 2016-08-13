@@ -1,0 +1,64 @@
+the <h1>K-th order statistics in O (N)</h1>
+
+<p>Suppose you are given an array A of length N and let an integer K. the Goal is to find in this array the K-th largest number, i.e. K-th order statistics.</p>
+<p> </p>
+<p>the Main idea is to use the ideas of the quicksort. In fact, the algorithm is simple, more difficult to prove that it works in average O (N), unlike quick sort.</p>
+<p> </p>
+<p>the Implementation in the form of non-recursive functions:</p>
+<code>template <class T>
+T order_statistics (std::vector<T> a, unsigned n, unsigned k)
+{
+using std::swap;
+for (unsigned l=1, r=n; ; )
+{
+
+if (r <= l+1)
+{
+// current portion consists of 1 or 2 elements
+// can easily find the answer
+if (r == l+1 && a[r] < a[l])
+swap (a[l], a[r]);
+return a[k];
+}
+
+// updating a[l], a[l+1], a[r]
+unsigned mid = (l + r) >> 1;
+swap (a[mid], a[l+1]);
+if (a[l] > a[r])
+swap (a[l], a[r]);
+if (a[l+1] > a[r])
+swap (a[l+1], a[r]);
+if (a[l] > a[l+1])
+swap (a[l], a[l+1]);
+
+// divide
+// barrier is a[l+1], i.e., the median among a[l], a[l+1], a[r]
+unsigned
+i = l+1,
+j = r;
+const T
+cur = a[l+1];
+for (;;)
+{
+while (a[++i] < cur) ;
+while (a[--j] > cur) ;
+if (i > j)
+break;
+swap (a[i], a[j]);
+}
+
+// insert a barrier
+a[l+1] = a[j];
+a[j] = cur;
+
+// continue to work in that part,
+// which should contain the search item
+if (j >= k)
+r = j-1;
+if (j <= k)
+l = i;
+
+}
+}</code>
+<p> </p>
+<p>note that in standard library for C++ this algorithm is already implemented - it's called nth_element.</p>

@@ -1,0 +1,107 @@
+\h1{Tarea de josé}
+
+La condición de la tarea. Dado naturales $n$ y $k$. Por el círculo de la prescripción de todos los números enteros de 1 a $n$. Primero cuenta $k$de número, a partir de la primera, y lo eliminan. Luego de él cuenta $k$ de números y $k$-tes quitan, y así sucesivamente, el Proceso se detiene cuando queda un número. Es necesario encontrar este número.
+
+Objetivo se basa \bf{josé Флавием} (Flavius josé) aún en el siglo 1 (la verdad es que en poco más restringida: si $k = 2$).
+
+Abordar esta tarea de modelado. Una sencilla simulación funcionará $O (n^2)$. Usando \algohref=segment_tree{Árbol de regiones}, se puede producir una simulación por $O (n \log n)$.
+
+\h2{Solución a $O(n)$}
+
+Trataremos de encontrar regularidad, expresando la respuesta para la tarea $J_{n,k}$ a través de la solución de tareas anteriores.
+
+A través de la simulación construiremos una tabla de valores, por ejemplo, este:
+
+$$ \bordermatrix {
+n \setminus k&1&2&3&4&5&6&7&8&9&10 \cr
+1&1&1&1&1&1&1&1&1&1&1& \cr
+2&2&1&2&1&2&1&2&1&2&1& \cr
+3&3&3&2&2&1&1&3&3&2&2& \cr
+4&4&1&1&2&2&3&2&3&3&4& \cr
+5&5&3&4&1&2&4&4&1&2&4& \cr
+6&6&5&1&5&1&4&5&3&5&2& \cr
+7&7&7&4&2&6&3&5&4&7&5& \cr
+8&8&1&7&6&3&1&4&4&8&7& \cr
+9&9&3&1&1&8&7&2&3&8&8& \cr
+10&10&5&4&5&3&3&9&1&7&8& \cr
+} $$
+
+Y es claramente visible la siguiente \bf{patrón}:
+$$ J_{n,k} = \left( J_{(n-1),k} + k - 1 \right)\ \%\ n + 1 $$
+$$ J_{1,k} = 1 $$
+
+Aquí 1-indexación varios estropea la elegancia de la fórmula, si numerar la posición de cero, resulta muy evidente la fórmula:
+
+$$ J_{n,k} = \left( J_{(n-1),k} + k \right)\ \%\ n = \sum_{i=1}^n k\ \%\ i $$
+
+Así, hemos encontrado la solución para la tarea de josé, que trabaja por el $O (n)$ de operaciones.
+
+Simple \bf{recursiva de la implementación} (1-índice):
+\code
+int joseph (int n, int k) {
+return n>1 ? (joseph (n-1, k) + k - 1) % n + 1 : 1;
+}
+\endcode
+
+\bf{Нерекурсивная forma}:
+\code
+int joseph (int n, int k) {
+int res = 0;
+for (int i=1; i<=n; ++i)
+res = res + k) % i;
+return res + 1;
+}
+\endcode
+
+\h2{Solución a $O(k \log n)$}
+
+Para cantidades relativamente pequeñas de $k$ se puede llegar a una mejor solución de la que hablé antes a una solución por la $O(n)$. Si $k$ es pequeña, incluso intuitivamente claro que el algoritmo hace una gran cantidad de exceso de acción: cambios graves se producen sólo cuando se produce la toma de módulo $n$, y hasta este momento el algoritmo simplemente varias veces añade a la respuesta número $k$. En consecuencia, puede deshacerse de estos pasos innecesarios, 
+
+Una pequeña causada en este caso, la complejidad radica en el hecho de que después de la eliminación de estos números, nos resultar una tarea con menos de $n$, pero el punto de partida no es en el primer número, y en algún otro lugar. Por lo tanto, llamando recursivamente a sí mismo de la tarea con el nuevo $n$, a continuación, se deben con cuidado traducir el resultado en nuestro sistema de numeración de su propia.
+
+También de manera independiente, es necesario desmontar el caso, cuando $n$ es inferior a $k$ --- en este caso específico la optimización de degenerará en un bucle infinito.
+
+\bf{Aplicación} (para instalaciones en 0-índice):
+\code
+int joseph (int n, int k) {
+if (n == 1) return 0;
+if (k == 1) return n-1;
+if (k > n) return (joseph (n-1, k) + k) % n;
+int cnt = n / k;
+int res = joseph (n - cnt, k);
+res -= n % k;
+if (res < 0) res += n;
+else res += res / (k - 1);
+return res;
+}
+\endcode
+
+Ponemos \bf{асимптотику} este algoritmo. Inmediatamente tenga en cuenta que el caso de la $n < k$ versado nosotros antigua solución que funcione en este caso, $O(k)$. Ahora veamos el algoritmo. De hecho, en cada iteración en lugar de $n$ de números obtenemos aproximadamente $n \left( 1 - \frac{1}{k} \right)$ de números, por lo que el número total de $x$ iteraciones del algoritmo de alrededor se puede encontrar de la ecuación:
+$$ n \left( 1 - \frac{1}{k} \right) ^ x = 1, $$
+логарифмируя, obtenemos:
+$$ \ln n + x \ln \left( 1 - \frac{1}{k} \right) = 0, $$
+$$ x = - \frac{ \ln n }{ \ln \left( 1 - \frac{1}{k} \right) }, $$
+usando la descomposición de los logaritmos en una serie de taylor, se obtiene una estimación aproximada de:
+$$ x \approx k \ln n $$
+
+Por lo tanto, asíntotas algoritmo realmente $O(k \log n)$.
+
+\h2{Analítico en la solución de $k=2$}
+
+En este caso concreto (en el cual se fijó la tarea de josé Флавием) tarea se resuelve mucho más fácil.
+
+En el caso de la par $n$ recibimos, que se cruza de todos los números pares, y luego quedará la tarea para $\frac{n}{2}$, entonces la respuesta para $n$ resultarn de respuesta para $\frac{n}{2}$ en la multiplicación de dos y resta de unidades (por cuenta del desplazamiento de las posiciones):
+
+$$ J_{2n,2} = 2 J_{n,2} - 1 $$
+
+De manera similar, en el caso impar $n$ se cruza de todos los números pares, entonces el primer número, y seguirá siendo un desafío para $\frac{n-1}{2}$, y teniendo en cuenta el desplazamiento de las posiciones recibimos la segunda fórmula:
+
+$$ J_{2n+1,2} = 2 J_{n,2} + 1 $$
+
+Cuando la aplicación se puede usar directamente este рекуррентную la dependencia. Es posible que este patrón de traducir en otra forma: $J_{n,2}$ son la secuencia de los números impares, "перезапускающуюся" con una unidad cada vez, cuando $n$ resulta grado de doses. Se puede escribir en forma de una fórmula:
+
+$$ J_{n,2} = 1 + 2 \left( n - 2^{\lfloor \log_2 n \rfloor} \right) $$
+
+\h2{Analítico en la solución de $k>2$}
+
+A pesar de un tipo más simple de las tareas y un gran número de artículos sobre este y otros objetivos, a simple vista analítica de la solución de la tarea de josé hasta el momento no se han encontrado. Para los pequeños de $k$ sacado algunas fórmulas, pero, al parecer, todos ellos трудноприменимы en la práctica (por ejemplo, véase Halbeisen, Hungerbuhler "The josé Problem" y Odlyzko, Wilf "Functional iteration and the josé problem").

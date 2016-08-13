@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: K-ая порядковая статистика</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>K-ая порядковая статистика</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;K-ая порядковая статистика за O (N)&lt;/h1&gt;
+
+&lt;p&gt;Пусть дан массив A длиной N и пусть дано число K. Задача заключается в том, чтобы найти в этом массиве K-ое по величине число, т.е. K-ую порядковую статистику.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Основная идея - использовать идеи алгоритма быстрой сортировки. Собственно, алгоритм несложный, сложнее доказать, что он работает в среднем за O (N), в отличие от быстрой сортировки.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Реализация в виде нерекурсивной функции:&lt;/p&gt;
+&lt;code&gt;template &amp;lt;class T&gt;
+T order_statistics (std::vector&amp;lt;T&gt; a, unsigned n, unsigned k)
+{
+	using std::swap;
+	for (unsigned l=1, r=n; ; )
+	{
+		
+		if (r &amp;lt;= l+1)
+		{
+			// текущая часть состоит из 1 или 2 элементов -
+			//	 легко можем найти ответ
+			if (r == l+1 &amp;&amp; a[r] &amp;lt; a[l])
+				swap (a[l], a[r]);
+			return a[k];
+		}
+		
+		// упорядочиваем a[l], a[l+1], a[r]
+		unsigned mid = (l + r) &gt;&gt; 1;
+		swap (a[mid], a[l+1]);
+		if (a[l] &gt; a[r])
+			swap (a[l], a[r]);
+		if (a[l+1] &gt; a[r])
+			swap (a[l+1], a[r]);
+		if (a[l] &gt; a[l+1])
+			swap (a[l], a[l+1]);
+		
+		// выполняем разделение
+		// барьером является a[l+1], т.е. медиана среди a[l], a[l+1], a[r]
+		unsigned
+			i = l+1,
+			j = r;
+		const T
+			cur = a[l+1];
+		for (;;)
+		{
+			while (a[++i] &amp;lt; cur) ;
+			while (a[--j] &gt; cur) ;
+			if (i &gt; j)
+				break;
+			swap (a[i], a[j]);
+		}
+
+		// вставляем барьер
+		a[l+1] = a[j];
+		a[j] = cur;
+
+		// продолжаем работать в той части,
+		//	 которая должна содержать искомый элемент
+		if (j &gt;= k)
+			r = j-1;
+		if (j &amp;lt;= k)
+			l = i;
+
+	}
+}&lt;/code&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Следует заметить, что в стандартной библиотеке C++ этот алгоритм уже реализован - он называется nth_element.&lt;/p&gt;</textarea></td></tr></table></body></html>

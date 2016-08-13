@@ -1,0 +1,809 @@
+\h1{ Суффиксный expendedora }
+
+\bf{Суффиксный expendedora} (o \bf{orientado ациклический conde de palabras}) --- es una poderosa estructura de datos que permite resolver muchos de cadena de tareas.
+
+Por ejemplo, con la ayuda de суффиксного máquina puede buscar todas las apariciones de una cadena dentro de otra, o contar el número de distintas subcadenas de esta línea --- ambas tareas se le permite decidir por lineal del tiempo.
+
+En un nivel intuitivo, суффиксный expendedora puede entenderse como una información resumida acerca de \bf{todos los подстроках} de esta cadena. Impresionante es el hecho de que суффиксный expendedora contiene toda la información en tan comprimido que para una línea de longitud $n$ se requiere de sólo $O(n)$ de memoria. Además, puede ser construido por hora $O(n)$ (si consideramos el tamaño del alfabeto $k$ una constante; en caso contrario, - - - por hora $O (n \log k)$).
+
+\bf{Históricamente}, por primera vez, la linealidad de tamaño суффиксного la máquina de ranura que se abrió en 1983 Blumer etc., y en 1985 --- 1986 se presentaron los primeros algoritmos de generación por lineal del tiempo (Crochemore, Blumer y otros). Para más información, véase la lista de referencias al final del artículo.
+
+En inglés суффиксный expendedora se llama "suffix automaton" (en plural --- "suffix automata"), y orientado ациклический conde de palabras --- "directed acyclic word graph" (o simplemente "DAWG").
+
+
+\h2{ Definición de суффиксного de ranura }
+
+Definición. \bf{Суффиксным la máquina} para esta línea de $s$ se llama un mínimo determinista final autómata que acepta todos los sufijos de $s$.
+
+Расшифруем esta definición.
+
+\ul{
+
+\li Суффиксный expendedora representa orientado ациклический conde, en el que los vértices se denominan \bf{estados}, y el arco de la columna --- es \bf{transiciones} entre estos estados.
+
+\li, Uno de los estados $t_0$ se llama \bf{el estado inicial}, y debe ser la fuente del conde (es decir, a partir de él se pueden alcanzar a todos los otros estados).
+
+\li Cada \bf{ir} en la máquina --- este es el arco marcado por algunos un símbolo. Todas las transiciones que salen de un estado, tienen la obligación de tener \bf{diferentes} la etiqueta. (Por otro lado, desde el estado no puede ser la navegación por alguna caracteres.)
+
+\li Uno o varios estados marcados como \bf{terminales de estado}. Si pasamos de un estado inicial de $t_0$ por cualquier camino antes de cualquier terminal de estado, y daremos al este de la etiqueta de todos los recorridos de los arcos, se obtiene una cadena que tiene la responsabilidad de ser uno de los sufijos de $s$.
+
+\li Суффиксный expendedora contiene el número mínimo de vértices entre todas las máquinas que cumplan los criterios anteriores. (Минимальность número de saltos no es necesario, ya que siempre минимальности el número de estados en la máquina no puede ser "sobrantes" de las vías de --- de lo contrario se rompería la anterior propiedad.)
+
+}
+
+
+\h3{ Simples de las propiedades суффиксного de ranura }
+
+El más simple, y sin embargo, una propiedad fundamental de суффиксного la máquina de ranura es lo que contiene en sí la información acerca de todos los подстроках de $s$. Es decir, \bf{de cualquier manera} desde el estado inicial de $t_0$, si nos daremos etiquetas de los arcos a lo largo de este camino, de forma necesariamente \bf{subcadena} de $s$. Y a la inversa, cualquier subcadena de la cadena $s$ corresponde a una cierta manera, a partir del estado inicial de $t_0$.
+
+Con el fin de simplificar la explicación, vamos a decir que una sublínea \bf{corresponde a} el camino desde el estado inicial, la etiqueta a lo largo de la cual forman esta subcadena. Y por el contrario, vamos a decir que cualquier ruta de acceso \bf{corresponde a} la línea que forman las etiquetas de sus arcos.
+
+En cada estado de la суффиксного la máquina de ranura que lleva una o varias rutas desde el estado inicial. Vamos a hablar de que el estado de \bf{corresponde a} el conjunto de filas que coincidan con todos estos senderos.
+
+
+\h3{ Ejemplos construidos суффиксных máquinas }
+
+Estos son algunos ejemplos суффиксных máquinas construidas para varias cadenas sencillas.
+
+El estado inicial nos vamos a referir aquí a través de la $t0$, y terminales de estado --- marcar con un asterisco.
+
+Para la cadena $s = ""$:
+
+\img{suffix_automaton_sample_1.gif}
+
+Para la cadena $s = "a"$:
+
+\img{suffix_automaton_sample_2.gif}
+
+Para la cadena $s = "aa"$:
+
+\img{suffix_automaton_sample_3.gif}
+
+Para la cadena $s = "ab"$:
+
+\img{suffix_automaton_sample_4.gif}
+
+Para la cadena $s = "aba"$:
+
+\img{suffix_automaton_sample_5.gif}
+
+Para la cadena $s = "abb"$:
+
+\img{suffix_automaton_sample_6.gif}
+
+Para la cadena $s = "abbb"$:
+
+\img{suffix_automaton_sample_7.gif}
+
+
+
+\h2{ Algoritmo de construcción de суффиксного de ranura de tiempo lineal }
+
+Antes de ir directamente a la descripción del algoritmo de generación, es necesario introducir algunos conceptos nuevos y demostrar simples, pero muy importantes para la comprensión de суффиксного máquina леммы.
+
+
+\h3{ la Posición de final de $endpos$, sus propiedades y la relación con el суффиксным la máquina }
+
+Considere cualquier непустую la subcadena $t$ de $s$. Entonces llamaremos \bf{multitud de terminaciones} $endpos(t)$ el conjunto de todas las posiciones en la barra de $s$, en el que terminan las apariciones de la cadena $t$.
+
+Vamos a llamar a dos subcadenas $t_1$ y $t_2$ $endpos$-equivalentes si sus múltiples terminaciones coinciden: $endpos(t_1) = endpos(t_2)$. Por lo tanto, todos no vacíos de la subcadena de la cadena $s$ se puede dividir en varios \bf{clases de equivalencia}, respectivamente, los conjuntos $endpos$.
+
+Resulta, que en la суффиксном máquina \bf{$endpos$-equivalente подстрокам cumple el mismo estado}. En otras palabras, el número de estados en суффиксном máquina es igual al número de clases $endpos$-equivalencia entre todas las subcadenas, además de un estado inicial. Cada estado de суффиксного la máquina de ranura que se corresponden con una o varias cadenas, tienen el mismo valor de $endpos$.
+
+\bf{Esta afirmación tomaremos como axioma}, y describiremos el algoritmo de generación de суффиксного de la máquina, sobre la base de esta hipótesis --- como luego veremos, todas las propiedades que desee суффиксного de la máquina, además de минимальности, se cumplan. (Y минимальность desprende del teorema de Nerode --- consulte la lista de la literatura.)
+
+Presentamos también algunos simples, pero importantes afirmaciones sobre los valores de $endpos$.
+
+\bf{lemma 1}. Dos no nulo de la subcadena $u$ y $w$ ($length(u) \le length(w)$ son $endpos$-equivalentes entonces, y sólo entonces, cuando la línea de $u$ a se encuentra en la barra de $s$ sólo en forma de sufijo de la cadena $w$.
+
+Prueba de casi obvio. En un lado: si $u$ y $$ w tienen la misma posición de final de la referencia de $u$ es el sufijo $w$, y ésta está en $s$ sólo en forma de sufijo $w$. A la inversa: si $u$ es el sufijo $w$ y solo incluye como este sufijo, el valor de $endpos$ son iguales, por definición.
+
+\bf{lemma 2}. Considere dos no nulo de la subcadena $u$ y $w$ ($length(u) \le length(w)$). Entonces la multitud de ellos $endpos$ o de que no se cruzan, o $endpos(w)$ completo figura en $endpos(u)$, y esto depende de es $u$ sufijo $w$ o no:
+
+$$ \begin{cases}
+endpos(w) \subset endpos(u) & \text{if $u$ --- suffix $w$}
+\\
+endpos(u) \cap endpos(w) = \emptyset & \text{otherwise.}
+\end{cases} $$
+
+Prueba. Supongamos que la multitud de $endpos(u)$ y $endpos(w)$ tienen al menos un elemento común. Entonces esto significa que las cadenas de $u$ y $w$ terminan en el mismo lugar, es decir, $u$ --- sufijo $w$. Pero entonces cada aparición de la cadena $$ w contiene en su final de la aparición de la cadena $u$, lo que significa que su multitud de $endpos(w)$ completo se adjunta en multitud de $endpos(u)$.
+
+\bf{lemma 3}. Veamos un poco de la clase de $endpos$-equivalencia. Ordenará todas las subcadenas, incluidos en esta clase, por невозрастанию de longitud. Entonces en que se procese la secuencia de cada subcadena sea una unidad más corta que la anterior, y al ser el sufijo anterior. En otras palabras, \bf{subcadena de entrada en la misma clase de equivalencia, en realidad son sufijos mutuamente, y aceptan todo tipo de longitudes diferentes, en cierto tramo de la $[x;y]$}.
+
+Prueba.
+
+Introduzcamos alguna clase $endpos$-equivalencia. Si sólo contiene una sola fila, la corrección de la леммы es evidente. Que ahora el número de filas de más de una.
+
+Según лемме 1, dos diferentes $endpos$-equivalentes de línea son siempre lo que uno es su propio sufijo otro. Por lo tanto, en la misma clase $endpos$-equivalencia no puede ser cadenas de la misma longitud.
+
+Se denota por $w$ длиннейшую, y a través de la $u$ --- кратчайшую la cadena en esta clase de equivalencia. Según лемме 1, string $u$ es un sufijo de la cadena $w$. Consideremos ahora cualquier sufijo de la cadena $w$, con una longitud en el tramo de $[length(u); length(w)]$, y mostrar lo que se hizo en la misma clase de equivalencia. En realidad, este sufijo puede entrar en el $s$ sólo en forma de sufijo de la cadena $w$ (ya que más de un sufijo corto $de u$ a incluye sólo en la forma de sufijo de la cadena $w$). Por lo tanto, según лемме 1, este sufijo $endpos$-equivalente a una cadena $w$, que se quería demostrar.
+
+
+\h3{ Суффиксные referencias }
+
+Veamos algún estado de la máquina $v \ne t_0$. Como ahora sabemos, el estado de la $v$ coincide con el de alguna clase de filas con el mismo valor de $endpos$, y si nos denota por $w$ длиннейшую de estas líneas, todos los demás se sufijos $w$.
+
+También sabemos que los primeros sufijos de la cadena $w$ (si consideramos los sufijos en orden decreciente de longitud) figuran en la misma clase de equivalencia, y el resto de los sufijos (como mínimo, en blanco sufijo) --- en otras clases. Se denota por $t$ es el primer sufijo --- en él pasaremos суффиксную el enlace.
+
+En otras palabras, \bf{суффиксная referencia} $link(v)$ lleva en ese estado, al que corresponde la \bf{наидлиннейший sufijo} fila $w$, que se encuentra en otra clase de $endpos$-equivalencia.
+
+Aquí creemos que el estado inicial de $t_0$ corresponde a una clase de equivalencia de (sólo contiene una cadena vacía), y creemos $endpos(t_0) = [-1 \ldots length(s)-1]$.
+
+\bf{lemma 4}. Суффиксные enlaces forman \bf{árbol}, la raíz de la cual es el estado inicial de $t_0$.
+
+Prueba. Considere arbitraria estado $v \ne t_0$. Суффиксная referencia $link(v)$ conduce de la misma para el estado, que corresponden a la línea estrictamente menor longitud (esto se deduce de la definición de суффиксной de referencia y de леммы 3). Por lo tanto, siguiendo las суффиксным enlaces, hemos tarde o temprano llegaremos desde el estado $v$ en el estado inicial de $t_0$, que corresponde a una cadena vacía.
+
+\bf{lemma 5}. Si vamos a construir entre todos los conjuntos $endpos$ \bf{árbol} (según el principio de "la multitud de los padres la contiene como subconjunto de todos sus hijos"), lo que va a coincidir con la estructura de árbol de la суффиксных de referencia.
+
+Prueba.
+
+Lo que de los conjuntos $endpos$ se puede construir un árbol, debe de леммы 2 (que cualesquiera dos conjuntos de $endpos$ o de que no se cruzan, o una figura en la otra).
+
+Veamos ahora arbitraria estado $v \ne t_0$ y su суффиксную enlace $link(v)$. De la definición de суффиксной de referencia y de леммы 2:
+
+$$ endpos(v) \subset endpos(link(v)), $$
+
+que junto con la anterior леммой y prueba de nuestra afirmación: el árbol de суффиксных de referencia en su esencia el árbol de вкладывающихся conjuntos $endpos$.
+
+\bf{ejemplo} madera суффиксных referencias en суффиксном máquina, construido para la línea $"abcbc"$:
+
+\img{suffix_automaton_link.gif}
+
+
+\h3{ total }
+
+Antes de comenzar a sí mismo algoritmo, систематизируем acumulados por encima de los conocimientos, y vamos a introducir un par de auxiliares de la leyenda.
+
+\ul{
+
+\li Muchos subcadena de la cadena $s$ se puede dividir en clases de equivalencia en virtud de sus conjuntos de finalización $endpos$.
+
+\li Суффиксный expendedora consta de un estado inicial de $t_0$, así como un estado en cada clase $endpos$-equivalencia.
+
+\li Cada estado $v$ corresponde a una o varias filas. Se denota por $longest(v)$ длиннейшую de estas líneas, a través de $len(v)$ de su longitud. Se denota por $shortest(v)$ кратчайшую de estas líneas, y su longitud a través de los $minlen(v)$.
+
+Entonces, todas las líneas correspondientes a ese estado, son diferentes sufijos de $longest(v)$ y tienen todo tipo de longitud en el tramo de $[minlen(v); len(v)]$.
+
+\li Para cada estado, $v \ne t_0$ se define суффиксная enlace que lleva en tal estado, que coincide con el sufijo de la cadena $longest(v)$ de longitud $minlen(v)-1$. Суффиксные enlaces forman un árbol con raíz en $t_0$, y es un árbol que, en esencia, es un árbol de relaciones de inclusión entre conjuntos $endpos$.
+
+\li Por lo tanto, $minlen(v)$ $ $ - $ v \ne t_0$ se expresa a través de суффиксной referencia $link(v)$ como:
+
+$$ minlen(v) = len(link(v)) + 1. $$
+
+\li Si nos стартуем a partir de cualquier estado $v_0$ y vamos a ir por суффиксным enlaces, tarde o temprano llegaremos al estado inicial de $t_0$. Al hacerlo, logramos una secuencia de segmentos disjuntos $[minlen(v_i); len(v_i)]$, que en la fusión dará un sólido trozo.
+
+}
+
+
+\h3{ Algoritmo de construcción de суффиксного de ranura de tiempo lineal }
+
+Se procede a la descripción del algoritmo. El algoritmo se \bf{en línea}, es decir, va a añadir un carácter de la cadena $s$, reorganizar adecuadamente actual expendedora.
+
+Para llegar a la línea de consumo de memoria, en cada estado vamos a almacenar sólo un valor de $len$, $link,$ y una lista de las transiciones de ese estado. La etiqueta de terminales de estado nos ayude no vamos a (os mostramos cómo colocar estas etiquetas después de la generación суффиксного de la máquina, si hay una necesidad en ellos).
+
+\bf{Inicialmente} expendedora consta de un único estado $t_0$, que nos llevaré a cabo a contar de cero de estado (el resto del estado recibirán habitaciones de $1, 2, \ldots$). Demos ese estado, $len = 0$, y un valor de $link,$ asignamos para la comodidad de $-1$ (que significa que el enlace en el ficticio, no existe el estado).
+
+Por consiguiente, toda la tarea ahora consiste en implementar el tratamiento de \bf{agregar un símbolo} $c$ al final de la línea. Describir este proceso:
+
+\ul{
+
+\li Que $last$ --- este es el estado correspondiente a toda la fila actual antes de añadir el símbolo $c$. (Originalmente $last = 0$, y después de la adición de cada símbolo vamos a cambiar el valor de $last$.)
+
+\li Crearemos un nuevo estado $cur$, seleccionando la le $len(cur) = len(last) + 1$. El valor de $link(cur)$ hasta que creemos incierto.
+
+\li Haremos este ciclo: inicialmente nos encontramos en un estado de $last$; si de él no hay transición al pie de la letra $c$, entonces añadimos esta transición de la letra $c$ estado $cur$, y luego pasamos por el суффиксной enlace, de nuevo comprobando --- si no hay transición, lo añadimos. Si en algún momento sucede que esa transición es ya, detenemos --- y se denota por $p$ número de estados que esto ocurra.
+
+\li Si nunca ha pasado, que la transición de la letra $c$ ya tenía, y hemos llegado hasta el ficticio estado de $-1$ (en el que hemos caído por суффиксной enlace desde el estado inicial de $t_0$), podemos simplemente cambiar $link(cur) = 0$ y salir.
+
+\li Supongamos ahora que nos hemos parado en un cierto estado de $p$, de la que ya fue la transición de la letra $c$. Se denota por $q$ es el estado, a donde lleva esta disponible la transición.
+
+\li Ahora tenemos dos casos dependiendo de $len(p) + 1 = len(q)$ o no.
+
+\li Si $len(p) + 1 = len(q)$, entonces podemos asignar $link(cur) = q$ y salir.
+
+\li En caso contrario, es más complicado. Se debe efectuar \bf{"clonación"} estado $q$: crear un nuevo estado $clone$, copiando todos los datos de la cima de la $q$ (суффиксную enlace, transiciones), excepto por el valor de $len$: se debe asignar $len(clone) = len(p) + 1$.
+
+Después de la clonación pasamos суффиксную el enlace de $cur$ a es un estado de $clone$, también перенаправляем суффиксную el enlace de $q$ $clone$.
+
+Finalmente, lo último que debemos hacer es dar una vuelta de estado de $p$ de суффиксным enlaces, y para cada estado de comprobar: si tenía la transición de la letra $c$ estado $q$, entonces redirigir a su estado de $clone$ (y si no, luego se detiene).
+
+\li En cualquier caso, sea lo que sea que terminó con la ejecución de este procedimiento, estamos en la final de la actualizamos el valor de $last$, apropiándose de él $cur$.
+
+}
+
+Si también necesitamos saber qué vértices son \bf{терминальными}, y que --- no, lo podemos encontrar todos los terminales de la cima después de la generación суффиксного ranura para toda la cadena. Para ello, examinaremos el estado de la toda la cadena (que, obviamente, tenemos guardado en la variable $last$), y vamos a ir por sus суффиксным enlaces, hasta que no llegamos al estado inicial, y marcar cada recorrida estado terminal. Es fácil de entender, por lo que marcaremos el estado de todos los sufijos específicos a aparecen cadenas de $s$, que nosotros y era necesario.
+
+En la siguiente sección vamos a estudiar en detalle cada paso del algoritmo y mostraremos su \bf{corrección}.
+
+Aquí sólo señalamos que el algoritmo se ve que la adición de un símbolo lleva a la adición de uno o de los dos estados de un autómata. Por lo tanto, \bf{linealidad número de estados} es evidente.
+
+La linealidad de número de saltos, y en general lineal del tiempo de funcionamiento del algoritmo de menos claras, y serán probados a continuación, después de la prueba de la exactitud del algoritmo.
+
+
+\h3{ Prueba de la exactitud del algoritmo }
+
+\ul{
+
+\li Llamaremos la transición $(p,q)$ \bf{por} si $len(p) + 1 = len(q)$. En caso contrario, es decir, cuando el $len(p) + 1 < len(q)$, la transición llamaremos \bf{несплошным}.
+
+Como se puede ver en la descripción del algoritmo, sólidos y несплошные transiciones llevan a diferentes ramas del algoritmo. Continuas transiciones se denominan así porque, apareciendo por primera vez, nunca más van a cambiar. En contraste, несплошные transiciones pueden cambiar cuando se añaden nuevas letras a la línea (puede cambiar el final del arco de la transición).
+
+\li para evitar ambigüedades, debajo de la línea de $s$ lo vamos a implicar la cadena para la que fue construido суффиксный expendedora antes de la adición del símbolo actual $c$.
+
+\li el Algoritmo comienza con lo que creamos un nuevo estado $cur$, que coincidirá con toda la cadena $s + c$. Claro, ¿por qué estamos obligados a crear un nuevo estado --- ya que junto con la adición de un nuevo símbolo, se produce una nueva clase de equivalencia --- esta es la clase de cadenas terminadas en que se va a agregar el símbolo $c$.
+
+\li Después de la creación de un nuevo estado, el algoritmo es pasado por суффиксным enlaces, desde el estado, correspondiente a toda la cadena $s$, y tratando de agregar una transición por el símbolo $c$ estado $cur$. Por tanto, nos referimos a cada una extensión de la cadena $s$ carácter $c$. Pero no se pueden añadir nuevas transiciones podemos sólo en caso de que no entre en conflicto con los ya existentes, por lo tanto, sólo encontraremos ya existente de la transición por el símbolo $c$, inmediatamente obligados a detenerse.
+
+\li el caso Más simple --- si hemos llegado hasta el ficticio estado de $-1$, añadiendo en todas partes de la nueva transición a lo largo del símbolo $c$. Esto significa que el símbolo $c$ en la línea de $s$ antes no se encontraba. Hemos agregado con éxito todas las transiciones, solo queda poner суффиксную el enlace de el estado de $cur$ --- que, obviamente, debe ser igual a $0$, ya que el estado de $cur$ en este caso corresponden a todos los sufijos de la cadena $s+c$.
+
+\li el Segundo caso --- cuando nos encontramos con la ya existente de la transición $(p,q)$. Esto significa que estamos tratando de agregar en la máquina de la fila $x+$ c (donde $x$ --- un sufijo de la cadena $s$, que tiene una longitud de $len(p)$), y que esta cadena \bf{ya previamente ha agregado} en la máquina (es decir, $x+c$ ya es como una subcadena en una cadena $s$). Ya que suponemos que la máquina de la fila $s$ construido correctamente, nuevas transiciones estamos más que añadir que no deben.
+
+Sin embargo, la dificultad de donde llevar суффиксную el enlace de un estado de $cur$. Necesitamos pasar суффиксную referencia a un estado en el que длиннейшей la cadena será justamente esta misma $x+c$, es decir $len$ para ello, el estado debe ser igual a $len(p) + 1$. Sin embargo, este estado podría no existir: en este caso tenemos que hacer \bf{"división"} estado.
+
+\li, pues, de uno de los posibles escenarios de transición $(p,q)$ encontraba sólido, es decir, $len(q) = len(p) + 1$. En este caso, todo es simple, nada de fisión para producir no es necesario, y simplemente nos pasamos суффиксную el enlace de un estado de $cur$ estado $q$.
+
+\li Otro, una versión más compleja --- cuando la transición несплошной, es decir, $len(q) > len(p) + 1$. Esto significa que el estado de la $q$ no sólo corresponde deseada nos subcadena $w+c$ longitud $len(p) + 1$, pero también de una subcadena en una cadena de mayor longitud. De nada nos queda, además de hacer un \bf{"división"} estado $q$: dividir el segmento de cadenas, las dos подотрезка, por lo que la primera va a terminar como el más largo $len(p) + 1$.
+
+¿Cómo se realiza esta separación? Estamos \bf{"clonar"} estado $q$, haciendo una copia de $clone$ con el parámetro de $len(clone) = len(p) + 1$. Copiamos en $clone$ de $q$ de todas las transiciones, ya que no queremos de ninguna manera de cambiar de camino, pasaban a través de la $q$. Суффиксную el enlace de $clone$ llevamos a donde llevó la vieja суффиксная referencia de $q$, y la referencia de $q$ enviamos a $clone$.
+
+Después de la clonación pasamos суффиксную el enlace de $cur$ a $clone$ --- algo por lo que hemos producido la clonación.
+
+Este es el último paso --- redirigir algunos entrantes en $q$ transiciones, перенаправив en $clone$. Qué transiciones de entrada es necesario redirigir? Basta con redireccionar sólo las transiciones de todos los sufijos específicos a aparecen cadena $w+c$, es decir, tenemos que continuar y seguir por la суффиксным enlaces, a partir de la cima de $p$, y hasta que no nos lleguemos ficticio estado $-1$ o no llegaremos a un estado de transición que conduce a un estado distinto de $q$.
+
+}
+
+
+\h3{ Prueba de línea número de operaciones }
+
+En primer lugar, inmediatamente aquí, que creemos que es el tamaño del alfabeto \bf{una}. Si no es así, hablar sobre el tiempo lineal de trabajo no va a funcionar: una lista de las transiciones de una a la cima se debe almacenar en forma de árbol, que permite realizar rápidamente las operaciones de búsqueda de la clave y la adición de la clave. Por lo tanto, si nos denota por $k$ el tamaño del alfabeto, asíntotas algoritmo de $O (n \log k)$ al $O (n)$ de memoria. Sin embargo, si el alfabeto es lo suficientemente pequeño, es posible la donación de la memoria, evitar equilibrada de las listas, y almacenar las transiciones en cada vértice en forma de matriz de longitud $k$ (para una rápida búsqueda por clave) y una lista dinámica (para un rápido rastreo de todas las claves). Así llegamos a $O(n)$ durante el tiempo de funcionamiento del algoritmo, pero un precio de $O (n k)$ consumo de memoria.
+
+Por tanto, vamos a considerar el tamaño del alfabeto una expresión constante, es decir, cada operación de búsqueda de transición, el símbolo, la adición de la transición, la búsqueda de la próxima transición --- todas estas operaciones creemos que trabajan por $O(1)$.
+
+Si tenemos en cuenta todas las partes de un algoritmo, de manera que contiene tres lugares lineal asíntotas que no es evidente:
+
+\ul{
+
+\li Primer lugar --- este es el paso por el суффиксным los vínculos del estado de $last$ con la adición de las costillas por el símbolo $c$.
+
+\li Segundo lugar --- copia de navegación, al clonar el estado $q$ en el nuevo estado $clone$.
+
+\li Tercer lugar --- redirección de navegación, líderes en el $q$ $clone$.
+
+}
+
+Usaremos un hecho conocido que el tamaño de la суффиксного de ranura (tanto por el número de estados, como por el número de saltos) \bf{lineal}. (La prueba de la linealidad por el número de estados es el propio algoritmo, y la prueba de la linealidad por el número de transiciones presentamos a continuación, después de la implementación del algoritmo.).
+
+Entonces es evidente lineal total asíntotas \bf{el primer y segundo lugar}: ya que cada operación agrega en la máquina de una nueva exploración.
+
+Queda por evaluar la cantidad total de асимптотику \bf{en el tercer lugar} --- en dónde estamos перенаправляем transiciones que conducen a $q$ $clone$. Se denota $v = longest(p)$. Es el sufijo de la cadena $s$, y con cada iteración de su longitud disminuye --- y, por tanto, la posición $v$ como sufijo de la cadena $s$ monótono aumenta con cada iteración. En este caso, si antes de la primera iteración del ciclo de la fila correspondiente $v$ fue a una profundidad de $k$ ($k \ge 2$) de $last$ (si se considera la profundidad, el número de суффиксных de referencias que tiene que pasar), después de la última iteración de la cadena $v+c$ será $2$-oh суффиксной referencia en el camino de la $cur$ (que será el nuevo valor de $last$).
+
+Por lo tanto, en cada iteración de este bucle hace que la posición de la línea de $longest(link(link(last))$ como sufijo de toda la línea actual se monótono creciendo. Por lo tanto, todo este ciclo no podía trabajar más de $n$ iteraciones, \bf{que se quería demostrar}.
+
+(Vale la pena señalar que argumentos similares se pueden utilizar para la prueba de la linealidad de trabajo de la primera zona, en lugar de una referencia a la prueba de la linealidad de la número de estados.)
+
+
+\h2{ Implementación del algoritmo }
+
+Primero describiremos la estructura de datos que contendrá toda la información específica de la transición ($len$, $link,$, una lista de transiciones). Si es necesario, se puede agregar el indicador de терминальности, así como cualquier otra información solicitada. La lista de accesos almacenamos en forma de contenedor de $map$, lo que le permite alcanzar un total de $O(n)$ de memoria y $O (n \log k)$ de tiempo en el procesamiento de toda la cadena.
+
+\code
+struct state {
+int len, link;
+map<char,int> next;
+};
+\endcode
+
+El суффиксный expendedora vamos a almacenar en una matriz de estas estructuras de $state$. Como se demuestra en la siguiente sección, si $MAXN$ --- este es el máximo posible en el programa de la longitud de la cadena, basta hacer memoria por debajo de $2 \cdot MAXN - 1$ de estado. También almacenamos la variable $last$ --- estado, correspondiente a toda la cadena en este momento.
+
+\code
+const int MAXLEN = 100000;
+state st[MAXLEN*2];
+int sz, last;
+\endcode
+
+Aquí la función инициализирующую суффиксный expendedora (la cual crea una máquina expendedora con el único el estado inicial):
+
+\code
+void sa_init() {
+sz = last = 0;
+st[0].len = 0;
+st[0].link = -1;
+++sz;
+/*
+// este código es necesario, sólo si expendedora se construye muchas veces para diferentes líneas:
+for (int i=0; i<MAXLEN*2; ++i)
+st[i].next (siguiente).clear();
+*/
+}
+\endcode
+
+Por último, presentamos la implementación de la principal función que agrega el siguiente carácter en el final de la línea actual, de volver a generar en consecuencia expendedora:
+
+\code
+void sa_extend (char c) {
+int cur = sz++;
+st[cur].len = st[last].len + 1;
+int p;
+for (p=last; p!=-1 && !st[p].next (siguiente).count(c); p=st[p].link)
+st[p].next[c] = cur;
+if (p == -1)
+st[cur].link = 0;
+else {
+int q = st[p].next[c];
+if (st[p].len + 1 == st[q].len)
+st[cur].link = q;
+else {
+int clone = sz++;
+st[clone].len = st[p].len + 1;
+st[clone].next = st[q].next;
+st[clone].link = st[q].link;
+for (; p!=-1 && st[p].next[c]==q; p=st[p].link)
+st[p].next[c] = clone;
+st[q].link = st[cur].link = clone;
+}
+}
+last = cur;
+}
+\endcode
+
+Como se mencionó anteriormente, si sacrificar la memoria (hasta $O (n k)$, donde $k$ --- tamaño del alfabeto), es posible obtener el tiempo de generación de la máquina de ranura $O (n)$ incluso para cualquier $k$ --- pero para ello se tiene que en cada estado de almacenar una matriz de tamaño $k$ (para la búsqueda rápida de la transición sobre la letra) y una lista de todas las transiciones (para una rápida solución o una copia de seguridad de todas las transiciones).
+
+
+
+\h2{ propiedades Adicionales суффиксного de ranura }
+
+
+\h3{ el Número de estados }
+
+El número de estados en суффиксном máquina, construido para la línea de $s$ de longitud $n$, \bf{no supera los $2n-1$} (para $n \ge 3$).
+
+Prueba de ello es la que se expone el algoritmo anterior (ya que originalmente expendedora se compone de un estado inicial, en el primer y segundo pasos se agrega exactamente por el mismo estado y en cada uno de los restantes $n-2$ pasos podría agregar de dos picos debido a la fisión del estado).
+
+Sin embargo, esta evaluación de la \bf{fácil de ver y sin el conocimiento del algoritmo}. Recordemos que el número de estados es igual al número de valores distintos conjuntos $endpos$. Además, este conjunto de $endpos$ forman el árbol por el principio de "la cima de los padres la contiene como subconjunto de todos los niños". Considere esto un árbol, y un poco de transformar su: mientras que en ello hay una interna de la cima con un hijo, esto significa que $endpos$ ese hijo no contiene, como mínimo, un número de la $endpos$ padre; entonces crearemos virtual cima con $endpos$, igual a ese número, y привесим de ese hijo al padre. Finalmente obtenemos el árbol en el que cada interno vértice tiene grado mayor que la unidad, y el número de hoja no supera $n$. Por lo tanto, a ese árbol no más de $2n-1$ a la cima.
+
+Así pues, hemos demostrado esta evaluación de la independencia, sin el conocimiento del algoritmo.
+
+Es interesante señalar que esta evaluación неулучшаема, es decir, hay una \bf{prueba, en la que se logra}. Esta prueba se ve así:
+
+$$ "abbbb \ldots" $$
+
+Cuando se procesa esta línea en cada iteración, a partir de la tercera, habrá una división de estado, y, de ese modo, se logrará la evaluación de la $2n-1$.
+
+
+\h3{ el Número de transiciones }
+
+El número de transiciones en суффиксном máquina, construido para la línea de $s$ de longitud $n$, \bf{no supera los $3n-4$} (para $n \ge 3$).
+
+\bf{Prueba}.
+
+Vamos a evaluar el número de sólidos de navegación. Veamos остовное árbol de длиннейших de las vías en la máquina, que comienzan en el estado de $t_0$. Esta estructura será sólo de sólidos de las costillas, y, entonces, su número es uno menos que el número de estados, es decir, no supera los $2n-2$.
+
+Ponemos ahora el número de несплошных de navegación. Considere cada несплошной la transición; que la actual transición --- se trata de una transición $(p,q)$ por el símbolo $c$. Ponemos a él en cumplimiento de una cadena $u+c+w$, donde $u$ corresponde a la длиннейшему camino desde el estado inicial en $p$ y $w$ --- длиннейшему el camino de la $q$ en un estado terminal. Por un lado, todas las filas que $u+c+w$ para todos los несплошных de navegación serán diferentes, ya que las filas de $u$ y $w$ formados sólo continuas transiciones). Por otro lado, cada una de las filas de $u+c+w$, por definición, terminal de estado, será el sufijo de toda la línea $s$. Porque no vacías de sufijos de la cadena $s$ a $n$ de piezas, y además toda la cadena $s$ entre estas líneas $u+c+w$ no podía contener (porque toda la cadena $s$ corresponde a la ruta de acceso de $n$ sólidos de las costillas), el número total de несплошных de navegación no supera $n-1$.
+
+Plegable de estas dos evaluaciones, obtenemos una estimación de $3n-3$. Sin embargo, recordando que el máximo número de estados, sólo se consigue en la prueba de la vista $"abbbb \ldots "$, y la evaluación de $3n-3$ explícitamente no se logra, se obtiene una evaluación final de $3n-4$, que se quería demostrar.
+
+Es interesante señalar que también existe \bf{prueba, en la que esta evaluación se logra}:
+
+$$ "abbb \ldots bbbc" $$
+
+
+\h3{ Relación con суффиксным de madera. La construcción de суффиксного árbol de суффиксному la torre y viceversa }
+
+Demostremos dos teoremas que establecen la mutua relación entre суффиксным la máquina y \algohref=ukkonen{суффиксным árbol}.
+
+Inmediatamente aquí, que creemos que la cadena de entrada es que cada sufijo tiene su vértice en la суффиксном el árbol (ya que para las filas aleatorias es, en general, no es cierto: por ejemplo, para la línea $"aaa \ldots"$). Normalmente lo hacen a través de relacionar al final de la línea de algún carácter especial (normalmente registradas bajo a través de un signo de dólar).
+
+Para la comodidad de introducir símbolos: $\overline{s}$ --- esto es una cadena $s$, grabada en el orden inverso, $DAWG(s)$ --- este es суффиксный expendedora, construido para la línea de $s$, $ST(s)$ --- es \algohref=ukkonen{суффиксное árbol} de $s$.
+
+Introduciremos el concepto de \bf{potencian las referencias}: introduzcamos la cima de la суффиксного madera $v$, y el símbolo $c$; entonces de expansión de referencia de $ext[c,v]$ conduce a la cima del árbol correspondiente a la línea, a $c+v$ (si este camino $c+v$ termina en medio de las costillas, pasaremos el enlace en el extremo inferior de este costillas); si este camino $c+v$ no en el árbol, de expansión de referencia no definida. En cierto sentido, amplían las referencias son opuestas суффиксным enlaces.
+
+\bf{Teorema 1}. El árbol, formado суффиксными enlaces en $DAWG(s)$, es суффиксным de madera $ST(\overline{s})$.
+
+\bf{Teorema 2}. $DAWG(s)$ --- este es el conde amplían las referencias суффиксного madera $ST(\overline{s})$. Además, los sólidos de la aleta en $DAWG(s)$ --- este es invertidos суффиксные enlaces en $ST(\overline{s})$.
+
+Estos dos teoremas permiten de una de las estructuras (суффиксному árbol o суффиксному la torre) construir otra por hora $O(n)$ --- estos dos sencillos algoritmo serán revisados por nosotros a continuación en теоремах 3 y 4.
+
+A fines de ilustración, se presentan суффиксный expendedora con su árbol de la суффиксных de enlaces y la correspondiente суффиксное el árbol de la ingeniería de la línea. Para el ejemplo tomaremos la cadena $s = "abcbc"$.
+
+$DAWG("abcbc")$ y de su árbol de суффиксных de enlaces (para mayor claridad, firmamos cada estado de la su $longest$-línea):
+
+\img{suffix_automaton_st_1.gif}
+
+$ST (cbcba")$:
+
+\img{suffix_automaton_st_2.gif}
+
+\bf{lemma}. Tres de las siguientes afirmaciones son equivalentes a las dos subcadenas $u$ y $w$:
+
+\ul{
+
+\li $endpos(u) = endpos(w)$ en la línea de $s$
+\li $firstpos(\overline{u}) = firstpos(\overline{w})$ en la línea de $\overline{s}$
+\li $\overline{u}$ y $\overline{w}$ se encuentran en el mismo camino desde la raíz a суффиксном el árbol de $ST(\overline{s})$.
+
+}
+
+La prueba es bastante claro: si el comienzo de las apariciones de dos cadenas una cadena es prefijo de otro y, por lo tanto, una línea está en суффиксном el árbol en el camino de la otra cadena.
+
+\bf{la Prueba del teorema 1}. 
+
+El estado de суффиксного la máquina de ranura que corresponden a los vértices de la суффиксного árbol.
+
+Considere arbitrario суффиксную enlace $y = link(x)$. De acuerdo con la definición суффиксной enlaces, $longest(y)$ es el sufijo $longest(x)$, y entre todos esos $y$ se elige el que tenga el $len(y)$ máximo.
+
+En términos de una inversión de $\overline{s}$ esto significa que суффиксная referencia $link[x]$ conduce a un длиннейший prefijo de línea correspondiente al estado de $x$, para este prefijo corresponda a un estado independiente y $y$. En otras palabras, суффиксная referencia $link[x]$ conduce a un antepasado de la cima de $x$ en суффиксном el árbol, que se quería demostrar.
+
+\bf{la Prueba del teorema 2}.
+
+El estado de суффиксного la máquina de ranura que corresponden a los vértices de la суффиксного árbol.
+
+Considere arbitrario transición $(x,y,c)$ en суффиксном de una máquina expendedora de $DAWG(s)$. La presencia de esta transición significa que $y$ --- es el estado, la clase de equivalencia que contiene una subcadena de $longest(x) + c$. En una inversión de la línea de $\overline{s}$ esto significa que $y$ es el estado al que corresponde la subcadena $firstpos$ de la cual (en el texto $\overline{s}$) coincide con $firstpos$ de la subcadena $c + \overline{longest(x)}$.
+
+Esto significa que:
+
+$$ \overline{longest(y)} = ext[c, \overline{longest(x)}]. $$
+
+La primera parte del teorema demostrado, queda de demostrar la segunda parte: que todos los sólidos transiciones en la máquina corresponden a суффиксным enlaces en el árbol. Continua la transición es diferente de la несплошного el hecho de que $length(y) = length(x) + 1$, es decir, después de relacionar el símbolo $c$ hemos caído en un estado con una cadena, la máxima de la clase de equivalencia de este estado. Esto significa que cuando se calcula el correspondiente potencian los vínculos $ext[c, \overline{longest(x)}]$ que de inmediato se metió en la cima de un árbol y no bajaban hacia abajo hasta la cima del árbol. Por lo tanto, se les asignará un crédito de un carácter en el inicio, hemos caído en otra cima de un árbol-de-la - entonces, si esto es invertida суффиксная referencia en el árbol.
+
+El teorema totalmente demostrado.
+
+\bf{Teorema 3}. Teniendo суффиксный expendedora $DAWG(s)$ por hora $O(n)$ construir суффиксное árbol $ST(\overline{s})$.
+
+\bf{Teorema 4}. Teniendo суффиксное árbol $ST(\overline{s})$, a $O(n)$ construir суффиксный expendedora $DAWG(s)$.
+
+\bf{la Prueba del teorema 3}.
+
+Суффиксное árbol $ST(\overline{s})$ contendrá la misma cantidad de vértices, el número de estados en $DAWG(s)$, y la parte superior del árbol, resultante de un estado de $v$ de la máquina, como corresponde a la línea de longitud $len(v)$.
+
+De acuerdo con el teorema 1, la costilla en el árbol se forman como invertidos суффиксные enlaces, y los hornos de arco de la etiqueta se puede encontrar, sobre la base de una diferencia de $len$ de estado, y, además, sabiendo que para cada estado de la máquina de ranura de cualquier elemento de la multitud de $endpos$ (este un elemento de un conjunto, $endpos$ se puede apoyar con la construcción de la máquina de ranura).
+
+Суффиксные referencia en el árbol de podemos construir de acuerdo con el teorema 2 para ello, basta con ver todos los sólidos transiciones en la máquina, y para cada uno de estos transición $(x,y)$ añadir el enlace de $link(y) = x$.
+
+Por lo tanto, a la hora $O(n)$ podemos construir суффиксное árbol junto con суффиксными de enlaces en él.
+
+(Si consideramos el tamaño de la $k$ alfabeto no una constante, sobre todo la reconstrucción requerirá de tiempo $O (n \log k)$.)
+
+\bf{demostración del teorema 4}.
+
+Суффиксный expendedora $DAWG(s)$ contendrá la misma cantidad de estados, ¿cuántos vértices en $ST(\overline{s})$. Cada estado $v$ su длиннейшая cadena $longest(v)$ coincidirá con инвертированному el camino desde la raíz del árbol hasta la cima de la $v$.
+
+De acuerdo con el teorema 2, para construir todas las transiciones en суффиксном máquina, necesitamos encontrar todos los amplían los vínculos $ext[c,v]$.
+
+En primer lugar, tenga en cuenta que parte de estos amplían las referencias se obtienen directamente de la суффиксных referencias en el árbol. En realidad, si para cualquier cima de $x$ vamos a ver su суффиксную enlace $y = link(x)$, entonces esto significa que es necesario realizar una amplía el enlace de $y$ en $x$ por el primer carácter de la cadena correspondiente a la cima de $x$.
+
+Sin embargo, nos encontramos con todos los amplían las referencias. Adicionalmente es necesario caminar por суффиксному el árbol de las hojas hasta la raíz, y para cada vértice $v$ ver todos sus hijos, para cada hijo ver todos los amplían los vínculos $ext[c,w]$, y copiar este enlace en la cima de la $v$, si el símbolo $c$ enlace de la parte superior $v$ aún no se ha encontrado:
+
+$$ ext[c,v] = ext[c,w], ~~~~ \text{if $ext[c,w] = nil$.} $$
+
+Este proceso de trabajo ha terminado por hora $O (n)$, si consideramos el tamaño del alfabeto una expresión constante.
+
+Por último, queda por construir суффиксные referencia en la máquina, sin embargo, de acuerdo con el teorema 1, estos суффиксные de referencia se obtienen simplemente como costillas суффиксного madera $ST(\overline{s})$.
+
+Por lo tanto, el algoritmo descrito por hora $O(n)$ construye суффиксный una máquina expendedora de суффиксному madera, para una inversión de la cadena.
+
+(Si creemos que el tamaño de la $k$ alfabeto --- también variable, asíntotas aumentará a $O (n \log k)$.)
+
+
+
+\h2{ Aplicación en la solución de problemas }
+
+A continuación analizamos las tareas que puede realizar con суффиксного la máquina.
+
+Para simplificar, vamos a considerar el tamaño del alfabeto $k$ una constante, lo que nos permitirá contar асимптотику construcción de суффиксного de la máquina y de paso por él константными.
+
+
+\h3{ Comprobación de la aparición }
+
+\bf{Condición}. Dan texto $T$, y se recibe la solicitud en la forma: dada una cadena $P$, es necesario comprobar o no la cadena $P$ a texto $T$ como subcadena.
+
+\bf{Asíntotas}. Препроцессинг $O (length (T))$ y $O (length (P))$ en una sola consulta.
+
+\bf{para Decisión}. Construiremos суффиксный expendedora de texto: $T$ por hora $O (length (T))$.
+
+Como ahora a responder a una solicitud. Que el estado actual de la --- es una variable $v$, originalmente es de un estado inicial de $t_0$. Vamos a ir por los caracteres de la cadena $P$, en consecuencia haciendo la transición desde la situación actual de $v$ en el nuevo estado. Si en algún momento ha pasado, de que la transición desde la situación actual sobre el carácter deseado no resultó --- entonces la respuesta a la solicitud de "no". Si hemos sido capaces de procesar toda la cadena $P$, entonces la respuesta a la pregunta con un sí.
+
+Está claro que esto va a funcionar por el tiempo $O (length (P))$. Además, el algoritmo de la realidad en busca de la longitud de la наидлиннейшего prefijo $P$, se encuentra en el texto --- y cuando las muestras son tales que la longitud de estos pequeños, y el algoritmo de funcionará mucho más rápido, no que procesa la cadena entera.
+
+
+\h3{ Número de diferentes subcadenas }
+
+\bf{Condición}. Dada una cadena $S$. Se requiere conocer el número de sus diferentes cadenas.
+
+\bf{Asíntotas}. $O (length (S))$.
+
+\bf{para Decisión}. Construiremos суффиксный máquina expendedora de la línea de $S$.
+
+En суффиксном de una máquina expendedora de cualquier subcadena de la cadena $S$ corresponde a algún tipo de ruta de acceso en la máquina. Debido a que las filas duplicadas en una máquina no puede ser, entonces la respuesta a la tarea --- es \bf{número de diferentes maneras de} dentro de una máquina expendedora, que comienzan en la primaria, en la cima de $t_0$.
+
+Teniendo en cuenta que суффиксный expendedora es una ациклический conde, el número de caminos diferentes se pueden contar en él con la ayuda de la programación dinámica.
+
+Es decir, que $d[v]$ --- este es el número de caminos diferentes, que comienzan con el estado de $v$ (incluida la ruta de acceso de la longitud de cero). Entonces es cierto:
+
+$$ d[v] = 1 + \sum_{w ~ : \atop (v,w,c) \in DAWG} d[w], $$
+
+es decir, $d[v]$ se puede expresar como la suma de las respuestas de toda clase de transiciones desde el estado $v$.
+
+La respuesta a la tarea tendrá un valor de $d[t_0]-1$ (unidad de distancia, para no tener en cuenta vacía la subcadena).
+
+
+\h3{ longitud combinada de distintas subcadenas }
+
+\bf{Condición}. Dada una cadena $S$. Es necesario conocer la cantidad total de la longitud de todos los diferentes subcadenas.
+
+\bf{Asíntotas}. $O (length (S))$.
+
+\bf{para Decisión}. La solución de la tarea similar a la anterior, sólo que ahora hay que pensar en la dinámica de dos valores: el número de distintas subcadenas $d[v]$ y su total longitud $ans[v]$.
+
+Cómo leer un $d[v]$, se describe en la tarea anterior, y la cantidad de $ans[v]$ se puede calcular así:
+
+$$ ans[v] = \sum_{w ~ : \atop (v,w,c) \in DAWG} d[w] + ans[w], $$
+
+es decir, tomamos una respuesta para cada vértice $w$, y se añade a él $d[w]$, así como atribuir al principio de cada una de las líneas de un carácter.
+
+
+\h3{ Лексикографически k-ésimo subcadena }
+
+\bf{Condición}. Dada una cadena $S$. Solicita --- número de $K_i$, y es necesario encontrar $K_i$n en el orden de la subcadena de la cadena $S$.
+
+\bf{Asíntotas}. $O (length (ans) \cdot Alphabet)$ para una consulta (donde $ans$ --- esta es la respuesta a esta consulta, $Alphabet$ --- tamaño del alfabeto).
+
+\bf{para Decisión}. La solución de esta tarea se basa en la misma idea de que el y los dos anteriores de la tarea. Лексикографически $k$-aja subcadena --- este es лексикографический $k$-sima de la ruta en суффиксном de la máquina expendedora. Por lo tanto, considerando para cada estado, el número de rutas de él, podemos buscar $k$el primer camino, procede de la raíz de la ranura.
+
+
+\h3{ el Menor desplazamiento cíclico }
+
+\bf{Condición}. Dada una cadena $S$. Es necesario encontrar лексикографически menor de su desplazamiento cíclico.
+
+\bf{Asíntotas}. $O (length (S))$.
+
+\bf{para Decisión}. Construiremos суффиксный expendedora para la cadena $S+S$. Entonces esta máquina va a contener en sí mismo como el camino de los cambios cíclicos de la cadena $S$.
+
+Por tanto, la tarea va a consistir en encontrar en las máquinas expendedoras лексикографически mínimo de la longitud de la ruta $length(S)$, lo que se hace trivial: estamos стартуем en su estado inicial y cada vez que actuamos con avidez, pasando por la transición, con un mínimo de un símbolo.
+
+
+\h3{ Cantidad }
+
+\bf{Condición}. Dan texto $T$, y se recibe la solicitud en la forma: dada una cadena $P$, es necesario conocer la cantidad de veces que la cadena $P$ en el $T$ como subcadena (apariciones se pueden superponer).
+
+\bf{Asíntotas}. Препроцессинг $O (length (T))$ y $O (length (P))$ en una sola consulta.
+
+\bf{para Decisión}. Construiremos суффиксный expendedora de texto: $T$. 
+
+Más allá tenemos que hacer un препроцессинг: para cada estado, $v$ ranura calcular el número de $cnt[v]$, del mismo tamaño que el de la multitud de $endpos(v)$. En realidad, todas las líneas correspondientes a la misma fecha, se incluyen $T$ mismo número de veces igual al número de posiciones en el conjunto de $endpos$.
+
+Sin embargo, explícitamente mantener multitud de $endpos$ para todos los estados no podemos, por lo tanto, aprendamos a pensar sólo en sus dimensiones de $cnt$.
+
+Para ello procede de la siguiente manera. Para cada estado, si no se ha obtenido mediante la clonación (y el estado inicial de $t_0$ tampoco nos olvidamos), originalmente asignamos $cnt = 1$. A continuación, vamos a ir por todos los estados en orden decreciente de longitud $len$ y пробрасывать el valor actual de $cnt[v]$ суффиксной enlace:
+
+$$ cnt[link(v)] += cnt[v]. $$
+
+Se afirma que, al final, nos consideramos para cada estado de los valores correctos de $cnt$.
+
+¿Por qué esto es cierto? Todo el estado, recibidas a través de la clonación, de exactamente $length(S)$, y $i$-tes de ellos aparece, cuando agregamos los primeros $i$ de caracteres. Por lo tanto, cada uno de estos estados ponemos en el cumplimiento de esta posición, al tratamiento de los que ha aparecido. Por lo tanto, inicialmente, cada una de estas estado $cnt = 1$, y el de todos los demás estados de $cnt = 0$.
+
+A continuación, realizamos para cada $v$ a tal operación: $cnt[link(v)] += cnt[v]$. El sentido de esto es que si la fila correspondiente a la fecha $v$, se reunió $cnt[v]$ más, todos los sufijos se encontrará con el mismo.
+
+¿Por qué más que no tenga en cuenta la misma posición varias veces? Porque de cada estado, su significado es "пробрасывается" sólo una vez, así que no podía tan resultar, que de un estado de su valor "пробросилось" antes de cualquier otro estado dos veces, de dos maneras diferentes.
+
+Por lo tanto, hemos aprendido a considerar estos valores $cnt$ para todos los estados de la máquina de ranura.
+
+Después de esto, la respuesta a la solicitud de trivial --- sólo debe devolver $cnt[t]$, donde $t$ --- el estado, que coincide con la muestra de $P$.
+
+
+\h3{ la Posición de la primera aparición }
+
+\bf{Condición}. Dan texto $T$, y se recibe la solicitud en la forma: dada una cadena $P$, es necesario conocer la posición de comienzo de la primera aparición de una cadena $P$.
+
+\bf{Asíntotas}. Препроцессинг $O (length (T))$ y $O (length (P))$ en una sola consulta.
+
+\bf{para Decisión}. Construiremos суффиксный expendedora de texto: $T$.
+
+Para resolver la tarea también tenemos que añadir en препроцессинг encontrar las posiciones de $firstpos$ para todos los estados de la máquina, es decir, para cada estado, $v$ queremos encontrar una posición de $firstpos[v]$ finalización de la primera aparición. En otras palabras, queremos encontrar una antelación mínima de un elemento de cada uno de los conjuntos $endpos(v)$ (ya que explícitamente a mantener todos los conjuntos $endpos$ no podemos).
+
+\bf{Apoyar} estas posiciones $firstpos$ más fácil todo recto por el camino de generación de la máquina de ranura: cuando creamos un nuevo estado $cur$ al entrar en la función $sa\_extend()$, lo sacamos de él:
+
+$$ firstpos(cur) = len(cur) - 1 $$
+
+(si trabajamos en $a$0.-índice).
+
+Al clonar la cima de la $q$ $clone$ ponemos:
+
+$$ firstpos(clone) = firstpos(q), $$
+
+(ya que la otra opción, sólo uno es de $firstpos(cur)$, que es claramente más).
+
+Por lo tanto, la respuesta a la solicitud --- eso es sólo $firstpos(t)-length(P)+1$, donde $t$ --- el estado, que coincide con la muestra de $P$.
+
+
+\h3{ la Posición de todas las apariciones }
+
+\bf{Condición}. Dan texto $T$, y se recibe la solicitud en la forma: dada una cadena $P$, desea mostrar la posición de todas sus apariciones en la cadena $T$ (apariciones puedo superponer).
+
+\bf{Asíntotas}. Препроцессинг $O (length (T))$. Respuesta a una solicitud en $O (length (P) + answer (P))$, donde $answer(P)$ --- este es el tamaño de la respuesta, es decir, vamos a abordar la tarea por el tiempo de la orden del tamaño de entrada y de salida.
+
+\bf{para Decisión}. Construiremos суффиксный expendedora de texto: $T$. Similar a la anterior tarea, consideramos en el proceso de generación de la máquina de cada estado de posición $firstpos$ finalización de la primera aparición.
+
+Ahora les ha llegado la solicitud --- línea de $P$. Encontraremos, a partir de $t$ se cumple.
+
+Está claro que $firstpos(t)$ exactitud se debe incluir en la respuesta. ¿Qué otras posiciones es necesario encontrar? Hemos tenido en cuenta el estado de la máquina que contiene la cadena $P$, sin embargo, no tuvieron en cuenta otras condiciones que coinciden con los de la cadena, que $P$ es el sufijo.
+
+En otras palabras, necesitamos encontrar todos los estados, de los cuales \bf{alcanzable por суффиксным enlaces} estado $t$.
+
+Por lo tanto, para resolver la tarea, necesitamos guardar para cada estado de la lista de суффиксных de enlaces que conducen a él. La respuesta a la solicitud de entonces, será en la forma de hacer \bf{rastreo en profundidad/ancho} de este инвертированным суффиксным enlaces, a partir del estado de $t$.
+
+Este recorrido va a funcionar por el tiempo $O (answer (P))$, ya que no visitaremos el mismo estado dos veces (porque de cada estado суффиксная enlace sale sólo una, por lo tanto, no puede ser de dos vías en el mismo estado).
+
+Sin embargo, hay que tener en cuenta que el de los dos estados de su valor de $firstpos$ \bf{pueden coincidir}: si un estado se ha recibido la clonación de otro. Sin embargo, esto no afecta a la асимптотику, ya que cada uno de no-clonada a la cima puede ser un máximo de un clon.
+
+Además, se puede fácilmente deshacerse de salida repetitivos, posiciones, si no vamos a añadir en la respuesta $firstpos$ estados de clones. En realidad, en cualquier estado-clon lleva суффиксная referencia de su estado original, que es el estado de la клонировало. Por lo tanto, si para cada estado, recordemos la bandera $is\_clon$, y no vamos a añadir en la respuesta $firstpos$ de los estados, de los cuales $is\_clon = true$, por lo tanto, obtendremos todos los $answer (P)$ posiciones sin repetición.
+
+Presentamos un esbozo de la implementación:
+
+\code
+struct state {
+...
+bool is_clon;
+int first_pos;
+vector<int> inv_link;
+};
+
+
+... después de la construcción de la máquina de ranura de ...
+for (int v=1; v<sz; ++v)
+st[st[v].link].inv_link.push_back (v);
+...
+
+
+// la respuesta a la pregunta de la salida de todas las apariciones de la (posible, con las repeticiones)
+void output_all_occurences (int v, int P_length) {
+if (! st[v].is_clon)
+cout << st[v].first_pos - P_length + 1 << endl;
+for (size_t i=0; i<st[v].inv_link.size(); ++i)
+output_all_occurences (st[v].inv_link[i], P_length);
+}
+\endcode
+
+
+\h3{ la Búsqueda de la menor anchura de línea no incluida en esta }
+
+\bf{Condición}. Dada una cadena $S$, y se especifica un determinado alfabeto. Es necesario encontrar una cadena de menor longitud, que no se encuentran en los $S$ como subcadena.
+
+\bf{Asíntotas}. La solución a $O (length (S))$.
+
+\bf{para Decisión}. Resolver será dinámico de la programación de la torre, que fue construido para la línea de $S$.
+
+Que $d[v]$ --- esta es la respuesta para la punta de la $v$, es decir, hemos desarrollado parte de la subcadena, una vez en el poder $v$, y queremos encontrar el menor número de caracteres que hay que añadir, para ir más allá de la máquina, encontrando que el "fantasma" de la transición.
+
+Se considera $d[v]$ es muy fácil. Si desde $v$ no pasar al menos un carácter del alfabeto, $d[v] = 1$: podemos atribuir tal carácter, y más allá de la máquina, obteniendo así lo que busca la cadena.
+
+En caso contrario, un símbolo de pasar no va a funcionar, por lo que es necesario tomar al menos una de las respuestas de toda clase de caracteres:
+
+$$ d[v] = 1 + \min_{w ~ : \atop (v,w,c) \in DAWG} d[w]. $$
+
+La respuesta en la tarea será de $d[t_0]$, y la cadena se puede recuperar, restaurando la forma en que la dinámica ha resultado este mínimo.
+
+
+\h3{ Наидлиннейшая general de la subcadena dos líneas }
+
+\bf{Condición}. Dadas dos cadenas de $S$ y $T$. Es necesario encontrar наидлиннейшую general de la subcadena, es decir, esta línea de $X$, que es una cadena y $S$ y $T$.
+
+\bf{Asíntotas}. La solución a $O (length(S) + length(T))$.
+
+\bf{para Decisión}. Construiremos суффиксный máquina expendedora de la línea de $S$.
+
+Ahora vamos a ir por la línea de $T$, y para cada prefijo de buscar наидлиннейший sufijo este prefijo, tal como se encuentra en $S$. En otras palabras, para cada posición en la línea $T$ queremos encontrar наидлиннейшую general de la subcadena de la $S$ y $T$, заканчивающуюся es en esta posición.
+
+Para ello, vamos a apoyar las dos variables: \bf{el estado actual} $v$ y \bf{la longitud actual} $l$. Estas dos variables se describir actual coincidente con la parte de: la longitud y el estado, que se corresponde con el de ella (sin almacenamiento de la longitud se puede hacer, ya que un estado puede cumplir con varias líneas de diferente longitud).
+
+Inicialmente $p=t_0$, $l=0$, es decir, la coincidencia en blanco.
+
+Supongamos ahora que vemos el símbolo $T[i]$ y queremos calcular la respuesta para él.
+
+\ul{
+
+\li Si desde el estado $v$ en la máquina es la migración por el símbolo $T[i]$, nosotros simplemente hacemos esta transición y aumentamos $l$ por unidad.
+
+\li Si mismo desde el estado de $v$ no deseado de la transición, entonces debemos tratar de acortar el actual coincidente con la parte, para lo cual es necesario ir a суффиксной enlace:
+
+$$ v = link(v). $$
+
+Cuando la longitud actual es necesario acortar, pero dejar de lo posible. Obviamente, para ello es necesario asignar $l = len(v)$, ya que después del paso por la суффиксной enlace que nos ofrece la cadena de cualquier longitud, correspondiente a este estado:
+
+$$ l = len(v). $$
+
+Si el nuevo estado de nuevo no va a pasar por el símbolo deseado, y luego volvemos deben pasar por суффиксной enlace y reducir $l$, y así sucesivamente, hasta encontrar la transición (entonces pasemos al punto 1) o no nos ficticio en el estado de $-1$ (lo que significa que el símbolo $T[i]$ no se encuentra en el $S$, por lo tanto, se asigna $v=l=0$ y pasamos a la siguiente $i$).
+
+}
+
+La respuesta de la tarea será el máximo de los valores de $l$ por todo el tiempo de rastreo.
+
+Asíntotas de este pasaje es de $O (length (T))$, ya que en una jugada podemos aumentar por unidad $l$, o hacer varias pasadas por el суффиксной enlace, cada uno de los cuales será estrictamente disminuir el valor de $l$. Por lo tanto, reducciones no puede ser más de $length (T)$, lo que significa lineal асимптотику.
+
+La implementación de:
+
+\code
+string lcs (string s, string t) {
+sa_init();
+for (int i=0; i<int () s.length (); i++)
+sa_extend (s[i]);
+
+int v = 0, l = 0,
+best = 0, bestpos = 0;
+for (int i=0; i<(int)t.length (); i++) {
+while (v && ! st[v].next (siguiente).count(t[i])) {
+v = st[v].link;
+l = st[v].length;
+}
+if (st[v].next (siguiente).count(t[i])) {
+v = st[v].next[t[i]];
+++l;
+}
+if (l > best)
+best = l, bestpos = i;
+}
+return t.substr (bestpos-best+1, best);
+}
+\endcode
+
+
+\h3{ Mayor general de la subcadena en varias filas. }
+
+\bf{Condición}. Dado $K$ filas de $S_i$. Es necesario encontrar наидлиннейшую general de la subcadena, es decir, esta línea de $X$, que es una subcadena de todos los $S_i$.
+
+\bf{Asíntotas}. La solución a $O (\sum length(S_i) \cdot K)$.
+
+\bf{para Decisión}. Склеим todas las filas de $S_i$ en una fila $T$, se les asignará un crédito después de cada línea $S_i$ su propio carácter separador de $D_i$ (es decir, escribiendo: $K$ adicionales especiales. caracteres $D_i$):
+
+$$ T = S_1 ~ D_1 ~ S_2 ~ D_2 ~ \ldots ~ S_k D_k. $$
+
+Construiremos para la cadena $T$ суффиксный expendedora.
+
+Ahora debemos encontrar la siguiente línea en la máquina, que contiene todas las filas de $S_i$, y en este nos ayudarán añadido el especialista. los caracteres. Tenga en cuenta que si una subcadena dentro de cierta cadena $S_j$, en суффиксном de la máquina expendedora de esta subcadena se encontrará la ruta de acceso que contiene el símbolo $D_j$, y no contiene otros caracteres $D_1, \ldots, D_{j-1}, D_{j+1}, \ldots, D_k$.
+
+Por lo tanto, necesitamos considerar la posibilidad de lograr: para cada estado de la máquina y de cada símbolo $D_i$ es si la ruta de acceso que contiene un separador de $D_i$, y no contiene otros separadores. Esto es fácil de hacer el rastreo en la profundidad, la anchura o perezoso dinámica. Después de esto, la respuesta a la tarea es una cadena $longest(v)$ para el estado de $v$, de la que se han encontrado el camino de todos los caracteres.
+
+
+\h2{ Tareas en línea judges }
+
+Tareas que se pueden resolver con la ayuda de суффиксного máquina:
+
+\ul{
+
+\li \href=http://www.spoj.pl/problemas/SUBLEX/{SPOJ #7258 SUBLEX \bf{"Lexicographical Substring Search"} ~~~~ [dificultad media]}
+
+}
+
+
+
+
+
+
+\h2{ Literatura }
+
+Veamos primero la lista de los primeros trabajos relacionados con суффиксными máquinas expendedoras:
+
+\ul{
+
+\li A. Blumer, J. Blumer, A. Ehrenfeucht, D. Haussler, R. McConnell. \bf{Linear Size Finite Automata for the Set of All Subwords of a Word. An Outline of Results} [1983]
+
+\li A. Blumer, J. Blumer, A. Ehrenfeucht, D. Haussler. \bf{The Smallest Automaton Recognizing the Subwords of a Text} [1984]
+
+\li Maxime Crochemore. \bf{Optimal Factor Transducers} [1985]
+
+\li Maxime Crochemore. \bf{Transducers and Repeticiones} [1986]
+
+\li A. Nerode. \bf{Linear automaton transformaciones} [1958]
+
+}
+
+Además, en el más moderno de los orígenes de este tema se aborda en muchos libros de cadena de algoritmos:
+
+\ul{
+
+\li Maxime Crochemore, Wowjcieh Rytter. \bf{Jewels of Stringology} [2002]
+
+\li Bill Smyth. \bf{Computing Patterns in Strings} [2003]
+
+\li bill smith. \bf{Métodos y algoritmos de cálculo en las filas} [2006]
+
+}

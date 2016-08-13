@@ -1,0 +1,76 @@
+\h1{Первообразные raíces}
+
+\h2{Definición}
+
+Первообразным la raíz del módulo $n$ (primitive root modulo $n$) y no se ha introducido el número de $g$, que todos sus grados por módulo $n$ recorren de todos los números, de mutuo simple con $n$. Matemáticamente esto se formula de esta manera: si $g$ es первообразным la raíz del módulo $n$, entonces para cualquier entero $a$ tal que ${\rm mcd}(a,n)=1$, hay qué es un entero $k$ que $g^k \equiv a \pmod{n}$.
+
+En particular, para el caso de una simple $n$ el grado de первообразного de la raíz de la recorren de todos los números desde $1 a$ a $n-1$.
+
+\h2{Existencia}
+
+Первообразный la raíz del módulo $n$ existe entonces, y sólo entonces, cuando $n$ es el grado impar de simple o de doble grado de simple, así como en los casos en $n=1$, $n=2$, $n=4$.
+
+Este teorema (que fue totalmente demostrado Гауссом, en 1801), se presenta aquí sin pruebas.
+
+\h2{Relación con \algohref=euler_function{la función de euler}}
+
+Que $g$ - первообразный la raíz del módulo $n$. Entonces se puede demostrar que el número mínimo de $k$ que $g^k \equiv 1 \pmod{n}$ (es decir, $k$ --- la tasa de $g$ (multiplicative order)), es igual a $\phi(n)$. Además, lo contrario también es cierto, y este hecho se utilizará la siguiente en el algoritmo de encontrar первообразного de la raíz.
+
+Además, si por módulo $n$ es, al menos, un первообразный la raíz, por lo que todo su $\phi( \phi(n) )$ (ya que el ciclo de grupo con $k$ tiene elementos de $\phi(k)$ generadores).
+
+\h2{el Algoritmo de encontrar первообразного raíz}
+
+Ingenuo el algoritmo requerirá para cada somete a la prueba un valor de $g$ $O(n)$ de tiempo para calcular todos sus grados y comprobar que todos ellos son diferentes. Es demasiado lento el algoritmo, a continuación, vamos con la ayuda de varios famosos teoremas de la teoría de los números obtenemos un algoritmo más rápido.
+
+Anteriormente se describió un teorema que, si el número mínimo de $k$ que $g^k \equiv 1 \pmod{n}$ (es decir, $k$ --- la tasa de $g$ es $\phi(n)$, entonces $g$ --- первообразный la raíz. Así como para cualquier cantidad de $a$, mutuamente simple con $n$, se \algohref=http://e-maxx.es/algo/euler_function#4{teorema de euler} ($a^{\phi(n)} \equiv 1 \pmod{n}$), para comprobar que $g$ первообразный la raíz, basta con comprobar que para todos los números $d$ menor de $\phi(n)$, se realizaba $g^d \not\equiv 1 \pmod{n}$. Sin embargo, todavía es demasiado lento el algoritmo.
+
+Desde el teorema de lagrange se desprende que el expediente de cualquier número de módulo $n$ es un divisor de $\phi(n)$. Por lo tanto, basta con comprobar que para todas sus делителей $d\ |\ \phi(n)$ se $g^d \not\equiv 1 \pmod{n}$. Es mucho más rápido, sin embargo, se puede ir aún más allá.
+
+Факторизуем número $\phi(n) = p_1^{a_1} \sum_ p_s^{a_s}$. Demostramos que en el anterior algoritmo, basta con considerar como $d$ sólo los números de la vista $\frac{ \phi(n) }{ p_i }$. Efectivamente, supongamos que $d$ --- arbitrario propio divisor de $\phi(n)$. Entonces, obviamente, hay tal $j$ que $d\ |\ \frac{ \phi(n) }{ p_j }$, es decir $d \cdot k = \frac{ \phi(n) }{ p_j }$. Sin embargo, si $g^d \equiv 1 \pmod{n}$, entonces tenemos:
+$$ g^{\frac{ \phi(n) }{ p_j }} \equiv g^{d \cdot k} \equiv {\left( g^d \right) }^k \equiv 1^k \equiv 1 \pmod{n}, $$
+es decir, todos por igual entre los números de la vista $\frac{ \phi(n) }{ p_i }$ encontraría algo para el cual la condición de que no estén satisfechos, que se quería demostrar.
+
+Por lo tanto, el algoritmo de encontrar первообразного de la raíz. Encontramos $\phi(n)$, факторизуем. Ahora перебираем todos los números $g = 1 \ldots, n$, y para cada consideramos todas las cantidades de $g^{ \frac{ \phi(n) }{ p_i } } \pmod{n}$. Si el actual de $g$, todos estos números fueron excelentes desde $1$, entonces $g$ y es buscada первообразным la raíz.
+
+El tiempo de funcionamiento del algoritmo (teniendo en cuenta que el número de $\phi(n)$ existe $O \left( \log \phi(n) \right)$ делителей, y los exponentes se ejecuta el algoritmo de \algohref=binary_pow{Binario de exponenciación}, es decir, $O(\log n)$) valor $O \left( {\rm Ans} \cdot \log \phi(n) \cdot \log n \right)$ más el tiempo факторизации número $\phi(n)$, donde $\rm Ans$ --- el resultado, es decir, el valor buscado, первообразного de la raíz.
+
+Acerca de la velocidad de crecimiento первообразных de las raíces con un aumento de $n$ se conocen, son sólo indicativos de evaluación. Se sabe que первообразные raíces --- relativamente pequeña magnitud. Una de las famosas evaluaciones --- evaluación de la Шупа (Shoup), que, en el supuesto de la veracidad de la hipótesis de riemann, первообразный raíz de es $O (\log^6 n)$.
+
+\h2{Aplicación}
+
+La función de powmod() ejecuta el binario exponenciación por el módulo, y la función de generador (int p) - encuentra первообразный raíz de un simple módulo $p$ (факторизация número $\phi(n)$ aquí a cabo el algoritmo más simple por $O( \sqrt{ \phi(n) } )$).
+
+Para adaptar esta función para arbitrarios $p$, basta con agregar el cálculo \algohref=euler_function{la función de euler} en la variable $phi$, y excluir $res$, no son mutuamente simples con $n$.
+
+\code
+int powmod (int a, int b, int p) {
+int res = 1;
+while (b)
+if (b & 1)
+res = int (res * 1ll * a % p), --b;
+else
+a = int (a * 1ll * a % p), b > > a= 1;
+return res;
+}
+
+int generator (int p) {
+vector<int> fact;
+int phi = p-1, n = phi;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+fact.push_back (i);
+while (n % i == 0)
+n /= i;
+}
+if (n > 1)
+fact.push_back (n);
+
+for (int res=2; res<=p; ++res) {
+bool ok = true;
+for (size_t i=0; i<fact.size() && ok; ++i)
+ok &= powmod (res, phi / fact[i], p) != 1;
+if (ok) return res;
+}
+return -1;
+}
+\endcode

@@ -1,0 +1,80 @@
+<h1>Comprobación de los puntos de la pertenencia выпуклому polígono</h1>
+
+<p>Dan un polígono convexo de N vértices, coordenadas de todos los vértices целочисленны (aunque esto no cambia la esencia de la decisión); cima se establecen en la orden de rastreo en contra de las agujas del reloj (en caso contrario, simplemente ordenar). Se recibe la solicitud del punto, y es necesario para cada punto de definir, está dentro de un polígono o no (la frontera del polígono se incluyen). En cada solicitud vamos a responder en el modo on-line de O (log N). El tratamiento preliminar de un polígono se ejecutará por O (N).</p>
+<h2>el Algoritmo de</h2>
+<p>Decidir vamos a <b>binarios de búsqueda en la esquina</b>.</p>
+<p>Una de las opciones de solución es la siguiente. Elegimos un punto con la menor coordenada X (si hay varios, lo seleccionamos la inferior, es decir, con el menor Y). Sobre este punto, daremos el nombre de su Zero, el resto de los vértices del polígono se encuentran en el lado derecho de полуплоскости. Además, tenga en cuenta que todos los vértices del polígono ya están organizados por la derecha con respecto al punto cero (esto se deriva del hecho de que un polígono convexo, y ya está ordenado en contra de las agujas del reloj), y todas las esquinas se encuentran en el intervalo (-π/2 ; π/2].</p>
+<p>supongamos Que hay una solicitud cierto punto P. Examinaremos polar, el ángulo respecto al punto cero. Encontraremos binarios de búsqueda de dos vecinos de la cima de L y R del polígono, que el ángulo polar de P se encuentra entre los ángulos polares L y R. Lo hemos encontrado el sector del polígono, en el que se encuentra el punto P, y sólo queda comprobar, se encuentra si el punto P en el triángulo (Zero,L,R). Esto se puede hacer, por ejemplo, con la ayuda de <algohref=oriented_area>Orientada hacia el área del triángulo y del Predicado En el sentido de las agujas del reloj"</algohref>, lo suficiente para ver, en sentido de las agujas del reloj o en contra está el trío de vértices (R,L,P).</p>
+<p>Por lo tanto, estamos a favor de O (log N) encontramos el sector del polígono y, a continuación, a O (1) comprobamos la pertenencia a un punto en el triángulo, y, por tanto, necesaria asíntotas alcanzado. El tratamiento preliminar de un polígono es sólo para предпосчитать polares ángulos para todos los puntos, aunque estos cálculos también se puede pasar a la fase binario de búsqueda.</p>
+<h2>Observaciones sobre la implementación de la</h2>
+<p>Para determinar el ángulo polar, puede utilizar el estándar de la función atan2. Así obtendremos muy breve y sencilla la solución, sin embargo, a cambio, pueden surgir problemas con precisión.</p>
+<p>Teniendo en cuenta que inicialmente todas las coordenadas son enteros, se puede obtener una solución, no utiliza las fracciones de la aritmética.</p>
+<p>tenga en cuenta que el ángulo polar del punto (X,Y) con respecto al origen se identifica por una fracción de Y/X, con la condición de que el punto se encuentra en el lado derecho de полуплоскости. Además, si un punto de la polar, el ángulo es menor que el otro, y la fracción Y1/X1 será menor Y2/X2, y viceversa.</p>
+<p>Por lo tanto, para comparar polares de los ángulos de los dos puntos es suficiente para comparar fracciones Y1/X1 y Y2/X2, que ya puede realizar en un entero en la aritmética.</p>
+<h2>Realización</h2>
+<p>Esta aplicación supone que en este polígono no hay vértices duplicados, y el área de un polígono nula.</p>
+<code>struct pt {
+int x, y;
+};
+
+struct ang {
+int a, b;
+};
+
+bool operator < (const ang & p, const ang & q) {
+if (p.b == 0 && q.b == 0)
+return p.a < q.a;
+return p.a * 1ll * q.b < p.b * 1ll * q.a;
+}
+
+long long sq (pt & pt & b, pt & c) {
+return a.x*1ll*b.y-c.y) + b.x*1ll*(c.y-a.y) + c.x*1ll*(a.y-b.y);
+}
+
+int main() {
+
+int n;
+cin >> n;
+vector<pt> p (n);
+int zero_id = 0;
+for (int i=0; i<n; ++i) {
+scanf ("%d%d", &p[i].x, &p[i].y);
+if (p[i].x < p[zero_id].x || p[i].x == p[zero_id].x && p[i].y < p[zero_id].y)
+zero_id = i;
+}
+pt zero = p[zero_id];
+rotate (p.begin(), pág.begin()+zero_id, pág.end());
+p.erase (p.begin());
+--n;
+
+vector<ang> a (n);
+for (int i=0; i<n; ++i) {
+a[i].a = p[i].y - zero.y;
+a[i].b = p[i].x - zero.x;
+if (a[i].a == 0)
+a[i].b = a[i].b < 0 ? -1 : 1;
+}
+
+for (;;) {
+pt q; // ordinario de la consulta
+bool in = false;
+if (q.x >= zero.x)
+if (q.x == zero.x && q.y == zero.y)
+in = true;
+else {
+ang my = { q.y-zero.y, q.x-zero.x };
+if (my.a == 0)
+my.b = my.b < 0 ? -1 : 1;
+vector<ang>::iterator it = upper_bound (a.begin(), a.end(), my);
+if (it == a.end() && my.a == a[n-1].a && my.b == a[n-1].b)
+it = a.end()-1;
+if (it != a.end() && it != a.begin()) {
+int p1 = int (it - a.begin());
+if (sq (p[p1], p[p1-1], q) <= 0)
+in = true;
+}
+}
+puts (in ? "INSIDE" : "OUTSIDE");
+}
+
+}</code>

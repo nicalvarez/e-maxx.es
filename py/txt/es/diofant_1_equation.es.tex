@@ -1,0 +1,49 @@
+\h1{ Modular de una ecuación lineal de primer orden }
+
+\h2{ el Planteamiento de la tarea }
+
+Es una ecuación del tipo:
+
+$$a \cdot x = b \pmod n,$$
+
+donde $a, b, n$ --- definidas enteros, $x$ --- desconocido entero.
+
+Es necesario encontrar el valor de $x$, subyacente en el tramo de $[0, n-1]$ (ya que en toda la recta numérica, claro, puede existir un número infinito de soluciones, que son diferentes entre sí en $n \cdot k$, donde $k$ --- cualquier número entero). Si la solución no es única, veremos cómo recuperar todas las decisiones.
+
+
+\h2{ la Solución mediante el uso de encontrar el Inverso de un elemento }
+
+Consideremos primero el caso más simple --- cuando $a$ y $n$ \bf{mutuamente fáciles}. Entonces se puede encontrar \algohref=reverse_element{elemento de vuelta} entre $a$, y, домножив en él las dos partes de la ecuación, para obtener una solución (y se \bf{el único}):
+
+$$x = b \cdot a^{-1} \pmod n$$
+
+Ahora, considere el caso, cuando $a$ y $n$ \bf{no mutuamente fáciles}. Entonces, obviamente, la solución no va a existir siempre (por ejemplo, $2 \cdot x = 1 \pmod 4$).
+
+Que $g = {\rm gcd(a,n)}$, es decir, su \algohref=euclid_algorithm{el máximo común divisor} (que en este caso es mayor que la unidad).
+
+Entonces, si $b$ no se divide en $g$, entonces no existe ninguna solución. En realidad, cualquiera que sea $x$ en la parte izquierda de la ecuación, es decir, $a \cdot x) \pmod n$, siempre se divide en $g$, mientras que la parte derecha de él no comparte, de donde se desprende que no existen soluciones.
+
+Si $b$ divide a $g$, entonces, dividiendo ambos lados de la parte de la ecuación de $g$ (es decir, dividiendo el $a$, $b$ y $n$ de $g$), llegaremos a una nueva ecuación:
+
+$$a^\prime \cdot x = b^\prime \pmod {n^\prime}$$
+
+en el que $a^\prime$ y $n^\prime$ ya se mutuamente fáciles, y es la ecuación ya hemos aprendido a resolver. Se denota la solución a través de $x^\prime$.
+
+Está claro que es de $x^\prime$ también será una y la solución de la ecuación original. Sin embargo, si $g > 1$, se \bf{no el único} solución. Se puede demostrar que la ecuación original tendrá exactamente $g$ de decisiones, y van a tener la forma:
+
+$$x_i = (x^\prime + i \cdot n^\prime) \pmod n,$$
+$$i = 0, \ldots (g-1).$$
+
+En resumen, se puede decir que \bf{número de decisiones} lineal modular de la ecuación es igual a o $g = {\rm gcd(a,n)}$, o cero.
+
+\h2{ la Solución mediante el uso del algoritmo Extendido de euclides }
+
+Llevaremos nuestra модулярное la ecuación a диофантову la ecuación de la siguiente manera:
+
+$$a \cdot x + n \cdot k = b,$$
+
+donde $x$ y $k$ --- desconocidos enteros.
+
+La solución de esta ecuación se describe en el artículo correspondiente de la \algohref=diofant_2_equation{diofantovy las ecuaciones Lineales de segundo orden}, y es él en la aplicación de \algohref=extended_euclid_algorithm{del algoritmo Extendido de euclides}.
+
+Allí mismo se describe y la forma de obtener todas las soluciones de esta ecuación, uno encontrado solución, y, por cierto, de esta manera al escrutinio absolutamente equivalente el método descrito en el párrafo anterior.

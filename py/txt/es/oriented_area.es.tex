@@ -1,0 +1,77 @@
+\h1{ Emblemática área del triángulo y el predicado de "agujas del reloj" }
+
+
+\h2{ Definición }
+
+Que dados tres puntos $p_1$, $p_2$, $p_3$. Encontraremos el valor de \bf{simbólica de la plaza} $S$ triángulo de $p_1 p_2 p_3$, es decir, la plaza del triángulo, tomada con signo positivo o negativo dependiendo del tipo de giro, formado por los puntos de $p_1$, $p_2$, $p_3$: en sentido contrario a las agujas del reloj o en ella, respectivamente.
+
+Claro que, si aprendemos a calcular esa histórica ("orientado") el área, lo que podemos encontrar regular el área de cualquier triángulo, así como podemos comprobar, en el sentido de las agujas del reloj o en contra de la busca de alguna clase de tres puntos.
+
+
+\h2{ Cálculo }
+
+Utilizaremos el concepto de \bf{oblicuo} (псевдоскалярного) de la obra de vectores. Es apenas igual al doble de la simbólica del área del triángulo:
+
+$$ a \land b = |a| |b| \sin \angle (a, b) = 2 S, $$
+
+donde el ángulo $\angle (a, b)$ se toma orientado, es decir, el ángulo de rotación de entre estos vectores en contra de las agujas del reloj.
+
+(Módulo oblicuo de la multiplicación de dos vectores de igual módulo \bf{vectorial} de la obra.)
+
+Косое la obra se calcula como el valor de un identificador compuesto de coordenadas de los puntos:
+
+$$ 2 S = \left| \matrix{
+x_1 & y_1 & 1 \cr
+x_2 & y_2 & 1 \cr
+x_3 & y_3 & 1 \cr
+} \right| . $$
+
+Revelador determinante, se puede obtener esta fórmula:
+
+$$ 2 S = x_1 (y_2 - y_3) + x_2 (y_3 - y_1) + x_3 (y_1 - y_2). $$
+
+Se puede agrupar el tercer término de los dos primeros, que renuncie de una multiplicación:
+
+$$ 2 S = (x_2 - x_1) (y_3 - y_1) - (y_2 - y_1) (x_3 - x_1). $$
+
+Última fórmula es conveniente grabar y recordar en forma de matriz como la siguiente determinante:
+
+$$ 2 S = \left| \matrix{
+x_2 - x_1 & y_2 - y_1 \cr
+x_3 - x_1 & y_3 - y_1 \cr
+} \right| . $$
+
+
+\h2{ Aplicación }
+
+La función que calcula la doble histórica el área del triángulo:
+
+\code
+int triangle_area_2 (int x1, int y1, int x2, int y2, int x3, int y3) {
+return (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+}
+\endcode
+
+Función de regular el área del triángulo:
+
+\code
+double triangle_area (int x1, int y1, int x2, int y2, int x3, int y3) {
+return abs (triangle_area_2 (x1, y1, x2, y2, x3, y3)) / 2.0;
+}
+\endcode
+
+La función que verifica, forma si la troika de los puntos de giro en el sentido contrario al de las agujas del reloj:
+
+\code
+bool clockwise (int x1, int y1, int x2, int y2, int x3, int y3) {
+return triangle_area_2 (x1, y1, x2, y2, x3, y3) < 0;
+}
+\endcode
+
+La función que verifica, forma si la troika de los puntos de giro hacia la izquierda:
+
+\code
+bool counter_clockwise (int x1, int y1, int x2, int y2, int x3, int y3) {
+return triangle_area_2 (x1, y1, x2, y2, x3, y3) > 0;
+}
+\endcode

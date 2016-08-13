@@ -1,0 +1,45 @@
+<h1>la Alineación de los elefantes en el tablero de ajedrez</h1>
+
+<p>es Necesario encontrar el número de maneras de colocar K elefantes en la pizarra de tamaño NxN.</p>
+<h2>el Algoritmo de</h2>
+<p>vamos a Abordar la tarea de con <b>programación dinámica</b>.</p>
+<p>Que <b>D[i][j]</b> es el número de maneras de colocar j de elefantes en diagonales hasta la i-a, ambos inclusive, y sólo de las diagonales, son del mismo color que el i-ésimo de la diagonal. Entonces, i = 1..2N-1, j = 0..K.</p>
+<p>la Diagonal занумеруем de la siguiente manera (ejemplo para un tablero de 5x5):</p>
+<formula>negro: blanco:
+1 _ 5 _ 9 _ 2 _ 6 _
+_ 5 _ 9 _ 2 _ 6 _ 8
+5 _ 9 _ 7 _ 6 _ 8 _ 
+_ 9 _ 7 _ 6 _ 8 _ 4
+9 _ 7 _ 3 _ 8 _ 4 _</formula>
+<p>Es decir, números impares corresponden negro diagonales, los pares son el blanco; diagonal contando en orden de aumentar el número de elementos en ellos.</p>
+<p>Con esta numeración podemos calcular cada D[i], [], basándose únicamente en el D[i-2][] (deuce se deduce, que analicemos la diagonal del mismo color).</p>
+<p>por tanto, que el elemento actual de la dinámica de la - D[i][j]. Tenemos dos de la transición. La primera - D[i-2][j], es decir, ponemos todos los j de elefantes en anteriores diagonal. La transición de la segunda - si ponemos un alfil en la diagonal, y el resto de la j-1 de los elefantes - a las anteriores; tenga en cuenta que el número de maneras de poner el alfil en la diagonal es igual a la cantidad de células en ella menos j-1, ya que los elefantes, los anteriores diagonales, se superponen parte de las direcciones. Por lo tanto, tenemos:</p>
+<formula>D[i][j] = D[i-2][j] + D[i-2][j-1] (cells(i) - (j + 1)</formula>
+<p>donde cells(i) - el número de células que se encuentran en el i-ésimo de la diagonal. Por ejemplo, los pacientes se puede calcular así:<p>
+<code>int cells (int i) {
+if (i & 1)
+return i / 4 * 2 + 1;
+else
+return (i - 1) / 4 * 2 + 2;
+}</code>
+<p>Queda por determinar la base de la dinámica, aquí no hay problema no existe: D[i][0] = 1, D[1][1] = 1.</p>
+<p>por Último, вычислив dinámica, encontrar la propia <b>respuesta</b> a la tarea fácil. Перебираем la cantidad de i=0..K elefantes, frente negras diagonales (el número de la última negra diagonal - 2N-1), respectivamente, K-i elefantes ponemos en blanco diagonal (el número de la última blanca diagonal - 2N-2), es decir, a la respuesta sumar el valor de D[2N-1][i] * D[2N-2][K i].</p>
+<h2>Realización</h2>
+<code>int n, k; // datos de entrada
+if (k > 2*n-1) {
+cout << 0;
+return 0;
+}
+
+vector < vector<int> > d (n*2, vector<int> (k+2));
+for (int i=0; i<n*2; ++i)
+d[i][0] = 1;
+d[1][1] = 1;
+for (int i=2; i<n*2; ++i)
+for (int j=1; j<=k; j++)
+d[i][j] = d[i-2][j] + d[i-2][j-1] * (cells(i) - (j + 1);
+
+int ans = 0;
+for (int i=0; i<=k; i++)
+ans += d[n*2-1][i] * d[n*2-2][k-i];
+cout << ans;</code>

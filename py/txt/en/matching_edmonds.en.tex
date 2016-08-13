@@ -1,0 +1,304 @@
+\h1{Edmonds Algorithm of finding maximal matchings in arbitrary graphs}
+
+Given an undirected unweighted graph $G$ with $n$ vertices. You want to find the maximum matching, which is the largest (in power) the set $m$ of edges that any two edges selected not incidently each other (i.e. have no common vertices).
+
+Unlike the case of bipartite graph (see \algohref=kuhn_matching{Algorithm Kuna}), the graph $G$ may have cycles of odd length, which greatly complicates the search magnifying ways.
+
+First let us give a theorem of Berge, from which it follows that, as in the case of bipartite graphs, maximum matching, you can find using a magnifying ways.
+
+
+\h2{Increasing the way. The Theorem Of Berge}
+
+Let recorded some matching $M$. Then a simple circuit is $P = (v_1, v_2, \ldots, v_k)$ is called an alternating chain if its edges alternately belong - do not belong to the matching $M$. Alternating circuit is called increasing if its first and last vertices do not belong to the matching. In other words, a simple circuit is $P$ is increasing if and only if the vertex $v_1 \not\in M$, the edge $(v_2,v_3) \in M$, the edge $(v_4,v_5) \in M$, ..., the edge $(v_{k-2},v_{k-1}) \in M$, and vertex $v_k \not\in M$.
+
+\img{edmonds_1.png}
+
+\bf{Theorem of Berge} (Claude Berge, 1957). Matching $M$ is the largest if and only when there are no increasing chains.
+
+\bf{Proof required}. Let for matchings $M$ there is a increasing chain of $P$. Will show how to navigate to the matching of more power. Perform the alternating matchings $M$ along the circuit $P$, i.e. enable the matching of edges $(v_1,v_2)$ and $(v_3,v_4)$, ..., $(v_{k-1},v_k)$, and remove from the matchings of the edges $(v_2,v_3)$, $(v_4,v_5)$, ..., $(v_{k-2},v_{k-1})$. The result will obviously be obtained the correct matching, the capacity of which will be one higher than the matchings $M$ (because we have added $k/2$ edges, and removed the $k/2-1$ edge).
+
+\bf{the Proof of the sufficiency}. Let for matchings $M$ there are no increasing chains, we prove that it is the greatest. Let $\overline M$ --- maximum matching. Consider the symmetric set difference $\overline G = M \oplus \overline M$ (i.e. the set of edges that belong to either $M$ or $\overline M$, but not both simultaneously). We will show that $\overline G$ contains an equal number of edges of $M$ and $\overline M$ (because we have excluded from $\overline G$ is only shared edges, it will follow and $|M| = |\overline M|$). Note that $\overline G$ only consists of simple paths and cycles (since otherwise a vertex would be incidently two edges of any of the matchings, which is impossible). Further, the cycles cannot have an odd length (for the same reason). A chain in $\overline G$ cannot have an odd length (otherwise it was increasing chain for $M$, which contradicts the condition, or to $\overline M$, which contradicts the maximal condition). Finally, in the even cycles and circuits of even length in $\overline G$ rib rotation are at $M$ and $\overline M$, that means that $\overline G$ is the same number of edges $M$ and $\overline M$. As mentioned above, it follows that $|M| = |\overline M|$, i.e. $M$ is the largest matching.
+
+The theorem of Berge gives a basis for the algorithm the Edmonds --- search increasing chains and striping along them, while increasing the range there.
+
+
+\h2{the Algorithm of Edmonds. Compression of the flowers}
+
+The main problem is how to find the path increases. If the graph has cycles of odd length, then just run the bypass in the depth/width is impossible.
+
+You can lead a simple counter-example, when you run out of one of the peaks of the algorithm, especially not processing cycles of odd length (in fact, \algohref=kuhn_matching{Algorithm Kuna}) don't find increases way, even though they should. This is a cycle of length 3 with hanging by an edge, i.e. the count 1-2, 2-3, 3-1, 2-4, and 2-3 taken the edge in the matching. Then when you start from vertex 1, if the bypass will go first into the top 2, then he "rests" in the top 3, instead of finding increasing chain 1-3-2-4. However, in this example, when run from vertex 4 algorithm Kuna still find that increasing the chain.
+
+\img{edmonds_2.png}
+
+However, it is possible to construct a graph that in a certain order in the adjacency lists, the algorithm of Kuna will come to a standstill. As an example of such graph with 6 vertices and 7 edges: 1-2, 1-6, 2-6, 2-4, 4-3, 1-5, 4-5. If we apply here the algorithm of Kuna, he will find the matching 1-6, 2-4, after which it needs to be detected increases the chain 5-1-6-2-4-3, but may never find it (if from the top 5 he will go first to 4 and then to 1, and when run from vertex 3 from vertex 2 will go first at 1, then 6).
+
+\img{edmonds_3.png}
+
+As we saw in this example, the problem is that getting into a cycle of odd length bypass can go through a loop in the wrong direction. Actually, we are only interested in the "intense" cycles, i.e. in which there are $k$ - saturated edges, where the cycle length is $2k+1$. In such a cycle has exactly one vertex that is not saturated edges of this cycle, let's call it \bf{base} (base). To basic vertex alternating path of even (possibly zero) length, starting at free (i.e. not owned by the matching) vertex, and this path is called the \bf{stem} (stem). Finally, the subgraph formed by the "rich" odd cycle is called a \bf{flower} (blossom).
+
+\img{edmonds_4.png}
+
+The idea of the algorithm of Edmonds (Jack Edmonds, 1965) - in \bf{compression of flowers} (blossom shrinking). The grip of the flower --- this compression is just the odd cycle into a single pseudo-vertex (respectively, all edges incident to the vertices of this cycle, become incident pseudo-vertex). The algorithm of Edmonds is looking for in the graph all the flowers, compresses them, then the graph is not "bad" cycles of odd length, and in such a graph (called "surface" (surface) by count) it is already possible to look simple chain increases the depth/width. After finding the increase in the circuit surface graph must "expand" the flowers, restoring thereby increasing the circuit in the original graph.
+
+However, it is not obvious that after the compression of the flower is not disturbed the structure of the graph, namely that if a graph $G$ there was increasing chain, then it exists in the graph $\overline G$, obtained after compression of a flower, and Vice versa.
+
+\bf{Theorem of Edmonds}. In the graph $\overline G$, there is an increasing chain if and only when there is an increasing chain in $G$.
+
+\bf{the Proof}. Now, let the graph $\overline G$ was obtained from a graph $G$ by the compression of a single flower (we denote by $B$ the cycle of the flower, and using $\overline B$ corresponding to the compressed vertex), we prove the assertion of the theorem. Firstly note that it suces to consider the case when the base of the flower is a free vertex (not belonging to the matching). Indeed, otherwise in the base of the flower ends in an alternating path of even length starting at a free vertex. Prokuratova matching along this path, the power of the matchings does not change, and the base of the flower will become free at the apex. So, in the proof we can assume that the base of the flower is a free vertex.
+
+\bf{Proof required}. Let a path $P$ is increasing in a graph $G$. If it does not pass through $B$, then, obviously, it will be increasing and the graph of $\overline G$. Let $P$ passes through $B$. Then without loss of generality assume that the path $P$ is some path $P_1$, not passing through the vertices $B$, plus some path $P_2$ through the vertices $B$ and possibly other vertices. But then the path $P_1 + \overline B$ will be increasing by the graph $\overline G$, what we wanted to prove.
+
+\bf{the Proof of the sufficiency}. Let the path $\overline P$ is increasing by the graph $\overline G$. Again, if the path $\overline P$ passes through $\overline B$, the path $\overline P$ is unchanged increasing by $G$, so this case we will not consider.
+
+Consider separately the case when $\overline P$ starts with a compressed flower $\overline B$, i.e. has the form $(\overline B, c, \ldots)$. Then in flower $B$ there is a corresponding vertex $v$ connected (unsaturated) an edge with $c$. It remains only to notice that from the base of the flower there is always an alternating path of even length to vertex $v$. Considering all the above, we obtain that the path $P = (b, \ldots, v, c, ...)$ is increasing by the graph $G$.
+
+Now suppose that the path $\overline P$ runs through a pseudo-vertex of $\overline B$, but does not begin and end in it. Then in $\overline P$ has two edges passing through $\overline B$, let $(a, \overline B)$ and $(\overline B, c)$. One of them must belong to the matching $M$, however, because the base of the flower is not saturated, and all other vertices in the cycle of a flower $B$ is saturated edges of the cycle, we come to a contradiction. Thus, this case simply impossible.
+
+So, we have considered all the cases and each of them showed the validity of the theorem of Edmonds.
+
+\bf{a General scheme of the algorithm of Edmonds} takes the following form:
+
+\code
+void edmonds() {
+for (int i=0; i<n; ++i)
+if (vertex i is not in matching) {
+int last_v = find_augment_path (i);
+if (last_v != -1)
+to perform striping along the path from i to last_v;
+}
+}
+
+int find_augment_path (int root) {
+a breadth-first search:
+int v = ecosafari;
+to iterate over all edges from v
+if you find a cycle of odd length, squeeze him
+if they came in a loose top, return
+if you come into a non-free vertex, we add
+in turn adjacent to it in the matching
+return -1;
+}
+\endcode
+
+
+\h2{Efficient implementation}
+
+Will immediately appreciate the asymptotics. There are $n$ iterations, each of which performs a BFS $O(m)$, furthermore, there may occur a compress operation flowers --- may be $O(n)$. Thus, if we learn to compress a flower for $O(n)$, then overall complexity of the algorithm is $O(n \cdot (m + n^2)) = O(n^3)$.
+
+The greatest obstacle is the operation of compression of the flowers. If you run them directly by combining the adjacency lists into one and removing the extra vertices of the graph, the asymptotic compression of one flower will be $O(m)$, in addition, any "unfolding" of flowers.
+
+Instead, let for each vertex of $G$ to maintain a pointer to the base of the flower, to which it belongs (or yourself, if the vertex is not owned by any flower). We need to solve two problems: the compression of flower for $O(n)$ when it is found, as well as convenient storage of all information for subsequent rotation increases along the way.
+
+So, one iteration of Edmonds algorithm is a breadth-first search performed from a given free node of $\rm root$. Gradually will build the tree breadth-first, and in it the path to any vertex will be the alternating path starting from a free vertex $\rm root$. For ease of programming will be put in the queue only those vertices, the distance in the tree of paths is even (we will call such vertex is even --- i.e. it is the root of the tree, and the second ends of edges in the matching). The tree itself will be stored in the array of parents $\rm p[]$, where for each odd vertices (i.e. to which the distance in the tree of paths is odd, i.e. the first ends of the edges in the matching) will store the ancestor is an even vertex. Thus, to restore the paths of the tree, we need in turn to use the arrays $\rm p[]$ and $\rm match[]$, where $\rm match[]$ --- for each vertex contains associated in the matching, or $-1$ if not.
+
+Now it becomes clear how to detect cycles of odd length. If we from the current vertex $v$ in the process of BFS come at this node $u$, the root $\rm root$ or belonging to the matching and the tree paths (i.e. $\rm p[match[]]$ which is not equal to -1), we found the flower. Indeed, when these conditions are met, and vertex $v$ and a vertex $u$ are odd vertices. Their distance from their least common ancestor has a single parity, so we found the cycle has odd length.
+
+Learn \bf{compress cycle}. So, we found an odd cycle when considering the edge $(v,u)$, where $u$ and $v$ --- even the top. Find the lowest common ancestor of $b$, it will be the base of the flower. It is easy to see that the base is an even vertex (because of odd vertices in the path tree have only one son). However, it should be noted that $b$ is, perhaps, pseudouridine, so we will actually find the base of the flower, which is the lowest common ancestor of vertices $v$ and $u$. Implement immediately finding the lowest common ancestor (we are quite happy with the asymptotic behavior of $O(n)$):
+
+\code
+int lca (int a, int b) {
+bool used[MAXN] = { 0 };
+// go up from node a to the root, marking all the even vertices
+for (;;) {
+a = base[a];
+used[a] = true;
+if (match[a] == -1) break; // reached the root
+a = p[match[V]];
+}
+// go up from node b, until we find a marked vertex
+for (;;) {
+b = base[b];
+if (used[b]) return b;
+b = p[match[b]];
+}
+}
+\endcode
+
+Now we need to identify the cycle itself --- a walk from the vertices $v$ and $u$ to the base $b$ of a flower. It will be more convenient if we just make a note in the array (let's call it $\rm blossom[]$) of the vertices belonging to the current flower. After that, we will need to reproduce the breadth of the pseudo-peaks --- it's enough to put in the queue breadth-first search of all vertices lying on a cycle of a flower. Thus we avoid an explicit Association of the adjacency lists.
+
+However, there is still one problem: correctly restore routes by the end of the BFS. For him, we kept an array of ancestors of $\rm p[]$. But after the compression occurs flowers the only problem: a breadth-continued directly from all vertices of the cycle, including an odd and an array of ancestors we were intended to restore the paths on even vertices. Moreover, when in the compressed graph will be increasing the chain passing through the flower, she will pass through this cycle in such a direction that the path tree is provided by the downward movement. However, all these problems are solved elegantly in this maneuver: compression cycle, put of the ancestors for all even-numbered vertices (except the base) that these "ancestors" were pointing to an adjacent vertex in the cycle. For vertices $u$ and $v$, if they do not base the signs will direct ancestors to each other. As a result, if the reconstruction increases the way we come in the cycle of the flower to the top of the odd, the way the ancestors will be restored correctly, and will result in the base of the flower (from which he will continue to recover normally).
+
+\img{edmonds_5.png}
+
+So, we are ready to implement compression of a flower:
+
+\code
+int v, u; // edge (v,u), the consideration of which was discovered a flower
+int b = lca (v, u);
+memset (blossom, 0, sizeof blossom);
+mark_path (v, b, u);
+mark_path (u, b, v);
+\endcode
+
+where the function $\rm mark\_path()$ passes on the way from the top to the base of the flower, adds to the special array $\rm blossom[]$ for which $\rm true$ and state the ancestors for the even vertices. The parameter $\rm children$ --- son to the vertex $v$ (with this option we will close the cycle in the ancestors).
+
+\code
+void mark_path (int v, int b, int children) {
+while (base[v] != b) {
+blossom[base[v]] = blossom[base[match[v]]] = true;
+p[v] = children;
+children = match[v];
+v = p[match[v]];
+}
+}
+\endcode
+
+Finally, implement the main function --- $\rm find\_path ~ (int ~ root)$, which will seek increasing path from the free vertices of $\rm root$ and return the last vertex of this path, or $-1$ if the increasing path was not found.
+
+Initially, it will produce the initialization:
+
+\code
+int find_path (int root) {
+memset (used, 0, sizeof used);
+memset (p, -1, sizeof p);
+for (int i=0; i<n; ++i)
+base[i] = i;
+\endcode
+
+Next comes the BFS. Checking each edge $(v, to)$, we have a few options:
+
+\ul{
+
+\li a non-existent Edge. By this we mean that $v$ and $to$ belong to one of the compressed pseudo-top (${\rm base}[v] == {\rm base}[to]$), so in the current surface graph this edge is not. In this case, there is another case: when the edge $(v, to)$ already belongs to the current matching; because we believe that the vertex $v$ is an even vertex, then pass through this edge means in the path tree rise to the ancestor vertex $v$, which is unacceptable.
+
+\code
+if (base[v] == base[to] || match[v] == to) continue;
+\endcode
+
+\li the Edge closes a cycle of odd length, i.e. is found a flower. As mentioned above, an odd-length cycle is detected when the condition is met:
+
+\code
+if (to == root || match[to] != -1 && p[match[to]] != -1)
+\endcode
+
+In this case it is necessary to perform compression of a flower. The above has examined in detail this process, we give here its implementation:
+
+\code
+int curbase = lca (v, to);
+memset (blossom, 0, sizeof blossom);
+mark_path (v, curbase, to);
+mark_path (to, curbase, v);
+for (int i=0; i<n; ++i)
+if (blossom[base[i]]) {
+base[i] = curbase;
+if (!used[i]) {
+used[i] = true;
+q[qt++] = i;
+}
+}
+\endcode
+
+\li Otherwise --- it's "normal" edge, proceed as in the usual breadth-first search. The only trick --- when checking that this top we had not visited, we must look not to the array $\rm used$ in array $p$ --- it is filled with odd for visited vertices. If we're at the peak $to$ is still going down, and it was unsaturated, we found increasing chain ending on top of the $to$, return it.
+
+\code
+if (p[to] == -1) {
+p[to] = v;
+if (match[to] == -1)
+return to;
+to = match[to];
+used[to] = true;
+q[qt++] = to;
+}
+\endcode
+
+}
+
+Thus, the complete implementation of a function $\rm find\_path()$:
+
+\code
+int find_path (int root) {
+memset (used, 0, sizeof used);
+memset (p, -1, sizeof p);
+for (int i=0; i<n; ++i)
+base[i] = i;
+
+used[root] = true;
+int qh=0, qt=0;
+q[qt++] = root;
+while (qh < qt) {
+int v = q[qh++];
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (base[v] == base[to] || match[v] == to) continue;
+if (to == root || match[to] != -1 && p[match[to]] != -1) {
+int curbase = lca (v, to);
+memset (blossom, 0, sizeof blossom);
+mark_path (v, curbase, to);
+mark_path (to, curbase, v);
+for (int i=0; i<n; ++i)
+if (blossom[base[i]]) {
+base[i] = curbase;
+if (!used[i]) {
+used[i] = true;
+q[qt++] = i;
+}
+}
+}
+else if (p[to] == -1) {
+p[to] = v;
+if (match[to] == -1)
+return to;
+to = match[to];
+used[to] = true;
+q[qt++] = to;
+}
+}
+}
+return -1;
+}
+\endcode
+
+Finally, we give the definitions of all the global arrays, and the implementation of the main program of finding maximal matchings:
+
+\code
+const int MAXN = ...; // maximum number of vertices in the input graph
+
+int n;
+vector<int> g[MAXN];
+int match[MAXN], p[MAXN], base[MAXN], q[MAXN];
+bool used[MAXN], blossom[MAXN];
+
+...
+
+int main() {
+... reading graph ...
+
+memset (match, -1, sizeof match);
+for (int i=0; i<n; ++i)
+if (match[i] == -1) {
+int v = find_path (i);
+while (v != -1) {
+int pv = p[v], ppv = match[pv];
+match[v] = pv, match[pv] = v;
+v = ppv;
+}
+}
+}
+\endcode
+
+
+\h2{Optimization: a preliminary construction of matchings}
+
+As in the case of \algohref=kuhn_matching{Algorithm Kuhn}, before implementation of the Edmonds algorithm can be any simple algorithm to construct the preliminary matching. For example, such a greedy algorithm:
+\code
+for (int i=0; i<n; ++i)
+if (match[i] == -1)
+for (size_t j=0; j<g[i].size(); ++j)
+if (match[g[i][j]] == -1) {
+match[g[i][j]] = i;
+match[i] = g[i][j];
+break;
+}
+\endcode
+
+This optimization significantly (several times) will speed up the algorithm on random graphs.
+
+
+\h2{Case bipartite graph}
+
+In a bipartite graph there are no cycles of odd length, and therefore the code that performs the compression of the flowers, will never be fulfilled. Mentally removing all pieces of code that handle the compression of flowers, we get \algohref=kuhn_matching{Algorithm kun} in almost pure form. Thus, for bipartite graphs Edmonds algorithm degenerates into \algohref=kuhn_matching{algorithm Kuhn} and $O (n m)$.
+
+
+\h2{Further optimizations}
+
+In all the above operations with flowers are easy to discern operations with disjoint sets that can be performed more efficiently (see \algohref=dsu{DSU}). If to rewrite the algorithm using this structure, the asymptotic behavior of the algorithm will be reduced to $O (n m)$. Thus, for arbitrary graphs we obtained the same asymptotic estimate as in the case of bipartite graphs (Kuhn's algorithm), but much more complex algorithm.

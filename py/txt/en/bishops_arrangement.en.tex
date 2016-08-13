@@ -1,0 +1,45 @@
+the <h1>Placing bishops on a chess Board</h1>
+
+<p>you want to find the number of ways to place K bishops on the chessboard of size NxN.</p>
+the <h2>the Algorithm</h2>
+<p>to Solve the problem will be using <b>dynamic programming</b>.</p>
+<p>Let <b>D[i][j]</b> is the number of ways to arrange j bishops on the diagonals to the i-th inclusive, and only those diagonals that are the same color as the i-th diagonal. Then i = 1..2N-1, j = 0..K</p>
+<p>Diagonal thenumerous as follows (example for a 5x5 Board):</p>
+<formula>black: white:
+1 _ 5 _ 9 _ 2 _ 6 _
+_ 5 _ 9 _ 2 _ 6 _ 8
+5 _ 9 _ 7 _ 6 _ 8 _ 
+_ 9 _ 7 _ 6 _ 8 _ 4
+9 _ 7 _ 3 _ 8 _ 4 _</formula>
+<p>ie odd numbers correspond to the black diagonals, odd - white; diagonal numbered in the order of increasing the number of elements in them.</p>
+<p>With this numbering we can compute each D[i] [] based on D[i-2][] (the two are subtracted, so we considered the diagonal of the same color).</p>
+<p>now, let the current element of the dynamics D[i][j]. Have two transitions. First - D[i-2][j], i.e. the set j of all the elephants on the previous diagonal. The second transition - if we put one elephant on the current diagonal, and the remaining j-1 elephants - on previous; note that the number of ways to place the Bishop on the current diagonal is equal to the number of cells minus her j-1, because the elephants standing in the previous diagonals will block part of the directions. Thus, we have:</p>
+<formula>D[i][j] = D[i-2][j] + D[i-2][j-1] (cells(i) - j + 1)</formula>
+<p>where cells(i) is the number of cells lying on the i-th diagonal. For example, cells can be calculated as:<p>
+<code>int select (int i) {
+if (i & 1)
+return i / 4 * 2 + 1;
+else
+return (i - 1) / 4 * 2 + 2;
+}</code>
+<p>it Remains to determine the dynamics of the base, there is no difficulty, D[i][0] = 1, D[1][1] = 1.</p>
+<p>Finally, calculating the dynamics, to search for the actual <b>answer</b> to the task easy. Loop over the number i=0..K elephants, standing on the black diagonals (the number of the last black diagonal - 2N-1), respectively K-i put white elephants on the diagonal (the number of the last white diagonal - 2N-2), i.e. to the reply we add the value of D[2N-1][i] * D[2N-2][K-i].</p>
+the <h2>Implementation</h2>
+<code>int n, k; // input
+if (k > 2*n-1) {
+cout << 0;
+return 0;
+}
+
+vector < vector<int> > d (n*2, vector<int> (k+2));
+for (int i=0; i<n*2; ++i)
+d[i][0] = 1;
+d[1][1] = 1;
+for (int i=2; i<n*2; ++i)
+for (int j=1; j<=k; ++j)
+d[i][j] = d[i-2][j] + d[i-2][j-1] * (cells(i) - j + 1);
+
+int ans = 0;
+for (int i=0; i<=k; ++i)
+ans += d[n*2-1][i] * d[n*2-2][k-i];
+cout << ans;</code>

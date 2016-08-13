@@ -1,0 +1,83 @@
+\h1{ Реберная la coherencia. La propiedad y la búsqueda }
+
+
+\h2{ Definición }
+
+Que dan неориентированный el conde de $G$ c $n$ cimas $m$ las costillas.
+
+\bf{Costal связностью} $\lambda$ el conde de $G$ se llama el menor número de aristas que hay que eliminar, para el conde dejó de ser coherente..
+
+Por ejemplo, para inconexo conde реберная la conectividad es igual a cero. Para el enlace del conde con el único puente реберная la conectividad es igual a la unidad.
+
+Dicen que la multitud de $S$ costillas \bf{divide} la cima de la $s$ y $t$, si la eliminación de estas aristas del grafo de la cima de la $u$ y $v$ en relación con los diferentes componentes de la conectividad.
+
+Claro que реберная conectividad de grafo es igual a un mínimo de menor número de aristas que separan a las dos de la cima de $s$ y $t$, tomado de entre todo tipo de parejas $(s,t)$.
+
+
+\h2{ Propiedades }
+
+
+\h3{ Relación de whitney }
+
+\bf{Relación de whitney (Whitney)} (1932) entre costal связностью $\lambda$, \algohref=vertex_connectivity{culminante de связностью} $\kappa$ y el menor de los grados de los vértices de $\delta$:
+
+$$ \kappa \le \lambda \le \delta. $$
+
+\bf{Prueba} esta afirmación.
+
+Demostremos primero la primera desigualdad: $\kappa \le \lambda$. Considere la posibilidad de este conjunto de $\lambda$ aristas que hacen que el conde de несвязным. Si tomamos de cada una de estas aristas de un extremo (cualquiera de los dos) y eliminamos el conde, por tanto, a través de $\le \lambda$ remotos de los vértices (dado que el mismo vértice podía reunirse dos veces) haremos el conde несвязным. Por lo tanto, $\kappa \le \lambda$.
+
+Probaremos la segunda desigualdad: $\lambda \le \delta$. Considere la cima grado mínimo, entonces podemos eliminar todo $\delta$ conexos con ella las costillas y por lo tanto la separación de esta cima de todo el resto de la gráfica. Por lo tanto, $\lambda \le \delta$.
+
+Es interesante que la desigualdad de whitney \bf{no se puede mejorar}: es decir, para cualquier tríos de números que cumplen esta desigualdad, existe al menos un conde. Cm. la tarea \algohref=connectivity_back_problem{"crea gráficos con los valores culminante y costal связностей y el menor de los grados de los vértices"}.
+
+
+\h3{ Teorema de ford-Фалкерсона }
+
+\bf{Teorema de ford-Фалкерсона} (1956):
+
+Para cualesquiera dos vértices con el mayor número de costo-separados de los circuitos que conectan, es igual al menor número de aristas que separan a estas cimas.
+
+
+\h2{ Encontrar el costal de la conectividad }
+
+
+\h3{ Simple algoritmo de búsqueda basado en el flujo máximo }
+
+Este método se basa en el teorema de ford-Фалекрсона.
+
+Debemos recorrer todos los pares de vértices de $(s,t)$, y entre cada par de encontrar el mayor número de desligadas de los bordes de los caminos. Este valor se puede encontrar mediante el algoritmo de máximo flujo: hacemos $s$ fuente, $t$ --- escorrentía, y el ancho de banda de cada aleta ponemos igual a 1.
+
+Por lo tanto, el pseudocódigo del algoritmo es el siguiente:
+
+\code
+int ans = INF;
+for (int s=0; s<n; ++s)
+for (int t=s+1; t<n; ++t) {
+int flow = ... el valor máximo de flujo de s a t ...
+ans = min (ans, flow);
+}
+\endcode
+
+Asíntotas algoritmo cuando se utiliza el \edmonds_karp{algoritmo Эдмондса-la Carpa de encontrar el flujo máximo que} se obtiene $O (n^2 \cdot n m ^2) = O (n^3 m^2)$, sin embargo, cabe señalar que oculta en asíntota de la función constante es muy pequeña, puesto que es prácticamente imposible crear un gráfico, para que el algoritmo de encontrar el flujo máximo que trabajaba lentamente a la vez cuando todas las aguas residuales y los orígenes.
+
+Especialmente rápidamente este algoritmo funcionará aleatorias de la mitral.
+
+
+\h3{ algoritmo Especial }
+
+Mediante la transmisión de la terminología, la meta --- esta es la tarea de la búsqueda de \bf{global mínima incisión}.
+
+Para sus soluciones están diseñadas algoritmos especiales. En este sitio se presenta uno de los cuales --- \algohref=stoer_wagner_mincut{el algoritmo de las Cortinas-wagner}, trabaja en el tiempo $O (n^3)$ o $O (n m)$.
+
+
+
+\h2{ Literatura }
+
+\ul{
+
+\li Hassler Whitney. \bf{Congruent Graphs and the Connectivity of Graphs} [1932]
+
+\li frank harari. \bf{Teoría de grafos} [2003]
+
+}

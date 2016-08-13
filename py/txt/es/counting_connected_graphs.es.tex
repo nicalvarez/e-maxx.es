@@ -1,0 +1,48 @@
+\h2{Número de marcado de los condes}
+
+Dado el número de $N$ vértices. Es necesario calcular la cantidad de $G_N$ diferentes marcados de gráficos con $N$ vértices (es decir, los vértices del grafo se marcan los diferentes números de $1 a$ a $N$, y los gráficos se comparan con la función de la pintura de los vértices). La aleta del conde de неориентированы, bisagras y múltiples costillas están prohibidos.
+
+Consideremos el conjunto de todas las posibles aristas de la gráfica. Para cualquier aleta $(i,j)$ supongamos que $i<j$ (basado en el неориентированности conde y la ausencia de bucles). Entonces el conjunto de todas las posibles aristas conde tiene la potencia de $C_N^2$, es decir $\frac{ N (N-1) }{ 2 }$.
+
+Porque cualquier marcado el conde se identifica por sus costillas, el número de grafos marcados con $N$ vértices es igual a:
+$$ G_N = 2^{ \frac{ N (N-1) }{ 2 } } $$
+
+\h2{Número de enlaces marcados de los condes}
+
+En comparación con el anterior objetivo, además, ponemos la limitación de que el gráfico debe ser coherente..
+
+Se denota la búsqueda de número a través de $Conn_N$.
+
+Aprendamos, por el contrario, contar la cantidad de \bf{несвязных} de los condes; entonces el número de enlaces de los condes consigue $G_N$ menos se halló un número. Además, aprenderemos a contar la cantidad de \bf{raíz} (es decir, con el resaltado de la cima de la raíz) \bf{несвязных de los condes}; entonces el número de несвязных de los condes salga de él, la división en $N$. Tenga en cuenta que, así como el conde de incoherente complaciente, en él hay un componente de conectividad, dentro de la cual está la raíz y el resto del conde constituiría aún más (como mínimo una) el componente de conectividad.
+
+Переберем la cantidad de $K$ vértices en este componente de la conectividad, contiene la raíz (obviamente, $K = 1 \ldots, N-1$), y encontraremos el número de estos grafos. En primer lugar, tenemos que elegir el $K$ vértices de $N$, es decir, la respuesta se multiplica por $C_N^K$. En segundo lugar, el componente de conectividad con la raíz da un multiplicador de $Conn_K$. En tercer lugar, el resto de los conde de $N-K$ vértices es arbitrario por el conde, y por eso se da un multiplicador de $G_{N-K}$. Por último, el número de maneras de seleccionar una raíz en el componente de conectividad de $K$ vértices es igual a $K$. Total, si se fija $K$ el número de \bf{raíz несвязных} condes es igual a:
+$$ K\ C_N^K\ Conn_K\ G_{N-K} $$
+
+Significa la cantidad de \bf{несвязных} gráficos con $N$ vértices es igual a:
+$$ \frac{1}{N} \sum_{K=1}^{N-1} K\ C_N^K\ Conn_K\ G_{N-K} $$
+
+Por último, buscando \bf{nexos} condes es igual a:
+$$ Conn_N = G_N - \frac{1}{N} \sum_{K=1}^{N-1} K\ C_N^K\ Conn_K\ G_{N-K} $$
+
+\h2{Número de grafos marcados con $K$ componentes de la conectividad}
+
+Basándose en la fórmula anterior, aprenderemos a contar el número de grafos marcados con $N$ vértices y $K$ componentes de la conectividad.
+
+Esto se puede hacer a través de la programación dinámica. Aprenderemos a contar \bf{$D[N][K]$} --- cantidad de grafos marcados con $N$ vértices y $K$ componentes de la conectividad.
+
+Aprenderemos a calcular el siguiente elemento $D[N][K]$, sabiendo los valores anteriores. Usaremos el estándar de tomar la decisión de tales tareas: tomaremos a la cima con el número 1, que pertenece a algún tipo de componente este componente es lo que vamos a tocar. Переберем el tamaño de la $S$ de este componente, entonces el número de maneras de elegir este tipo de conjunto de vértices es igual a $C_{N-1}^{S-1}$ (una cima -de-la - cima 1 --- la enumeración no es necesario). El número de maneras de construir el componente de conectividad de $S$ vértices de nosotros ya sabemos leer - - - $Conn_S$. Después de la eliminación de este componente del gráfico nos queda el conde con $N S$ vértices y $K-1$ los componentes de la conectividad, es decir, hemos recibido рекуррентную la dependencia, por la que se puede calcular un valor de $D[][]$:
+
+$$ D[N][K] = \sum_{S=1}^{N} C_{N-1}^{S-1}\ Conn_S\ D[N-S][K-1] $$
+
+Total obtenemos un código parecido a este:
+\code
+int d[n+1][k+1]; // inicialmente está lleno de ceros
+d[0][0][0] = 1;
+for (int i=1; i<=n; ++i)
+for (int j=1; j<=i && j<=k; j++)
+for (int s=1; s<=i; ++s)
+d[i][j] += C[i-1][s-1] * conn[s] * d[i-s][j-1];
+cout << d[n][k][n];
+\endcode
+
+Por supuesto, en la práctica, probablemente, se necesita \algohref=big_integer{larga aritmética}.

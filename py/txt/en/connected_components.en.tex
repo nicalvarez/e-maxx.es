@@ -1,0 +1,55 @@
+\h1{ Algorithm for finding connected components in a graph }
+
+Given an undirected graph $G$ with $n$ vertices and $m$ edges. You want to find all connected components, i.e. to divide the vertices into several groups so that within one group you can walk from one vertex to any other, and between different groups --- the path does not exist.
+
+
+\h2{ Algorithm for solving }
+
+To resolve, you can use either \algohref=dfs{depth}, and \algohref=bfs{BFS}.
+
+In fact, we will produce \bf{a series of rounds}: first start the bypass from the first node, and all nodes that it has walked --- to form a first connected component. Then we find the first of the remaining vertices that have not yet been visited, and start crawling out of it, thereby finding a second connected component. And so on, until all vertices become marked.
+
+Final \bf{asymptotics} of $O(n + m)$: in fact, this algorithm will not start from the same vertex twice, which means that every edge will be visited exactly twice (one end and the other end).
+
+
+\h2{ the Implementation }
+
+For the implementation a bit more convenient is \algohref=dfs{DFS}:
+
+\code
+int n;
+vector<int> g[MAXN];
+bool used[MAXN];
+vector<int> comp;
+
+void dfs (int v) {
+used[v] = true;
+comp.push_back (v);
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (! used[to])
+dfs (to);
+}
+}
+
+void find_comps() {
+for (int i=0; i<n; ++i)
+used[i] = false;
+for (int i=0; i<n; ++i)
+if (! used[i]) {
+comp.clear();
+dfs (i);
+
+cout << "Component:";
+for (size_t j=0; j<comp.size(); ++j)
+cout << '' << comp[j];
+cout << endl;
+}
+}
+\endcode
+
+Main function to call --- $\rm find\_comps()$, it finds and prints the connected components of the graph.
+
+We believe that the graph specified by adjacency lists, i.e., $g[i]$ contains the vertices that have edges from vertex $i$. The constant $\rm MAXN$ value must be set equal to the maximum possible number of vertices in the graph.
+
+The vector $\rm comp$ contains the list of vertices in the current connected component.

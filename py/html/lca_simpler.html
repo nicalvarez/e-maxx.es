@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Наименьший общий предок. Нахождение за O (log N) с препроцессингом O (N log N) (метод двоичного подъёма)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Наименьший общий предок. Нахождение за O (log N) с препроцессингом O (N log N) (метод двоичного подъёма)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Наименьший общий предок. Нахождение за O (log N) (метод двоичного подъёма)&lt;/h1&gt;
+
+&lt;p&gt;Пусть дано дерево G. На вход поступают запросы вида (V1, V2), для каждого запроса требуется найти их наименьшего общего предка, т.е. вершину V, которая лежит на пути от корня до V1, на пути от корня до V2, и из всех таких вершин следует выбирать самую нижнюю. Иными словами, искомая вершина V - предок и V1, и V2, и среди всех таких общих предков выбирается нижний. Очевидно, что наименьший общий предок вершин V1 и V2 - это их общий предок, лежащий на кратчайшем пути из V1 в V2. В частности, например, если V1 является предком V2, то V1 является их наименьшим общим предком.&lt;/p&gt;
+&lt;p&gt;На английском эта задача называется задачей LCA - Least Common Ancestor.&lt;/p&gt;
+&lt;p&gt;Здесь будет рассмотрен алгоритм, который пишется намного быстрее, чем описанный &lt;algohref=lca&gt;здесь&lt;/algohref&gt;.&lt;/p&gt;
+&lt;p&gt;Асимптотика полученного алгоритма будет равна: препроцессинг за &lt;b&gt;O (N log N)&lt;/b&gt; и ответ на каждый запрос за &lt;b&gt;O (log N)&lt;/b&gt;.&lt;/p&gt;
+&lt;h2&gt;Алгоритм&lt;/h2&gt;
+&lt;p&gt;Предпосчитаем для каждой вершины её 1-го предка, 2-го предка, 4-го, и т.д. Обозначим этот массив через P, т.е. P[i][j] - это 2&lt;sup&gt;j&lt;/sup&gt;-й предок вершины i, i = 1..N, j = 0..&amp;lceil;logN&amp;rceil;. Также для каждой вершины найдём времена захода в неё и выхода поиска в глубину (см. &lt;algohref=dfs&gt;&quot;Поиск в глубину&quot;&lt;/algohref&gt;) - это нам понадобится, чтобы определять за O (1), является ли одна вершина предком другой (не обязательно непосредственным). Такой препроцессинг можно выполнить за &lt;b&gt;O (N log N)&lt;/b&gt;.&lt;/p&gt;
+&lt;p&gt;Пусть теперь поступил очередной запрос - пара вершин (A,B). Сразу проверим, не является ли одна вершина предком другой - в таком случае она и является результатом. Если A не предок B, и B не предок A, то будем подниматься по предкам A, пока не найдём самую высокую (т.е. наиболее близкую к корню) вершину, которая ещё не является предком (не обязательно непосредственным) B (т.е. такую вершину X, что X не предок B, а P[X][0] - предок B). При этом находить эту вершину X будем за O (log N), пользуясь массивом P.&lt;/p&gt;
+&lt;p&gt;Опишем этот процесс подробнее. Пусть L = &amp;lceil;logN&amp;rceil;. Пусть сначала I = L. Если P[A][I] не является предком B, то присваиваем A = P[A][I], и уменьшаем I. Если же P[A][I] является предком B, то просто уменьшаем I. Очевидно, что когда I станет меньше нуля, вершина A как раз и будет являться искомой вершиной - т.е. такой, что A не предок B, но P[A][0] - предок B.&lt;/p&gt;
+&lt;p&gt;Теперь, очевидно, ответом на LCA будет являться P[A][0] - т.е. наименьшая вершина среди предков исходной вершины A, являющаяся также и предком B.&lt;/p&gt;
+&lt;p&gt;Асимптотика. Весь алгоритм ответа на запрос состоит из изменения I от L = &amp;lceil;logN&amp;rceil; до 0, а также проверки на каждом шаге за O(1), является ли одна вершина предком другой. Следовательно, на каждый запрос будет найден ответ за O (log N).&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;code&gt;int n, l;
+vector &amp;lt; vector&amp;lt;int&gt; &gt; g;
+vector&amp;lt;int&gt; tin, tout;
+int timer;
+vector &amp;lt; vector&amp;lt;int&gt; &gt; up;
+
+void dfs (int v, int p = 0) {
+	tin[v] = ++timer;
+	up[v][0] = p;
+	for (int i=1; i&amp;lt;=l; ++i)
+		up[v][i] = up[up[v][i-1]][i-1];
+	for (size_t i=0; i&amp;lt;g[v].size(); ++i) {
+		int to = g[v][i];
+		if (to != p)
+			dfs (to, v);
+	}
+	tout[v] = ++timer;
+}
+
+bool upper (int a, int b) {
+	return tin[a] &amp;lt;= tin[b] &amp;&amp; tout[a] &gt;= tout[b];
+}
+
+int lca (int a, int b) {
+	if (upper (a, b))  return a;
+	if (upper (b, a))  return b;
+	for (int i=l; i&gt;=0; --i)
+		if (! upper (up[a][i], b))
+			a = up[a][i];
+	return up[a][0];
+}
+
+int main() {
+
+	... чтение n и g ...
+
+	tin.resize (n),  tout.resize (n),  up.resize (n);
+	l = 1;
+	while ((1&amp;lt;&amp;lt;l) &amp;lt;= n)  ++l;
+	for (int i=0; i&amp;lt;n; ++i)  up[i].resize (l+1);
+	dfs (0);
+
+	for (;;) {
+		int a, b; // текущий запрос
+		int res = lca (a, b); // ответ на запрос
+	}
+
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

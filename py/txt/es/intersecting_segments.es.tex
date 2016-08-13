@@ -1,0 +1,193 @@
+\h1{ la Búsqueda de pares de líneas que se cruzan en el algoritmo de заметающей directa de O (N log N) }
+
+Dado $n$ de regiones en el plano. Desea comprobar y, si se cruzan entre sí al menos dos de ellas. (Si la respuesta es " sí " - - - lo de sacar a este par de intersección de segmentos de línea; entre varias respuestas, basta con seleccionar cualquiera de ellos.)
+
+Ingenuo el algoritmo de solución --- barajar $O (n^2)$ de todos los pares de segmentos de línea y comprobar para cada par, se cruzan o no. En este artículo se describe el algoritmo de tiempo de trabajo $O (n \log n)$, que se basa en el principio de \bf{digitalización (заметающей) directa} (en inglés: "sweep line").
+
+
+\h2{ el Algoritmo }
+
+Pasaremos mentalmente vertical de la recta $x = -\infty$ y empezar a mover esta recta hacia la derecha. En el curso de su movimiento esta recta se reunirá con los cortes, y en cualquier momento, cada trozo se reunirá con nuestra recta por un punto (vamos a pensar que las líneas verticales no).
+
+\img{sweep_line_1.png}
+
+Por lo tanto, para cada tramo, en algún momento de su punto de aparecer en la recta y, a continuación, con el movimiento de la recta se mueve y este punto, y, por último, en algún momento el trozo desaparecerá de la recta.
+
+Nos interesa \bf{el orden relativo de los trozos} vertical. Es decir, vamos a almacenar la lista de regiones que atraviesan сканирующую directa en este momento en el tiempo, donde las regiones se clasifican por su $y$es la coordenada en la línea recta.
+
+\img{sweep_line_2.png}
+
+Este orden es muy interesante ya que se cruzan cortes tendrán la misma $y$coordenada, al menos, en un momento en el tiempo:
+
+\img{sweep_line_3.png}
+
+Formulamos clave de aprobación:
+
+\ul{
+
+\li Para la búsqueda de la intersección de la pareja, basta con considerar que cada vez que se fija la posición de la recta \bf{sólo vecinos de cortes}.
+
+\li, Basta con considerar сканирующую directa no en todas las posibles posiciones reales $(-\infty \ldots +\infty)$ y \bf{sólo en las posiciones cuando aparecen nuevos segmentos o desaparecen los viejos}. En otras palabras, basta de limitarse únicamente a las disposiciones de igual абсциссам de los puntos extremos de los segmentos.
+
+\li Cuando aparezca una nueva etapa basta \bf{insertar} en la ubicación deseada en la lista resultante de la anterior digitalización directa. Comprobar que la intersección es necesario \bf{sólo se agrega el segmento con sus vecinos inmediatos en la lista de arriba y de abajo}.
+
+\li La desaparición de corte suficiente \bf{borrar} de la lista actual. Después de esto es necesario \bf{comprobar en la intersección con la parte superior e inferior de vecinos} en la lista.
+
+\li Otros cambios en el orden de las regiones en la lista, además de los pasos, no existe. Otras pruebas de la intersección de producir no es necesario.
+
+}
+
+Para la comprensión de la veracidad de estas afirmaciones siguientes observaciones:
+
+\ul{
+
+\li Dos disjuntos del corte nunca cambian su \bf{el orden relativo}.
+
+En realidad, si un trozo primero fue más alto que el otro, y luego se convirtió en más adelante, entre estos dos momentos se ha producido un cruce de estas dos regiones.
+
+\li Tener coincidentes $y$las coordenadas de dos disjuntos del corte y no pueden.
+
+\li, De ello se desprende que, en el momento de la aparición del segmento podemos encontrar en la cola de la posición de este segmento, y más en este tramo de mover la cola no tendrá que: \bf{orden respecto a otras regiones en la cola no se cambiará}.
+
+\li Dos de intersección del segmento en el momento de su punto de intersección de las que estarán \bf{vecinos} mutuamente en la cola.
+
+\li por lo tanto, para la búsqueda de parejas de intersección de segmentos de línea, basta con comprobar en la intersección de la vez que todos los pares de segmentos, que alguna vez por el tiempo de movimiento de digitalización directa, aunque de vez \bf{eran vecinos mutuamente}.
+
+Es fácil observar que ello, sólo tiene que comprobar que se agrega el segmento con sus partes superior e inferior de los vecinos, y la eliminación de tronzado --- superior e inferior de los vecinos (que después de la eliminación serán los vecinos unos a otros).
+
+\li, Cabe señalar que cuando se fija la posición de la recta nos \bf{primero} debemos realizar \bf{agregar} de todos los que aparecen aquí regiones, y sólo \bf{y} --- \bf{borrar} todas en peligro de extinción y aquí regiones.
+
+Por tanto, no nos perderemos la intersección de segmentos de la cima: es decir, casos en los que las dos partes tienen en común el vértice.
+
+\li tenga en cuenta que \bf{verticales cortes} en realidad no afectan a la corrección de un algoritmo.
+
+Estos trozos se destacan el hecho de que aparecen y desaparecen en el mismo momento en el tiempo. Sin embargo, gracias a la nota anterior, sabemos que el primero de todos los trozos se añadirán a la cola, y luego se eliminan. Por lo tanto, si una línea vertical se cruza con la de alguna otra abierta en este punto, la recta (incluyendo la vertical), esto se descubre.
+
+En qué lugar de la cola de colocar los segmentos verticales? Ya que la línea vertical no tiene una $y$las coordenadas se extiende en todo el tramo de $y$-coordenada. Sin embargo, es fácil comprender que, como $y$las coordenadas se puede tomar cualquier coordenada de este segmento.
+
+}
+
+Por lo tanto, todo el algoritmo hará no más de $2n$ de pruebas en la intersección de los pares de líneas, y hará su $O (n)$ operaciones con la cola de regiones ($O(1)$ de las operaciones en los momentos de aparición y desaparición de cada corte).
+
+Total \bf{asíntotas} algoritmo es, por lo tanto, $O (n \log n)$.
+
+
+\h2{ Aplicación }
+
+Llevaremos la plena aplicación de algoritmo descrito:
+
+\code
+const double EPS = 1E-9;
+
+struct pt {
+double x, y;
+};
+
+struct seg {
+pt p, q;
+int id;
+
+double get_y (double x) const {
+if (abs (p.x - q.x) < EPS) return p.y;
+return p.y + (q.y - p.y) * (x - p.x) / q.x - p.x);
+}
+};
+
+
+inline bool intersect1d (double l1, double r1, double l2, double r2) {
+if (l1 > r1) swap (l1, r1);
+if (l2 > r2) swap (l2, r2);
+return max (l1, l2) <= min (r1, r2) + EPS;
+}
+
+inline int vec (const pt & a, const pt & b, const pt & c) {
+double s = (b.x - a.x) * (c.y - a.y) - b.y - a.y) * (c.x - a.x);
+return abs(s)<EPS ? 0 : s>0 ? +1 : -1;
+}
+
+bool intersect (const seg & a, const seg & b) {
+return intersect1d (a.p.x, a.q.x, b.p.x, b.q.x)
+&& intersect1d (a.p.y, a.q.y, b.p.y, b.q.y)
+&& vec (a.p, a.q, b.p) * vec (a.p, a.q, b.q) <= 0
+&& vec (b.p, b.q, a.p) * vec (b.p, b.q, a.q) <= 0;
+}
+
+
+bool operator< (const seg & a, const seg & b) {
+double x = max (min (a.p.x, a.q.x), min (b.p.x, b.q.x));
+return a.get_y(x) < b.get_y(x) - EPS;
+}
+
+
+struct event {
+double x;
+int tp, id;
+
+event() { }
+event (double x, int tp, int id)
+: x(x), tp(tp), id(id)
+{ }
+
+bool operator< (const event & e) const {
+if (abs (x - e.x) > EPS) return x < e.x;
+return tp > e.tp;
+}
+};
+
+set<seg> s;
+vector < set<seg>::iterator > where.
+
+inline set<seg>::iterator prev (set<seg>::iterator it) {
+return it == s.begin() ? s.end() : --it;
+}
+
+inline set<seg>::iterator next (set<seg>::iterator it) {
+return ++it;
+}
+
+pair<int,int> solve (const vector<seg> & a) {
+int n = (int) a.size();
+vector<event> e;
+for (int i=0; i<n; ++i) {
+e.push_back (event (min (a[i].p.x, a[i].q.x), +1, i));
+e.push_back (event (max (a[i].p.x, a[i].q.x), -1, i));
+}
+sort (e.begin(), e.end());
+
+s.clear();
+la cláusula where.resize (a.size());
+for (size_t i=0; i<e.size(); ++i) {
+int id = e[i].id;
+if (e[i].tp == +1) {
+set<seg>::iterator
+nxt = s.lower_bound (a[id]),
+prv = prev (nxt);
+if (nxt != s.end() && intersect (*nxt, a[id]))
+return make_pair (nxt->id, id);
+if (prv != s.end() && intersect (*prv, a[id]))
+return make_pair (prv->id, id);
+where[id] = s.insert (nxt, a[id]);
+}
+else {
+set<seg>::iterator
+nxt = next (where[id]),
+prv = prev (where[id]);
+if (nxt != s.end() && prv != s.end() && intersect (*nxt, *prv))
+return make_pair (prv->id, nxt->id);
+s.erase (where[id]);
+}
+}
+
+return make_pair (-1, -1);
+}
+\endcode
+
+La función principal aquí --- $\rm solve()$, que devuelve los números encontrados de intersección de las líneas, o $(-1, -1)$, si no hay intersección.
+
+La validación en el punto de intersección de dos líneas se realiza la función $\rm intersect()$, con \algohref=segments_intersection_checking{algoritmo en base orientada hacia la superficie de un triángulo}.
+
+Lugar de segmentos de línea en la variable global $s$ --- $\rm set<event>$. Los iteradores, indicar la posición de cada segmento de la cola (para facilitar la eliminación de los trozos de la cola), se almacenan en la matriz global de $\rm where$.
+
+Se introdujeron dos auxiliares de la función $\rm prev()$ y $\rm next()$, que devuelven iteradores en el anterior y el siguiente de los elementos (o $\rm end()$, si éste no existe).
+
+La constante de $\rm EPS de$ indica el error de comparar dos números reales (principalmente se utiliza cuando la verificación de dos líneas en el cruce).

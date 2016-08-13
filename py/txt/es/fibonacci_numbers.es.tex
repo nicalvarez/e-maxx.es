@@ -1,0 +1,172 @@
+\h1{ los Números de fibonacci }
+
+
+\h2{ Definición }
+
+La secuencia de fibonacci se define de la siguiente manera:
+
+$$ F_0 = 0, $$
+$$ F_1 = 1, $$
+$$ F_n = F_{n-1} + F_{n-2}. $$
+
+Algunos de los primeros de sus miembros:
+
+$$ 0, ~ 1, ~ 1, ~ 2, ~ 3, ~ 5, ~ 8, ~ 13, ~ 21, ~ 34, ~ , ~ 55, ~ 89, ~ \ldots $$
+
+
+\h2{ Historia }
+
+Estos números se introdujo en 1202, leonardo fibonacci) (también conocido como leonardo de pisana (Leonardo Pisano)). Sin embargo, es precisamente gracias a las matemáticas del siglo 19 la Escotilla (Lucas) el nombre de la "serie de fibonacci" se ha convertido en algo común.
+
+Sin embargo, los indios de las matemáticas mencionado número de la secuencia antes: gopāla (Gopala) antes de 1135,, Hemachandra (Hemachandra) --- en el año 1150
+
+
+\h2{ los Números de fibonacci en la naturaleza }
+
+El fibonacci mencionado estos números en relación con este desafío: "un Hombre plantó un par de conejos en el corral, rodeada por todas partes por una pared. ¿Cuántos pares de conejos durante el año puede hacer a la luz de esta pareja, si se sabe que cada mes, a partir del segundo, cada pareja de conejos produce en la luz de una pareja?". Una solución a este reto y se número de secuencia, llamada ahora en su honor. Sin embargo, se describe la situación de fibonacci --- más un juego de la mente, que la verdadera naturaleza.
+
+Indios de las matemáticas gopāla y Hemachandra mencionado número de la secuencia en relación con la cantidad de dibujos rítmicos producidos como consecuencia de la alternancia de largos y breves sílabas en los versos o los puntos fuertes y débiles de las fracciones en la música. El número de dichas imágenes, con un total de $n$ de la cuota es de $F_n$.
+
+Los números de fibonacci aparecen en el trabajo de kepler del año 1611, que reflexionaba sobre los números encontrados en la naturaleza (el trabajo "Sobre el hexagonal снежинках").
+
+Es interesante el ejemplo de las plantas --- la milenrama, el cual el número de tallos (y por lo tanto de las flores) siempre hay un número de fibonacci. La razón es simple: originalmente con un único tallo, el tallo se divide por dos, y luego desde el tallo principal se encuentra en otra y, a continuación, los dos primeros del tallo de nuevo se ramifican formando y, a continuación, todos los tallos, además de los dos últimos, se ramifican formando, y así sucesivamente. Por lo tanto, cada tallo después de su aparición "salta" una bifurcación, a continuación, comienza a compartir en cada nivel de la bifurcación, que es el que da como resultado los números de fibonacci.
+
+En general, muchos de los colores (por ejemplo, los lirios) el número de pétalos es de un modo u otro número de fibonacci.
+
+También en botánica se conoce el fenómeno de la "филлотаксиса". Como ejemplo se puede citar la ubicación de las semillas de girasol: si mirar de arriba a su ubicación, se puede ver a la vez dos de la serie de espirales (superpuestos): unos apretados en sentido de las agujas del reloj, otros --- en contra. Resulta que el número de estas espirales coincide aproximadamente con dos números consecutivos de fibonacci: 34 y 55, 89 y 144. Similares hechos fieles y algunos otros colores, así como para piñas, brócoli, piña, etc.
+
+Para muchas de las especies vegetales (según algunos, para el 90% de ellos) es un hecho interesante. Veamos alguna hoja, y vamos a bajar de él hacia abajo hasta que no lleguemos a una hoja de cálculo, situado en el tallo de la misma manera (es decir, dirigida exactamente en la misma dirección). De paso vamos a contar todas las hojas que había visitado a nosotros (es decir, situadas a una altura entre la hoja inicial y final), pero situados de manera diferente. Numeran de ellos, vamos a realizar giros alrededor del tallo (ya que las hojas se encuentran en el tallo en espiral). Dependiendo de realizar giros en sentido de las agujas del reloj o en contra de que salga un número diferente de vueltas. Pero resulta que el número de vueltas que realizamos en sentido de las agujas del reloj, número de vueltas, cometidos contra las agujas del reloj, y el número de las hojas forman 3 números consecutivos de fibonacci.
+
+Sin embargo, cabe señalar que hay y las plantas, para que figuran por encima de los cálculos darán un número de muy otras secuencias, por lo tanto, no se puede decir que el fenómeno de la филлотаксиса es la ley, --- esto es más entretenido de la tendencia.
+
+
+\h2{ Propiedades }
+
+Los números de fibonacci tienen muchos lugares interesantes de las propiedades matemáticas.
+
+He aquí sólo algunos de ellos:
+
+\ul{
+
+\li Relación de cassini: 
+
+$$ F_{n+1} F_{n-1} - F_n^2 = (-1)^n. $$
+
+\li Regla de "suma": 
+
+$$ F_{n+k} = F_k F_{n+1} + F_{k-1} F_n. $$
+
+\li De la anterior igualdad en la $k = n$ sale: 
+
+$$ F_{2n} = F_n (F_{n+1} + F_{n-1}). $$
+
+\li De la anterior равенста de la inducción puede conseguir 
+
+$F_{nk}$ es siempre un múltiplo de $F_n$.
+
+\li es todo lo contrario a la anterior afirmación:
+
+si $F_m$ es múltiplo de $F_n$, entonces $m$ es múltiplo de $n$.
+
+\li NOD-igualdad: 
+
+$$ {\rm mcd} (F_m, F_n) = F_{{\rm mcd} (m, n)}. $$
+
+\li con respecto al algoritmo de euclides los números de fibonacci tienen lo notable propiedad de que son peores datos de entrada para este algoritmo (véase "el Teorema de Lama" en \algohref=euclid_algorithm{el Algoritmo de euclides}).
+
+}
+
+
+\h2{ Фибоначчиева sistema numérico }
+
+\bf{Teorema de Цекендорфа} afirma que cualquier número natural $n$ se puede presentar un único modo como la suma de los números de fibonacci:
+
+$$N = F_{k_1} + F_{k_2} + \ldots + F_{k_r}$$
+
+donde $k_1 \ge k_2+2$, $k_2 \ge k_3+2$, $\ldots$, $k_r \ge 2$ (es decir, en la grabación no se puede utilizar dos vecinos de los números de fibonacci).
+
+De ello se deduce que cualquier número se puede claramente grabar en \bf{фибоначчиевой el sistema numérico}, por ejemplo:
+
+$$ 9 = 8+1 = F_6 + F_1 = (10001)_F, $$
+$$ 6 = 5+1 = F_5 + F_1 = (1001)_F, $$
+$$ 19 = 13+5+1 = F_7 + F_5 + F_1 = (101001)_F, $$
+
+y en ningún como no pueden ir dos unidades consecutivas.
+
+Es fácil de obtener y de la regla de sumar uno al número en фибоначчиевой el sistema numérico: si el menor dígito es 0, lo sustituimos en la 1, y si es igual a 1 (es decir, al final vale la pena 01) 01 sustituimos en la 10. A continuación la "corrección" de la grabación, haga corrige en todas partes 011 100. Como resultado, en el tiempo lineal se obtiene la entrada de un nuevo número.
+
+La traducción de los números en фибоначчиеву sistema de numeración se realiza de forma sencilla "ansiosa" por el algoritmo: simplemente перебираем los números de fibonacci, de mayor a menor y, si un $F_k \le n$, entonces $F_k$ entra en el registro del número de $n$, y nos llevamos $F_k$ de $n$ y seguimos con la búsqueda.
+
+
+\h2{ la Fórmula para el n-ésimo número de fibonacci }
+
+
+\h3{ la Fórmula a través de los radicales }
+
+Existe una gran fórmula, llamada por el nombre francés de matemáticas bandeja (Binet), aunque se ha conocido hasta él Муавру (Moivre):
+
+$$ F_n = \frac{ \left( \frac{1+\sqrt{5}}{2} \right)^n - \left( \frac{1-\sqrt{5}}{2} \right)^n }{ \sqrt{5} }. $$
+
+Esta fórmula es fácil de demostrar por inducción, sin embargo, deducir de ella es posible con la ayuda de los conceptos que forman funciones o con una solución funcional de la ecuación.
+
+De inmediato se puede observar que el segundo término siempre por el módulo menor que 1, y además, muy rápidamente disminuye (exponencial). De aquí se deduce que el valor del primer término da "casi" un valor de $F_n$. Esto se puede escribir en forma sencilla:
+
+$$F_n = \left[ \frac{ \left( \frac{1+\sqrt{5}}{2} \right)^n }{ \sqrt{5} } \right],$$
+
+donde los corchetes indican el redondeo al entero más cercano.
+
+Sin embargo, para la aplicación práctica en los cálculos de estas fórmulas muy adecuados, ya que requieren una gran precisión de trabajo con números fraccionarios.
+
+
+\h3{ Matriz de la fórmula de los números de fibonacci }
+
+Es fácil demostrar matemática de la siguiente igualdad:
+
+$$ \pmatrix{
+F_{n-2} & F_{n-1} \cr
+} \cdot \pmatrix{
+0 & 1 \cr
+1 & 1 \cr
+} = \pmatrix{
+F_{n-1} & F_{n} \cr
+}. $$
+
+Pero entonces, de etiquetado
+
+$$ P \equiv
+\pmatrix{
+0 & 1 \cr
+1 & 1 \cr
+}, $$
+
+obtenemos:
+
+$$ \pmatrix{
+F_0 & F_1 \cr
+} \cdot P^n = \pmatrix{
+F_{n} & F_{n+1} \cr
+}. $$
+
+Por lo tanto, para encontrar una $n$-ésimo número de fibonacci es necesario construir una matriz $P$ grado $n$.
+
+Recordando que la construcción de la matriz $n$-ésimo grado se puede lograr de la noche a $O (\log n)$ (véase \algohref=binary_pow{Binario exponenciación}), resulta que $n$-ésimo número de fibonacci se puede calcular fácilmente a $O (\log n)$ c utilizando sólo un entero de la aritmética.
+
+
+\h2{ Frecuencia de la secuencia de fibonacci por el módulo }
+
+Veamos la secuencia de fibonacci $F_i$ de un módulo $p$. Demostramos que es периодичной, y que el período comienza con $F_1=1$ (es decir, el período anterior contiene sólo $F_0$).
+
+Desde adentro de lo contrario. Veamos $p^2+1$ parejas de números de fibonacci, tomadas por el módulo $p$:
+
+$$(F_1,F_2),\ (F_2,F_3),\ \ldots,\ (F_{p^2+1},F_{p^2+2}).$$
+
+Ya que por módulo $p$ sólo $p^2$ pares diferentes de los de esta secuencia hay al menos dos parejas. Esto ya significa que la secuencia de periódico.
+
+A elegir ahora entre todos los pares iguales dos parejas con un menor número de habitaciones. Que esto de la pareja con algunas habitaciones $(F_a,F_{a+1})$ y $(F_b,F_{b+1})$. Demostramos que $a=1$. De hecho, en el caso contrario, para ellos habrá anteriores parejas) $(F_{a-1},F_a)$ y $(F_{b-1},F_b)$, que, por la propiedad de los números de fibonacci, también serán iguales entre sí. Sin embargo, esto va en contra de lo que hemos elegido pares coincidentes con el menor de los números que se quería demostrar.
+
+
+\h2{ Literatura }
+
+\ul{
+\li \book{ronald graham, donald Látigo, oren Паташник}{Específica de matemáticas}{1998}{graham.djvu}
+}

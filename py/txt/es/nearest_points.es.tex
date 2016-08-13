@@ -1,0 +1,172 @@
+\h1{ Encontrar los pares de los puntos más cercanos }
+
+
+\h2{ el Planteamiento de la tarea }
+
+Dado $n$ puntos $p_i$ en el plano, definidos por sus coordenadas $(x_i,y_i)$. Es necesario encontrar entre ellos estos dos puntos, la distancia entre los cuales mínimo:
+
+$$ \min_{\scriptstyle i,j=0 \ldots, n-1, \atop \scriptstyle i \ne j} \rho (p_i,p_j). $$
+
+La distancia tomamos normales евклидовы:
+
+$$ \rho(p_i,p_j) = \sqrt{ (x_i-x_j)^2 + (y_i-y_j)^2 }. $$
+
+Trivial de un algoritmo --- repaso de todas las parejas y el cálculo de la distancia para cada --- trabaja por $O(n^2)$. A continuación se describe el algoritmo que trabaja en el tiempo $O(n \log n)$. Este algoritmo fue propuesto Препаратой (Preparata), en 1975, de la Droga y el Шамос también han demostrado, en un modelo de árbol de decisiones para este algoritmo asintóticamente óptimo.
+
+
+\h2{ el Algoritmo }
+
+Construir un algoritmo en el esquema general de algoritmos \bf{"divide-y-vencerás"}: el algoritmo de la presentamos en forma de una función recursiva que se pasa en muchos puntos; esta función recursiva rompe es la multitud por la mitad, se llama a sí mismo de forma recursiva de cada mitad y, a continuación, realiza alguna operación sobre la combinación de las respuestas. La operación de asociaciones consiste en la detección de los casos, cuando un punto de la solución óptima ha caído a la mitad, y la otra el punto de --- en el otro (en este caso, las llamadas recursivas de cada una de las mitades por separado detectar este par, por supuesto, no pueden). La principal dificultad, como siempre, consiste en la aplicación eficaz de esta etapa de la combinación. Si una función recursiva se transmite multitud de $n$ de puntos, la etapa de la combinación debe trabajar no más de $O(n)$, entonces asíntotas de todo el algoritmo de $T(n)$ va a estar fuera de la ecuación:
+
+$$ T(n) = 2 T(n/2) + O(n). $$
+
+La solución de esta ecuación, como se sabe, es de $T(n) = O (n \n log n)$.
+
+Pasemos a la construcción de un algoritmo. Para que en un futuro llegar a la efectiva aplicación de la fase de combinación, dividir el conjunto de puntos en los dos estemos de acuerdo con sus $x$-coordenadas: de hecho, nos pasamos un poco de la recta vertical, разбивающую el conjunto de puntos en dos subconjuntos de aproximadamente el mismo tamaño. Esta división es conveniente realizar de la siguiente manera: ordenará el punto de estándar como pares de números, es decir:
+
+$$ p_i < p_j \Longleftrightarrow (x_i < x_j) \lor \Bigl( (x_i = x_j) \land (y_i < y_j) \Bigr). $$
+
+Entonces tomaremos el promedio después de la ordenación de un punto de $p_m$ ($m = \lfloor n/2 \rfloor$), y todos los puntos a y la $p_m$ a poner a la primera mitad, y todos los puntos después de ella --- en la segunda mitad:
+
+$$ A_1 = \{ p_i\ |\ i = 0, \ldots m \}, $$
+$$ A_2 = \{ p_i\ |\ i = m+1 \ldots, n-1 \}. $$
+
+Ahora, вызвавшись de forma recursiva de cada uno de los conjuntos $A_1$ y $A_2$, encontraremos las respuestas de $h_1$ y $h_2$ para cada una de ellas. Tomemos el mejor de ellos: $h = \min (h_1, h_2)$.
+
+Ahora tenemos que hacer \bf{fase de la unificación}, es decir, tratar de encontrar los pares de puntos, la distancia entre los cuales menos de $h$, y un punto está en $A_1$, y la otra - - - $A_2$. Es evidente que para ello es suficiente considerar sólo aquellos puntos, que equivale a la línea vertical de la sección a una distancia de menos de $h$, es decir, la multitud de $B$ examinados en esta etapa de puntos es igual a:
+
+$$ B = \{ p_i\ |\ | x_i - x_m | < h \}. $$
+
+Para cada punto de la multitud de $B$ es necesario tratar de encontrar los puntos que se encuentran más cerca de ella de $h$. Por ejemplo, es suficiente considerar solamente los puntos coordenada $y$ que no es no más de $h$. Además, no tiene sentido considerar los puntos en los cuales $y$coordenada más de $y$coordenadas del punto actual. Por lo tanto, para cada punto de $p_i$ definir el conjunto de definidos los puntos de $C(p_i)$ de la siguiente manera:
+
+$$ C(p_i) = \{ p_j\ |\ p_j \in B\ \ y_i - h < y_j \le y_i \}. $$
+
+Si nos ordenará el punto de multitud de $B$ $y$-coordenada, encontrar $C(p_i)$ será muy fácil: varios puntos consecutivos, hasta el punto de $p_i$.
+
+Así, en los nuevos leyenda \bf{fase de la unificación} de la siguiente manera: construir multitud de $B$, ordenar en él un punto de $y$es la coordenada y, a continuación, para cada punto de $p_i \in B$ a considerar todos los puntos de $p_j \in C(p_i)$, y cada par $(p_i,p_j)$ calcular la distancia y comparar con el actual mejor a la distancia.
+
+A primera vista, sigue siendo el óptimo del algoritmo: parece que el tamaño de los conjuntos $C(p_i)$ se de orden $n$, y de que la asíntotas no funciona. Sin embargo, sorprendentemente, se puede demostrar que el tamaño de cada uno de los conjuntos $C(p_i)$ es el valor de $O(1)$, es decir, no supera alguna pequeña constantes, independientemente de los propios puntos. La prueba de este hecho se describe en la siguiente sección.
+
+Por último, vamos a centrar nuestra atención en la ordenación, los cuales descrito en el algoritmo contiene sólo dos: primero ordenar por parejas ($x$,$y$) y, a continuación, ordenar los elementos de un conjunto a $B$ $y$. En realidad, de estas dos ordenaciones dentro de una función recursiva puede deshacerse (de lo contrario no hubiéramos llegado a un estimado de $O(n)$ para la fase de combinación, y el total de asíntotas algoritmo, habría sido $O(n \log^2 n)$). De la primera ordenación de deshacerse fácilmente --- bastante antes de iniciar la recursividad realizar esta ordenación, pues dentro de la recursividad de los elementos no cambian, por lo tanto, no hay necesidad de ordenar de nuevo. Con el segundo de ordenación es un poco complicado, realizar su pre-no va a funcionar. Pero, recordando \bf{ordenación de mezcla} (merge sort), que también funciona según el principio de divide-y-vencerás, puede simplemente incrustar esta ordenación en nuestra recursividad. Deje que la recursividad, tomando algún conjunto de los puntos (como recordamos, ordenados por parejas de $(x,y)$) devuelve es la misma cantidad, pero отсортированное ya por la coordenada $y$. Para ello, basta con realizar una combinación de correspondencia ($O(n)$) dos de los resultados devueltos llamadas recursivas. Así resultará отсортированное de $y$ la multitud.
+
+
+\h2{ Evaluación de la асимптотики }
+
+Para mostrar que el anterior algoritmo realmente se a $O(n \log n)$, nos queda probar el siguiente hecho: $|C(p_i)| = O(1)$.
+
+Así, que consideramos algún punto de $p_i$; recordemos que muchas de $C(p_i)$ --- es el conjunto de puntos, $y$coordenada que se encuentra en el tramo de $[y_i-h; y_i]$, y, además, por la coordenada $x$ y el punto en sí $p_i$, y todos los puntos de la multitud de $C(p_i)$ se encuentran en una franja de $2h$. En otras palabras, consideradas por nosotros desde $p_i$ y $C(p_i)$ se encuentran en el interior de un rectángulo del tamaño de la $2h \times h$.
+
+Nuestra tarea-para-el - estimar el número máximo de puntos que puede estar en el interior de un rectángulo $2h \times h$; por tanto, la evaluaremos y el tamaño máximo de la multitud de $C(p_i)$. Para ello, la evaluación es necesario no olvidar que pueden aparecer duplicados punto.
+
+Recordemos que $h$ resultaba como mínimo dos de los resultados de las llamadas recursivas --- de conjuntos $A_1$ y $A_2$, y $A_1$ contiene el punto a la izquierda de la línea de sección y, parcialmente, en ella, $A_2$ --- los puntos de la línea de sección y el punto a la derecha de ella. Para cualquier par de puntos de $A_1$ y $A_2$, la distancia no podrá ser menor de $h$ --- de lo contrario, se podría sugerir некорректность de trabajo de una función recursiva.
+
+Para calcular la máxima cantidad de puntos en el rectángulo $2h \times h$ dividimos en dos cuadrados $h \times h$, a la primera con el cuadrado de poner todos los puntos de $C(p_i) \cap A_1$, y la segunda --- los demás, es decir, $C(p_i) \cap A_2$. De las anteriores consideraciones se desprende que, en cada uno de los cuadrados de la distancia entre dos puntos cualesquiera de un mínimo de $h$.
+
+Mostraremos que en cada casilla \bf{no más de cuatro} de puntos. Por ejemplo, esto se puede hacer de la siguiente manera: dividimos el cuadrado en 4 подквадрата con las partes $h/2$. Entonces, en cada una de estas подквадратов no puede ser más que un punto (porque hasta la diagonal es igual a $h / \sqrt{2}$, que es menos de $h$). Por lo tanto, en todo el cuadrado no puede ser de más de 4 puntos.
+
+Así pues, hemos demostrado que en el rectángulo de $2h \times h$ no puede ser más de $4 \cdot 2 = 8$ de los puntos, y, en consecuencia, el tamaño de la multitud de $C(p_i)$ no puede superar los $7$, que se quería demostrar.
+
+
+\h2{ Aplicación }
+
+Introducimos la estructura de datos para almacenar los puntos (sus coordenadas y un número) y los operadores de comparación necesarios para dos tipos de ordenación:
+
+\code
+struct pt {
+int x, y, id;
+};
+
+inline bool cmp_x (const pt & a, const pt & b) {
+return a.x < b.x || a.x == b.x && a.y < b.y;
+}
+
+inline bool cmp_y (const pt & a, const pt & b) {
+return a.y < b.y;
+}
+
+pt a[MAXN];
+\endcode
+
+Para facilitar la aplicación de la recursividad introducimos una función auxiliar $upd\_ans()$, que será calcular la distancia entre dos puntos y comprobar si es la actual respuesta:respuesta:
+
+\code
+double mindist;
+int ansa, ansb;
+
+inline void upd_ans (const pt & a, const pt & b) {
+double dist = sqrt ((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) + .0);
+if (dist < mindist)
+mindist = dist, ansa = a.id, ansb = b.id;
+}
+\endcode
+
+Por último, la implementación de la recursividad. Se supone que antes de llamar a la matriz $a[]$ ya está ordenada de $x$es la coordenada. La recursividad se transmite sólo dos del puntero $l$, $r$, que señala que se debe buscar una respuesta para $a[l \ldots r]$. Si la distancia entre $r$ $y $ l$ es demasiado bajo, la recursividad es necesario parar, y realizar trivial algoritmo de búsqueda más cercana de la pareja y, a continuación, ordenar подмассив de $y$-coordenada.
+
+Para la fusión de dos conjuntos de puntos, obtenidos de las llamadas recursivas, en un (ordenado por $y$-coordenada), utilizamos la función estándar STL $merge()$, y creamos auxiliar de búfer $t[]$ (todas las llamadas recursivas). (Utilizar el $in situ\_merge()$ no es práctico, porque es en el caso general no funciona por tiempo lineal).
+
+Por último, la multitud de $B$ se almacena en el mismo array $t$.
+
+\code
+void rec (int l, int r) {
+if (r - l <= 3) {
+for (int i=l; i<=r; i++)
+for (int j=i+1; j<=r; j++)
+upd_ans (a[i], a[j]);
+sort (a+l, a+r+1, &cmp_y);
+return;
+}
+
+int m = (l + r) >> 1;
+int midx = a[m].x;
+rec (l, m), rec (m+1, r);
+static pt t[MAXN];
+merge (a+l, a+m+1, a+m+1, a+r+1, t, &cmp_y);
+copy (t, t+r-l+1, a+l);
+
+int tsz = 0;
+for (int i=l; i<=r; i++)
+if (abs (a[i].x - midx) < mindist) {
+for (int j=tsz-1; j>=0 && a[i].y - t[j].y < mindist; --j)
+upd_ans (a[i], t[j]);
+t[tsz++] = a[i];
+}
+}
+\endcode
+
+Por cierto, si todas las coordenadas enteras, en el tiempo de funcionamiento de la recursividad puede no pasar a дробным valores y almacenar en $mindist$ cuadrado de la distancia mínima.
+
+En el programa principal llamar la recursividad debe:
+
+\code
+sort (a, a+n, &cmp_x);
+mindist = 1E20;
+rec (0, n-1);
+\endcode
+
+
+
+\h2{ Síntesis: la búsqueda de un triángulo con el mínimo perímetro }
+
+Se describe el algoritmo anterior es interesante resume y en esta tarea: entre especificado un conjunto de puntos de elegir entre tres diferentes puntos de modo que la suma de попарных las distancias entre ellos se encontraba el menor.
+
+De hecho, para la solución de este problema, el algoritmo es el mismo: dividimos el campo en dos mitades de la línea vertical, llamamos la solución recursiva de las dos mitades, escogemos un mínimo de $minper$ encontradas perímetros, construyendo una tira de espesor $minper / 2$, y en ella перебираем todos los triángulos, capaces de mejorar la respuesta. (Tenga en cuenta que el triángulo con el perímetro $\le minper$ длиннейшая lado $\le minper/2$.)
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas, que se reducen a la búsqueda de dos de los puntos más cercanos:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1186{ UVA 10245 \bf{"The Closest Pair Problem"} ~~~~~~ [dificultad: baja] }
+
+\li \href=http://www.spoj.pl/problemas/CLOPPAIR/{ SPOJ #8725 CLOPPAIR \bf{"Closest Point Pair"} ~~~~~~ [dificultad: baja] }
+
+\li \href=http://codeforces.es/contest/120/problem/J{ CODEFORCES Símbolo de sistema en las olimpiadas escolares de saratov - 2011 \bf{"cantidad Mínima"} ~~~~~~ [dificultad media] }
+
+\li \href=http://code.google.com/codejam/contest/311101/dashboard#s=a&a=1{ Google CodeJam 2009 Final \bf{"Min Perimeter"} ~~~~~~ [dificultad media] }
+
+\li \href=https://www.spoj.pl/problemas/CLOSEST/{ SPOJ #7029 CLOSEST \bf{"Closest Triple"} ~~~~~~ [dificultad media] }
+
+}

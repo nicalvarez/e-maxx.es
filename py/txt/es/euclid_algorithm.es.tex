@@ -1,0 +1,111 @@
+\h1{el Algoritmo de euclides encontrar NOD (máximo común divisor)}
+
+Dados dos enteros no negativos en el número de $a$ y $b$. Es necesario encontrar el máximo común divisor, es decir, el mayor número que es divisor de a la vez y $a$ y $b$. En inglés "máximo común divisor" se escribe "greatest common divisor", y el común de su designación es de ${\rm gcd}$:
+$$ {\rm mcd}(a,b) = \max_{k=1 \ldots \infty \ :\ k|a \ \&\ k|b} k $$
+(aquí el símbolo "$|$" marcada divisibilidad, es decir, "$k|a$" significa "$k$ divide a $a$")
+
+Cuando se de números es igual a cero, y el otro distinto de cero, el mayor común divisor, de acuerdo con la definición, se trata de la segunda cifra. Cuando ambos números son iguales a cero, el resultado no está definido (ideal para cualquier infinitamente el gran número), nos pondremos en este caso, el máximo común divisor de cero. Por lo tanto, se puede hablar de esta regla: si uno de los números es igual a cero, su máximo común divisor es igual al segundo número.
+
+\bf{el Algoritmo de euclides}, examinado a continuación, resuelve la tarea de encontrar el máximo común divisor de dos números es de $a$ y $b$ por $O (\log \min(a,b))$.
+
+Este algoritmo fue descrito por primera vez en el libro de euclides "el Principio" (alrededor de 300 adc), aunque, muy posiblemente, este algoritmo tiene más temprana de origen.
+
+
+\h2{el Algoritmo}
+
+El algoritmo es muy simple y se describe por la siguiente fórmula:
+
+$$ {\rm mcd}(a,b) = \cases{ a, & {\rm if} b=0 \cr {\rm mcd} (b, a\ {\rm mod}\ b), & {\rm otherwise} } $$
+
+
+\h2{Aplicación}
+
+\code
+int mcd (int a, int b) {
+if (b == 0)
+return a;
+else
+return mcd (b, a % b);
+}
+\endcode
+
+Usando terciario condicional el operador de C++, el algoritmo puede grabar aún más corto:
+
+\code
+int mcd (int a, int b) {
+return b ? mcd (b, a % b) : a;
+}
+\endcode
+
+Por último, se presentan y нерекурсивную forma de algoritmo:
+
+\code
+int mcd (int a, int b) {
+while (b) {
+a %= b;
+swap (a, b);
+}
+return a;
+}
+\endcode
+
+
+\h2{Prueba de la validez}
+
+Primero, tenga en cuenta que en cada iteración del algoritmo de euclides su segundo argumento estrictamente disminuye, por lo tanto, ya que él неотрицательный, el algoritmo de euclides \bf{siempre termina}.
+
+Para \bf{pruebas de corrección} tenemos que demostrar que ${\rm mcd}(a,b) = {\rm mcd} (b, a\ {\rm mod}\ b)$ para todo $a \ge 0, b > 0$.
+
+Vamos a demostrar que la magnitud, de pie en la parte izquierda de la igualdad, se divide a esta en la derecha, y de pie en el lado derecho --- se divide en pie en la izquierda. Obviamente, esto significaría que la izquierda y derecha de la parte coinciden, que demuestra la corrección del algoritmo de euclides.
+
+Se denota $d = {\rm mcd}(a,b)$. Entonces, por definición, $d|a$ y $d|b$.
+
+Además, estamos ampliando el resto de la división de $a$ a $b$ a través de sus privada:
+$$ a\ {\rm mod}\ b = a - b \left\lfloor \frac{a}{b} \right\rfloor $$
+
+Pero entonces a partir de esto:
+$$ d\ |\ (a\ {\rm mod}\ b) $$
+
+Así que, recordando la afirmación de $d|b$, obtenemos el sistema:
+$$ \cases{ d\ |\ b, \cr d\ |\ (a\ {\rm mod}\ b) } $$
+
+Usaremos ahora la siguiente simple hecho: si para unos tres números, $p,q,r$ se $p|q$ y $p|r$, entonces se ejecuta y: $p\ |\ {\rm mcd}(q,r)$. En nuestra situación, obtenemos:
+$$ d\ |\ {\rm mcd}(b, a\ {\rm mod}\ b) $$
+O, sustituyendo en lugar de $d$ de su definición como ${\rm mcd}(a,b)$, obtenemos:
+$$ {\rm mcd}(a,b)\ |\ {\rm mcd}(b, a\ {\rm mod}\ b) $$
+
+Así, nos pasamos la mitad de la prueba: han demostrado que la parte izquierda se divide la derecha. La segunda mitad de la prueba se realiza de la misma forma.
+
+
+\h2{horario}
+
+El tiempo de funcionamiento del algoritmo se estima \bf{teorema de Lamé}, que establece una conexión extraordinaria del algoritmo de euclides y de la secuencia de fibonacci:
+
+Si $a > b \ge 1$ y $b < F_n$ para algún $n$, entonces el algoritmo de euclides realizará no más de $n-2$ las llamadas recursivas.
+
+Además, se puede mostrar que el límite superior de este teorema --- óptima. Si $a = F_n, b = F_{n-1}$ se realizará la es $n-2$ recursivos de la llamada. En otras palabras, \bf{serie de fibonacci --- los peores datos de entrada} para el algoritmo de euclides.
+
+Teniendo en cuenta que los números de fibonacci están creciendo de manera exponencial (como una constante en la medida en $n$), obtenemos que el algoritmo de euclides, se $O(\log \min(a,b))$ operaciones de multiplicación.
+
+\h2{noche (mínimo común múltiplo)}
+
+Cálculo del mínimo común múltiplo (least common multiplier, lcm) se reduce a un cálculo de $\rm gcd$ simple de la siguiente afirmación:
+
+$$ {\rm lcm}(a,b) = \frac{ a \cdot b }{ {\rm mcd}(a,b) } $$
+
+Por lo tanto, el cálculo de la noche también se puede hacer mediante el algoritmo de euclides, con la misma асимптотикой:
+
+\code
+int lcm (int a, int b) {
+return a / gcd (a, b) * b;
+}
+\endcode
+
+(aquí es beneficioso primero dividir en $\rm gcd$, y sólo luego, домножать $b$, ya que esto ayudará a evitar desbordamientos en algunos casos)
+
+
+\h2{Literatura}
+
+\ul{
+\li \book{thomas Кормен, charles Лейзерсон, ronald Ривест, clifford stein}{Algoritmos: diseño y análisis de}{2005}{cormen.djvu}
+}

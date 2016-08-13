@@ -1,0 +1,239 @@
+\h1{Análisis de las expresiones. La inversa de la notación polaca}
+
+Dada una cadena que representa una expresión matemática que contiene números, variables, diversas operaciones. Se desea calcular su valor a $O (n)$, donde $n$ --- la longitud de la cadena.
+
+Aquí se describe un algoritmo que traduce esta expresión en la llamada \bf{inversa de la notación polaca} (explícita o implícitamente), y ya en ella se evalúa la expresión.
+
+
+\h2{Inversa de la notación polaca}
+
+La inversa de la notación polaca --- es una forma de escritura de expresiones matemáticas, en la que los operadores se encuentran después de sus operandos.
+
+Por ejemplo, la siguiente expresión:
+
+$$ a + b * c * d + (e - f) * (g * h + i) $$
+
+en la notación polaca inversa se escribe de la siguiente manera:
+
+$$ a b c * d * e + f - g h * i + * + $$
+
+La inversa de la notación polaca ha desarrollado de australia, filósofo y experto en el campo de la teoría de la aprobacion de charles Хэмблином a mediados de la década de 1950 basada en la notación polaca, que fue propuesta en el año de 1920 el matemático polaco jan Лукасевичем.
+
+La comodidad de notación polaca inversa es que las expresiones presentadas en una forma muy \bf{fácil de calcular}, y que era el momento lineal. Podamos establecer una pila, inicialmente está vacía. Vamos a moverse de izquierda a derecha de la expresión en notación polaca inversa; si el elemento actual --- número o variable, lo ponemos en la cima de la pila de su valor; si el elemento actual --- operación que quitar de la pila de los dos elementos (o uno, si la operación унарная), se aplican a él, la operación y el resultado lo ponemos de nuevo en la pila. Finalmente, en la pila se quedará exactamente un elemento - el valor de la expresión.
+
+Obviamente, este sencillo algoritmo se ejecuta por $O (n)$, es decir, del orden de la longitud de una expresión.
+
+
+\h2{Análisis de los más simples expresiones}
+
+Mientras consideramos solamente la más simple de caso: todas las operaciones de \bf{бинарны} (es decir, de dos argumentos), y todos \bf{левоассоциативны} (es decir, en igualdad de prioridades se realizan de izquierda a derecha). Entre paréntesis están permitidos.
+
+Podamos establecer una dos pilas: una para los números y otro para las operaciones y los paréntesis (es decir, la pila de caracteres). Inicialmente, ambos de la pila están vacíos. Para la segunda pila vamos a mantener la condición previa de que todas las operaciones se organizan en él por estricto orden descendente de prioridad, si uno se aleja de la cima de la pila. Si en la pila hay paréntesis, se organiza cada unidad de operaciones, que se encuentra entre paréntesis, y toda la pila en este caso, no necesariamente ordenadas por relevancia.
+
+Vamos a ir en fila de izquierda a derecha. Si el elemento actual --- número o variable, lo ponemos en la pila el valor de este número variable. Si el elemento actual --- paréntesis de apertura, lo ponemos en la pila. Si el elemento actual --- paréntesis, lo vamos a expulsar de la pila y de realizar todas las operaciones hasta que nosotros no aprendemos de la llave de apertura (es decir, en otras palabras, encontrando un paréntesis de cierre, llevamos a cabo todas las operaciones que se encuentran dentro de este paréntesis). Por último, si el elemento actual --- operación, mientras en la parte superior de la pila se encuentra la operación con el mismo o mayor prioridad, vamos a expulsar, y aplicarla.
+
+Después de que nos encargaremos de toda la cadena, en la pila de operaciones aún pueden quedar algunas operaciones que aún no se han calculado, y se necesita realizar en todos ellos (es decir, actuamos como sucede cuando encontramos un paréntesis de cierre).
+
+He aquí la implementación de este método en el ejemplo de las operaciones ordinarias de $+-*/\%$:
+
+\code
+bool delim (char c) {
+return c == ' ';
+}
+
+bool is_op (char c) {
+return c=='+' || c=='-' || c=='*' || c=='/' || c=='%';
+}
+
+int priority (char op) {
+return
+op == '+' || op == '-' ? 1 :
+op == '*' || op == '/' || op == '%' ? 2 :
+-1;
+}
+
+void process_op (vector<int> & st, char op) {
+int r = st.back(); st.pop_back();
+int l = st.back(); st.pop_back();
+switch (op) {
+case '+': st.push_back (l + r); break;
+case '-': st.push_back (l - r); break;
+case '*': st.push_back (l * r); break;
+case '/': st.push_back (l / r); break;
+case '%': st.push_back (l % r); break;
+}
+}
+
+int calc (string & s) {
+vector<int> st;
+vector<char> op;
+for (size_t i=0; i<s.length (); i++)
+if (!delim (s[i]))
+if (s[i] == '(')
+op.push_back ('(');
+else if (s[i] == ')') {
+while (op.back() != '(')
+process_op (st, op.back()), op.pop_back();
+op.pop_back();
+}
+else if (is_op (s[i])) {
+char curop = s[i];
+while (!op.empty() && priority(op.back()) >= priority(s[i]))
+process_op (st, op.back()), op.pop_back();
+op.push_back (curop);
+}
+else {
+string operand;
+while (i < s.length() && isalnum (s[i])))
+operand += s[i++];
+--i;
+if (isdigit (operand[0]))
+st.push_back (atoi (operand.c_str()));
+else
+st.push_back (get_variable_val (operand));
+}
+while (!op.empty())
+process_op (st, op.back()), op.pop_back();
+return st.back();
+}
+\endcode
+
+Por lo tanto, hemos aprendido a calcular el valor de la expresión a $O (n)$, y somos implícitamente se beneficiaron de usa notación polaca inversa: colocamos la operación en ese orden, cuando en el momento del cálculo ordinario de la operación de sus dos operandos ya calculados. Ligeramente modificando la anterior algoritmo, se puede obtener la expresión en la polaca inversa нотаци y de forma explícita.
+
+
+\h2{Unarios operación}
+
+Ahora, supongamos que la expresión contiene unarios de la operación (es decir, de un argumento). Por ejemplo, especialmente frecuente unario el más y el menos.
+
+Una de las diferencias de este caso radica en la necesidad de determinar si la operación actual унарной o binaria.
+
+Se puede observar que antes de унарной de la operación es siempre vale la pena o de otra operación o de un paréntesis de apertura, o nada en absoluto (si se encuentra en el principio de la línea). Antes de una operación binaria, por el contrario, siempre vale la pena o el operando (número/variable), o un paréntesis de cierre. Por lo tanto, basta con tener alguna bandera para indicar si la siguiente operación de estar унарной o no.
+
+Puramente реализационная finura --- como distinguir unarios y binarios de la operación cuando se extrae de la pila y el cálculo. Aquí se puede, por ejemplo, para unarios operaciones en lugar del símbolo $s[i]$ a poner en la pila $-s[i]$.
+
+La prioridad para unarios de las operaciones se debe elegir por lo que para él era más de las prioridades de todos los binarios de las operaciones.
+
+Además, hay que destacar que el unarios de la operación, de hecho, es правоассоциативными --- si van seguidas de varios unarios de las operaciones, se deben procesar de derecha a izquierda (para la descripción de este caso, véase más adelante; aquí el código toma en cuenta правоассоциативность).
+
+De aplicación para las operaciones binarias $+-*/$ y unarios operaciones de $a+-$:
+
+\code
+bool delim (char c) {
+return c == ' ';
+}
+
+bool is_op (char c) {
+return c=='+' || c=='-' || c=='*' || c=='/' || c=='%';
+}
+
+int priority (char op) {
+if (op < 0)
+return 4; // op == -'+' || op == -'-'
+return
+op == '+' || op == '-' ? 1 :
+op == '*' || op == '/' || op == '%' ? 2 :
+-1;
+}
+
+void process_op (vector<int> & st, char op) {
+if (op < 0) {
+int l = st.back(); st.pop_back();
+switch (-op) {
+case '+': st.push_back (l); break;
+case '-': st.push_back (-l); break;
+}
+}
+else {
+int r = st.back(); st.pop_back();
+int l = st.back(); st.pop_back();
+switch (op) {
+case '+': st.push_back (l + r); break;
+case '-': st.push_back (l - r); break;
+case '*': st.push_back (l * r); break;
+case '/': st.push_back (l / r); break;
+case '%': st.push_back (l % r); break;
+}
+}
+}
+
+int calc (string & s) {
+bool may_unary = true;
+vector<int> st;
+vector<char> op;
+for (size_t i=0; i<s.length (); i++)
+if (!delim (s[i]))
+if (s[i] == '(') {
+op.push_back ('(');
+may_unary = true;
+}
+else if (s[i] == ')') {
+while (op.back() != '(')
+process_op (st, op.back()), op.pop_back();
+op.pop_back();
+may_unary = false;
+}
+else if (is_op (s[i])) {
+char curop = s[i];
+if (may_unary && isunary (curop)) curop = -curop;
+while (!op.empty() && (
+curop >= 0 && priority(op.back()) >= priority(curop)
+|| curop < 0 && priority(op.back()) > priority(curop))
+)
+process_op (st, op.back()), op.pop_back();
+op.push_back (curop);
+may_unary = true;
+}
+else {
+string operand;
+while (i < s.length() && isalnum (s[i])))
+operand += s[i++];
+--i;
+if (isdigit (operand[0]))
+st.push_back (atoi (operand.c_str()));
+else
+st.push_back (get_variable_val (operand));
+may_unary = false;
+}
+while (!op.empty())
+process_op (st, op.back()), op.pop_back();
+return st.back();
+}
+\endcode
+
+Vale la pena señalar que en los casos más sencillos, por ejemplo, cuando de unarios operaciones permitidos sólo $+$ y$$, правоассоциативность no juega ningún papel, por lo tanto, en tales situaciones, ninguna de las complicaciones en el esquema no se puede escribir. Es decir, el ciclo de:
+
+\code
+while (!op.empty() && (
+curop >= 0 && priority(op.back()) >= priority(curop)
+|| curop < 0 && priority(op.back()) > priority(curop))
+)
+process_op (st, op.back()), op.pop_back();
+\endcode
+
+Se puede reemplazar con:
+
+\code
+while (!op.empty() && priority(op.back()) >= priority(curop))
+process_op (st, op.back()), op.pop_back();
+\endcode
+
+
+\h2{Правоассоциативность}
+
+Правоассоциативность operador significa que en igualdad de las prioridades de los operadores se evalúan de derecha a izquierda (respectivamente, левоассоциативность - cuando la izquierda a la derecha).
+
+Como ya se ha señalado anteriormente, los operadores unarios son normalmente правоассоциативными. Otro ejemplo es normalmente la operación de exponenciación se considera правоассоциативной (de hecho, a^b^c generalmente se considera a^(b^c), y no (a^b)^c).
+
+¿Cuáles son las diferencias se deben realizar en el algoritmo para manejar correctamente правоассоциативность? En realidad, los cambios son necesarios más mínimo. La única diferencia se manifiesta sólo en caso de empate, las prioridades, y es el hecho de que las operaciones de igual prioridad, se encuentran en la parte superior de la pila, no se deben realizar antes de la operación actual.
+
+Por lo tanto, las únicas diferencias se deben realizar en función calc:
+
+\code
+int calc (string & s) {
+...
+while (!op.empty() && (
+left_assoc(curop) && priority(op.back()) >= priority(curop)
+|| !left_assoc(curop) && priority(op.back()) > priority(curop)))
+...
+}
+\endcode

@@ -1,0 +1,82 @@
+\h1{Voronoi Diagram in 2D}
+
+\h2{Definition}
+
+Given $n$ points $P_i(x_i,y_i)$ in the plane. Consider a decomposition of the plane with $n$ regions of $V_i$ (called Voronoi polygons or Voronoi cells, sometimes --- the proximity polygons, Dirichlet cells, breaking Thiessen), where $V_i$ --- the set of all points in the plane that are closer to the point $P_i$ than to all other points $P_k$:
+$$ V_i = \{ (x,y): \rho ((x,y), P_i) = \min_{ k = 1 \ldots N } \rho ((x,y), P_k) \} $$
+
+The divisions of the plane called the Voronoi diagram of this set of points $P_k$.
+
+Here $\rho(p,q)$ --- specified metric, usually the standard Euclidean metric: $\rho(p,q) = \sqrt{ (x_p-x_q)^2 + (y_p-y_q)^2 }$, but below will be considered and the case of the so-called Manhattan metric. Hereinafter, unless specified otherwise, will be considered the case of the Euclidean metric
+
+Voronoi cells are convex polygons, some are infinite. Point, owned according to the definition of several Voronoi cells, is usually attributed to several cells (for the Euclidean metric the set of such points has measure zero; in the case of the Manhattan metric is a bit more complicated).
+
+Such polygons were first studied extensively by the Russian mathematician Voronoy (1868-1908 years).
+
+\h2{Properties}
+
+\ul{
+
+\li the Voronoi Diagram is a planar graph, so it has $O(n)$ of vertices and edges.
+
+\li let us fix any $i=1 \ldots n$. Then for each $j=1 \ldots n, j \ne i$ take the straight line --- the perpendicular bisector of the segment $(P_i,Integer)$; consider the half plane formed by the straight line which contains the point $P_i$. Then the intersection of all half-planes for each $j$ will give the Voronoi cell $P_i$.
+
+\li Each vertex of the Voronoi diagram is the center of a circle drawn through any three points of the set $P$. These circles essentially are used in many proofs related to Voronoi diagrams.
+
+\li the Voronoi Cell $V_i$ is infinite if and only if the point $P_i$ lies on the boundary of the convex hull of a set $P_k$.
+
+\li Consider a graph that is dual to the Voronoi diagram, i.e. in this graph the vertices are the points $P_i$, and the rib is between points $P_i$ and $Integer$ if their Voronoi cell $V_i$ and $V_j$ share an edge. Then, provided that no four points lie on a circle, is dual to the graph Voronoi diagram is the Delaunay triangulation (which has many interesting properties).
+
+}
+
+\h2{Application}
+
+The Voronoi diagram is a compact data structure which stores all necessary information to solve the many problems of intimacy.
+
+The following tasks the time required to build the Voronoi diagram, in the asymptotics is not considered.
+
+\ul{
+
+\li Finding the nearest point for each.
+
+Let us note a simple fact: if the point $P_i$ is the nearest point $Integer$, the point $Integer$ has a cell edge in $V_i$. It follows that to find each point next to it, it is enough to view the edges of its Voronoi cell. However, each edge belongs to exactly two cells, so it will be visited exactly two times, and due to the linearity of number of edges we get the solution to this problem is $O(n)$.
+
+\li finding the convex hull.
+
+Remember that the vertex belongs to the convex hull if and only if its Voronoi cell is innite. Then we find in the chart any innite Voronoi edge, and start to move in any fixed direction (e.g., counterclockwise) on the cell containing this edge until you reach the next endless ribs. Then we will pass through this edge into a neighboring cell and continue the crawl. As a result, all visited edges (except infinite) will be the parties required convex hull. Obviously, the algorithm is $O(n)$.
+
+\li finding a Euclidean minimum spanning tree.
+
+You want to find a minimal spanning tree with vertices in the given points $P$, connecting all these dots. If you apply standard methods of the theory of graphs, because graph in this case is $O(n^2)$ edges, even the optimal algorithm will have a lower complexity.
+
+Consider a graph dual to the Voronoi diagram, i.e. the Delaunay triangulation. It can be shown that finding the minimum Euclidean skeleton is equivalent to constructing the skeleton of the Delaunay triangulation. Indeed, in \algohref=mst_prim{the Prim's algorithm} is searched each time the shortest edge between the two moustaki points; if we fix one point of the set, then the closest to it point has an edge in the Voronoi cell and Delaunay triangulations will be present the edge to the nearest point of which was to be proved.
+
+Triangulation is a planar graph, i.e. it has linear number of edges, so it can be applied with \algohref=mst_kruskal_with_dsu{algorithm Kruskal} and obtain an algorithm with running time $O(n \log n)$.
+
+\li Locating the largest empty circle.
+
+You want to find the circumference of the largest radius that does not contain any of the points $P_i$ (the center of the circle must lie inside the convex hull of the points $P_i$). Note that because the function of the maximum radius of the circle at the point $f(x,y)$ is strictly monotonic within each Voronoi cell, it reaches its maximum at one of the vertices of the Voronoi diagram, or the intersection of the ribs of the diagram and the convex hull (and the number of such points is not more than twice the number of edges of the graph). Thus, it only remains to sort out these points and for each find the nearest, i.e. the solution is $O(n)$.
+
+}
+
+\h2{a Simple algorithm for constructing Voronoi diagrams for $O(n^4)$}
+
+Voronoi diagrams --- a rather well studied object, and obtained for them many different algorithms operating at optimal complexity $O (n \log n)$, and some of these algorithms even work for an average of $O (n)$. However, all these algorithms are very complex.
+
+Let us consider here the simplest algorithm, based on the above property that each Voronoi cell is an intersection of half-planes. Let us fix $i$. Will spend between $P_i$ and each point $Integer$ direct --- the perpendicular bisector, then we cross in pairs all the direct --- get $O(n^2)$ points, and each will check the identity for all $n$ half-planes. As a result, over $O(n^3)$ operations, we get all vertices of the Voronoi cell $V_i$ (there will be no more than $n$, so we can without compromising the asymptotics sort them by polar angle), and only the construction of the Voronoi diagram will take $O(n^4)$ operations.
+
+\h2{a special Case of the metric}
+
+Consider the following metric:
+
+$$ \rho(p,q) = \max (|x_p-x_q|, |y_p-y_q|) $$
+
+To begin the review with analysis of the simplest case --- case of two points $A$ and $B$.
+
+If $A_x=B_x$ and $A_y=B_y$, then the Voronoi diagram will be respectively vertically or horizontal line.
+
+Otherwise, the Voronoi diagram will look like "area": cut at angle $45$ degrees in the rectangle formed by the points $A$ and $B$, and horizontal/vertical rays from its endpoints, depending on, whether long vertical side of the rectangle, or horizontal.
+
+Special case --- when this rectangle has the same length and width, i.e. $|A_x-B_x| = |A_y-B_y|$. In this case there will be two infinite areas ("corners" formed by two rays, parallel to the axes), which by definition should belong to both cells. In this case, further define the condition, how to understand them (sometimes artificially impose a rule that every corner belongs to the cell).
+
+Thus, for two points the Voronoi diagram in the given metric is a non-trivial object, and in the case of a larger number of points, these figures will need to be able to quickly cross.

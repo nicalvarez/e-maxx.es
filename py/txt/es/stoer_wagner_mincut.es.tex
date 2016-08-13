@@ -1,0 +1,143 @@
+\h1{Encontrar el mínimo de la sección. El Algoritmo De Las Cortinas-Wagner}
+
+
+\h2{el Planteamiento de la tarea}
+
+Dan неориентированный ponderado conde de $G$ c $n$ cimas $m$ las costillas. El corte $C$ se llama un subconjunto de vértices (de hecho, la incisión --- ruptura de los vértices en dos conjuntos: pertenezca a $C$ y todos los demás). El peso de la incisión se llama la suma de los pesos de las costillas, que pasan a través de la incisión, es decir, como las costillas, exactamente un extremo de los cuales pertenece a $C$:
+
+$$ w(C) = \sum_{(v,u) \in E, \atop u \in C, v \not\in C} c(v,u), $$
+
+donde a través de la $E$ denotan el conjunto de todas las aristas del conde de $G$, y a través de $c(v,u)$ --- peso de la aleta $(v,u)$.
+
+Es necesario encontrar \bf{incisión de peso mínimo}.
+
+A veces esta tarea se llama "global mínima incisión" --- en contraste con la tarea, cuando se configura en la cima-escorrentía y la fuente, y se desea encontrar el mínimo de corte $C$, contiene la escorrentía y no contiene la fuente. Mundial de mínima incisión es igual al mínimo entre los cortes que el valor mínimo de toda clase de los pares de la fuente-sumidero.
+
+Aunque esta tarea se puede resolver mediante el algoritmo de encontrar el flujo máximo (ejecutarla $O(n^2)$ más para todo tipo de parejas de la fuente y de la escorrentía), sin embargo, a continuación se describe mucho más fácil y rápido el algoritmo propuesto Матильдой las Cortinas (Mechthild Stoer) y frank wagner (Frank Wagner) en 1994
+
+En general, se permiten nudos y múltiplos de las costillas, aunque, claro, bisagras absolutamente no influyen en el resultado, y todos los múltiplos de la aleta se puede sustituir por una costilla con su peso sumario. Por lo tanto, estamos para simplificar, vamos a suponer que en la entrada de la columna de la bisagra y los múltiplos de la aleta de la falta.
+
+
+\h2{Descripción del algoritmo}
+
+\bf{la idea básica} el algoritmo es muy simple. Vamos a iterativo, repetir el siguiente proceso: encontrar el mínimo de una incisión entre cualquier par de vértices $s$ y $t$ y, a continuación, la combinación de estos dos picos en una (uniendo las listas de adyacencia). Finalmente, después de un $n-1$ iteración, el conde de contracción en la única cima y el proceso se detiene. Después de esto, la respuesta será el mínimo entre todos los $n-1$ encontrados cortes. De hecho, en cada una $i$en los estadios encontrado mínima incisión $C_i$ entre los vértices de los $s_i$ y $t_i$ o sea buscada mundial de mínima incisión, o, por el contrario, la cima de $s_i$ y $t_i$ desventajoso asignarse a diferentes conjuntos, por lo tanto, nada de lo que ухудшаем, la combinación de estos dos picos en una sola.
+
+Por lo tanto, hemos reducido la tarea a la siguiente: para este conde encontrar \bf{mínima incisión entre alguna arbitraria, cada par de vértices} $s$ y $t$. Para resolver esta tarea, se propone el siguiente, también un proceso iterativo. Introducimos un conjunto de vértices de $A$, que inicialmente contiene una única arbitrario a la cima. En cada paso se encuentra la cima, \bf{más fuertemente asociada} con la multitud de $A$, es decir, la cima de $v \not\in A$, para que la siguiente cantidad de muestra:
+
+$$ w(v,A) = \sum_{(v,u) \in E, \atop u \in A} c(v,u) $$
+
+(es decir, es mayor la suma de los pesos de las costillas, un extremo de los cuales $v$, y el otro pertenece a $A$).
+
+Una vez más, este proceso se haya completado a través de $n-1$ iteración, cuando todos los vértices pasarán a la multitud de $A$ (por cierto, este proceso es muy similar al \algohref=mst_prim{el algoritmo de la prima}). Entonces, como afirma el \bf{teorema de las Cortinas-wagner}, si nos denota por $s$ y $t$ los dos últimos añadidos a $A$ a la cima, es mínima incisión entre los vértices de los $s$ y $t$ estará compuesta por un único vértice --- $t$. La prueba de este teorema se describe en la siguiente sección (como a menudo es el caso, por sí sólo no contribuye a la comprensión del algoritmo).
+
+Así, el total de \bf{el esquema del algoritmo} de las Cortinas-wagner es el siguiente. El algoritmo consiste en $n-1$ de la fase. En cada fase de la multitud de $A$, primero se basa consista en alguno de los vértices; se cuentan de inicio de peso de los vértices $w(v,A)$. A continuación, se produce $n-1$ iteración, cada uno de ellos selecciona un vértice $de u$ a con el valor mayor de $w(v,A)$ y se agrega a la multitud de $A$, después de lo cual se vuelven a calcular el valor de $w$ para el resto de los vértices (para lo cual, obviamente, hay que ir a por todos los bordes de la lista de adyacencia el vértice seleccionado $u$). Después de realizar todas las iteraciones que almacenamos en $s$ y $t$ los números de las últimas dos agregados de los vértices, así como el valor encontrado mínima incisión entre $s$ y $t$ se puede tomar el valor de $w(t,A \setminus t)$. A continuación, es necesario comparar encontrado mínima incisión actual de la respuesta, si es menor, actualizar la respuesta. Pasar a la siguiente fase.
+
+Si no utiliza estructuras de datos complejas, la pieza crítica será encontrar la cima de mayor magnitud $w$. Si la producción de este a $O(n)$, entonces, teniendo en cuenta que el total de las fases de $n-1$ y $n-1$ iteración en cada una, total \bf{asíntotas algoritmo} se obtiene $O(n^3)$.
+
+Si para hallar el vértice de mayor magnitud $w$ a utilizar \bf{Фибоначчиевы de la pila} (que permiten aumentar el valor de la clave por $O(1)$, en promedio, y sacar el máximo provecho a $O(\log n)$ en promedio), todos relacionados con la multitud de $A$ la operación de una fase a llevar a cabo por $O(m + n \n log n)$. Total asíntotas algoritmo en este caso es $O(n m + n^2 \log n)$.
+
+
+\h2{la Prueba del teorema de las Cortinas-wagner}
+
+Recordemos la condición de este teorema. Si se agrega en la multitud de $A$ de la cola de todos los vértices, cada vez que añadas la cima más fuertemente asociada con la multitud, se denota предпоследнюю de valor agregado a la cima a través de la $s$, y la última --- a través de $t$. Entonces mínimo de $s$-$t$ incisión es de la única de la cima --- $t$.
+
+Para la prueba considere arbitrario $s$-$t$ corte $C$ y mostraremos que su peso no puede ser menor que el peso de la corte, compuesta por un único vértice $t$:
+
+$$ w(\{t\}) \le w(C). $$
+
+Para ello, probaremos el siguiente hecho. Que $A_v$ --- estado de la multitud de $A$, inmediatamente antes de la adición de la cima de $v$. Que $C_v$ --- incisión de la multitud de $A_v \cup v$, inducida por la incisión $C$, es decir, $C_v$ es igual a la intersección de estos dos conjuntos de vértices). En adelante, la cima de $v$ se llama activa (con respecto a la sección $C$), si la cima de $v$ anterior añadida en el $A$ el vértice pertenecen a diferentes partes de la incisión $C$. Entonces, se afirma que para cualquier activo de la cima de $v$ se cumple la desigualdad:
+
+$$ w(v,A_v) \le w(C_v). $$
+
+En particular, el $t$ es un activo de la cima (porque delante de él se le añadía la cima de la $s$) y $v = t$ es la desigualdad se convierte en la afirmación del teorema:
+
+$$ w(t,A_t) = w(\{t\}) \le w(C_t) = w(C). $$
+
+Así, vamos a demostrar la desigualdad, para lo cual utilizaremos el método de la inducción matemática.
+
+Para el primer activo de la cima de $v$ es la desigualdad de verdad (lo que es más, se dirige a la igualdad) --- ya que todos los vértices de $A_v$ pertenecen a una parte de la sección y $v$ --- otro.
+
+Que ahora esta desigualdad se cumple para todos los activos de los vértices hasta cierto cima de $v$, probaremos para la próxima activa la cima de $u$. Para ello, transformamos la parte izquierda:
+
+$$ w(u,A_u) \equiv w(u,A_v) + w(u,A_u \setminus A_v). $$
+
+En primer lugar, tenga en cuenta que:
+
+$$ w(u,A_v) \le w(v,A_v), $$
+
+--- esto se deduce del hecho de que cuando una multitud de $A$ es $A_v$, en él se ha añadido es la cima de $v$ $u$, entonces, ella tenía el mayor valor de $w$.
+
+Además, dado que $w(v,A_v) \le w(C_v)$ por la suposición de inducción, tenemos:
+
+$$ w(u,A_v) \le w(C_v), $$
+
+de donde tenemos:
+
+$$ w(u,A_u) \le w(C_v) + w(u,A_u \setminus A_v). $$
+
+Ahora, tenga en cuenta que la punta de la $u$ y todos los vértices de $A_u \setminus A_v$ se encuentran en diferentes partes de la incisión $C$, por lo tanto, este valor $w(u,A_u \setminus A_v)$ representa la suma de las ponderaciones de las costillas, que se consideran en $w(C_u)$, pero aún no han sido tenidas en cuenta en $w(C_v)$, de donde obtenemos:
+
+$$ w(u,A_u) \le w(C_v) + w(u,A_u \setminus A_v) \le w(C_u), $$
+
+que se quería demostrar.
+
+Hemos demostrado la relación $w(v,A_v) \le w(C_v)$, y de él, como ya se ha mencionado anteriormente, y toda teorema.
+
+
+\h2{Aplicación}
+
+Para más sencilla y clara de la aplicación (con асимптотикой $O(n^3)$) se ha seleccionado la vista de la gráfica de una matriz de adyacencia. La respuesta se almacena en las variables $\rm best\_cost$ y $\rm best\_cut$ (los costos de mínima incisión y los mismos vértices contenidos en él).
+
+Para cada vértice en el array $\rm exist$ se almacena, ¿existe, o que se unió a otro de la cima. En la lista de ${\rm v}[i]$ para cada concisa de la cima de la $i$ se almacenan los números originales de los vértices que se han condensado en esta cima de $i$.
+
+El algoritmo consiste en $n-1$ de la fase (el ciclo de la variable $\rm ph$). En cada fase del primero de todos los vértices están fuera de la multitud de $A$, para lo cual la matriz $\rm in\_a$ se rellena con ceros, y la conectividad $w$ todos los vértices de cero. En cada una de $n-{\rm ph}$ iteración se encuentra la cima de $\rm sel$ de mayor magnitud $w$. Si es la última iteración, es la respuesta, si es necesario, se actualiza y penúltima $\rm prev$ y la última de $\rm sel$ vértices seleccionados se combinan en una sola. Si no es la última iteración, entonces $\rm sel$ se añade en una multitud de $A$, después de lo cual se convierten en el peso de todos los demás vértices.
+
+Se debe notar que el algoritmo en el curso de su trabajo "estropea" el conde de $\rm g$, por lo tanto, si todavía necesitará más adelante, es necesario guardar una copia de la misma antes de la llamada a la función.
+
+\code
+const int MAXN = 500;
+int n, g[MAXN][MAXN];
+int best_cost = 1000000000;
+vector<int> best_cut;
+
+void mincut() {
+vector<int> v[MAXN];
+for (int i=0; i<n; ++i)
+v[i].assign (1, i);
+int w[MAXN];
+bool exist[MAXN], in_a[MAXN];
+memset (exist, true, sizeof exist);
+for (int ph=0; ph<n-1; ++ph) {
+memset (in_a, false, sizeof in_a);
+memset (w, 0, sizeof w);
+for (int it=0, prev; it<n-ph; ++it) {
+int sel = -1;
+for (int i=0; i<n; ++i)
+if (exist[i] && !in_a[i] && (sel == -1 || w[i] > w[sel]))
+sel = i;
+if (it == n-ph-1) {
+if (w[sel] < best_cost)
+best_cost = w[sel], best_cut = v[sel];
+v[prev].insert (v[prev].end(), v[sel].begin(), v[sel].end());
+for (int i=0; i<n; ++i)
+g[prev][i] = g[i][prev] += g[sel][i];
+exist[sel] = false;
+}
+else {
+in_a[sel] = true;
+for (int i=0; i<n; ++i)
+w[i] += g[sel][i];
+prev = sel;
+}
+}
+}
+}
+\endcode
+
+
+\h2{Literatura}
+
+\ul{
+\li \book{Mechthild Stoer, Frank Wagner}{A Simple Min-Cut Algorithm}{1997}{stoer_wagner_mincut.pdf}
+\li \book{Kurt Mehlhorn, Christian Uhrig}{The minimum cut algorithm of Stoer y Wagner}{1995}{mehlhorn_mincut_stoer_wagner.pdf}
+}

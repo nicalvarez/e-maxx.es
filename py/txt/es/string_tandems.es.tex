@@ -1,0 +1,378 @@
+\h1{ Buscar todas las repeticiones en tándem en línea. El Algoritmo De Maine-Lorenz }
+
+Dada una cadena $s$ de longitud $n$.
+
+\bf{disposición tándem repetición} (tandem repeat) en ella se denominan las dos apariciones de cualquier subcadena en una fila. En otras palabras, la repetición en tándem se describe un par de índices de $i < j$ tales que la subcadena $s[i \ldots j]$ --- se trata de dos filas idénticas, grabados consecutivos.
+
+La tarea consiste en \bf{encontrar todas las repeticiones en tándem}. Versiones simplificadas de esta tarea: encontrar \bf{cualquier} repetición en tándem o encontrar \bf{длиннейший} tándem repetir.
+
+\bf{nota}. Para evitar confusiones, todas las filas en el artículo vamos a considerar el 0-indexados, es decir, el primer carácter de la cadena tiene un índice de 0.
+
+Se describe aquí el algoritmo fue publicado en 1982 Мейном y Лоренцем (véase la bibliografía).
+
+
+\h2{ Ejemplo }
+
+Considere las repeticiones en tándem en el ejemplo de algún simple de la cadena, por ejemplo:
+
+$$ "acababaee" $$
+
+En esta línea se encuentran las siguientes repeticiones en tándem:
+
+\ul{
+\li $[2;5] = "abab"$
+\li $[3;6] = "baba"$
+\li $[7;8] = "ee"$
+}
+
+Otro ejemplo:
+
+$$ "abaaba" $$
+
+Aquí sólo hay dos en tándem de repetición:
+
+\ul{
+\li $[0;5] = "abaaba"$
+\li $[2;3] = "aa"$
+}
+
+
+\h2{ Número de repeticiones en tándem }
+
+Hablando en general, de repeticiones en tándem en la línea de la longitud $n$ puede ser del orden de $O(n^2)$.
+
+Un ejemplo claro es la línea, compuesta de $n$ de las mismas letras --- en esta línea disposición tándem repetición es cualquier subcadena par de longitud, de los cuales aproximadamente $n^2 / 4$. En general, cualquier периодичная línea con el breve periodo que va a contener mucha de repeticiones en tándem
+
+Por otro lado, este hecho por sí solo no impide la existencia de un algoritmo con асимптотикой $O (n \log n)$, debido a que el algoritmo puede emitir repeticiones en tándem en una u otra forma comprimida, en grupos de varias piezas a la vez.
+
+Además, existe el concepto de \bf{serie} --- cuatros números que describen un grupo de periódicos de subcadenas. Se ha demostrado que el número de serie en cualquier cadena lineal con relación a la longitud de la cadena.
+
+Sin embargo, descrito a continuación, el algoritmo no utiliza el concepto de series, así que no vamos a detallar en este concepto.
+
+Aquí y en otros lugares de los resultados en relación con el número de repeticiones en tándem:
+
+\ul{
+
+\li se Sabe que si solamente se considera primitiva de repeticiones en tándem (es decir, como las dos mitades de las que no son múltiplos de cadenas), su número en cualquier fila --- $O (n \log n)$.
+
+\li Si codificar las repeticiones en tándem тройками números (llamados тройками Крочемора (Crochemore)) $(i,p,r)$ (donde $i$ --- la posición de inicio, $p$ --- longitud de la repetición de la subcadena, $r$ --- número de repeticiones), todas las repeticiones en tándem de cualquier línea puede mostrar por medio de un $O (n \log n)$ de esos triples. (Tal resultado se obtiene en la salida del algoritmo de Крочемора encontrar todas las repeticiones en tándem.)
+
+\li Línea de fibonacci, que se definen de la siguiente manera:
+
+$$ t_0 = b, $$
+$$ t_1 = a, $$
+$$ t_i = t_{i-1} + t_{i-2}, $$
+
+son "fuertemente" периодичными.
+
+El número de repeticiones en tándem en $i$-oh la barra de retroceso de fibonacci de la longitud de $f_i$, incluso comprimidos con la ayuda de triples Крочемора, es $O (f_n \log f_n)$.
+
+El número de primitivas de repeticiones en tándem en las líneas de fibonacci --- también tiene el orden de los $O (f_n \log f_n)$.
+
+}
+
+
+\h2{ el Algoritmo de maine-lorenz }
+
+La idea del algoritmo de maine-lorenz bastante estándar: es un algoritmo \bf{"divide-y-vencerás"}.
+
+Brevemente, y es que la cadena original se divide por la mitad, la solución se ejecuta en cada una de las dos mitades por separado (así nos encontramos con repeticiones en tándem, se encuentran sólo en la primera o sólo en la segunda mitad). Allá viene la parte más difícil --- este es el hallazgo de repeticiones en tándem, que comienzan en la primera mitad y terminan en la segunda (la llamaremos tales repeticiones en tándem para la comodidad \bf{пересекающими}). Como esto se hace --- y la esencia del algoritmo de maine-lorenz; esto describiremos en detalle a continuación.
+
+Asíntotas algoritmo "divide-y-vencerás" bien investigada. En particular, para nosotros es importante, que si aprendemos a buscar la travesía de las repeticiones en tándem en la línea de la longitud $n$ $O(n)$, entonces el total asíntotas de todo el algoritmo obtiene $O (n \log n)$.
+
+
+\h3{ Buscar cruzan de repeticiones en tándem }
+
+Así, el algoritmo de maine-lorenz limitan al hecho de que sobre una determinada línea de $s$ aprender a buscar toda la travesía de las repeticiones en tándem, es decir, tales que comienzan en la primera mitad de la fila, y terminan --- en la segunda.
+
+Se denota por $u$ y $v$ las dos mitades de la cadena $s$:
+
+$$ s = u + v $$
+
+(su longitud aproximadamente igual a la longitud de la cadena $s$, dividido por la mitad).
+
+
+\h4{ la Derecha y la izquierda de las repeticiones en tándem }
+
+Considere arbitrario en tándem repetición y mira a su medio, el símbolo (más precisamente, en el carácter con el que comienza la segunda mitad del tándem; es decir, si la repetición en tándem --- es la subcadena $s[i \ldots j]$, entonces la media de símbolo $(i+j+1)/2$.
+
+Entonces llamemos a la repetición en tándem \bf{la izquierda o la derecha} dependiendo de dónde se encuentra este símbolo --- en la barra de $u$ o en línea, a $v$. (Se puede decir así: repetición en tándem se llama la izquierda, si la mayor parte se encuentra en la mitad izquierda de la fila de $s$; de otro modo --- tándem repetición se llama la derecha.)
+
+Aprenderemos a buscar \bf{todos los de la izquierda de repeticiones en tándem}; para la derecha, todo será igual.
+
+
+\h4{ la posición central $cntr$ tándem de repetición }
+
+Se denota la longitud de la búsqueda de la izquierda tándem a través de la repetición de $2k$ (es decir, la longitud de cada una de las mitades tándem de repetición - - - $k$). Examinemos el primer símbolo tándem de repetición, entra en la cadena $v$ (está en la barra de $s$ en la posición $length(u)$). Coincide con un carácter de pie en $k$ posiciones antes que él; se denota esta posición a través de $cntr$.
+
+\bf{Buscar todas las repeticiones en tándem vamos, escogiendo esta posición $cntr$}: es decir, encontramos, primero, las repeticiones en tándem con un valor de $cntr$ y, a continuación, con otro valor, etc. --- repasando todos los valores posibles de $cntr$ de $0 a$ a $length(u)-1$.
+
+\bf{por Ejemplo}, considere la siguiente línea:
+
+$$ s = "cac|ada" $$
+
+(el carácter de barra vertical separa las dos mitades de la $u$ y $v$)
+
+En tándem repetir $"caca"$ contenido en esta línea, se detecta, cuando nos vamos a ver el valor de $cntr = 1$ --- porque es en la posición $1$ vale la pena el símbolo 'a', que coincide con el primer carácter de un tándem de repetición, que han caído en la mitad $v$.
+
+
+\h4{ el Criterio de la disponibilidad de tándem de repetición con un centro $cntr$ }
+
+Así, debemos aprender para constatado por un valor de $cntr$ buscar rápidamente todas las repeticiones en tándem correspondiente.
+
+Recibimos este esquema (para abstracta de la fila que contiene la repetición en tándem $"abcabc"$):
+
+$$$
+\setlength{\unitlength}{2m m}
+
+\begin{picture}(30,20)
+
+\linethickness{0.075 mm}
+\put(0,10)%
+{\line(0,1){2}}
+\put(30,10)%
+{\line(0,1){2}}
+\put(0,10)%
+{\line(1,0){30}}
+\put(0,12)%
+{\line(1,0){30}}
+
+\put(10.5,10)%
+{\line(0,1){2}}
+\put(12,10)%
+{\line(0,1){2}}
+\put(11.25,6.1)%
+{\vector(0,1){3.4}}
+\put(10.5,5)%
+{$cntr$}
+
+\linethickness{0.4 mm}
+\put(15,10)%
+{\line(0,1){2}}
+\linethickness{0.075 mm}
+
+\put(9.3,10.5)
+{a}
+\put(10.8,10.5)
+{b}
+\put(12.3,10.5)
+{c}
+\put(13.8,10.5)
+{a}
+\put(15.3,10.5)
+{b}
+\put(16.8,10.5)
+{c}
+
+\put(12,12.5)%
+{\oval(3,0.6)[t]}
+\put(11.5,13.5)%
+{$l_2$}
+\put(16.5,12.5)%
+{\oval(3,0.6)[t]}
+\put(16,13.5)%
+{$l_2$}
+
+\put(9.75,9.5)%
+{\oval(1.5,0.6)[b]}
+\put(9.1,7.5)%
+{$l_1$}
+\put(14.25,9.5)%
+{\oval(1.5,0.6)[b]}
+\put(13.6,7.5)%
+{$l_1$}
+
+\end{picture}
+$$$
+
+Aquí a través de $l_1$ y $l_2$ hemos designado de la longitud de los dos trozos de tándem de repetición: $l_1$ --- es la longitud de la parte tándem de repetición hasta la posición $cntr-1$ y $l_2$ --- es la longitud de la parte tándem de repetición de $cntr$ hasta el final de una de las mitades de tándem de repetición. Por lo tanto, $l_1+l_2+l_1+l_2$ --- es la longitud del tándem de repetición.
+
+Echando un vistazo a esta imagen, se puede entender que \bf{necesaria y suficiente} la condición de que, con centro en la posición $cntr$ está en tándem de la longitud de la repetición de $2 l = 2 (l_1 + l_2) = 2 (length(u) - cntr)$, es la siguiente condición:
+
+\ul{
+
+\li Que $k_1$ --- este es el mayor número tal que $k_1$ caracteres antes de la posición $cntr$ coinciden con los últimos $k_1$ caracteres de la cadena $de u$a:
+
+$$ u[ cntr-k_1 \ldots cntr-1 ] == u[ length(u)-k_1 \ldots length(u)-1 ]. $$
+
+\li Que $k_2$ --- este es el mayor número tal que $k_2$ caracteres, a partir de la posición $cntr$, coinciden con los primeros $k_2$ caracteres de la cadena $v$:
+
+$$ u[ cntr \ldots cntr+k_2-1] == v[ 0 \ldots k_2-1 ]. $$
+
+\li Entonces se debe ejecutar:
+
+$$ \cases{
+l_1 \le k_1, \cr
+l_2 \le k_2.
+} $$
+
+}
+
+Este criterio puede ser \bf{reformule} de esta manera. Introduzcamos un determinado valor de $cntr$, entonces:
+
+\ul{
+
+\li Todas las repeticiones en tándem, que vamos ahora a detectar, tendrá una longitud de $2 l = 2 (length(u) - cntr)$.
+
+Sin embargo, tales repeticiones en tándem puede ser \bf{varios}: todo depende de la selección de la longitud de los trozos de $l_1$ y $l_2 = l - l_1$.
+
+\li Encontraremos $k_1$ y $k_2$, como se ha descrito anteriormente.
+
+\li Entonces adecuadas serán las repeticiones en tándem, para que la longitud de los trozos de $l_1$ y $l_2$ satisfacen las condiciones:
+
+$$ \cases{
+l_1 + l_2 = l = length(u) - cntr, \cr
+l_1 \le k_1, \cr
+l_2 \le k_2.
+} $$
+
+}
+
+
+\h4{ Algoritmo para encontrar las longitudes de $k_1$ y $k_2$ }
+
+Así, toda la tarea se reduce a un rápido cálculo de las longitudes de $k_1$ y $k_2$ para cada valor de $cntr$.
+
+Recordemos su definición:
+
+\ul{
+
+\li $k_1$ --- máximo un número que se ha realizado:
+
+$$ u[ cntr-k_1 \ldots cntr-1 ] == u[ length(u)-k_1 \ldots length(u)-1 ]. $$
+
+\li $k_2$ --- máximo un número que se ha realizado:
+
+$$ u[ cntr \ldots cntr+k_2-1] == v[ 0 \ldots k_2-1 ]. $$
+
+}
+
+En ambos consulta, puede responder a $O(1)$, usando \bf{\algohref=z_function{el algoritmo de encontrar Z}}:
+
+\ul{
+
+\li Para encontrar rápidamente los valores de $k_1$ antemano calcular Z la función de la cadena $\overline{u}$ (es decir, las líneas $u$, выписанной en orden inverso).
+
+Entonces el valor de $k_1$ para un determinado $cntr$ es simplemente igual al valor correspondiente de la matriz Z de la función.
+
+\li Para encontrar rápidamente los valores de $k_2$ antemano calcular Z la función de la cadena $v+\#+u$ a (es decir, las líneas $u$, приписанной a la línea $v$ a través de un carácter separador).
+
+Una vez más, el valor de $k_2$ para un determinado $cntr$ basta con tomar a partir del elemento de Z de la función.
+
+}
+
+
+\h4{ la Búsqueda de la derecha de repeticiones en tándem }
+
+Hasta este momento hemos trabajado sólo con la izquierda тандемными repeticiones.
+
+Para buscar derecha repeticiones en tándem, uno tiene que actuar de la misma manera: definimos el centro de $cntr$ como el carácter correspondiente al último carácter) tándem de repetición, ha cado en la primera fila.
+
+Entonces la longitud de la $k_1$ se determinará como el mayor número de caracteres hasta la posición $cntr$, ambos inclusive, y coincidiendo con los últimos caracteres de la cadena $u$. La longitud de la $k_2$ ser definido como el número máximo de caracteres a partir de $cntr+1$, y coincidiendo con los primeros caracteres de la cadena $v$.
+
+Por lo tanto, para identificar rápidamente los $k_1$ y $k_2$ será necesario contar previamente Z de la función para las cadenas de $\overline{u} + \# + \overline{v}$ y $v$, respectivamente. Después de esto, escogiendo un determinado valor de $cntr$, seguimos el mismo criterio vamos a encontrar todos los rectos de repeticiones en tándem.
+
+
+\h4{ Asíntotas }
+
+Асмиптотика algoritmo de maine-lorenz será, por lo tanto, $O (n \log n)$: debido a que este algoritmo es un algoritmo de divide-y-vencerás", cada uno de una forma recursiva de ejecutar que trabaja por el tiempo lineal con respecto a la longitud de la cadena: para cuatro filas por lineal del tiempo, se busca su \algohref=z_function{Z de la función} y, a continuación, se selecciona un valor de $cntr$ y muestra todos los grupos detectados de repeticiones en tándem.
+
+Las repeticiones en tándem se detectan por el algoritmo de maine-lorenz en forma de una especie de \bf{grupo}: estos cuatros $(cntr, l, k_1, k_2)$, cada uno de los cuales representa un grupo de repeticiones en tándem con la longitud de la $l$, centro $cntr$ y con todo tipo de longitudes de los trozos de $l_1$ y $l_2$, que cumplan las siguientes condiciones:
+
+$$ \cases{
+l_1 + l_2 = l, \cr
+l_1 \le k_1, \cr
+l_2 \le k_2.
+} $$
+
+
+
+\h2{ Aplicación }
+
+Veamos la implementación de un algoritmo de maine-lorenz, que por el tiempo $O (n \log n)$ encuentra todas las repeticiones en tándem de esta línea en un formato comprimido (en forma de grupos, se describen cuatro números).
+
+Con el fin de demostrar detectados en tándem repeticiones por hora $O (n^2)$ "разжимаются", y se muestran por separado. Esta conclusión, durante la solución de tareas reales será fácil de sustituir por otros más eficaces, de la acción, por ejemplo, en la búsqueda de наидлиннейшего tándem de repetición o contar el número de repeticiones en tándem.
+
+\code
+vector<int> z_function (const string & s) {
+int n = (int) s.length();
+vector<int> z (n);
+for (int i=1, l=0, r=0; i<n; ++i) {
+if (i <= r)
+z[i] = min (r-i+1, z[i-l]);
+while (i+z[i] < n && s[z[i]] == s[i+z[i]])
+++z[i];
+if (i+z[i]-1 > r)
+l = i r = i+z[i]-1;
+}
+return z;
+}
+
+void output_tandem (const string & s, int shift, bool left, int cntr, int l, int l1, int l2) {
+int pos;
+if (left)
+pos = cntr-l1;
+else
+pos = cntr-l1-l2-l1+1;
+cout << "[" << mayús + pos << ".." << mayús + pos+2*l-1 << "] = " << s.substr (pos, 2*l) << endl;
+}
+
+void output_tandems (const string & s, int shift, bool left, int cntr, int l, int k1, int k2) {
+for (int l1=1; l1<=l; ++l1) {
+if (left && l1 == l); break;
+if (l1 <= k1 && l-l1 <= k2)
+output_tandem (s, shift left, cntr, l, l1, l-l1);
+}
+}
+
+inline int get_z (const vector<int> & z, int i) {
+return 0<=i && i<(int)z.size() ? z[i] : 0;
+}
+
+void find_tandems (string s, int shift = 0) {
+int n = (int) s.length();
+if (n == 1) return;
+
+int nu = n/2, nv = n-nu;
+string u = s.substr (0, nu),
+v = s.substr (nu);
+string es = string (u.rbegin(), u.rend()),
+rv = string (v.rbegin(), v.rend());
+
+find_tandems (u, shift);
+find_tandems (v mayús + nu);
+
+vector<int> z1 = z_function (es),
+z2 = z_function (v + '#' + u),
+z3 = z_function (es + '#' + rv),
+z4 = z_function (v);
+for (int cntr=0; cntr<n; ++cntr) {
+int l, k1, k2;
+if (cntr < nu) {
+l = nu - cntr;
+k1 = get_z (z1, nu-cntr);
+k2 = get_z (z2, nv+1+cntr);
+}
+else {
+l = cntr - nu + 1;
+k1 = get_z (z3, nu+1 + nv-1-(cntr-nu));
+k2 = get_z (z4, (cntr-nu)+1);
+}
+if (k1 + k2 >= l)
+output_tandems (s, shift, cntr<nu, cntr, l, k1, k2);
+}
+}
+\endcode
+
+
+\h2{ Literatura }
+
+\ul{
+
+\li \href=http://www.cs.colorado.edu/department/publications/reports/docs/CU-CS-241-82.pdf{Michael Main, Richard J. Lorentz. \bf{An O (n log n) Algorithm for Finding All Repeticiones in a String} [1982]}
+
+\li Bill Smyth. \bf{Computing Patterns in Strings} [2003]
+
+\li bill smith. \bf{Métodos y algoritmos de cálculo en las filas} [2006]
+
+}

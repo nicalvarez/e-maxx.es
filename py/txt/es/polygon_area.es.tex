@@ -1,0 +1,22 @@
+<h1>Encontrar la superficie de un polígono simple</h1>
+
+<p>Deje que dan un simple polígono (es decir, sin self-intersections, pero no necesariamente convexa), definido por las coordenadas de sus vértices en el orden en el rastreo de las manecillas del reloj. Desea encontrar a su tamaño.</p>
+<h2>opción 1</h2>
+<p>Es fácil de hacer, si recorrer todas las aristas y doblar la plaza de trapecio, limitados de cada borde. La plaza es necesario tomar con el fin de signo, con lo que obtiene (gracias a la marca de toda la "sobrante" tamaño disminuirá). Es decir, la fórmula es la siguiente:</p>
+<formula>S += (X2 - X1) * (Y1 + Y2) / 2</formula>
+<p>Código:</p>
+<code>double sq (const vector<point> & fig.)
+{
+double res = 0;
+for (unsigned i=0; i<fig.size(); i++)
+{
+point
+p1 = i ? fig[i-1] : fig.back(),
+p2 = fig. [i];
+res += (p1.x - p2.x) * (p1.y + p2.y);
+}
+return fab (res) / 2;
+}</code>
+<h2>opción 2</h2>
+<p>se Puede hacer de otra manera. Elegimos arbitrariamente el punto O, переберем todas las costillas, añadiendo a la respuesta orientada hacia el área del triángulo formado por el borde y el punto O (consulte <algohref=oriented_area>, Orientada hacia el área del triángulo</algohref>). Una vez más, gracias a la marca, todo el exceso de tamaño se reducirá y sólo quedará la respuesta.</p>
+<p>Este método es bueno, que sea más fácil de resumir, en los casos más complejos (por ejemplo, cuando algunas de las partes - de rectas y arcos de circunferencia).</p>

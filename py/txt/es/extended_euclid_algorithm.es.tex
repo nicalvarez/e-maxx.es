@@ -1,0 +1,71 @@
+\h1{ Avanzado algoritmo de euclides }
+
+
+Mientras que \algohref=euclid_algorithm{"normal", el algoritmo de euclides} simplemente encuentra el máximo común divisor de dos números es de $a$ y $b$, un avanzado algoritmo de euclides encuentra además de NOD factores de $x$ y $y$ tales que:
+
+$$a \cdot x + b \cdot y = {\rm mcd} (a, b).$$
+
+Es decir, se busca que los factores mediante los cuales el NOD dos números se expresa a través de estos mismos números.
+
+
+\h2{el Algoritmo}
+
+Realizar el cálculo de estos factores en el algoritmo de euclides es muy fácil, basta con retirar la fórmula por la que se cambian al pasar de un par de $(a,b)$ a par $(b\%a,a)$ (signo de porcentaje nos referimos a la toma de resto de una división).
+
+Así, que hemos encontrado la solución $(x_1,y_1)$ tareas para la nueva pareja $(b\%a,a)$:
+
+$$ (b \% a) \cdot x_1 + a \cdot y_1 = g $$
+
+y queremos obtener una solución $(x,y)$ para nuestra pareja $(a,b)$:
+
+$$ a \cdot x + b \cdot y = g. $$
+
+Para ello, transformamos el valor de $b \% a$:
+
+$ a$ b \% a = b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a. $$
+
+Подставим es en la expresión anterior con $x_1$ y $y_1$ y obtenemos:
+
+$$ g = (b \% a) \cdot x_1 + a \cdot y_1 = \left( b - \left\lfloor \frac{b}{a} \right\rfloor \cdot a \right) \cdot x_1 + a \cdot y_1, $$
+
+y, cumpliendo la reorganización de los términos, obtenemos:
+
+$$ g = b \cdot x_1 + a \cdot \left( y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1 \right). $$
+
+Esto en comparación con el original de la expresión de encima a los desconocidos de $x$ y $y$, obtenemos requeridos por la expresión:
+
+$$ \cases{
+x = y_1 - \left\lfloor \frac{b}{a} \right\rfloor \cdot x_1, \cr
+y = x_1.
+} $$
+
+
+\h2{Aplicación}
+
+\code
+
+int mcd (int a, int b, int & x, int & y) {
+if (a == 0) {
+x = 0; y = 1;
+return b;
+}
+int x1, y1;
+int d = gcd (b%a, a, x1, y1);
+x = y1 - (b / a) * x1;
+y = x1;
+return d;
+}
+\endcode
+
+Es una función recursiva, que todavía se devuelve el GUIÑO de números de $a$ y $b$, pero además de esto --- también los factores de $x$ y $y$ en forma de parámetros de la función de transmisión de los enlaces.
+
+La base de la recursividad --- el caso de la $a = 0$. Entonces NOD es igual a $b$, y, obviamente, requeridos por los factores de $x$ y $y$ son iguales $0$ 1$$, respectivamente. En los demás casos, funciona normal de la decisión, y los factores traduce por вышеописанным fórmulas.
+
+Un avanzado algoritmo de euclides en esta aplicación funciona correctamente, incluso para los números negativos.
+
+
+\h2{ Literatura }
+
+\ul{
+\li \book{thomas Кормен, charles Лейзерсон, ronald Ривест, clifford stein}{Algoritmos: diseño y análisis de}{2005}{cormen.djvu}
+}

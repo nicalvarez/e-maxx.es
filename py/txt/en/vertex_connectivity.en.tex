@@ -1,0 +1,46 @@
+\h1{ Vertex connectivity. Properties and finding the }
+
+
+\h2{ Definition }
+
+Let the given undirected graph $G$ with $n$ vertices and $m$ edges.
+
+\bf{Vertex-connectivity} of $\lambda$ of a graph $G$ is the smallest number of vertices you want to delete that graph was not connected.
+
+For example, for a disconnected graph the vertex connectivity is equal to zero. For a connected graph with a single point of articulation vertex connectivity equal to one. For a complete graph the vertex connectivity is $ assume $n-1$ (since any pair of vertices we choose, even deleting all other vertices will not make them incoherent). For all graphs, except in full, vertex connectivity does not exceed $n-2$ --- as you can find a pair of vertices between which no edges, and delete all other $n-2$ vertices.
+
+They say that the set $S$ of vertices \bf{shares} of a vertex $s$ and $t$, if you remove these vertices from the graph the vertices $u$ and $v$ are in different connected components.
+
+It is clear that the vertex connectivity of the graph is equal to the minimum of the smallest number of vertices separating two vertices $s$ and $t$, taken among all possible pairs $(s,t)$.
+
+
+\h2{ Properties }
+
+
+\h3{ Ratio Whitney }
+
+\bf{Ratio Whitney (Whitney)} (1932) between \algohref=rib_connectivity{rib connection} $\lambda$, the vertex connectivity $\kappa$ and smallest degrees of vertices of $\delta$:
+
+$$ \kappa \le \lambda \le \delta. $$
+
+\bf{Prove} this assertion.
+
+We shall first prove the first inequality: $\kappa \le \lambda$. Consider the set of $\lambda$ of edges that makes the graph disconnected. If we take each of these edges one end (either of the two) and remove it from the graph, thus $\le \lambda$ of the deleted vertices (since the same vertex can appear twice) we will make the graph disconnected. Thus, $\kappa \le \lambda$.
+
+Let us prove the second inequality: $\lambda \le \delta$. Consider the vertex of minimum degree, then we can remove all $\delta$ adjacent ribs and thereby separating this peak from the rest of the graph. Therefore, $\lambda \le \delta$.
+
+Interestingly, the inequality Whitney \bf{improving}: i.e., for all triples of numbers that satisfy this inequality, there exists at least one corresponding graph. Cm. task \algohref=connectivity_back_problem{"graph values with the specified vertex and edge connection and smallest degrees of vertices"}.
+
+
+\h2{ Finding the vertex connectivity }
+
+Let's consider a pair of vertices $s$ and $t$, find the minimum number of vertices that must be removed to split $s$ and $t$.
+
+To do this, \bf{random} each vertex, i.e. each vertex $i$ will create two copies --- one of $i_1$ for incoming edges, the other $i_2$ --- for coming out, and these two copies are linked to each other by an edge $(i_1, i_2)$.
+
+Each edge $(u,v)$ of the initial graph in this modified network will turn into two edges: $(u_2, v_1)$ and $(v_2, u_1)$.
+
+All edges are put bandwidth equal to one. Now find the maximum flow in that graph between the source $s$ and a sink $t$. On the graph, he will be the minimal number of vertices needed to separate $s$ and $t$.
+
+Thus, if for finding the maximum flow we choose algorithm \algohref=edmonds_karp{Edmonds-Karp} which works in time $O (m n^2)$, then overall complexity of the algorithm is $O (n^3 m^2)$. However, the constant hidden in the asymptotic behavior, is quite small: because to make a graph on which the algorithms would have worked a long time in any pair of source-drain, is almost impossible.
+

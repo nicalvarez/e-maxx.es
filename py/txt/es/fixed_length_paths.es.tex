@@ -1,0 +1,70 @@
+\h1{ cortos de longitud fija, el número de caminos de longitud fija }
+
+A continuación se describen las soluciones de estas dos tareas, construidos en la misma idea: la dinamización de la tarea de la construcción de la matriz de licenciatura (con la normal operación de la multiplicación, y modificada).
+
+
+\h2{ el Número de caminos de longitud fija }
+
+Que se especifica orientado no ponderado conde de $G$ c $n$ vértices, y se establece un número entero $k$. Se requiere para cada par de vértices $i$ y $j$ encontrar el número de rutas entre estos vértices, que consisten exactamente de $k$ de las costillas. El camino se arbitrarios, no necesariamente simples (es decir, la cima se pueden repetir tantas veces como quieras).
+
+Vamos a suponer que el conde se especifica \bf{la matriz de adyacencia}, es decir, la matriz $g[][]$ el tamaño de la $n \times n$, donde cada elemento de $g[i][j]$ es igual a uno, si entre estos vértices tiene el borde, y cero si la costilla no. Descrito a continuación, el algoritmo funciona y en caso de la presencia de múltiples aristas: si entre los vértices $i$ y $j$ es de inmediato $m$ costillas, en la matriz de adyacencia se debe anotar este número $m$. También el algoritmo de la cuenta correctamente de la bisagra en el recuadro, si las hubiere.
+
+Es evidente que esta forma de \bf{matriz de adyacencia} conde es \bf{la respuesta a la tarea con $k=1$} --- contiene el número de caminos de longitud $1$ entre cada par de vértices.
+
+La decisión de construir \bf{iterativo}: permite que la respuesta para algún $k$ se ha encontrado, le mostraremos cómo construir para $k+1$. Se denota por $d_k$ encontrada la matriz de respuesta para $k$, y por $d_{k+1}$ --- la matriz de respuestas, que se debe construir. Entonces es evidente en la siguiente fórmula:
+
+$$ d_{k+1}[i][j] = \sum_{p = 1}^{n} d_k[i][p] \cdot g[p][j]. $$
+
+Es fácil observar que registró la fórmula anterior --- no que otro, como el producto de dos matrices $d_k$ y $g$ en el sentido habitual:
+
+$$ d_{k+1} = d_k \cdot g. $$
+
+Por lo tanto, \bf{para decisión} esta tarea, se puede presentar de la siguiente manera:
+
+$$ d_k = \underbrace{ g \cdot \ldots \cdot g}_{k\ {\rm times}} = g^k. $$
+
+Queda por señalar que la construcción de la matriz en el grado se puede realizar de forma eficaz con la ayuda de un algoritmo de \algohref=binary_pow{\bf{Binario de exponenciación}}.
+
+Así pues, la solución resultante tiene асимптотику $O (n^3 \log k)$ y es binario, la edificación en $k$-ésimo grado de la matriz de adyacencia de un conde.
+
+
+\h2{ cortos de longitud fija }
+
+Que se especifica orientado ponderado conde de $G$ c $n$ vértices, y se establece un número entero $k$. Se requiere para cada par de vértices $i$ y $j$ encontrar la longitud de la ruta más corta entre estos vértices, que consiste de exactamente $k$ de las costillas.
+
+Vamos a suponer que el conde se especifica \bf{la matriz de adyacencia}, es decir, la matriz $g[][]$ el tamaño de la $n \times n$, donde cada elemento de $g[i][j]$ contiene la longitud de la aleta de la cima de la $i$ en la cima de la $j$. Si entre los vértices de la aleta no, el elemento correspondiente de la matriz consideramos igual a infinito $\infty$.
+
+Es evidente que esta forma de \bf{matriz de adyacencia} conde es \bf{la respuesta a la tarea con $k=1$} --- contiene la longitud de cortes cortos entre cada par de vértices, o $\infty$, si el camino de la longitud de 1$$, no existe.
+
+La decisión de construir \bf{iterativo}: permite que la respuesta para algún $k$ se ha encontrado, le mostraremos cómo construir para $k+1$. Se denota por $d_k$ encontrada la matriz de respuesta para $k$, y por $d_{k+1}$ --- la matriz de respuestas, que se debe construir. Entonces es evidente en la siguiente fórmula:
+
+$$ d_{k+1}[i][j] = \min_{p = 1 \ldots, n} ( d_k[i][p] + g[p][j] ). $$
+
+Mirar cuidadosamente a esta fórmula, es fácil hacer una analogía con la multiplicación matricial: de hecho, la matriz $d_k$ se multiplica por la matriz de $g$, sólo de la multiplicación en lugar de la suma de todos los $p$ se toma el mínimo de todos los $p$:
+
+$$ d_{k+1} = d_k \odot g, $$
+
+donde la operación de $\odot$ multiplicar dos matrices se define de la siguiente manera:
+
+$$ A \odot B = C \ \ \Longleftrightarrow\ \ C_{ij} = \min_{p=1 \ldots, n} (A_{ip} + B_{pj}). $$
+
+Por lo tanto, \bf{para decisión} esta tarea, se puede presentar a través de esta operación de multiplicación de la siguiente manera:
+
+$$ d_k = \underbrace{ g \odot \ldots \odot g}_{k\ {\rm times}} = g^{\odot k}. $$
+
+Queda por señalar que los exponentes de esta operación de multiplicación se puede realizar de forma eficaz con la ayuda de un algoritmo de \algohref=binary_pow{\bf{Binario de exponenciación}}, ya que lo único necesario para su propiedad --- asociatividad de la multiplicación --- es evidente que hay.
+
+Así pues, la solución resultante tiene асимптотику $O (n^3 \log k)$ y es binario, la edificación en $k$-ésimo grado de la matriz de adyacencia del conde de la operación de multiplicación de matrices.
+
+
+\h2{ Síntesis en caso de que requieren un camino de longitud, no más de longitud nominal }
+
+Soluciones descritas anteriormente resuelven problemas, cuando se requiere considerar el camino de una longitud fija. Sin embargo, estas mismas soluciones se pueden adaptar para aplicaciones donde se requiere considerar el camino que contienen \bf{más} que el número de aristas.
+
+Esto se puede hacer, un poco modificando la entrada de el conde. Por ejemplo, si sólo nos interesan camino que termina en la cima de una determinada $t$, en el gráfico se puede \bf{agregar el bucle} $(t,t)$ cero peso.
+
+Si nos sigue interesado en las respuestas para todos los pares de vértices, es la simple adición de los nudos a todas las cimas de arruinar la respuesta. En lugar de ello, se puede \bf{utilizar otro estándar más alto} cada vértice: para cada vértice $v$ crear un vértice $v'$, pasar de la costilla $(v,v')$ y agregar el lazo $(v',v')$.
+
+Habiendo decidido, en modificado el apartado de la tarea de la búsqueda de formas de longitud fija, las respuestas a la tarea de solicitar respuestas entre los vértices de las $i$ y $j'$ (es decir, más de la cima --- este de la cima-de la graduación, en la que podemos "dar vueltas" y el número de veces).
+
+

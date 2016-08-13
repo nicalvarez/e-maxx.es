@@ -1,0 +1,93 @@
+the <h1>Task 2-SAT</h1>
+<p>Task 2-SAT (2-satisfiability) is the problem of distribution of values of Boolean variables so that they satisfy all imposed constraints.</p>
+<p>Task 2-SAT can be represented in a conjunctive normal form, where each expression in parentheses is exactly two variable; this form is called 2-CNF (2-conjunctive normal form). For example:</p>
+<formula>(a || c) && (a || !d) && (b || !d) && (b || !e) && (c || d)</formula>
+the <h2>Applications</h2>
+<p>the Algorithm for solving 2-SAT can be used in all applications where there is a set of values, each of which can take on 2 possible values, and there is a connection between these two values:</p>
+the <ul>
+the <li><b>Location of text labels on a map or chart</b>.<br>this refers to the detection of such label positions in which any two do not overlap.<br>it is Worth noting that in the General case, when each label can occupy many different positions, we obtain the general satisfiability problem, which is NP-complete. However, if we restrict ourselves to only two possible positions, the resulting task will be task 2-SAT.</li>
+the <li><b>Location of edges when drawing a graph</b>.<br>Similar to the previous paragraph, if we restrict ourselves only two possible ways to hold an edge, then we come to 2-SAT.</li>
+the <li><b>schedule games</b>.<br>refers to such a system, when each team must play with each other once, and you want to distribute the game on home field, with some imposed limitations.</li>
+the <li>, etc.</li>
+</ul>
+the <h2>the Algorithm</h2>
+<p>we First give the problem to another form - the so-called implicative form. Note that the expression a || b is equivalent to !a => b or a !b => a. This can be seen as follows: if there is an expression a || b, and we need to enforce it to true, then if a=false then b must=true and Vice versa if b=false, then a must=true.</p>
+<p>now we will Build the so-called <b>count implications</b>: for each variable in each graph on two vertices, denote them by x<sub>i</sub> and !x<sub>i</sub>. Edges in the graph will correspond to the implicative relations.</p>
+<p>for Example, for 2-CNF of the form:</p>
+<formula>(a || b) && (b || !c)</formula>
+<p>implications Graph contains the following edges (oriented):</p>
+<formula>!a => b
+!b => a
+!b => !c
+c => b</formula>
+<p>Should pay attention to this property of the graph of the implications is that if there is an edge a => b, i.e. the edge !b => !a.</p>
+<p>Now note that if for some variable x is that x achievable !x and !x achievable x, the problem has no solution. Really, what would be the value for the variable x we would choose, we will always come to the contradiction - what must be selected and return the value. It turns out that this condition is not only sufficient but also necessary (the proof of this fact will be described below the algorithm). We shall reformulate this criterion in terms of graph theory. Recall that if vertices reachable other, and from the top achievable first, then these two vertices are in the same strongly connected component. Then we can formulate the <b>criterion for existence of a solution</b> as follows:</p>
+<p>For this problem 2-SAT <b>solution</b>, is necessary and sufficient that for any variable x of node x and !x was <b>in different strongly connected components</b> the graph of implications.</p>
+<p>This criterion can be checked in time O (N + M) <algohref=strong_connected_components>search algorithm strongly connected component</algohref>.</p>
+<p>Now build the actual <b>algorithm</b> find the solution of the problem 2-SAT in the assumption that a solution exists.</p>
+<p>note that, despite the fact that there is a solution, some variables can be performed, that of x is achievable !x, or (but not both), from !x x is achievable. In this case, the selection of one of the values of the variable x will lead to a contradiction, while the choice of the other will not. Learn how to choose between two values that does not lead to contradictions. We immediately note that by choosing any value, we must start from the depth/width and mark all the values that follow from it, i.e. reachable in the graph of implications. Accordingly, for an already marked vertex no choice between x and !x do not need to, for them, the value has already been selected and fixed. The following rule applies only to untagged still heights.</p>
+<p><b>Approved</b> the following. Let comp[v] is the number of strongly connected components that owns the vertex v, and the numbers are arranged in order of topological sort strongly connected components in the graph components (i.e. earlier in the order of topological sort consistent with large rooms: if there is a path from v to w, comp[v] <= comp[w]). Then if comp[x] < comp[!x], we choose the value !x, otherwise, i.e. if comp[x] - > comp[!x], x select.</p>
+<p><b>Prove</b> that with this choice of values we come to the contradiction. Let, for definiteness, the selected vertex x (case where the selected vertex !x, is proved symmetrically).</p>
+<p>first, we will prove that x is not attainable !x. Indeed, as the number of strongly connected components comp[x] greater than the number of components comp[!x], it means that the connected component containing x is to the left of the connected component that contains !x, and from the first could not be achievable last.</p>
+<p>secondly, let us prove that no vertex y reachable from x, is not "bad", i.e. wrong, which of y achievable !y. Prove it by contradiction. Let x reachable from y and y is attainable !y. Since x is attainable from y, then, by a property of the graph of implications, from !y will be achievable !x. But, by assumption, y is achievable !y. Then we get that x is achievable !x, which contradicts the condition that we wanted to prove.</p>
+<p>so, we built an algorithm that finds the desired value of variables under the assumption that for any variable x of node x and !x are in different strongly connected components. Above showed the correctness of this algorithm. Therefore, we simultaneously proved the above criterion for existence of a solution.</p>
+<p>Now we can assemble the <b>whole sequence</b> together:</p>
+the <ul>
+the <li>Construct the graph of the implications.</li>
+the <li>will Find in this graph, strongly connected components in time O (N + M), let comp[v] is the number of strongly connected components, which vertex v belongs.</li>
+the <li>Verify that for each variable x of node x and !x lie in different components, i.e. comp[x] ≠ comp[!x]. If this condition is not met, then return "solution not exist".</li>
+the <li>If comp[x] - > comp[!x], we choose the variable x to true, otherwise, false.</li>
+</ul>
+the <h2>Implementation</h2>
+<p>the Following is the implementation solution of the problem 2-SAT to the already constructed graph g and the implications of a reverse graph gt (i.e. in which the direction of each edge reversed).</p>
+<p>the Program shows the numbers of selected vertices, either the phrase "NO SOLUTION" if no solution exists.</p>
+<code>int n;
+vector < vector<int> > g, > 
+vector<bool> used;
+vector<int> order, comp;
+
+void dfs1 (int v) {
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (!used[to])
+dfs1 (to);
+}
+order.push_back (v);
+}
+
+void dfs2 (int v, int cl) {
+comp[v] = cl;
+for (size_t i=0; i<gt[v].size(); ++i) {
+int to = gt[v][i];
+if (comp[to] == -1)
+dfs2 (to, cl);
+}
+}
+
+int main() {
+... read n, the graph g, the graph gt ...
+
+used.assign (n, false);
+for (int i=0; i<n; ++i)
+if (!used[i])
+dfs1 (i);
+
+comp.assign (n, -1);
+for (int i=0, j=0; i<n; ++i) {
+int v = order[n-i-1];
+if (comp[v] == -1)
+dfs2 (v, j++);
+}
+
+for (int i=0; i<n; ++i)
+if (comp[i] == comp[i^1]) {
+puts ("NO SOLUTION");
+return 0;
+}
+for (int i=0; i<n; ++i) {
+int ans = comp[i] > comp[i^1] ? i : i^1;
+printf ("%d ", ans);
+}
+
+}</code>

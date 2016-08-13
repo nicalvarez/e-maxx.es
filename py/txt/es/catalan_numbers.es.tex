@@ -1,0 +1,46 @@
+\h1{Número catalana}
+
+El número catalana --- numérica de la secuencia, que se encuentra en la maravillosa como комбинаторных de tareas.
+
+Esta secuencia de llamada en honor a la belga matemáticas catalana (en catalán), que vivía en el siglo 19, aunque en realidad ella era conocida aún Эйлеру (Euler), el cual residía en un siglo antes de la catalana.
+
+\h2{Secuencia}
+
+Los primeros números catalana $C_n$ (desde cero):
+$$ 1,\ 1,\ 2,\ 5,\ 14,\ 42,\ 132,\ 429,\ 1430,\ \ldots $$
+
+El número catalana se encuentran en una gran cantidad de tareas комбинаторики. \bf{$n$de número catalana} --- esto es:
+\ul{
+\li Número correctos скобочных secuencias compuestas de $n$ apertura y $n$ cierre entre paréntesis.
+\li Número de la raíz de los árboles binarios de $n+1$ de hojas (vértices no están numerados).
+\li Número de maneras de separar por completo los paréntesis de $n+1$ multiplicador.
+\li Número de триангуляций convexo $n+de$2-la escuadra (es decir, el número de divisiones del polígono непересекающимися las diagonales en los triángulos).
+\li Número de maneras de conectar $2n$ puntos en la circunferencia de $n$ непересекающимися хордами.
+\li Número de неизоморфных completos binarios árboles con $n$ vértices internos (es decir, tienen al menos un hijo).
+\li Número de monótonos y de las vías desde el punto $(0,0)$ en el punto $(n,n)$ en el cuadrado de la rejilla de $n \times n$, no se levantan por encima de la diagonal principal.
+\li el Número de permutaciones de longitud $n$, que se pueden ordenar de la pila (se puede mostrar que la transposición es сортируемой de la pila entonces, y sólo entonces, cuando no hay índices de $i<j<k$ que $a_k<a_i<a_j$).
+\li Número de continuas rupturas de la multitud de $n$ de los elementos (es decir, divisiones en bloques continuos).
+\li Número de maneras de cubrir la escalerilla $1 \ldots, n$ con $n$ rectángulos (es decir, una figura formada por una $n$ columnas, $i$-ro de los cuales tiene una altura de $i$).
+}
+
+\h2{Cálculo}
+
+Hay dos fórmulas para números catalana: la esquizofrenia recurrente y analítico. Porque creemos que todas estas tareas son equivalentes para la prueba de fórmulas vamos a elegir la tarea con la que hacer esto más fácil.
+
+\h3{la esquizofrenia recurrente fórmula}
+
+$$ C_n = \sum_{k=0}^{n-1} C_k C_{n-1-k} $$
+
+Рекуррентную fórmula fácil de sacar de la tarea sobre la correcta скобочных secuencias.
+
+La más a la izquierda, el paréntesis izquierdo l tiene una paréntesis de r, que divide la fórmula de dos partes, cada una de las cuales, a su vez, es la correcta скобочной de la secuencia. Por lo tanto, si le daremos el nombre de $k = r-l-1$, entonces para cualquier fijo $r$ será exactamente $C_k C_{n-1-k} $ maneras. En suma es sobre todo válido $k$, tenemos рекуррентную dependencia en $C_n$.
+
+\h3{Análisis de la fórmula}
+
+$$ C_n = \frac{1}{n+1} C_{2n}^{n} $$
+
+(aquí a través de $C_n^k$ etiquetado, como de costumbre, \algohref=binomial_coeff{биномиальный coeficiente}).
+
+Esta fórmula es más fácil de sacar de la tarea de caminos monótonos. El número total de caminos monótonos en la rejilla de $n \times n$ es $C_{2n}^{n}$. Ahora consideramos el número de monótonos y de las vías que cruzan en diagonal. Veamos alguno de esos caminos, y busquemos la primera costilla, que está por encima de la diagonal. Отразим respecto de la diagonal de todo el camino que va después de la costilla. Como resultado obtenemos el monótono camino en la parrilla de salida $(n-1) \times (n+1)$. Pero, por otro lado, cualquier monótono camino en la parrilla de salida $(n-1) \times (n+1)$ necesariamente cruza la diagonal, por lo tanto, se deriva justamente de esta manera cualquiera (y único) monótono camino que corta a la diagonal, en la rejilla $n \times n$. Monótonos y rutas en la parrilla de salida $(n-1) \times (n+1)$ existe $C_{2n}^{n-1}$. Como resultado, se obtiene la fórmula:
+
+$$ C_n = C_{2n}^{n} - C{2n}^{n-1} = \frac{1}{n+1} C_{2n}^{n} $$

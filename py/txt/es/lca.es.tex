@@ -1,0 +1,105 @@
+<h1>Mínimo común antepasado. La posicin de O (sqrt (N)) y O (log N) con препроцессингом O (N)</h1>
+<p>dado Que el árbol de G. En la entrada se recibe la solicitud de la vista (V1, V2), para cada consulta es necesario encontrar un mínimo común antepasado, es decir, el vértice de la V, que se encuentra en el camino desde la raíz hasta la V1, en el camino desde la raíz hasta la V2, y de todos esos vértices debe elegir la parte inferior. En otras palabras, buscando el vértice V - antecesor y V1 y V2, y entre todos los antepasados comunes, se selecciona el inferior. Es evidente que el más mínimo ancestro común de los vértices V1 y V2 es su ancestro común, que est en una senda de V1 a V2. En particular, por ejemplo, si V1 es el antepasado de la V2, V1 es menor el ancestro común.</p>
+<p>En inglés, esta tarea se llama objetivo LCA - Least Common Ancestor.</p>
+<h2>la Idea de un algoritmo</h2>
+<p>Antes de responder, vamos a realizar el llamado <b>препроцессинг</b>. Ejecutar un rastreo en la profundidad de la raíz, que va a construir la lista de visita de vértices Order (actual cima se agrega a la lista cuando se inicia en esta cima, y también cada vez que regreso de su hijo), no es difícil observar que el tamaño de esta lista será de O (N). Y construiremos una matriz de First[1..N], en el que para cada vértice se indicará la posición en la matriz de orden, en la que se encuentra la cima, es decir, Order[First[I]] = I para todos I. También mediante la búsqueda en profundidad encontraremos la altura de cada vértice (la distancia desde la raíz hasta la de ella) - H[1..N].</p>
+<p>Como ahora de responder? Supongamos que hay una investigación en curso - el par de vértices V1 y V2. Considere la lista Order entre los índices de First[V1] y First[V2]. Es fácil notar que en este rango se ubican y la búsqueda de LCA (V1, V2), así como muchos otros vértices. Sin embargo, la LCA (V1, V2) va a ser diferente del resto de los vértices de lo que será el vértice de menor altura.</p>
+<p>Por lo tanto, para responder a la consulta, simplemente tenemos que <b>localizar el vértice con menor altura</b> en la matriz Order en el rango de entre First[V1] y First[V2]. Por lo tanto, <b>la tarea de la LCA se reduce a <algohref=rmq>tarea RMQ</algohref></b> ("al menos en el tramo"). Y la última tarea se resuelve con la ayuda de estructuras de datos (véase <algohref=rmq>tarea de RMQ</algohref>).</p>
+<p>Si <algohref=sqrt_decomposition><b>sqrt-estructura de desglose de</b></algohref>, se puede obtener una solución a la solicitud de <b>O (sqrt (N))</b> y realiza препроцессинг por O (N).</p>
+<p>Si <algohref=segment_tree><b>árbol de regiones</b></algohref>, se puede obtener una solución a la solicitud de <b>O (log (N))</b> y realiza препроцессинг por O (N).</p>
+<h2>Realización</h2>
+<p>Aquí encontrará la preparacion de la implementación de LCA con el uso de la madera de regiones:</p>
+<code>typedef vector < vector<int> > graph;
+typedef vector<int>::const_iterator const_graph_iter;
+
+
+vector<int> lca_h, lca_dfs_list, lca_first, lca_tree;
+vector<char> lca_dfs_used;
+
+void lca_dfs (const graph & g, int v, int h = 1)
+{
+lca_dfs_used[v] = true;
+lca_h[v] = h;
+lca_dfs_list.push_back (v);
+for (const_graph_iter i = g[v].begin(); i != g[v].end(); ++i)
+if (!lca_dfs_used[*i])
+{
+lca_dfs (g, *i, h+1);
+lca_dfs_list.push_back (v);
+}
+}
+
+void lca_build_tree (int i, int l, int r)
+{
+if (l == r)
+lca_tree[i] = lca_dfs_list[l];
+else
+{
+int m = (l + r) >> 1;
+lca_build_tree (i+i, l, m);
+lca_build_tree (i+i+1, m+1, r);
+if (lca_h[lca_tree[i+i]] < lca_h[lca_tree[i+i+1]])
+lca_tree[i] = lca_tree[i+i];
+else
+lca_tree[i] = lca_tree[i+i+1];
+}
+}
+
+void lca_prepare (const graph & g, int root)
+{
+int n = (int) g.size();
+lca_h.resize (n);
+lca_dfs_list.reserve (n*2);
+lca_dfs_used.assign (n, 0);
+
+lca_dfs (g, root);
+
+int m = (int) lca_dfs_list.size();
+lca_tree.assign (lca_dfs_list.size() * 4 + 1, -1);
+lca_build_tree (1, 0, m-1);
+
+lca_first.assign (n, -1);
+for (int i = 0; i < m; i++)
+{
+int v = lca_dfs_list[i];
+if (lca_first[v] == -1)
+lca_first[v] = i;
+}
+}
+
+int lca_tree_min (int i, int sl, int sr, int l, int r)
+{
+if (sl == l && sr = r=)
+return lca_tree[i];
+int sm = (sl + sr) >> 1;
+if (r <= sm)
+return lca_tree_min (i+i, sl, sm, l, r);
+if (l > sm)
+return lca_tree_min (i+i+1, sm+1, sr, l, r);
+int ans1 = lca_tree_min (i+i, sl, sm, l, sm);
+int ans2 = lca_tree_min (i+i+1, sm+1, sr, sm+1, r);
+return lca_h[ans1] < lca_h[ans2] ? ans1 : ans2;
+}
+
+int lca (int a, int b)
+{
+int left = lca_first[a],
+right = lca_first[b];
+if (left > right) swap (left, right);
+return lca_tree_min (1, 0, (int)lca_dfs_list.size()-1, left, right);
+}
+
+int main()
+{
+graph g;
+int root;
+... lectura del conde ...
+
+lca_prepare (g, root);
+
+for (;;)
+{
+int v1, v2; // petición
+int v = lca (v1, v2); // respuesta a la solicitud de
+}
+}</code>

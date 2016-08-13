@@ -1,0 +1,277 @@
+\h1{ Encontrar наидлиннейшей creciente подпоследовательности }
+
+\bf{Condición de la tarea} la siguiente. Dada la matriz de $n$ de números: $a[0 \ldots, n-1]$. Es necesario encontrar en esta sucesión estrictamente creciente de подпоследовательность de mayor longitud.
+
+\bf{Formalmente} esto se ve de la siguiente manera: es necesario encontrar una secuencia de índices de $i_1 \ldots i_k$ que:
+
+$$ i_1 < i_2 < \ldots < i_k, $$
+$$ a[i_1] < a[i_2] < \ldots < a[i_k]. $$
+
+En este artículo se describen los algoritmos de resolución de la tarea, así como algunas de las tareas que se puede reducir a esta tarea.
+
+
+
+\h2{ Solución a $O(n^2)$: el método de la programación dinámica }
+
+Dinámica de la programación --- es muy metodología general que permite resolver la enorme clase de tareas. Aquí vamos a ver esta metodología con respecto a nuestra específicas de la tarea.
+
+Aprenderemos a buscar primero \bf{longitud} наидлиннейшей creciente подпоследовательности, y la recuperación de la подпоследовательности nos ocuparemos un poco más adelante.
+
+
+\h3{ Dinámica de la programación para la búsqueda de la longitud de la respuesta }
+
+Para ello, aprenderemos a leer el array $d[0 \ldots, n-1]$, donde $d[i]$ --- es la longitud de la наидлиннейшей creciente подпоследовательности, оканчивающейся precisamente en el elemento con el índice de la $i$. La matriz de este (es --- la propia dinámica) vamos a contar poco a poco: primero $d[0]$, entonces $d[1],$ y así sucesivamente, Al final, cuando esta matriz se contabilizarán nosotros, la respuesta a la tarea será igual al máximo de la matriz $d[]$.
+
+Por tanto, que el actual índice de - - - de $i$, es decir, queremos calcular el valor de $d[i]$, y todos los valores anteriores $d[0] 
+\ldots d[i-1]$ ya contados. Entonces tenga en cuenta que tenemos dos opciones:
+
+\ul{
+
+\li o $d[i] = 1$, es decir, buscando подпоследовательность compuesto por un número único de $a[i]$.
+
+\li o $d[i] > 1$. Entonces, antes del número $a[i]$ en la подпоследовательности vale la pena algún otro número. Vamos a переберем este número: puede ser cualquier elemento de $a[j]$ $(j = 0 \ldots i-1)$, pero tal que $a[j] < a[i]$. Supongamos que estamos considerando un índice actual de $j$. Porque la dinámica de $d[j]$ para él ya calculado, se obtiene que este número es $a[j]$ junto con el número de $a[i]$ da respuesta $d[j] + 1$. Por lo tanto, $d[i]$ se puede contar de esta fórmula:
+
+$$ d[i] = \max_{j=0 \ldots i-1, \atop a[j] < a[i]} ( d[j] + 1 ). $$
+
+}
+
+Al combinar estas dos opciones, en uno, obtenemos la final de un algoritmo para el cálculo de $d[i]$:
+
+$$ d[i] = \max \Big( 1, \max_{j=0 \ldots i-1, \atop a[j] < a[i]} ( d[j] + 1 ) \Big). $$
+
+Este algoritmo --- y sí, es el altavoz.
+
+
+\h3{ Aplicación }
+
+Presentamos la aplicación de lo descrito anteriormente, el algoritmo que detecta y muestra la longitud de la наидлиннейшей creciente подпоследовательности:
+
+\code
+int d[MAXN]; // constante de MAXN es igual a la de mayor valor posible de n
+
+for (int i=0; i<n; ++i) {
+d[i] = 1;
+for (int j=0; j<i; j++)
+if (a[j] < a[i])
+d[i] = max (d[i], 1 + d[j]);
+}
+
+int ans = d[0];
+for (int i=0; i<n; ++i)
+ans = max (ans, d[i]);
+cout << ans << endl;
+\endcode
+
+
+\h3{ la Recuperación de la respuesta }
+
+Hasta ahora sólo hemos aprendido a buscar la longitud de la respuesta, pero la наидлиннейшую подпоследовательность podemos sacar no podemos, porque no guardamos ningún tipo de información adicional acerca de dónde se obtienen los máximos históricos.
+
+Para poder recuperar la respuesta, además de la dinámica de $d[0 \ldots, n-1]$ es necesario también para mantener la auxiliar de $matriz p[0 \ldots, n-1]$ --- entonces, ¿en qué lugar достигся máximo para cada valor de $d[i]$. En otras palabras, el índice $p[i]$ significará el mismo índice $j$, con el que ha resultado el mayor valor de $d[i]$. (Esta matriz $p[]$ en la programación dinámica, a menudo se denomina "matriz de los antepasados".)
+
+Entonces, para ver la respuesta, solo hay que ir de un elemento con un valor máximo de $d[i]$ de sus antepasados hasta que no nos sacaremos toda la подпоследовательность, es decir, hasta que no lleguemos un elemento con un valor de $d = 1$.
+
+
+\h3{ Aplicación de la recuperación de la respuesta }
+
+Así, nos cambia y el código de la dinámica, y se agrega el código que produce la salida de наидлиннейшей подпоследовательности (se muestran los índices de los elementos подпоследовательности, 0-indexación).
+
+Para su comodidad, hemos inicialmente pusieron los índices de $p[i] = -1$: elementos que la dinámica ha resultado igual a la unidad, es que el valor de un antepasado y se quedará menos por la unidad de la que poco a poco es más conveniente cuando se restaura la respuesta.
+
+\code
+int d[MAXN], p[MAXN]; // constante de MAXN es igual a la de mayor valor posible de n
+
+for (int i=0; i<n; ++i) {
+d[i] = 1;
+p[i] = -1;
+for (int j=0; j<i; j++)
+if (a[j] < a[i])
+if (1 + d[j] > d[i]) {
+d[i] = 1 + d[j];
+p[i] = j;
+}
+}
+
+int ans = d[0], pos = 0;
+for (int i=0; i<n; ++i)
+if (d[i] > ans) {
+ans = d[i];
+pos = i;
+}
+cout << ans << endl;
+
+vector<int> path.
+while (pos != -1) {
+path.push_back (pos);
+pos = p[pos];
+}
+reverse path.begin(), path.end());
+for (int i=0; i<(int)path.size(); ++i)
+cout << path[i] << ' ';
+\endcode
+
+
+\h3{ una forma Alternativa de recuperación de la respuesta }
+
+Sin embargo, como casi siempre en el caso de la programación dinámica, para la recuperación de la respuesta puede no mantener adicional de la matriz de los antepasados de $p[]$, y simplemente volver a пересчитывая el elemento actual de la dinámica y que busca, en que el índice se ha alcanzado el máximo.
+
+De esta manera cuando la aplicación conduce a una un poco más larga que el código, pero a cambio obtenemos un ahorro de memoria y absoluta coincidencia de la lógica del programa en el proceso de conteo de los altavoces y en el proceso de recuperación.
+
+
+
+\h2{ Solución a $O (n \log n)$: dinámica de la programación con el binario de búsqueda }
+
+Para obtener una resolución más rápida de tareas, construiremos otra variante de la programación dinámica por $O (n^2)$ y, a continuación, daremos cuenta de cómo esta la opción de acelerar hasta $O (n \log n)$.
+
+\bf{Dinámica} ahora será tal: que $d[i]$ $(i = 0, \ldots, n)$ --- este es el número que termina con la creciente подпоследовательность de la longitud de la $i$ (y si estos números, varios --- es el menor de ellos).
+
+Inicialmente, creemos $d[0] = -\infty$, y el resto de los elementos $d[i] = \infty$.
+
+Considerar esta dinámica vamos poco a poco, tratando número $a[0]$, entonces $a[1],$, etc.
+
+Presentamos la aplicación de esta dinámica, por $O (n^2)$:
+
+\code
+int d[MAXN];
+d[0] = -INF;
+for (int i=1; i<=n; ++i)
+d[i] = INF;
+
+for (int i=0; i<n; i++)
+for (int j=1; j<=n; j++)
+if (d[j-1] < a[i] && a[i] < d[j])
+d[j] = a[i];
+\endcode
+
+Tenga en cuenta ahora que el esta dinámica, hay una \bf{propiedad muy importante de la}: $d[i-1] \le d[i]$ para todo $i = 1, \ldots, n$. Otra propiedad de --- que cada elemento de $a[i]$ actualiza hasta un máximo de una celda $d[j]$.
+
+Por lo tanto, esto significa que procesar ordinaria $a[i]$ podemos $O (\log n)$, haciendo que la búsqueda binaria de la matriz $d[]$. En realidad, sólo estamos buscando en el array $d[]$ el primer número, que es estrictamente mayor que $a[i]$, y tratando de hacer la actualización de este elemento similar a la anterior aplicación.
+
+
+\h3{ Aplicación en $O (n \log n)$ }
+
+Utilizando el estándar en el lenguaje C++ del algoritmo de búsqueda binaria $upper\_bound$ (que devuelve la posición del primer elemento, estrictamente mayor de este), obtenemos esa simple aplicación de:
+
+\code
+int d[MAXN];
+d[0] = -INF;
+for (int i=1; i<=n; ++i)
+d[i] = INF;
+
+for (int i=0; i<n; i++) {
+int j = int (upper_bound (d.begin () d.end(), a[i]) - d.begin());
+if (d[j-1] < a[i] && a[i] < d[j])
+d[j] = a[i];
+}
+\endcode
+
+
+\h3{ la Recuperación de la respuesta }
+
+De esta dinámica también puede restaurar la respuesta, para lo cual, de nuevo, además de la dinámica de $d[i]$ también es necesario almacenar una matriz de "antepasados" $p[i]$ --- entonces, en un elemento de cualquier índice que termina en una óptima подпоследовательность de la longitud de la $i$. Además, para cada elemento de la matriz $a[i]$ será necesario almacenar su "antepasado" --- es decir, el índice del elemento que debe preceder a la $a[i]$ óptima подпоследовательности.
+
+Al mantener estas dos matrices sobre un curso de cálculo de la dinámica, al final, es fácil de recuperar lo que busca подпоследовательность.
+
+(Es interesante señalar que, en cuanto a la dinámica de la respuesta solo puede restaurar así, a través de las matrices de los antepasados --- y sin ellos restaurar la respuesta después de que el cálculo de la dinámica no será posible. Este es uno de los raros casos, cuando a la dinámica no se aplica el método alternativo de recuperación --- sin matrices de los antepasados).
+
+
+
+\h2{ Solución a $O (n \log n)$: estructuras de datos }
+
+Si el método anterior por $O (n \log n)$ es muy hermoso, sin embargo, no trivial, ideológico, es decir, otra manera de aprovechar uno de los famosos simples estructuras de datos.
+
+En realidad, volvamos a la primera dinámica, donde el estado era simplemente la posición actual. El valor actual de la dinámica de $d[i]$ se calcula como el máximo de los valores de $d[i]$ entre todos los elementos del $j$ que $a[j] < a[i]$.
+
+Por lo tanto, si nosotros a través de $t[]$ denota un \bf{matriz}, en el que vamos a grabar los valores de la dinámica de los números:
+
+$$ t[a[i]] = d[i], $$
+
+resulta que todo lo que tenemos que ser capaces de: - - - es buscar \bf{máximo en el prefijo} de la matriz $t$: $t[0 \ldots a[i]-1]$.
+
+La tarea de la búsqueda del máximo a prefijos de la matriz (teniendo en cuenta que la matriz puede variar) se soluciona muchas estándar, con estructuras de datos, por ejemplo, \algohref=segment_tree{árbol de regiones} o \algohref=fenwick_tree{árbol Fenwicks}.
+
+Aprovechando cualquier estructura de datos que recibamos la decisión de la $O (n \log n)$.
+
+Este método de solución que hay claras \bf{inconvenientes}: por la longitud y la complejidad de la implementación de esta ruta será, en cualquier caso, es peor que la descrita anteriormente dinámica en $O (n \log n)$. Además, si de entrada el número de $a[i]$ pueden ser bastante grandes, es probable que tenga que comprimir (es decir, volver a numerar desde $0 a$ a $n-1$) --- sin que ello muchos de los accesorios de la estructura de datos de trabajar no pueden debido al alto consumo de memoria.
+
+Por otro lado, el camino es y \bf{ventajas}. En primer lugar, de esta manera, la decisión no tiene que preocuparse acerca de una dinámica. En segundo lugar, este método permite resolver algunas generalizaciones de nuestra tarea (véase a continuación).
+
+
+
+\h2{ Conexos de la tarea }
+
+Aquí algunas de las tareas estrechamente relacionadas con la tarea de búsqueda de наидлиннейшей creciente подпоследовательности.
+
+
+\h3{ Наидлиннейшая неубывающая подпоследовательность }
+
+De hecho, esta es la misma tarea, sólo que ahora en la подпоследовательности se permiten los números iguales (es decir, debemos encontrar débilmente creciente подпоследовательность).
+
+La solución de esta tarea, de hecho no es diferente de la nuestra la tarea original, simplemente al realizar comparaciones cambian los signos de las desigualdades, y también será necesario modificar ligeramente la búsqueda binaria.
+
+
+\h3{ Número de наидлиннейших crecientes подпоследовательностей }
+
+Para ello, se puede utilizar la primera dinámica por $O (n^2)$ o enfoque mediante el uso de estructuras de datos para la solución de los $O (n \log n)$. Y, de hecho, en el caso de todos los cambios son sólo en el sentido de que, además de los valores de la dinámica de $d[i]$ es necesario almacenar, de cuántas maneras este valor puede ser obtenido.
+
+Aparentemente, la solución a través de la dinámica de la $O (n \log n)$ a esta tarea no se puede aplicar.
+
+
+\h3{ el Menor número de невозрастающих подпоследовательностей que cubren esta secuencia }
+
+\bf{Condición} es tal. Dada la matriz de $n$ de números $a[0 \ldots, n-1]$. Desea pintar su número en el menor número de colores de modo que cada color se originaba sería невозрастающая подпоследовательность.
+
+\bf{para Decisión}. Se afirma que la cantidad mínima necesaria de colores igual a la longitud de la наидлиннейшей creciente подпоследовательности.
+
+\bf{Prueba}. De hecho, lo tiene que demostrar \bf{dualidad} de esta tarea y de la búsqueda de наидлиннейшей creciente подпоследовательности.
+
+Se denota por $x$ longitud наидлиннейшей creciente подпоследовательности, y a través de la $y$ --- buscado el menor número de невозрастающих подпоследовательностей. Tenemos que demostrar que $x=y$.
+
+Por un lado, claro, ¿por qué no puede ser $y<x$: después de todo, si tenemos $x$ estrictamente crecientes de los elementos, hay dos de ellos no pueden entrar en una невозрастающую подпоследовательность y, por lo tanto, $y \ge x$.
+
+Mostraremos ahora que, por el contrario, $y$ no puede ser $> x$. Demostremos es a la inversa: se supone que $y > x$. Veamos entonces cualquier el conjunto óptimo de $y$ невозрастающих подпоследовательностей. Transformar este conjunto, por lo tanto: mientras hay dos подпоследовательности que la primera se inicia antes de la segunda, pero la primera comienza con un número mayor o igual que el inicio de la segunda --- отцепим es la pantalla de inicio, el número de la primera подпоследовательности y прицепим en el comienzo de la segunda. Por lo tanto, a través de un número finito de pasos nos quedará $y$ подпоследовательностей, y sus respectivas número formarán creciente подпоследовательность de longitud $y$. Pero $y > x$, es decir, hemos llegado a una contradicción (ya que no puede ser crecientes подпоследовательностей largo $x$).
+
+Por lo tanto, en realidad, $y = x$, que se quería demostrar.
+
+\bf{la Recuperación de la respuesta}. Se afirma que la búsqueda de una ruptura en la подпоследовательности puede buscar con avidez, es decir, yendo de izquierda a derecha y declarando que el número actual en la подпоследовательность, que ahora termina en menor número, mayor o igual a la actual.
+
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver sobre el tema:
+
+\ul{
+
+\li \href=http://informatics.mccme.es/moodle/mod/statements/view3.php?chapterid=1793{MCCME #1793 \bf{"la Mayor creciente подпоследовательность por O(n*log(n))"} ~~~~ [dificultad: baja]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=5922&rd=8075{TopCoder SRM 278 \bf{"500 IntegerSequence"} ~~~~ [dificultad: baja]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=3937&rd=6532{TopCoder SRM 233 \bf{"DIV2 1000 AutoMarket"} ~~~~ [dificultad: baja]}
+
+\li \href=http://codeforces.es/contest/76/problem/F{solicitó la ayuda de las olimpiadas escolares de ciencias de la computación --- la tarea de F \bf{"Turista"} ~~~~ [dificultad media]}
+
+\li \href=http://codeforces.es/problemset/problem/10/D{Codeforces Beta Round #10 --- la tarea de la D \bf{"НОВП"} ~~~~ [dificultad media]}
+
+\li \href=http://acm.tju.edu.cn/toj/showp2707.html{ACM.TJU.EDU.CN 2707 \bf{"Greatest Common Increasing Subsequence"} ~~~~ [dificultad media]}
+
+\li \href=http://www.spoj.pl/problemas/SUPPER/{SPOJ #57 \bf{"SUPPER. Supernumbers in a permutation"} ~~~~ [dificultad media]}
+
+\li \href=http://acm.sgu.es/problem.php?contest=0&problem=521{ACM.SGU.RU #521 \bf{"North-East"} ~~~~ [nivel de dificultad: alto]}
+
+\li \href=http://community.topcoder.com/stat?c=problem_statement&pm=2967&rd=5881{TopCoder Open 2004 --- Round 4 --- \bf{"1000. BridgeArrangement"} ~~~~ [nivel de dificultad: alto]}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

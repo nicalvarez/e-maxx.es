@@ -1,0 +1,116 @@
+\h1{la Descomposición de lyndon. El Algoritmo De Дюваля. El hallazgo de la menor rotativa}
+
+
+\h2{el Concepto de la descomposición de lyndon}
+
+Definir el concepto de \bf{descomposición de lyndon} (Lyndon de la descomposición).
+
+La cadena se llama \bf{simple}, si es estrictamente \bf{menos} cualquier de su propio \bf{sufijo}. Ejemplos simples de filas: $a$, $b$, $ab$, $aab$, $abb$, $ababb$, $abcd$. Se puede ver que la línea es fácil entonces, y sólo entonces, cuando es estrictamente \bf{menos} todos sus sofisticados \bf{cíclicos de los desplazamientos}.
+
+A continuación, dejar que dada una cadena $s$. Entonces \bf{декомпозицией lyndon} de $s$ se denomina su descomposición $s = w_1 w_2 \ldots w_k$, donde las cadenas de $w_i$ simples, y $w_1 \ge w_2 \ge \ldots \ge w_k$.
+
+Se puede demostrar que para cualquier fila de $s$ es la descomposición existe y es única.
+
+
+\h2{el Algoritmo de Дюваля}
+
+\bf{el Algoritmo de Дюваля} (Duval's algorithm) encuentra para esta línea de longitud $n$ descomposición de lyndon por hora $O (n)$ mediante $O (1)$ de memoria adicional.
+
+Trabajar con líneas vamos a 0-indexación.
+
+Introduciremos el concepto auxiliar de la предпростой de la cadena. La cadena $t$ se llama \bf{предпростой}, si tiene el aspecto de un $t = w w w \ldots w \overline{w}$, donde $w$ --- algo de una cadena sencilla, $\overline{w}$ --- un prefijo de la cadena $w$.
+
+El algoritmo de Дюваля es codicioso. En cualquier momento de su trabajo, la cadena S en realidad se divide en tres líneas $s = s_1 s_2 s_3$, donde en la barra de $s_1$ descomposición de lyndon ya se ha encontrado y $s_1$ ya no se utiliza el algoritmo de la línea de $s_2$ --- este es предпростая línea (y la longitud de cadenas sencillas dentro de ella también nos anotamos); string $s_3$ --- esto no tratada parte de la cadena $s$. Cada vez que el algoritmo de Дюваля toma el primer carácter de la cadena $s_3$ y trata de añadir a la barra de $s_2$. Si es posible, para un prefijo de la cadena $s_2$ descomposición de lyndon llega a ser conocido, y en esta parte se pasa a la fila de $s_1$.
+
+Describiremos ahora el algoritmo \bf{formalmente}. En primer lugar, se mantendrá el puntero $i$ al comienzo de la línea $s_2$. El bucle exterior del algoritmo se ejecutará hasta $i < n$, es decir, hasta que toda la cadena $s$ no entrará en la cadena $s_1$. Dentro de este ciclo se crean dos índices: el índice $j$ al comienzo de la línea $s_3$ (de hecho, el puntero al siguiente carácter del candidato) y el indicador de $k$ en el carácter actual en la barra de $s_2$, con el que se realizará la comparación. A continuación, vamos a en el ciclo de tratar de agregar el símbolo $s[j]$ a la línea de $s_2$, para lo cual se debe efectuar la comparación con el símbolo $s[k]$. Aquí hay tres diferentes casos:
+
+\ul{
+
+\li Si $s[j] = s[k]$, entonces podemos escribir el símbolo $s[j]$ a la línea de $s_2$, sin excederse en su "предпростоты". Por lo tanto, en este caso, simplemente aumentamos punteros $j$ y $k$ por unidad.
+
+\li Si $s[j] > s[k]$, entonces, obviamente, la cadena $s_2 + s[j]$ será fácil. Entonces aumentamos $j$ por unidad y $k$ передвигаем de nuevo en la $i$, para el siguiente símbolo fue comparada recientemente con el primer caracter de $s_2$.
+
+\li Si $s[j] < s[k]$, entonces $s_2+s[j]$ ya no puede ser предпростой. Por lo tanto, partimos de предпростую la cadena $s_2$ en una simple línea más "residuo" (prefijo de una simple línea, posiblemente vacío); una simple línea añadimos a la respuesta (es decir, derivan de su posición, en el camino, moviendo el puntero $i$), y "el resto" junto con el símbolo $s[j]$ pondremos de nuevo en la fila de $s_3$, y dejemos la ejecución del bucle interno. Así que en la siguiente iteración del bucle externo volver a procesar el resto, sabiendo que él no podía formar предпростую línea con las simples líneas. Solo queda observar que, cuando la retirada de las posiciones de cadenas sencillas necesitamos saber su longitud; pero, obviamente, es de $j-k$.
+
+}
+
+
+\h3{Aplicación}
+
+Veamos la implementación de un algoritmo de Дюваля, que mostrará lo que busca la descomposición de la cadena de lyndon $s$:
+
+\code
+string s; // cadena de entrada
+int n = (int) s.length();
+int i=0;
+while (i < n) {
+int j=i+1, k=i;
+while (j < n && s[k] <= s[j]) {
+if (s[k] < s[j])
+k = i;
+else
+++k;
+++j;
+}
+while (i <= k) {
+cout << s.substr (i, j-k) << ' ';
+i += j - k;
+}
+}
+\endcode
+
+
+\h3{Asíntotas}
+
+Inmediatamente tenga en cuenta que para el algoritmo Дюваля desea \bf{$O (1)$ de memoria}, es decir, los tres del puntero del $i$, $j$, $k$.
+
+Ponemos ahora \bf{horario} algoritmo.
+
+\bf{Externo bucle while} hace no más de $n$ iteraciones, ya que al final de cada iteración se muestra, como mínimo, de un carácter (sólo caracteres aparece, obviamente, exactamente $n$).
+
+Ponemos ahora el número de iteraciones \bf{primer adjunto del bucle while}. Para ello, considere una segunda adjunto el bucle while --- cada vez que se ejecuta muestra un poco de la cantidad de $r \ge 1$ de copias de la misma una simple línea de cierta longitud $p = j-k$. Tenga en cuenta que la cadena $s_2$ es предпростой, y sus sencillas líneas tienen una longitud de apenas $p$, es decir, su longitud no excede de $r p + p - 1$. Debido a que la longitud de la cadena $s_2$ es $j-i$, mientras que el índice $j$ aumenta una unidad en cada iteración del primer adjunto del bucle while, este ciclo se realizará no más de $r p + p - 2$ iteraciones. El peor caso es el caso de la $r = 1$, y conseguimos que el primer adjunto el bucle while cada vez hace no más de $2 p - 2$ iteraciones. Recordando que sólo se muestra $n$ de caracteres, obtenemos que para el s $n$ de caracteres que desea no más de $2 n - 2$ iteraciones de la primera adjunto while.
+
+Por lo tanto, \bf{el algoritmo de Дюваля se a $O (n)$}.
+
+Es fácil de evaluar y el número de comparaciones de caracteres, realizadas por el algoritmo Дюваля. Ya que cada iteración del primer bucle anidado while produce dos de comparación de caracteres, así como una comparación se realiza después de la última iteración del bucle (para entender que el ciclo debe de parar), el \bf{el número de comparaciones de caracteres} no supera los $4 n - 3$.
+
+
+\h2{el Hallazgo de la menor rotativa}
+
+Que dada una cadena $s$. Construiremos para la cadena $s+s$ descomposición de lyndon (podemos hacerlo a $O (n)$ tiempo $O (1)$ de memoria (si no se realiza la concatenación de forma explícita)). Encontraremos предпростой bloque que comienza en la posición menos de $n$ (es decir, en la primera instancia de la cadena $s$), y termina en la posición de mayor o igual a n (es decir, en la segunda instancia). Se afirma que \bf{la posición de inicio} de este bloque será el comienzo de una demanda de turnos de desplazamiento (en este fácil de comprobar, utilizando la definición de la estructura de descomposición de lyndon).
+
+El comienzo de la предпростого bloque de encontrar simplemente --- lo suficiente como para notar que el puntero del $i$ al principio de cada iteración del bucle externo while indica el inicio de la actual предпростого de la unidad.
+
+En total recibimos esa \bf{aplicación} (para simplificar el código se utiliza $O (n)$ de memoria, de manera explícita дописывая la cadena a sí mismos):
+
+\code
+string min_cyclic_shift (string s) {
+s += s;
+int n = (int) s.length();
+int i=0, ans=0;
+while (i < n/2) {
+ans = i;
+int j=i+1, k=i;
+while (j < n && s[k] <= s[j]) {
+if (s[k] < s[j])
+k = i;
+else
+++k;
+++j;
+}
+while (i <= k) i += j - k;
+}
+return s.substr (ans, n/2);
+}
+\endcode
+
+
+\h2{ Tareas en línea judges }
+
+La lista de tareas que se pueden resolver mediante un algoritmo Дюваля:
+
+\ul{
+
+\li \href=http://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=660{UVA #719 \bf{"Glass Beads"} ~~~~ [dificultad: baja]}
+
+}

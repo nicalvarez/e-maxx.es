@@ -1,0 +1,13 @@
+<h1>Matriz teorema de kirchhoff. Encontrar el número de остовных de los árboles</h1>
+<p>se Especifica coherente неориентированный el conde de su matriz de adyacencia. Múltiplos de las costillas en el recuadro se permiten. Es necesario contar el número de diferentes остовных de los árboles de este recuadro.</p>
+<p>La siguiente fórmula pertenece Кирхгофу (Kirchhoff), que ha demostrado en 1847</p>
+<h2>Matriz teorema de kirchhoff</h2>
+<p>Tome la matriz de adyacencia del conde de G, a sustituir cada elemento de esta matriz en el opuesto, y en диагонале en lugar de un elemento de A<sub>i,i</sub> ponemos el grado de los vértices i (si se dispone de múltiples costillas, en la medida en la cima se tienen en cuenta con su multiplicidad). Entonces, según la matriz teorema de kirchhoff, todos algebraicas complemento de esta matriz son iguales entre sí, e iguales a la cantidad de остовных de los árboles de este recuadro. Por ejemplo, puede eliminar la última fila y la última columna de esta matriz, y el módulo de su determinante es igual a искомому cantidad.</p>
+<p>el Determinante de la matriz se puede encontrar de O (N<sup>3</sup>) con la ayuda de <algohref=determinant_gauss>el método de gauss</algohref> o <algohref=determinant_crout>método Краута</algohref>.</p>
+<p>la Prueba de este teorema es bastante difícil y no se presenta aquí (véase, por ejemplo, Приезжев S. b. "la Tarea de димерах y el teorema de kirchhoff").</p>
+<h2>Conectividad con las leyes de kirchhoff en el circuito eléctrico</h2>
+<p>Entre la matriz teorema de kirchhoff y las leyes de kirchhoff para el circuito dispone de un increíble relación.</p>
+<p>Puede mostrar (como consecuencia de la ley de ohm y la primera ley de kirchhoff), que la resistencia R<sub>ij</sub> entre los puntos i y j de un circuito eléctrico es igual a:</p>
+<formula>R<sub>ij</sub> = |T<sup>(i,j)</sup>| / |T<sup>j</sup>|</formula>
+<p>donde la matriz T se obtiene de la matriz A <i>inversas</i> de las resistencias de los conductores (A<sub>ij</sub> - inversa de un número a la resistencia del conductor entre los puntos i y j) la conversión, a las descritas en la matriz teorema de kirchhoff, y la designación de la T<sup>(i)</sup> es tachar la fila y la columna con el número i, y T<sup>(i,j)</sup> - tachar dos filas y de las columnas i y j.</p>
+<p>el Teorema de kirchhoff da esta fórmula geométrica sentido.</p>

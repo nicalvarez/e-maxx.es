@@ -1,0 +1,117 @@
+\h1{Discreta de la extracción de la raíz}
+
+La tarea de la elección de la extracción de la raíz (por analogía con \algohref=discrete_log{tarea del logaritmo discreto}) suena de la siguiente manera. Según datos de la $n$ ($n$ --- simple), de $a$, $k$ es necesario encontrar todo $x$, que cumplen la condición:
+$$ x^k \equiv a \pmod{n} $$
+
+\h2{el Algoritmo de solución}
+
+Abordar la tarea vamos a reducir a la tarea del logaritmo discreto.
+
+Para ello, se aplica el concepto de \algohref=primitive_root{Первообразного de la raíz por el módulo $n$}. Que $g$ --- первообразный la raíz del módulo $n$ (porque $n$ --- simple, existe). Encontrar su podemos, como se describe en el artículo correspondiente, por el $O( {\rm Ans} \cdot \log \phi(n) \cdot \log n) = O( {\rm Ans} \cdot \log^2 n)$ más el tiempo факторизации número $\phi(n)$.
+
+Descartar de inmediato el caso, cuando $a=0$ --- en este caso, inmediatamente encontramos la respuesta $x=0$.
+
+Ya que en este caso ($n$ --- simple) cualquier número entre $1 a$ a $n-1$ representable en forma de grado первообразного de la raíz, la tarea de elección de la raíz de la que podemos imaginar como:
+$$ {\left( g^y \right)}^k \equiv a \pmod{n} $$
+donde
+$$ x \equiv g^y \pmod{n} $$
+Trivial de la conversión obtenemos:
+$$ {\left( g^k \right)}^y \equiv a \pmod{n} $$
+Aquí la referencia es $y$, por lo tanto, llegamos a la tarea discreta логарифмирования en su forma más pura. Esta tarea se puede resolver \algohref=discrete_log{el algoritmo de baby-step-giant-step Шэнкса} $O( \sqrt{n} \log n )$, es decir, de encontrar una solución a $y_0$ de la ecuación (o descubrir que es la ecuación de decisiones no tiene).
+
+Supongamos que hemos encontrado un poco de la solución de $y_0$ de esta ecuación, entonces una de las tareas discreto de la raíz será de $x_0 = g^{y_0} \pmod{n}$.
+
+\h2{Encontrar todas las soluciones, sabiendo que uno de ellos}
+
+Para resolver totalmente la tarea, es necesario aprender de uno encontrado en $x_0 = g^{y_0} \pmod{n}$ para recuperar todo el resto de las soluciones.
+
+Para ello, recordemos el hecho de que первообразный la raíz tiene siempre el orden de $\phi(n)$ (véase \algohref=primitive_root{artículo sobre первообразном la raíz}), es decir, el menor grado de $g$, dando por unidad es de $\phi(n)$. Por lo tanto, la adición en el indicador de la gravedad de término con $\phi(n)$ no cambia nada:
+$$ x^k \equiv g^{ y_0 \cdot k + l \cdot \phi(n) } \equiv a \pmod{n}\ \ \ \ forall\ l \in {\cal Z} $$
+De ahí, todas las decisiones tienen la forma:
+$$ x = g^{ y_0 + \frac{ l \cdot \phi(n) }{ k } } \pmod{n}\ \ \ \ forall\ l \in {\cal Z} $$
+donde $l$ se elige de modo que la fracción $\frac{ l \cdot \phi(n) }{ k }$ se entera. Para esta fracción se entera, el numerador debe ser un múltiplo del mínimo común veces $\phi(n)$ y $k$, de donde (recordando que el mínimo común múltiplo de dos números ${\rm lcm}(a,b) = \frac{ a \cdot b }{ {\rm mcd}(a,b) }$), obtenemos:
+$$ x = g^{ y_0 + i \frac{ \phi(n) }{ {\rm mcd}(k,\phi(n)) } } \pmod{n}\ \ \ \ forall\ i \in {\cal Z} $$
+Este es el último de la cómoda fórmula, que da una vista general de todas las decisiones de la tarea discreta de la raíz.
+
+\h2{Aplicación}
+
+Llevaremos una implementación completa, que incluye el hallazgo de первообразного de la raíz, discreto логарифмирование y la búsqueda de la salida y de todas las decisiones.
+
+\code
+int mcd (int a, int b) {
+retorno a ? gcd (b%a, a) : b;
+}
+
+int powmod (int a, int b, int p) {
+int res = 1;
+while (b)
+if (b & 1)
+res = int (res * 1ll * a % p), --b;
+else
+a = int (a * 1ll * a % p), b > > a= 1;
+return res;
+}
+
+int generator (int p) {
+vector<int> fact;
+int phi = p-1, n = phi;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+fact.push_back (i);
+while (n % i == 0)
+n /= i;
+}
+if (n > 1)
+fact.push_back (n);
+
+for (int res=2; res<=p; ++res) {
+bool ok = true;
+for (size_t i=0; i<fact.size() && ok; ++i)
+ok &= powmod (res, phi / fact[i], p) != 1;
+if (ok) return res;
+}
+return -1;
+}
+
+int main() {
+
+int n, k, a;
+cin >> n >> k >> a;
+if (a == 0) {
+puts ("1\n0");
+return 0;
+}
+
+int g = generator (n);
+
+int sq = (int) sqrt (n + .0) + 1;
+vector < pair<int,int> > dec (sq);
+for (int i=1; i<=sq; ++i)
+dec[i-1] = make_pair (powmod (g, int (i * sq * 1ll * k % (n - 1)), n), i);
+sort (dec.begin(), dec.end());
+int any_ans = -1;
+for (int i=0; i<sq; ++i) {
+int my = int (powmod (g, int (i * 1ll * k % (n - 1)), n) * 1ll * a % n);
+vector < pair<int,int> >::iterator it =
+lower_bound (dec.begin(), dec.end(), make_pair (my, 0));
+if (it != dec.end() && it->first == mi) {
+any_ans = it->second * sq - i;
+break;
+}
+}
+if (any_ans == -1) {
+puts ("0");
+return 0;
+}
+
+int delta = (n-1) / mcd (k, n-1);
+vector<int> ans;
+for (int cur=any_ans%delta; cur<n-1; cur+=delta)
+ans.push_back (powmod (g, cur, n));
+sort (ans.begin(), ans.end());
+printf ("%d\n", de los ans.size());
+for (size_t i=0; i<ans.size(); ++i)
+printf ("%d ", ans[i]);
+
+}
+\endcode

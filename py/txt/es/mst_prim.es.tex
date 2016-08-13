@@ -1,0 +1,168 @@
+\h1{Mínimo остовное árbol. El Algoritmo De La Prima}
+
+Dan ponderado неориентированный el conde de $G$ c $n$ cimas $m$ las costillas. Necesita encontrar un subárbol de este conde, que соединяло todo su cima, y cuando este tenga el mínimo peso (es decir, la suma de los pesos de las costillas). El subárbol --- es un conjunto de aristas que unen los vértices, y de cualquier cima se puede llegar a cualquier otra exactamente una forma sencilla.
+
+Qué es el subárbol se llama un mínimo de остовным de un árbol o simplemente \bf{mínimo la esencia de}. Es fácil comprender que cualquier estructura necesariamente contendrá $n-1$ arista.
+
+En \bf{natural planteamiento} esta tarea es el siguiente:. $n$ de las ciudades, y para cada par se conoce el costo de la conexión de su querido (o se sabe que los conecte, no se puede). Es necesario conectar todos los de la ciudad para poder llegar desde cualquier ciudad a otra, y en este caso el coste de la tira de carreteras sería mínima.
+
+
+\h2{el Algoritmo de la prima}
+
+Este algoritmo fue nombrada en honor de la american matemáticas prima de robert (Robert Prim), que abrió este algoritmo en 1957, sin Embargo, aún en 1930, este algoritmo se ha abierto el matemático checo Войтеком Ярником (Vojtěch Jarník). Además, edgar Дейкстра (Edsger Dijkstra) en 1959, también inventó el algoritmo, independientemente de ellos.
+
+
+\h3{Descripción del algoritmo}
+
+El \bf{el algoritmo} tiene una muy simple mirada. El mínimo de la armadura se construye poco a poco, la adición en él las costillas de uno en uno. Inicialmente, la estructura se basa compuesto por la única a la cima (se puede elegir arbitrariamente). A continuación, se selecciona la arista de peso mínimo, que sale de la cima, y se agrega en el mínimo de la armadura. Después de esto, el esqueleto contiene ya las dos de la cima, y ahora se busca y se agrega una arista de peso mínimo, que tiene un extremo en uno de los dos de los vértices seleccionados, y el otro --- por el contrario, en el resto, además de estos dos. Y así sucesivamente, es decir, cada vez que se busca el mínimo de peso de una arista, un extremo que --- ya tomada en el esqueleto de la cima, y el otro extremo-todavía no la única, y es el borde, se agrega en el esqueleto (si tales aristas múltiples, se puede tomar cualquiera). Este proceso se repite hasta que la armadura no será contener todos los vértices (o lo que es lo mismo, $n-1$ el borde).
+
+En la final será construido el esqueleto, que es el mínimo. Si el conde era originalmente no связен, el esqueleto no se encuentra (el número de seleccionados de las costillas permanecerá menos de $n-1$).
+
+
+\h3{Prueba}
+
+Deje que el conde de $G$ se conectan, es decir, la respuesta existe. Se denota por $T$ esqueleto que se encuentra el algoritmo de la prima, y a través de la $S$ --- mínimo de la armadura. Es evidente que $T$ es realmente la esencia (es decir, поддеревом conde de $G$). Mostraremos que el peso de la $S$ y $T$ coinciden.
+
+Examinemos el primer momento, cuando en el $T$ ocurrió adición de bordes, no incluido en el óptimo el esqueleto de $S$. Se denota es el borde a través de la $e$, de los extremos de sus --- a través de $a$ y $b$, y un montón de entrantes en el momento en el que la armadura de vértices --- a través de la $V$ (de acuerdo con un algoritmo, $a \in V$, $b \not\in V$, o viceversa). En el mejor de el esqueleto de la $S$ la cima de $a$ y $b$ se unen de alguna manera por los $P$; encontraremos en este camino de cualquier arista de $g$, un extremo que está en $V$, y la otra-no. Dado que el algoritmo de prima eligió la arista $e$ en lugar de aletas de $g$, esto significa que el peso de la aleta de $g$ es mayor o igual al peso de la aleta de la $e$.
+
+Eliminaremos ahora de $S$ el borde de $g$, y añadimos la costilla $e$. Solo que lo que se ha dicho, el peso de la armadura, en consecuencia, no podía aumentar (disminuir también que no podía, ya que el $S$ es el óptimo). Además, $S$ no ha dejado de ser la esencia (en el sentido de que la conectividad no нарушилась, es fácil ver: nos замкнули la ruta $P$ en el ciclo, y luego eliminado de este ciclo de una arista).
+
+Así pues, hemos demostrado que se puede elegir la mejor estructura $S$ de tal manera que se incluirá la arista $e$. Repita este procedimiento tantas veces como sea necesario, conseguimos que se puede elegir la mejor estructura $S$ para que coincida con $T$. Por lo tanto, el peso de la construida por el algoritmo prima $T$ es mínima, y que se quería demostrar.
+
+
+\h2{Aplicación}
+
+El tiempo de funcionamiento del algoritmo depende en gran medida de la manera en que hacemos la búsqueda ordinaria mínima de la aleta adecuados entre las costillas. Aquí pueden ser diferentes enfoques que conducen a diferentes асимптотикам y diferentes implementaciones.
+
+
+\h3{Trivial realización: algoritmos $O(n m)$ y $de O(n^2 + m \log n)$}
+
+Si se busca cada vez más el borde simple de ver entre todas las opciones posibles, es asintóticamente será necesario ver $O(m)$ aristas, para encontrar entre todos válidos de la arista de menor peso. Total de asíntotas algoritmo será en este caso $O(nm)$, que en el peor de los casos es $O(n^3)$, --- es demasiado lento el algoritmo.
+
+Este algoritmo se puede mejorar, si ver a la vez, cada una de sus costillas, y sólo una arista de cada ya el vértice seleccionado. Para ello, por ejemplo, puede ordenar los bordes de cada uno de los vértices en orden creciente de pesos, y almacenar el puntero en la primera válida de la arista (recordemos, sólo se permiten las costillas, que llevan a muchos aún no los vértices seleccionados). Entonces, si a calcular los índices cada vez que se agrega un nervio en la columna vertebral, el total de asíntotas algoritmo se $O(n^2 + m)$, pero previamente deberá ordenar todos los bordes a $O(m \log n)$, que en el peor de los casos (para los gráficos) da асимптотику $O(n^2 \log n)$.
+
+A continuación examinaremos dos un poco de otras algoritmo: para el densas y dispersas de los condes, habiendo recibido en el resultado notablemente mejor асимптотику.
+
+
+\h3{el Caso de grafos densos: el algoritmo de $O(n^2)$}
+
+Nos acercaremos a la cuestión de la búsqueda de la menor de la aleta con la otra parte: para cada aún no seleccionada vamos a almacenar un mínimo de arista, líder en la ya seleccionada la cima.
+
+Entonces, para que en el paso de seleccionar el mínimo de la aleta, solo hay que ver estos mínimos de la aleta de cada no seleccionada aún cumbres --- asíntotas $O(n)$.
+
+Pero ahora, cuando se agrega a la estructura ordinaria de aristas y vértices de estos índices es necesario volver a calcular. Tenga en cuenta que estos índices sólo pueden disminuir, es decir, cada uno no ha visto aún la cima hay que dejar el puntero, sin cambios, o que le asigne el peso de la arista que acaba de agregar a la cima. Por lo tanto, esta fase se puede hacer también por el $O(n)$.
+
+Por lo tanto, tenemos una variante del algoritmo prima con асимптотикой $O(n^2)$.
+
+En particular, esta aplicación es especialmente útil para la decisión de la denominada \bf{евклидовой la tarea de un esqueleto}: cuando se dan $n$ de puntos en el plano, la distancia entre los cuales se mide según el estándar евклидовой la partida de nacimiento, y es necesario encontrar el esqueleto de peso mínimo, que conecta a todos ellos (y añadir nuevas cimas en otros lugares está prohibido). Esta tarea se resuelve aquí descritas en el algoritmo de $O(n^2)$ tiempo $de O(n)$ de memoria, lo cual no resultar conseguir \algohref=mst_kruskal{el algoritmo de kruskal -}.
+
+La implementación del algoritmo de prima para el conde, dada la matriz de adyacencia $g[][]$:
+
+\code
+// datos de entrada
+int n;
+vector < vector<int> > g;
+const int INF = 1000000000; // el valor de "infinito"
+
+// algoritmo
+vector<bool> used (n);
+vector<int> min_e (n, INF), sel_e (n, -1);
+min_e[0] = 0;
+for (int i=0; i<n; ++i) {
+int v = -1;
+for (int j=0; j<n; ++j)
+if (!used[j] && (v == -1 || min_e[j] < min_e[v]))
+v = j;
+if (min_e[v] == INF) {
+cout << "No MST!";
+exit(0);
+}
+
+used[v] = true;
+if (sel_e[v] != -1)
+cout << v << "" << sel_e[v] << endl;
+
+for (int to=0; a<n; ++to)
+if (g[v][to] < min_e[to]) {
+min_e[to] = g[v][to];
+sel_e[to] = v;
+}
+}
+\endcode
+
+En la entrada sirve el número de vértices $n$ y la matriz de $g[][]$ el tamaño de la $n \times n$, está marcada por el peso de las aletas, y son el número de $INF$, si la arista no. El algoritmo admite tres de la matriz: la bandera de ${\rm used}[i] = {\rm true}$ significa que la punta de la $i$ habilitado en la columna vertebral, el valor de ${\rm min\_en}[i]$ almacena el peso mínimo permitido de la aleta de la cima de la $i$, mientras que el elemento de ${\rm sel\_en}[i]$ contiene el extremo este de la menor de la aleta (esto es necesario para la salida de las costillas en la respuesta). El algoritmo hace $n$ de pasos, en cada uno de los cuales elige la cima de la $v$ con la menor marca de ${\rm min\_en}$, la marca de $\rm used$, y, a continuación, recorre todas las aristas de esta cima, пересчитывая sus etiquetas.
+
+
+\h3{Caso dispersas de grafos: el algoritmo de a $O(m \log n)$}
+
+En el anterior algoritmo se puede ver el funcionamiento estándar de minimización en la pluralidad y el cambio de valores en este conjunto. Estas dos operaciones son clásicos, y se realizan muchas de las estructuras de datos, por ejemplo, implementado en lenguaje C++ rojo-negro de madera set.
+
+En el sentido del algoritmo sigue siendo exactamente la misma, pero ahora podemos encontrar el mínimo de la arista por hora $O(\log n)$. Por otro lado, el tiempo en el recuento de $n$ punteros de ahora será de $O(n \log n)$, que es peor que en el anterior algoritmo.
+
+Si tenemos en cuenta que el total será de $O(m)$ de los nuevos cálculos de los índices y $O(n)$ búsquedas mínimo de las costillas, el total de asíntotas $O(m \log n)$ --- dispersas de los condes es mejor que los dos anteriores, el algoritmo, pero en densas columnas de este algoritmo es más lento de la anterior.
+
+La implementación del algoritmo de prima para el conde, especificado en las listas de adyacencia $g[]$:
+
+\code
+// datos de entrada
+int n;
+vector < vector < pair<int,int> > > g;
+const int INF = 1000000000; // el valor de "infinito"
+
+// algoritmo
+vector<int> min_e (n, INF), sel_e (n, -1);
+min_e[0] = 0;
+set < pair<int,int> > q;
+q.insert (make_pair (0, 0));
+for (int i=0; i<n; ++i) {
+if (q.empty()) {
+cout << "No MST!";
+exit(0);
+}
+int v = q.begin()->second;
+q.erase (q.begin());
+
+if (sel_e[v] != -1)
+cout << v << "" << sel_e[v] << endl;
+
+for (size_t j=0; j<g[v].size(); ++j) {
+int to = g[v][j].first,
+cost = g[v][j].second;
+if (cost < min_e[to]) {
+q.erase (make_pair (min_e[to], to));
+min_e[to] = cost;
+sel_e[to] = v;
+q.insert (make_pair (min_e[to], to));
+}
+}
+}
+\endcode
+
+En la entrada sirve el número de vértices $n$ y $n$ de las listas de adyacencia: $g[i]$ --- esta es la lista de todos los bordes salientes de la cima de la $i$, en forma de vapor (el otro extremo de la aleta, el peso de las costillas). El algoritmo admite dos matrices: la cantidad de ${\rm min\_en}[i]$ almacena el peso mínimo permitido de la aleta de la cima de la $i$, mientras que el elemento de ${\rm sel\_en}[i]$ contiene el extremo este de la menor de la aleta (esto es necesario para la salida de las costillas en la respuesta). Además, se admite la cola $q$ de todos los vértices en el orden creciente de sus etiquetas ${\rm min\_en}$. El algoritmo hace $n$ de pasos, en cada uno de los cuales elige la cima de la $v$ con la menor marca de ${\rm min\_en}$ (simplemente quitando su principio de la cola), y, a continuación, recorre todas las aristas de esta cima, пересчитывая sus etiquetas (al recuento de los eliminamos de la cola de la vieja valor y, a continuación, lo ponemos de nuevo la nueva).
+
+
+\h3{Analogía con el algoritmo de Дейкстры}
+
+En los dos descritos sólo que los algoritmos se observa es una clara analogía con \algohref=dijkstra{el algoritmo Дейкстры}: tiene la misma estructura (en$n-1$ fase, en cada una de las cuales se selecciona primero óptima de la arista, se agrega en la respuesta y, a continuación, se vuelven a calcular los valores para todos los no seleccionados otra de las cimas). Además, el algoritmo de Дейкстры también tiene dos opciones de implementación: $O(n^2)$ y $O(m \log n)$ (que, por supuesto, aquí no tenemos en cuenta la posibilidad de utilizar estructuras de datos complejas para lograr aún más pequeñas асимптотик).
+
+Si echa un vistazo a los algoritmos de la prima y Дейкстры más formalmente, resulta que son en absoluto idénticos entre sí, excepto \bf{ponderación de la función} vértices: si el algoritmo de Дейкстры el de cada vértice se admite la longitud de la ruta más corta (es decir, la suma de los pesos de algunas costillas), el algoritmo prima cada vértice se atribuye sólo el peso mínimo de la aleta, líder en la multitud ya tomadas de los vértices.
+
+A nivel de la aplicación, esto significa que después de agregar el ordinario de la cima de $v$ en el conjunto de los vértices seleccionados, cuando empezamos a ver todas las aristas de $(v,a)$ de esta cima, el algoritmo prima índice $to$ se actualiza el peso de la aleta $(v,a)$, y en el algoritmo de Дейкстры --- marca la distancia $d[to]$ se actualiza el importe de la etiqueta de $d[v]$ y el peso de la aleta $(v,a)$. En el resto de estos dos algoritmos se puede considerar idénticos (aunque ellos deciden es muy diferente de la tarea).
+
+
+\h2{Propiedades mínimas núcleos}
+
+\ul{
+
+\li \bf{Máximo} columna vertebral también puede buscar el algoritmo de la prima (por ejemplo, sustituyendo todo el peso de las aletas en los extremos opuestos: el algoritmo no requiere неотрицательности de pesos de las aristas).
+
+\li Mínimo de la armadura \bf{uno} si los pesos de todas las aristas diferentes. En caso contrario, puede haber unos mínimos de núcleos (que será seleccionado por el algoritmo prima, depende del orden de visualización de aristas/vértices con pesos iguales/punteros)
+
+\li Mínimo de la armadura también es la esencia, \bf{mínimos de la obra} todos los bordes (se supone que todos los pesos son positivos). En realidad, si vamos a sustituir el peso de todas las aristas en sus logaritmos, es fácil notar que el algoritmo nada va a cambiar, y se encuentran con los mismos bordes.
+
+\li Mínimo de la armadura es la esencia con el mínimo peso \bf{más pesado de la aleta}. La más clara de todo esto es la afirmación es comprensible, si tenemos en cuenta el trabajo \algohref=mst_kruskal{el algoritmo de kruskal -}.
+
+\li \bf{Criterio минимальности} la armadura: la armadura es mínima entonces, y sólo entonces, cuando para cualquier costillas, no pertenece a la остову, ciclo, obrazuemyj este lado de la adición de la остову, no contiene aristas más pesado de esta aleta. En realidad, si una costilla, y resultó que es más fácil para algunas costillas formado por ciclo, se puede obtener una estructura con menos peso (añadiendo la arista en la columna vertebral, y quitando lo más difícil de la costilla de un ciclo). Si esta condición no es resultado de ninguna costilla, todas estas aletas no mejoran el peso de la armadura a medida que se agregan.
+
+}
+

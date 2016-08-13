@@ -1,0 +1,113 @@
+\h1{ Task Johnson with two machines }
+
+There are $n$ parts and two machines. Every detail must first be processed on the first machine, then on the second. Thus $i$-th item is processed on first machine for $a_i$ of the time, and the second --- for $b_i$ times. Each machine at a time can work with only one item.
+
+You want to make such a filing parts on machines that total processing time of all parts would be minimal.
+
+This task is called sometimes the dual-task maintenance tasks, or task Johnson (on behalf of S. M. Johnson, who in 1954 proposed an algorithm for its solution).
+
+It should be noted that when the number of machines more than two, this task becomes NP-complete (as proved by Gary (Garey) in 1976).
+
+
+\h2{ Building algorithm }
+
+Note rst that we can assume that the processing order details \bf{the first and the second machines must be the same}. In fact, since the details for the second machine are available only after processing at the first, and in case of several available to the second machine parts, the processing times will be equal to the sum of $b_i$, regardless of what order it is most advantageous to send on the second machine from the parts, which previously hosted the other treatment on the first machine.
+
+Consider the order of presentation of parts to the machines that match their input order: $1, 2, \ldots, n$.
+
+Denote by $x_i$ \bf{idle time} to the second machine immediately before processing the $i$-th component (after processing $i-1$-th component). Our goal --- \bf{to minimize total simple}:
+
+$$ F(x) = \sum x_i \longrightarrow \min. $$
+
+For first part we have:
+
+$$ x_1 = a_1. $$
+
+For the second --- as it becomes ready to be sent to the second machine at time $a_1+a_2$, and the second machine is freed at time $x_1 + b_1$, we have:
+
+$$ x_2 = \max \Big( (a_1+a_2) - (x_1+b_1), 0 \Big). $$
+
+The third part becomes available for the second machine at the moment $a_1+a_2+a_3$, and the machine is released in $x_1+b_1+x_2+b_2$, so:
+
+$$ x_3 = \max \Big( (a_1+a_2+a_3) - (x_1+b_1+x_2+b_2), 0 \Big). $$
+
+Thus, the General form for $x_i$ looks like this:
+
+$$ x_k = \max \left( \sum_{i=1}^{k} a_i - \sum_{i=1}^{k-1} b_i - \sum_{i=1}^{k-1} x_i, 0 \right). $$
+
+Now calculate \bf{a simple sum} $F(x)$. It is alleged that he is:
+
+$$ F(x) = \max_{k=1 \ldots n} K_i, $$
+
+where
+
+$$ K_i = \sum_{i=1}^{k} a_i - \sum_{i=1}^{k-1} b_i. $$
+
+(You can verify this by induction, or consistently finding the expression for the sum of the first two, three, etc. $x_i$.)
+
+Now let's use \bf{permutation technique}: will try to exchange any two adjacent elements of $j$ and $j+1$ and see how this changes the total simple.
+
+By type of expression functions for $K_i$ it is clear that change only $K_j$ and $K_{j+1}$; we denote their new values via $K_j^\prime$ and $K_{j+1}^\prime$.
+
+Thus, to item $j$ was going to the details of $j+1$, is sufficient (though not necessary) to:
+
+$$ \max \left( K_j, K_{j+1} \right) \le \max \left( K_j^\prime K_{j+1}^\prime \right). $$
+
+(i.e. we ignored the rest, not changed, the arguments of the maximum in the expression for $F(x)$, thereby obtaining a sufficient but not necessary condition for that old $F(x)$ is less than or equal to the new value)
+
+Subtracting $ \sum_{i=1}^{j+1} a_i - \sum_{i=1}^{j-1} b_i $ from both parts of this inequality, we obtain:
+
+$$ \max (-a_{j+1}, -b_j) \le \max (-b_{j+1}, -a_j), $$
+
+or, getting rid of negative numbers, we get:
+
+$$ \min (a_j, b_{j+1}) \le \min (b_j, a_{j+1}). $$
+
+Thus, we have obtained \bf{comparator}: sorting the details on it, we, according to the above calculations, we arrive to the optimal order of parts in which you cannot swap any two items, improving the final time.
+
+However, it is possible to further \bf{simplify} a sort, if you look at this comparator with the other side. In fact, he tells us that if the minimum of four numbers $(a_j, a_{j+1}, b_{j}, b_{j+1})$ is achieved at the element from the array $a$, then the corresponding item should go before, and if the element from the array $b$ --- then later. We thus have a different form of algorithm: sort items by a minimum of $(a_i, b_i)$, and if the current part is at least equal to $a_i$, then this detail should be handled in the first of the remaining, otherwise --- the last one remaining.
+
+Anyway, it turns out that the problem with Johnson's two machines comes down to the sort of parts with a particular function of the comparison elements. Thus, the time complexity is $O (n \log n)$.
+
+
+\h2{ the Implementation }
+
+Implement the second variant of the algorithm above, when the items are sorted according to the minimum of $(a_i, b_i)$, and then go to the beginning or the end of the current list.
+
+\code
+struct item {
+int a, b, id;
+
+bool operator< (item p) const {
+return min(a,b) < min(p.a,p.b);
+}
+};
+
+
+sort (v.begin(), V. end());
+vector<item> a, b;
+for (int i=0; i<n; ++i)
+(v[i].a<=v[i].b ? a : b) .push_back (v[i]);
+a.insert (a.end(), b.rbegin(), b.rend());
+
+int t1=0, t2=0;
+for (int i=0; i<n; ++i) {
+t1 += a[i].a;
+t2 = max(t2,t1) + a[i].b;
+}
+\endcode
+
+Here are all the details stored in the form of structures of $\rm item$, each of which contains the values of $a$ and $b$ and source the part number.
+
+Details sorted, then distributed according to the lists $a$ (it's the details that were sent to the front of the queue) and $b$ (those that were sent in the end). After that, the two lists are merged (and the second list is taken in reverse order), and then found the procedure calculates the required minimum time: two supported variables $t_1$ and $t_2$ --- the release of the first and second machine respectively.
+
+
+\h2{ Literature }
+
+\ul{
+
+\li \href=http://www.rand.org/pubs/papers/2008/P402.pdf{S. M. Johnson. \bf{Optimal two - and three-stage production schedules with setup times included} [1954]}
+
+\li M. R. Garey. \bf{The Complexity of Flowshop and Jobshop Scheduling} [1976]
+
+}

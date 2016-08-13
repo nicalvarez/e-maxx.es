@@ -1,0 +1,51 @@
+\h1{Integration by Simpson's rule}
+
+You need to calculate the value of the definite integral:
+
+$$ \int_a^b f(x) dx $$
+
+The solution described here was published in a dissertations \bf{Thomas Simpson} (Thomas Simpson) in 1743
+
+
+\h2{Simpson's rule}
+
+Let $n$ is some natural number. We divide the interval of integration $[a;b]$ to $2n$ equal parts:
+
+$$ x_i = a + i h,~~i = 0 \ldots 2n $$
+$$ h = \frac{ b-a }{ 2n }. $$
+
+Now calculate the integral separately on each of the intervals $[x_{2i-2}, x_{2i}], i = 1 \ldots n$, and then put all the values.
+
+So, let us consider the next interval $[x_{2i-2}, x_{2i}], i = 1 \ldots n$. Replace the function $f(x)$ it is a parabola passing through 3 points $(x_{2i-2},x_{2i-1},x_{2i})$. Such a parabola exists and is always unique. It can be found analytically, then you will only have to integrate the expression for her, and finally we get:
+
+$$ \int_{x_{2i-2}}^{x_{2i}} f(x) dx = \left( f(x_{2i-2}) + 4 f(x_{2i-1}) + f(x_{2i}) \right) \frac{ h }{ 3 }. $$
+
+Adding up these values for all sections received final \bf{Simpson's rule}:
+
+$$ \int_a^b f(x) dx = \left( f(x_0) + 4 f(x_1) + 2 f(x_2) + 4 f(x_3) + 2F(x_4) + \ldots + 4 f(x_{2N-1}) + f(x_{2N}) \right) \frac{ h }{ 3 }. $$
+
+
+\h2{Error}
+
+The error given by Simpson's rule, does not exceed the modulo value:
+
+$$ \frac{ 1 }{ 180 } h^4 (b - a) \max_{a \le x \le b} \left| f^{(4)}(x) \right|. $$
+
+Thus, the error is of the order of decrease as $O (n^4)$.
+
+
+\h2{the Implementation}
+
+Here $f(x)$ --- some user-defined function.
+
+\code
+double a, b; // input
+const int N = 1000*1000; // number of steps (already multiplied by 2)
+double s = 0;
+double h = (b - a) / N;
+for (int i=0; i<=N; ++i) {
+double x = a + h * i;
+s += f(x) * ((i==0 || i==N) ? 1 : ((i&1)==0) ? 2 : 4);
+}
+s *= h / 3;
+\endcode

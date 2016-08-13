@@ -1,0 +1,29 @@
+\h1{Collares}
+
+La tarea de "collares" --- este es uno de los clásicos комбинаторных de tareas. Es necesario contar el número de diferentes collares de $n$ cuentas, cada una de las cuales puede ser pintado en uno de $k$ de colores. Cuando se comparan dos collares se puede rotar, pero no dar la vuelta (es decir, se permite hacer un desplazamiento cíclico).
+
+\h2{para Decisión}
+
+Esta tarea se puede utilizar \algohref=burnside_polya{лемму Бернсайда y el teorema de poya}. [ A continuación se muestra una copia del texto de este artículo ]
+
+En esta tarea, podemos encontrar un grupo de инвариантных permutaciones. Obviamente, ella será de $n$ permutaciones:
+
+$$ \pi_0 = 1\ 2\ 3\ \ldots\ n $$
+$$ \pi_1 = 2\ 3\ \ldots\ n\ 1 $$
+$$ \pi_2 = 3\ \ldots\ n\ 1\ 2 $$
+$$ \ldots $$
+$$ \pi_{n-1} = n\ 1\ 2\ \ldots\ (n-1) $$
+
+Encontramos una clara fórmula para el cálculo de $C(\pi_i)$. En primer lugar, tenga en cuenta que las permutaciones son de este tipo, que en el $i$-oh cambiar de lugar en el $j$-oh de la posición cuesta $i+j$ (tomada por el módulo $n$, si es más de $n$). Si nos fijamos en la estructura cíclica de $i$-oh permutación, veremos que la unidad pasa a $1+i$ a $1+i$ pasa a $1+2i$ a $1+2i$ - - - $1+3i$, y así sucesivamente, hasta que no lleguemos en el número de $1 + kn$; para el resto de los elementos se cumplen similares de aprobación. De aquí se puede entender que todos los ciclos tienen la misma longitud, equivalente a ${\rm lcm}(i,n) / i$, es decir $n / {\rm mcd}(i,n)$ ("gcd" --- el máximo común divisor, "lcm" --- el mínimo común múltiplo). Entonces el número de ciclos en $i$-oh realizar la rotación sería de sólo ${\rm mcd}(i,n)$.
+
+Sustituyendo los valores encontrados en el teorema de poya, obtenemos \bf{para decisión}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{i=1}^{n} k ^ {{\rm mcd}(i,n)} $$
+
+Se puede dejar la fórmula en esta forma, y puede minimizar aún más. Pasemos de la suma de todos los $i$ a a la suma de sólo делителям $n$. De hecho, en nuestra será la suma de muchos de los mismos términos: si $i$ a no es un divisor de $n$, es tal el divisor hay después de calcular el ${\rm mcd}(i,n)$. Por lo tanto, para cada divisor $d|n$ su término $k^{{\rm mcd}(d,n)} = k^d$ учтется varias veces, es decir, la cantidad se puede presentar de la siguiente manera:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d, n} C_d k^d $$
+
+donde $C_d$ --- este es el número de estos números, $i$ que ${\rm mcd}(i,n) = d$. Encontramos una clara expresión de esta cantidad. Cualquier cuál es el número de $i$ es: $i=dj$, donde ${\rm mcd}(j,n/d) = 1$ (de lo contrario sería de ${\rm mcd}(i,n) > d$). Recordando \algohref=euler_function{la función de euler}, nos encontramos con que el número de esos $j$ --- este es el valor de la función de euler $\phi(n/d)$. Por lo tanto, $C_d = \phi(n/d)$, y finalmente obtenemos \bf{fórmula}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d, n} \phi \left( \frac{n}{d} \right) k^d $$

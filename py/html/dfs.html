@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Поиск в глубину и его приложения</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Поиск в глубину и его приложения</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Поиск в глубину&lt;/h1&gt;
+
+&lt;p&gt;Это один из основных алгоритмов на графах.&lt;/p&gt;
+&lt;p&gt;В результате поиска в глубину находится лексикографически первый путь в графе.&lt;/p&gt;
+&lt;p&gt;Алгоритм работает за &lt;b&gt;O (N+M)&lt;/b&gt;.&lt;/p&gt;
+&lt;h2&gt;Применения алгоритма&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Поиск любого пути в графе.&lt;/li&gt;
+&lt;li&gt;Поиск лексикографически первого пути в графе.&lt;/li&gt;
+&lt;li&gt;Проверка, является ли одна вершина дерева предком другой:&lt;br&gt;В начале и конце итерации поиска в глубину будет запоминать &quot;время&quot; захода и выхода в каждой вершине. Теперь за O(1) можно найти ответ: вершина i является предком вершины j тогда и только тогда, когда start&lt;sub&gt;i&lt;/sub&gt; &amp;lt; start&lt;sub&gt;j&lt;/sub&gt; и end&lt;sub&gt;i&lt;/sub&gt; &gt; end&lt;sub&gt;j&lt;/sub&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;algohref=lca&gt;Задача LCA (наименьший общий предок)&lt;/algohref&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;algohref=topological_sort&gt;Топологическая сортировка&lt;/algohref&gt;:&lt;br&gt;Запускаем серию поисков в глубину, чтобы обойти все вершины графа. Отсортируем вершины по времени выхода по убыванию - это и будет ответом.&lt;/li&gt;
+&lt;li&gt;&lt;algohref=finding_cycle&gt;Проверка графа на ацикличность и нахождение цикла&lt;/algohref&gt;&lt;/li&gt;
+&lt;li&gt;&lt;algohref=strong_connected_components&gt;Поиск компонент сильной связности&lt;/algohref&gt;:&lt;br&gt;Сначала делаем топологическую сортировку, потом транспонируем граф и проводим снова серию поисков в глубину в порядке, определяемом топологической сортировкой. Каждое дерево поиска - сильносвязная компонента.&lt;/li&gt;
+&lt;li&gt;&lt;algohref=bridge_searching&gt;Поиск мостов&lt;/algohref&gt;:&lt;br&gt;Сначала превращаем граф в ориентированный, делая серию поисков в глубину, и ориентируя каждое ребро так, как мы пытались по нему пройти. Затем находим сильносвязные компоненты. Мостами являются те рёбра, концы которых принадлежат разным сильносвязным компонентам.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;code&gt;vector &amp;lt; vector&amp;lt;int&gt; &gt; g; // граф
+int n; // число вершин
+
+vector&amp;lt;int&gt; color; // цвет вершины (0, 1, или 2)
+
+vector&amp;lt;int&gt; time_in, time_out; // &quot;времена&quot; захода и выхода из вершины
+int dfs_timer = 0; // &quot;таймер&quot; для определения времён
+
+void dfs (int v) {
+	time_in[v] = dfs_timer++;
+	color[v] = 1;
+	for (vector&amp;lt;int&gt;::iterator i=g[v].begin(); i!=g[v].end(); ++i)
+		if (color[*i] == 0)
+			dfs (*i);
+	color[v] = 2;
+	time_out[v] = dfs_timer++;
+}&lt;/code&gt;
+&lt;p&gt;Это наиболее общий код. Во многих случаях времена захода и выхода из вершины не важны, так же как и не важны цвета вершин (но тогда надо будет ввести аналогичный по смыслу булевский массив used). Вот наиболее простая реализация:&lt;/p&gt;
+&lt;code&gt;vector &amp;lt; vector&amp;lt;int&gt; &gt; g; // граф
+int n; // число вершин
+
+vector&amp;lt;char&gt; used;
+
+void dfs (int v) {
+	used[v] = true;
+	for (vector&amp;lt;int&gt;::iterator i=g[v].begin(); i!=g[v].end(); ++i)
+		if (!used[*i])
+			dfs (*i);
+}&lt;/code&gt;</textarea></td></tr></table></body></html>

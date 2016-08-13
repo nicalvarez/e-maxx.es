@@ -1,0 +1,85 @@
+\h1{Рандомизированная un montón de}
+
+Рандомизированная un montón (aleatorios heap) --- esto es un montón, que mediante el uso de un generador de números aleatorios permite realizar todas las operaciones necesarias por logarítmica de la hora prevista.
+
+\bf{un Montón de} se llama árbol binario, para cualquier picos que con razón, que el valor en la cima, menos o igual que los valores en todos sus descendientes (esto es un montón de mínimo; por supuesto, de forma simétrica, se puede determinar el montón de máximo). Por lo tanto, en la raíz de la pila, se encuentra siempre el mínimo.
+
+Estándar de un conjunto de operaciones definido por montones, es la siguiente:
+\ul{
+\li Adición de un elemento de
+\li Encontrar el mínimo
+\li Extracción mínimo (eliminación de la madera y el reembolso de su valor)
+\li Fusión de dos de los montones (se devuelve el montón que contiene elementos de las dos montones; duplicados no se borran)
+\li Eliminación arbitraria de un elemento al punto conocido en el árbol)
+}
+
+Рандомизированная un montón permite realizar todas estas operaciones por hora prevista de $O(\log n)$ de muy fácil aplicación.
+
+\h2{Estructura de datos}
+
+En seguida describiremos la estructura de datos que describe binaria de un montón:
+\code
+struct tree {
+T value;
+tree * l, * r;
+};
+\endcode
+En la parte superior del árbol se almacena el valor de $\rm value$ un $\rm T$, para el que se define el operador de comparación ($\rm operator\ <$). Además, se almacenan punteros a izquierda y derecha de los hijos (que son iguales a 0, si el hijo no está disponible).
+
+\h2{la Ejecución de las operaciones}
+
+Es fácil comprender que todas las operaciones sobre el montón se reducen a una sola operación: \bf{fusionar} dos montones en una sola. De hecho, la adición de un elemento en una pila equivalente a la fusión de este montón de un montón formado por un único elemento que se debe añadir. Encontrar el mínimo no requiere ninguna acción --- el mínimo es simplemente la raíz de la pila. Extracción de un mínimo equivalente a la que la pila se reemplaza por el resultado de la fusión de la izquierda y la derecha en el subárbol de la raíz. Por último, la eliminación arbitraria de un elemento como el de eliminar el mínimo: todo el subárbol con raíz en la cima, se reemplaza por el resultado de la fusión de dos subárboles hijos de esta cima.
+
+Entonces, tenemos en realidad es necesario realizar la operación de la fusión de dos de los montones de todas las demás operaciones trivial se reducen a esta operación.
+
+Que se dan las dos de la pila $T_1$ y $T_2$, desea volver a su unificación. Está claro que en la raíz de cada uno de estos montones se encuentran sus mínimos, por lo tanto, en la raíz de la resultante de la pila será el mínimo de los dos valores. Así, comparamos, en la raíz de cuál de los montones se encuentra en un valor inferior, lo colocamos en la raíz de un resultado, y ahora tenemos que unir a los hijos el vértice seleccionado con el resto de su montón. Si nosotros por cualquier motivo a elegir uno de los dos hijos, entonces necesitamos combinar simplemente un subárbol en la raíz de este hijo con un montón de. Por lo tanto, hemos llegado de nuevo a la operación de combinación de correspondencia. Tarde o temprano, este proceso se detiene (se necesitará, por supuesto, no es más que la suma de las alturas de pilas).
+
+Por lo tanto, para lograr una асимптотики en promedio, necesitamos especificar el método de selección de uno de los dos hijos, con el fin de, en promedio, la longitud de tratamiento camino resultaba sería del orden del logaritmo del número de elementos en la pila. Es fácil adivinar que producir esta opción vamos a \bf{accidentalmente}, por lo tanto, la aplicación de la operación de fusión se obtiene es:
+
+\code
+tree * merge (tree * t1, tree * t2) {
+if (!t1 || !t2)
+return t1 ? t1 : t2;
+if (t2->value < t1->value)
+swap (t1, t2);
+if (rand() & 1)
+swap (t1->l, t1->r);
+t1->l = merge (t1->l, t2);
+return t1;
+}
+\endcode
+
+Aquí, primero se comprueba si al menos uno de los montones está vacía, entonces ninguna acción de la fusión de producir no es necesario. De lo contrario, nos hacemos un montón de $\rm t1$ era un montón de menor valor en la raíz (que alquilamos $\rm t1,$ y $\rm t2$, si es necesario). Por último, consideramos que la segunda un montón de $\rm t2$ vamos a fusionar con el hijo izquierdo de la raíz de la pila $\rm t1$, por lo que nos aleatoriamente alquilamos izquierdo y derecho de los hijos, y a continuación, hacemos la fusión de la izquierda del hijo, y del segundo montón.
+
+\h2{Asíntotas}
+
+Introducimos accidental de la cantidad de $h(T)$ y que indica \bf{longitud aleatoria camino} desde la raíz hasta la hoja de cálculo (la longitud de las aristas). Está claro que el algoritmo de $\rm merge$ se $O(h(T1)+h(T2))$ de operaciones. Por lo tanto, para el estudio de асимптотики algoritmo es necesario explorar accidental de la cantidad de $h(T)$.
+
+\h3{expectativa}
+
+Se afirma que la expectativa $h(T)$ se estima superior логарифмом del número $n$ vértices en este montón:
+$$ Eh(T) \le \log(n+1) $$
+
+Se demuestra esto fácilmente por inducción. Que $L$ y $R$ - - -, respectivamente, la izquierda y la derecha subárboles de la raíz de la pila $T$, y $n_L$ y $n_R$ --- el número de vértices en ellos (es claro que $n = n_L+n_R+1$).
+
+Entonces es justo:
+$$ Eh(T) = 1 + \frac{1}{2}(Eh(L) + Eh(R)) \le 1 + \frac{1}{2}(\log(n_L+1) + \log(n_R+1)) = $$
+$$ = 1 + \log \sqrt{ (n_L+1)(n_R+1) } = \log 2 \sqrt{ (n_L+1)(n_R+1) } \le $$
+$$ \le \log \frac{ 2 ((n_L+1) + (n_R+1)) }{ 2 } = \log (n_L + n_R + 2) = \log(n+1) $$
+que se quería demostrar.
+
+\h3{Exceso esperado de la evaluación}
+
+Demostramos que la probabilidad de exceder un recibida por encima de evaluación de la pequeña:
+$$ P\{ h(T) > (c+1) \log n \} < \frac{1}{n^c} $$
+para cualquier constante positiva $c$.
+
+Se denota por $P$ muchos de los caminos desde la raíz de la pila de hojas, longitud supera $(c+1) \log n$. Tenga en cuenta que para cualquier ruta $p$ de longitud $|p|$ la probabilidad como accidental de la ruta será el elegido fue él, es de $2^{-|p|}$. Entonces obtenemos:
+$$ P\{ h(T) > (c+1) \log n \} = \sum_{p \in P} 2^{-|p|} < \sum_{p \in P} 2^{-(c+1) \log n} = |P| n^{-(c+1)} \le n^{c} $$
+que se quería demostrar.
+
+\h3{Asíntotas algoritmo}
+
+Por lo tanto, el algoritmo de $\rm merge$, y, por tanto, todos los demás se expresan a través de él, la operación se lleva a cabo en $O(\log n)$ en promedio.
+
+Además, para cualquier constante positiva $\epsilon$ hay tal positiva constante $c$, que la probabilidad de que la operación requiere de más de $c \log n$ de las operaciones, menos de $n^{-\epsilon}$ (esto es, en cierto sentido, describe el peor comportamiento del algoritmo).

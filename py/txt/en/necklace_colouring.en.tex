@@ -1,0 +1,29 @@
+\h1{Necklace}
+
+The task of the "necklace" --- this is one of the classical combinatorial problems. You want to count the number of different necklaces of $n$ beads, each of which can be colored in one of $k$ colors. The comparison of the two necklaces you can rotate them but not flip (i.e. allowed to do circular shift).
+
+\h2{Solution}
+
+To solve this problem using \algohref=burnside_polya{Lemma of Burnside and the polya theorem}. [ Below is copy of text from this article ]
+
+In this task, we can immediately find a group of invariant permutations. Obviously, it will consist of $n$ permutations:
+
+$$ \pi_0 = 1\ 2\ 3\ \ldots\ n $$
+$$ \pi_1 = 2\ 3\ \ldots\ n\ 1 $$
+$$ \pi_2 = 3\ \ldots\ n\ 1\ 2 $$
+$$ \ldots $$
+$$ \pi_{n-1} = n\ 1\ 2\ \ldots\ (n-1) $$
+
+Find an explicit formula for computing $C(\pi_i)$. First, note that the permutation looks like that in the $i$-th permutation of $j$-th position is $i+j$ (modulo $n$ if it is greater than $n$). If we consider the cyclic structure of the $i$-th permutation, we see that the unit goes to $1+i$, $1+i$ goes to $1+2i$, $1+2i$ - - - $1+3i$, etc, until you reach the number $1 + kn$; for other elements are similar allegations. From here we can understand that all cycles have the same length, equal to ${\rm lcm}(i,n) / i$, i.e. $n / {\rm gcd}(i,n)$ ("gcd" is greatest common divisor, lcm --- the least common multiple). Then the number of cycles in $i$-th permutation will be equal to just ${\rm gcd}(i,n)$.
+
+Substituting the values found in the polya theorem, we obtain \bf{solution}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{i=1}^{n} k ^ {{\rm gcd}(i,n)} $$
+
+You can leave the equation in this form, but you can minimize it even more. Let's move from the sum over all $i$ to the sum only for the divisors of $n$. Indeed, our money will be much the same terms: if $i$ is not a divisor of $n$, then such a divisor exists after computing ${\rm gcd}(i,n)$. Therefore, for each divisor $d|n$ its summand $k^{{\rm gcd}(d,n)} = k^d$ will be counted several times, i.e., the sum can be represented in the form:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d|n} C_d k^d $$
+
+where $C_d$ is the number of such $i$ that ${\rm gcd}(i,n) = d$. Find an explicit expression for this quantity. Any such number $i$ has the form $i=dj$, where ${\rm gcd}(j,n/d) = 1$ (otherwise it would be ${\rm gcd}(i,n) > d$). Remembering \algohref=euler_function{Euler's function}, we find that the number of such $j$ is the value of the Euler function $\phi(n/d)$. Thus, $C_d = \phi(n/d)$, and finally, we obtain \bf{formula}:
+
+$$ {\rm Ans} = \frac{1}{n} \sum_{d|n} \phi \left( \frac{n}{d} \right) k^d $$

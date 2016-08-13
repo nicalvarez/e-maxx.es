@@ -1,0 +1,36 @@
+<h2>el Cálculo del determinante de una matriz por el método de gauss</h2>
+<p>Deje que dan cuadrada de una matriz A de tamaño NxN. Se desea calcular su determinante.</p>
+<h2>el Algoritmo de</h2>
+<p>Usaremos ideas <algohref=linear_systems_gauss>el método de gauss solución de sistemas de ecuaciones lineales</algohref>.</p>
+<p>Vamos a realizar los mismos pasos que en la solución del sistema de ecuaciones lineales, excluyendo solamente la división de la línea actual en a[i][i] (más exactamente, la misma división se puede realizar, pero con la implicación de que el número dictada por el signo identificador). Entonces todas las operaciones que vamos a producir con la matriz, no se cambiar el valor de la determinante de la matriz, a excepción, quizá, de la marca (sólo alquilamos dos filas de asientos, que cambia de signo opuesto, o se añade una fila a la otra, y que no cambia el valor de identificador).</p>
+<p>Pero la matriz, a la que llegamos después de la ejecución de un algoritmo de gauss, es diagonal, y el determinante de su es igual al producto de los elementos que están en la diagonal. El signo, como ya se mencionó, se determinará el número de intercambios de filas (si es impar, el signo identificador debe cambiar a la inversa). Por lo tanto, podemos con el algoritmo de gauss calcular el determinante de una matriz de O (N<sup>3</sup>).</p>
+<p>sólo Quedan en cuenta que si en algún momento no nos encontramos en la actual columna de distinto elemento, el algoritmo debe detener y devolver 0.</p>
+<h2>Realización</h2>
+<code>const double EPS = 1E-9;
+int n;
+vector < vector<double> > a (n, vector<double> (n));
+... la lectura de n y a ...
+
+double det = 1;
+for (int i=0; i<n; ++i) {
+int k = i;
+for (int j=i+1; j<n; ++j)
+if (abs (a[j][i]) > abs (a[k][i]))
+k = j;
+if (abs (a[k][i]) < EPS) {
+det = 0;
+break;
+}
+swap (a[i], a[k]);
+if (i != k)
+det = -det;
+det *= a[i][i];
+for (int j=i+1; j<n; ++j)
+a[i][j] /= a[i][i];
+for (int j=0; j<n; ++j)
+if (j != i && abs (a[j][i]) > EPS)
+for (int k=i+1; k<n; k++)
+a[j][k] -= a[i][k] * a[j][i];
+}
+
+cout << det;</code>

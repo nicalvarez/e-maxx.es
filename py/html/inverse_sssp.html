@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><title>MAXimal :: algo :: Обратная задача SSSP (inverse-SSSP - обратная задача кратчайших путей из одной вершины)</title><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><meta name="author" lang="ru" content="e-maxx" /><meta name="description" content="Алгоритмы, олимпиадное программирование, математика" /><meta name="keywords" content="алгоритмы программирование" /><link rel="stylesheet" type="text/css" href="../data/style.css"><script type="text/javascript" src="/data/jquery.js"></script><script type="text/javascript" src="/data/page-contents.js"></script><link rel="stylesheet" type="text/css" href="../geshi/geshi.css"><!--[if IE]><style>.menu a, .menu a:hover { width: 100%; }</style><![endif]--></head><body><table class=main cellpadding=0 cellspacing=0><tr><td class=title colspan=2><p>MAXimal</p></td></tr><tr><td class=menu><ul><li><a href="../index.php" >home</a></li><li><a href="../algo/" class=current>algo</a></li><li><a href="../bookz/" >bookz</a></li><li><a href="../forum/" >forum</a></li><li><a href="../about.php" >about</a></li></ul></td><td class=content><h1>Обратная задача SSSP (inverse-SSSP - обратная задача кратчайших путей из одной вершины)</h1><p>Page source on the <a href="http://en.wikipedia.org/wiki/HTML">HTML</a> language:</p><textarea style="width:100%;height:500px">&lt;h1&gt;Обратная задача SSSP (inverse-SSSP - обратная задача кратчайших путей из одной вершины)&lt;/h1&gt;
+
+&lt;p&gt;Имеется взвешенный неориентированный мультиграф G из N вершин и M рёбер. Дан массив P[1..N] и указана некоторая начальная вершина S. Требуется изменить веса рёбер так, чтобы для всех I P[I] было равно длине кратчайшего пути из S в I, причём сумма всех изменений (сумма модулей изменений весов рёбер) была бы наименьшей. Если этого сделать невозможно, то алгоритм должен выдать &quot;No solution&quot;. Делать вес ребра отрицательным запрещено.&lt;/p&gt;
+&lt;h2&gt;Описание решения&lt;/h2&gt;
+&lt;p&gt;Мы решим эту задачу за линейное время, просто перебрав все рёбра (т.е. за один проход).&lt;/p&gt;
+&lt;p&gt;Пусть на текущем шаге мы рассматриваем ребро из вершины A в вершину B длиной R. Мы предполагаем, что для вершины A уже все условия выполнены (т.е. расстояние от S до A действительно равно P[A]), и будем проверять выполнение условий для вершины B. Имеем несколько вариантов ситуации:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1. &lt;b&gt;P[A] + R &amp;lt; P[B]&lt;/b&gt;&lt;br&gt;Это означает, что мы нашли путь, более короткий, чем он должен быть. Поскольку P[A] и P[B] мы изменять не можем, то мы обязаны удлинить текущее ребро (независимо от остальных рёбер), а именно выполнить:&lt;br&gt;R += P[B] - P[A] - R.&lt;br&gt;Кроме того, это означает, что мы нашли уже путь в вершину B из S, длина которого равна требуемому значению P[B], поэтому на последующих шагах нам не придётся укорачивать какие-либо рёбра (см. вариант 2).&lt;/li&gt;
+&lt;li&gt;2. &lt;b&gt;P[A] + R &gt;= P[B]&lt;/b&gt;&lt;br&gt;Это означает, что мы нашли путь, более длинный, чем требуемый. Поскольку таких путей может быть несколько, мы должны выбрать среди всех таких путей (рёбер) то, которое потребует наименьшего изменения. Повторимся, что если мы удлиняли какое-то ребро, ведущее в вершину B (вариант 1), то этим мы фактически построили кратчайший путь в вершину B, а потому укорачивать никакое ребро уже не надо будет. Таким образом, для каждой вершины мы должны хранить ребро, которое собираемся укорачивать, т.е. ребро с наименьшим весом изменения.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Таким образом, просто перебрав все рёбра, и рассмотрев для каждого ребра ситуацию (за O(1)), мы решим обратную задачу SSSP за линейное время.&lt;/p&gt;
+&lt;p&gt;Если в какой-то момент мы пытаемся изменить уже изменённое ребро, то, очевидно, этого делать нельзя, и следует выдать &quot;No solution&quot;. Кроме того, у некоторых вершин может быть так и не достигнута требуемая оценка кратчайшего пути, тогда ответ тоже будет &quot;No solution&quot;. Во всех остальных случаях (кроме, конечно, явно некорректных значений в массиве P, т.е. P[S] != 0 или отрицательные значения) ответ будет существовать.&lt;/p&gt;
+&lt;h2&gt;Реализация&lt;/h2&gt;
+&lt;p&gt;Программа выводит &quot;No solution&quot;, если решения нет, иначе выводит в первой строке минимальную сумму изменений весов рёбер, а в последующих M строках - новые веса рёбер.&lt;/p&gt;
+&lt;code&gt;const int INF = 1000*1000*1000;
+int n, m;
+vector&amp;lt;int&gt; p (n);
+
+bool ok = true;
+vector&amp;lt;int&gt; cost (m), cost_ch (m), decrease (n, INF), decrease_id (n, -1);
+decrease[0] = 0;
+for (int i=0; i&amp;lt;m; ++i) {
+	int a, b, c; // текущее ребро (a,b) с ценой c
+	cost[i] = c;
+
+	for (int j=0; j&amp;lt;=1; ++j) {
+		int diff = p[b] - p[a] - c;
+		if (diff &gt; 0) {
+			ok &amp;= cost_ch[i] == 0 || cost_ch[i] == diff;
+			cost_ch[i] = diff;
+			decrease[b] = 0;
+		}
+		else
+			if (-diff &amp;lt;= c &amp;&amp; -diff &amp;lt; decrease[b]) {
+				decrease[b] = -diff;
+				decrease_id[b] = i;
+			}
+		swap (a, b);
+	}
+}
+
+for (int i=0; i&amp;lt;n; ++i) {
+	ok &amp;= decrease[i] != INF;
+	int r_id = decrease_id[i];
+	if (r_id != -1) {
+		ok &amp;= cost_ch[r_id] == 0 || cost_ch[r_id] == -decrease[i];
+		cost_ch[r_id] = -decrease[i];
+	}
+}
+
+if (!ok)
+	cout &amp;lt;&amp;lt; &quot;No solution&quot;;
+else {
+	long long sum = 0;
+	for (int i=0; i&amp;lt;m; ++i)  sum += abs (cost_ch[i]);
+	cout &amp;lt;&amp;lt; sum &amp;lt;&amp;lt; \'\n\';
+	for (int i=0; i&amp;lt;m; ++i)
+		printf (&quot;%d &quot;, cost[i] + cost_ch[i]);
+}&lt;/code&gt;</textarea></td></tr></table></body></html>
