@@ -1,0 +1,117 @@
+\h1{Discrete root extraction}
+
+The task of the discrete root extraction (similar to \algohref=discrete_log{discrete logarithm problem}) is as follows. According to $n$ ($n$ is a Prime), $a$, $k$ is required to find all $x$ satisfying the condition:
+$$ x^k \equiv a \pmod{n} $$
+
+\h2{Algorithm for solving}
+
+To solve the problem will leads to the problem of discrete logarithm.
+
+For this, we will apply the concept of \algohref=primitive_root{Primitive root modulo $n$}. Let $g$ --- primitive root modulo $n$ (because $n$ is a Prime number, it exists). To find it we can, as described in a related article for $O( {\rm Ans} \cdot \log \phi(n) \cdot \log n) = O( {\rm Ans} \cdot \log^2 n)$ plus the time of factorization of the number $\phi(n)$.
+
+Immediately discard the case when $a=0$ --- in this case, immediately find the answer $x=0$.
+
+Since in this case ($n$ is a Prime number) any number from $1$ to $n-1$ is representable as a power of primitive root, then the discrete problem root we can represent in the form:
+$$ {\left( g^y \right)}^k \equiv a \pmod{n} $$
+where
+$$ x \equiv g^y \pmod{n} $$
+A trivial transformation we obtain:
+$$ {\left( g^k \right)}^y \equiv a \pmod{n} $$
+Here the desired value is $y$, thus, we come to the problem of discrete logarithm in a pure form. This problem can be solve \algohref=discrete_log{algorithm baby-step-giant-step Shanks} $O( \sqrt{n} \log n )$, i.e., find one solution $y_0$ of the equation (or discover that this equation has no solutions).
+
+May we find a solution $y_0$ of this equation, then one solution to the problem of discrete root $x_0 = g^{y_0} \pmod{n}$.
+
+\h2{Finding all solutions, knowing one of them}
+
+To completely solve the problem, it is necessary to learn one found $x_0 = g^{y_0} \pmod{n}$ to find all solutions.
+
+To do this, remember, is the fact that always a primitive root has order $\phi(n)$ (see \algohref=primitive_root{an article about a primitive root}), i.e. the lowest degree of $g$, giving a unit that is $\phi(n)$. So adding in the exponent term with $\phi(n)$ doesn't change anything:
+$$ x^k \equiv g^{ y_0 \cdot k + l \cdot \phi(n) } \equiv a \pmod{n}\ \ \ \ forall\ l \in {\cal Z} $$
+Hence all solutions are of the form:
+$$ x = g^{ y_0 + \frac{ l \cdot \phi(n) }{ k } } \pmod{n}\ \ \ \ forall\ l \in {\cal Z} $$
+where $l$ is chosen so that the fraction $\frac{ l \cdot \phi(n) }{ k }$ was intact. This was a fraction, the numerator must be a multiple of the least common multiple of $\phi(n)$ and $k$, where (Recalling that the smallest common multiple of two numbers ${\rm lcm}(a,b) = \frac{ a \cdot b }{ {\rm gcd}(a,b) }$), we get:
+$$ x = g^{ y_0 + i \frac{ \phi(n) }{ {\rm gcd}(k,\phi(n)) } } \pmod{n}\ \ \ \ forall\ i \in {\cal Z} $$
+This is a convenient final formula, which gives a General view of all solutions of the problem of discrete root.
+
+\h2{the Implementation}
+
+We present the complete implementation, including finding a primitive root, discrete logarithm, and finding and conclusion of all decisions.
+
+\code
+int gcd (int a, int b) {
+return a ? gcd (b%a, a) : b;
+}
+
+int powmod (int a, int b, int p) {
+int res = 1;
+while (b)
+if (b & 1)
+res = int (res * 1ll * a % p) --b;
+else
+a = int (a * 1ll * a % p), b >>= 1;
+return res;
+}
+
+int generator (int p) {
+vector<int> fact;
+int phi = p-1, n = phi;
+for (int i=2; i*i<=n; ++i)
+if (n % i == 0) {
+fact.push_back (i);
+while (n % i == 0)
+n /= i;
+}
+if (n > 1)
+fact.push_back (n);
+
+for (int res=2; res<=p; ++res) {
+bool ok = true;
+for (size_t i=0; i<fact.size() && ok; ++i)
+ok &= powmod (res, phi / fact[i], p) != 1;
+if (ok) return res;
+}
+return -1;
+}
+
+int main() {
+
+int n, k, a;
+cin >> n >> k >> a;
+if (a == 0) {
+puts ("1\n0");
+return 0;
+}
+
+int g = generator (n);
+
+int sq = (int) sqrt (n + .0) + 1;
+vector < pair<int,int> > dec (sq);
+for (int i=1; i<=sq; ++i)
+dec[i-1] = make_pair (powmod (g, int (i * sq * 1ll * k % (n - 1)), n), i);
+sort (dec.begin(), dec.end());
+any_ans int = -1;
+for (int i=0; i<sq; ++i) {
+int my = int (powmod (g, int (i * 1ll * k % (n - 1)), n) * 1ll * a % n);
+vector < pair<int,int> >::iterator it =
+lower_bound (dec.begin(), dec.end(), make_pair (my, 0));
+if (it != dec.end() && it->first == my) {
+any_ans = it->second * sq - i;
+break;
+}
+}
+if (any_ans == -1) {
+puts ("0");
+return 0;
+}
+
+int delta = (n-1) / gcd (k, n-1);
+vector<int> ans;
+for (int cur=any_ans%delta; cur<n-1; cur+=delta)
+ans.push_back (powmod (g, cur, n));
+sort (ans.begin(), ans.end());
+printf ("%d\n", ans.size());
+for (size_t i=0; i<ans.size(); ++i)
+printf ("%d ", ans[i]);
+
+}
+\endcode

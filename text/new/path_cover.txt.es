@@ -1,0 +1,25 @@
+\h1{path Covering of a directed acyclic graph}
+
+Given a directed acyclic graph $G$. You want to cover the least number of paths, i.e. to find the minimal power many disjoint on the vertices of simple paths, such that each vertex belongs to a path.
+
+
+\h2{a bipartite graph}
+
+Suppose we are given a graph $G$ with $n$ vertices. Construct the corresponding bipartite graph $H$ in the standard way, i.e.: each part of a graph $H$ will be $n$ vertices, denote them through $a_i$ and $b_i$, respectively. Then for each edge $(i, j)$ of the graph $G$ hold appropriate edge $(a_i, b_j)$.
+
+Each edge of $G$ corresponds to one edge of $H$, and Vice versa. If we consider $G$, any path $P = (v_1, v_2, \ldots, v_k)$, then it is assigned the set of edges $(a_{v_1}, b_{v_2}), (a_{v_2}, b_{v_3}), ..., (a_{v_{k-1}}, b_{v_k}) $.
+
+More easy to understand if we add the reverse edges, i.e. the graph formed by $\overline H$ of a graph $H$ by adding edges of the form $(b_i, a_i), i=1 \ldots N$. Then the path $P = (v_1, v_2, \ldots, v_k)$ in the graph $\overline H$ will correspond to the path $\overline Q = (a_{v_1}, b_{v_2}, a_{v_2}, b_{v_3}, ..., a_{v_{k-1}}, b_{v_k})$.
+
+Back, consider any path $\overline Q$ in the graph $\overline H$, starting in the first part and ending of the second part. Obviously, $\overline Q$ will again be of the form $\overline Q = (a_{v_1}, b_{v_2}, a_{v_2}, b_{v_3}, ..., a_{v_{k-1}}, b_{v_k})$ and can be put in correspondence in a graph $G$, the path $P = (v_1, v_2, \ldots, v_k)$. However, there is one subtlety: $v_1$ might coincide with $v_k$, so the path $P$ would have a cycle. However, the condition graph $G$ is acyclic, so it is generally not possible (this is the only place where you use acyclicity graph $G$; however, for cyclic graphs the method described here cannot be generalized).
+
+So every simple path in the graph $\overline H$, starting in the first part and ending in the second, you can set up a simple path in a graph $G$, and Vice versa. But note that such a path in the graph $\overline H$ is the \bf{matching} in a graph $H$. Thus, any path from $G$ can be put in correspondence matching in the graph $H$, and Vice versa. Moreover, disjoint paths in $G$ correspond to disjoint matchings in $H$.
+
+The last step. Note that the more paths there are, the less all these paths contain edges. Namely, if $p$ disjoint paths that cover all $n$ vertex graph, then they together contain $r = n - p$ edges. So, in order to minimize the number of paths, we need \bf{maximizing the number of edges is} in them.
+
+So, we have reduced the problem to finding maximum matchings in a bipartite graph $H$. After finding this matchings (see \algohref=kuhn_matching{Algorithm Kuna}) we need to convert it to a set of paths in $G$ (this is a trivial algorithm, ambiguities do not arise here). Some vertices may remain unsaturated by the matching, in this case you have to add the path of length zero from each of these vertices.
+
+
+\h2{the Weighted case}
+
+The weighted case is not much different from the unweighted, simple graph $H$ on the edges appear weight, and you want to find a matching of minimum weight. Restoring a response similar to the unweighted case, we get a covering of a graph the smallest number of paths, and in case of equality --- the least cost.

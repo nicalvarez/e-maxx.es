@@ -1,0 +1,45 @@
+the <h1>finding the highest weight vertex-weighted matchings</h1>
+<p>Given a bipartite graph g, For each vertex of the first specified fraction of its weight. You want to find a matching of maximum weight, i.e. with the highest sum of the weights of the saturated vertices.</p>
+<p>Below we describe and prove the algorithm based on <algohref=kuhn_matching>algorithm Kuna</algohref> that will find the optimal solution.</p>
+the <h2>the Algorithm</h2>
+<p>the algorithm Itself is extremely simple. <b>Sort</b> nodes of the first fraction in descending order (more precisely, nevastane) scales, and is applicable to the resulting graph <b><algohref=kuhn_matching>algorithm Kuna</algohref></b>.</p>
+<p>it is Alleged that the thus obtained maximum (from the point of view of number of edges) matching will be optimal from the point of view of the sum of the weights of saturated peaks (despite the fact that after sorting we actually no longer use this weight).</p>
+<p>Thus, the implementation will look like this:</p>
+<code>int n;
+vector &lt; vector&lt;int> > g (n);
+vector<char> used (n);
+vector&lt;int> order (n); // the list of vertices, sorted by weight
+... reading ...
+
+for (int i=0; i&lt;n; ++i) {
+int v = order[i];
+used.assign (n, false);
+try_kuhn (v);
+}</code>
+<p>Function try_kuhn() is taken without any changes from the algorithm of Kuna.</p>
+the <h2>Proof</h2>
+<p>Recall the main provisions of the <b>theory of matroids</b>.</p>
+<p>Matroid M is an ordered pair (S,I), where S is a set, I is a nonempty family of subsets of set S that satisfy the following conditions:</p>
+<ol>
+the <li>Set S is finite.</li>
+the <li>Family I is hereditary, i.e. if a set belongs to I, then all its subsets also belong to I.</li>
+the <li>Structure M has the property replacement, i.e. if A&isin;I, and B&isin;I, and |A| < |B|, then there exists an element x&isin;A-B, A&cup;x&isin;I.</li>
+</ol>
+<p>members of a family of I are called independent subsets.</p>
+<p>Matroid is called balanced, if for each x&isin;S determined some weight. Weight of a subset is the sum of the weights of its elements.</p>
+<p>Finally, the most important theorem in the theory of weighted matroids: to get the optimal answer, i.e., an independent subset with the largest weight, you need to act greedily: starting with an empty subset, we add (unless, of course, the current item can be added without violating independence) all elements one by one in order of decreasing (more precisely, nevastane) their weights are:</p>
+<code>to sort the set S by non-increasing weight;
+ans = [];
+foreach (x in S)
+if (ans &cup; x &isin; I)
+ans = ans &cup; x;</code>
+<p>it is Alleged that at the end of this process, we obtain the subset with the largest weight.</p>
+<p>Now <b>prove</b> that <b>our mission: </b> not that other, as a weighted <b>matroid</b>.</p>
+<p>Let S be the set of all vertices of the first lobe. To sum up our problem in a bipartite graph the vertices matroid relative to the first share, we will put in conformity to each matching is a subset of S, which is equal to the set of saturated vertices of the first lobe. You can also define and return line (from the set of saturated vertices in the matching), which, although not unambiguous, however it we will have to arrange.</p>
+<p>Then we Dene the family of I as a family of such subsets of a set S for which there is at least one corresponding matching.</p>
+<p>Next, for each element S, i.e. for each vertex of the first fraction, determined some weight. Moreover, the weight of a subset, as we required in the framework of the theory of matroids, defined as the sum of the weights of items in it.</p>
+<p>Then the problem of nding matchings of maximum weight now pereformuliruem as the problem of nding an independent subset of maximum weight.</p>
+<p>it Remains to verify that you have completed the above 3 conditions imposed on the matroid. First, it is clear that S is finite. Secondly, obviously, the removal of edges from the matchings is equivalent to deleting a vertex from the set of saturated vertices, but because the property of heredity is. Thirdly, as follows from the correctness of algorithm Kuna, if the current matching is not maximum, then there will always be such a vertex that can be saturate without removing from the set of saturated vertices other vertices.</p>
+<p>so, we have shown that our task is suspended matroidal relative to the set of saturated vertices of the first lobe, and therefore applies the greedy algorithm.</p>
+<p>it Remains to show that <b>Kuna algorithm is a greedy algorithm</b>.</p>
+<p>However, this rather obvious fact. The Kuna algorithm at each step tries to satisfy the current top or by simply swiping the edge in unsaturated top of the second fraction, or finding the extension chain and matching alternating along it. And in that and in other case, no already-saturated vertices do not cease to be unsaturated, but unsaturated in the previous steps, the nodes of the first share and not be filled at this step. Thus, the Kuhn algorithm is a greedy algorithm that builds an optimal subset of independent matroid, which completes our proof.</p>

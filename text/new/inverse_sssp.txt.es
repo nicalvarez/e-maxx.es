@@ -1,0 +1,59 @@
+the <h1>Inverse problem SSSP (inverse-SSSP - inverse problem of shortest paths from one vertex)</h1>
+
+<p>There is a weighted undirected multigraph G with N vertices and M edges. Given an array P[1..N] and indicated some initial vertex S. you want to change the weights of edges so that for all I P[I] were equal to the length of the shortest path from S to I, and the sum of all changes (the sum of absolute changes of the weights of edges) is smallest. If you cannot do this, the algorithm should output "No solution". To make the edge weight is negative is forbidden.</p>
+the <h2>solution Description</h2>
+<p>We solve this problem in linear time, simply by looping through all edges (i.e. in one pass).</p>
+<p>Let the current step, we consider an edge from vertex A to vertex B length R. We assume that for vertices A, all the conditions are met (i.e., the distance from S to A is equal to P[A]), and will check the fulfillment of conditions for the vertex B. Have several options for your situation:</p>
+the <ul>
+the <li>1. <b>P[A] + R &lt; P[B]</b><br>This means that we have found a path shorter than it should be. Since P[A] and P[B] we cannot change, we must extend the current edge (independently of other edges), namely to perform:<br>R += P[B] - P[A] - R.<br>in addition, it means that we have already found a path to vertex B from S, the length of which is equal to the desired value of P[B], so in the following steps we don't have to cut any edges (see option 2).</li>
+the <li>2. <b>P[A] + R >= P[B]</b><br>This means that we have found a path that is longer than desired. Since such paths can be multiple, we must choose among all such paths (edges) that will require the least changes. Again, what if we extended some of the edge leading to node B (option 1), then we actually built the shortest path to vertex B, and therefore to shorten no edge no longer need. Thus, for each node we must store the edge that are going to be shortened, i.e., the edge with smallest weight changes.</li>
+</ul>
+<p>Thus, simply checking all edges, and considering for each edge the situation (in O(1)), we solve the inverse problem SSSP in linear time.</p>
+<p>If at any point we are trying to change has already altered the edge, then obviously you cannot do it, and it should output "No solution". In addition, some nodes may have not achieved the required rating of the shortest path, then the answer is "No solution". In all other cases (except, of course, is obviously incorrect values in the array P, i.e., P[S] != 0 or negative values), the answer will exist.</p>
+the <h2>Implementation</h2>
+<p>the Program prints "No solution" if no solution, otherwise it outputs the first line the minimum amount of change of the edge weights, and the following M lines - the new weights of edges.</p>
+<code>const int INF = 1000*1000*1000;
+int n, m;
+vector&lt;int> p (n);
+
+bool ok = true;
+vector&lt;int> cost (m), cost_ch (m), decrease (n, INF), decrease_id (n, -1);
+decrease[0] = 0;
+for (int i=0; i&lt;m; ++i) {
+int a, b, c; // current edge (a,b) with cost c
+cost[i] = c;
+
+for (int j=0; j&lt;=1; ++j) {
+int diff = p[b] - p[a] - c;
+if (diff > 0) {
+ok &= cost_ch[i] == 0 || cost_ch[i] == diff;
+cost_ch[i] = diff;
+decrease[b] = 0;
+}
+else
+if (-diff &lt;= c && -diff &lt; decrease[b]) {
+decrease[b] = -diff;
+decrease_id[b] = i;
+}
+swap (a, b);
+}
+}
+
+for (int i=0; i&lt;n; ++i) {
+ok &= decrease[i] != INF;
+int r_id = decrease_id[i];
+if (r_id != -1) {
+ok &= cost_ch[r_id] == 0 || cost_ch[r_id] == -decrease[i];
+cost_ch[r_id] = -decrease[i];
+}
+}
+
+if (!ok)
+cout &lt;&lt; "No solution";
+else {
+long long sum = 0;
+for (int i=0; i&lt;m; ++i) sum += abs (cost_ch[i]);
+cout &lt;&lt; sum &lt;&lt; \'\n\';
+for (int i=0; i&lt;m; ++i)
+printf ("%d ", cost[i] + cost_ch[i]);
+}</code>

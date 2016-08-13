@@ -1,0 +1,156 @@
+
+\h1{ Kuhn's Algorithm of finding maximal matchings in a bipartite graph }
+
+Given a bipartite graph $G$ containing $n$ vertices and $m$ edges. You want to find a maximum matching, i.e., to choose as many edges, so that none of the selected edge had no common vertex with any other selected edge.
+
+
+\h2{ algorithm Description }
+
+
+\h3{ definition Needed }
+
+\bf{to the Matching} $M$ is called a set of pairwise nonadjacent edges of the graph (in other words, any vertex of the graph must be adjacent to one edge from the set of $M$). The power of matchings let us call the number of edges in it. The greatest (or maximal) matching call a matching whose power is maximum among all possible matchings in this graph. All those vertices that have adjacent edge of matchings (i.e., have degree exactly one in the subgraph formed by $M$), we call saturated by this matching.
+
+\bf{Chain} of length $k$ we call some simple way (i.e. not contain repeated vertices or edges) that contains $k$ edges.
+
+\bf{Alternating chain} (in a bipartite graph, with respect to some matchings) let us call a circuit in which the edges alternately belong/do not belong to the matching.
+
+\bf{Increasing chain} (in a bipartite graph, with respect to some matchings) will be called alternating chain whose start and end vertices do not belong to the matching.
+
+
+\h3{ Theorem of Berge }
+
+\bf{Formulation}. A matching is maximum if and only when there is not increasing relatively to the chains.
+
+\bf{Proof required}. We show that if the matching $M$ is maximal, there is no increase relative to a chain. The proof is constructive: we show how to increase with this increasing chain of $P$ power matchings $M$ per unit.
+
+To do this, follow the so-called alternating matchings along the chain of $P$. We remember that by definition the first edge of the chain $P$ does not belong to the matching, the second one --- owns, the third --- again not mine-fourth --- belongs, etc. let's change the status of all edges along the chain of $P$: those edges that are not included in the matching (first, third etc) include in the matching and edges that were previously included in the matching (second, fourth etc until the penultimate) --- remove.
+
+It is clear that the power of the matchings at the same time increased by one (because it was added one more rib than removed). It remains to verify that we built the correct matching, i.e. that no vertex has two adjacent edges from the matchings. For all vertices alternating chains of $P$ except the first and the last, it follows from the algorithm of alternation: first, we each such node removed adjacent edge, then added. For the first and last vertex of the chain $P$ also couldn't be broken, because the sequence they were supposed to be unsaturated. Finally, for all other vertices, --- not included in the chain of $P$, --- obviously, nothing has changed. Thus, we actually built the matching, and one greater power than the old one, which completes the proof of necessity.
+
+\bf{the Proof of the sufficiency}. Let us prove that if with respect to some matchings $M$ is not increasing ways, it --- as much as possible.
+
+The proof will hold to the contrary. Assume we have a matching $M^\prime$ with more power than $M$. Consider the symmetric difference $Q$ of these two matchings, i.e. let all edges included in $M$ or $M^\prime$, but not both at the same time.
+
+It is clear that the set of edges of $Q$ --- probably not matching. Let us consider which type is the set of edges; for convenience we will consider it as a graph. In this graph each vertex obviously has a degree not higher than 2 (because each vertex can have a maximum of two adjacent edges --- one matchings and from another). It is easy to understand that this graph only consists of cycles or paths, and neither one nor the other do not intersect with each other.
+
+Now note that a path in this graph $Q$ can be any and only of even length. In fact, any path in the graph $Q$ edges alternate: after the edges of $M$ is an edge of $M^\prime$, and Vice versa. Now, if we consider a path of odd length in a graph $Q$, we get that in the original graph $G$ it will be increase or chain for matchings $M$ or $M^\prime$. But this could not be, because in the case of matchings $M$ this contradicts with the condition and, in the case $M^\prime$ with its maximality (because we have already proved the necessity of theorem which implies that when there are increasing circuit matching can not be maximal).
+
+We now prove a similar assertion for cycles: all cycles in the graph of $Q$ can only have even length. It's quite easy to prove: it is clear that in the cycle of edges must also alternate (to take turns belong to $M$, then $M^\prime$), but this cannot be done in a cycle of odd length --- there must exist two adjacent edges of one of the matchings, which contradicts the definition of the matchings.
+
+Thus, all paths and cycles of a graph $Q = M \oplus M^\prime$ have even length. Therefore, the graph of $Q$ contains an equal number of edges of $M$ and $M^\prime$. But, given that $Q$ contains all edges of $M$ and $M^\prime$, except for their shared edges, it follows that the power of $M$ and $M^\prime$ coincide. We came to a contradiction: by assumption of the matching $M$ was not maximal, then the theorem is proved.
+
+
+\h3{ Algorithm Kuna }
+
+The algorithm Kuhn --- direct application of the theorem of Berge. It can be summarized as follows: first take an empty matching, and then --- until the graph can not find a magnifying circuit, --- will perform alternating matchings along the chain, and repeat the process of searching increasing chains. Once such chain is not found --- the process stop, --- the current matching is maximum.
+
+It remains to detail the method of finding the magnifying circuits. \bf{Algorithm Kuna} --- just looking for any of these circuits using \bf{\algohref=dfs{depth-first}} or \bf{\algohref=bfs{width}}. The Kuna algorithm searches all the vertices of the graph in turn, starting from each crawl, trying to find increasing chain that starts in this vertex.
+
+It is more convenient to describe this algorithm, assuming that the graph is already partitioned in two parts (although in fact the algorithm can also be implemented so that it was not given to the input graph, clearly divided into two lobes).
+
+The algorithm looks at all vertices $v$ of the first count fraction: $v = 1 \ldots n_1$. If the vertex $v$ is already saturated by the current matching (i.e., already selected some adjacent edge), then the peak noise. Otherwise, the algorithm tries to saturate this top, which launches a search increasing chains that begin from the top.
+
+Searching increasing chains is carried out by means of special depth or width (usually in order of ease of implementation use a depth-first-search). Initially the depth is in the current unsaturated vertex $v$ of the first lobe. You are viewing all edges from this vertex, suppose the current edge is an edge $(v,to)$. If the vertex is $to$ have not saturated by the matching, it means that we find the magnifying circuit: it consists of only the edges $(v,to)$; in that case, just include this edge in the matching and stop the search, increasing the chain from vertex $v$. Otherwise --- if $to$ already saturated by some edge $(p,to)$, then I try to pass along this edge: thus, we will try to find magnifying circuit, passing through the edge $(v,to)$, $(to,p)$. To do this, just go in our crawl at the top of the $p$ --- now we try to find an increasing chain of this peak.
+
+You can understand that as a result of this traversal is started from a vertex $v$, find a magnifying circuit, and thereby saturate a vertex $v$, or such increasing chains will not find (and therefore this vertex $v$ cannot be saturated).
+
+After all vertices $v = 1 \ldots n_1$ will be viewed, the current matching is maximum.
+
+
+\h3{ working Time }
+
+So, the algorithm of Kuna can be represented as a series of $n$ spins of depth/width on the graph. Therefore, this algorithm is executed within time $O (n m)$ in the worst case is $O (n^3)$.
+
+However, this assessment can be a little \bf{improve}. It turns out that for the algorithm Kuna importantly, what percentage selected for first and which for second. In fact, in the above-described implementation, the spins of the depth/width of the stem only from vertices of the first lobe, so the whole algorithm is executed within time $O (n_1 m)$, where $n_1$ the number of vertices of the first lobe. In the worst case it is $O (n_1^2 n_2)$ (where $n_2$ --- the number of vertices of the second fraction). This shows that more profitable, when the first fraction contains fewer vertices than the second. For very unbalanced graphs (where $n_1$ and $n_2$ are very different), this translates into a significant difference of times.
+
+
+\h2{ the Implementation }
+
+We present here the implementation of the aforementioned algorithm based on depth-first-search, host and bipartite graph in the form of a clearly broken in two parts of the graph. This implementation is very concise, and perhaps it is worth to remember in this form.
+
+Here $n$ is the number of vertices in the first part, $k$ --- the second part, $g[v]$ --- the list of edges from vertex $v$ of the first lobe (i.e. a list of node numbers, which are those edges of $v$). The vertices in the two lobes are numbered independently, i.e. the first proportion --- with the numbers $1 \ldots n$, the second --- with the numbers $1 \ldots k$.
+
+Then there are two helper array: $\rm mt$ and $\rm used$. First --- $\rm mt$ --- contains information about the current matching. For ease of programming this information contains only vertices of the second fraction: $mt[i]$ is the number of nodes of the first fraction associated with the edge from vertex $i$ the second fraction (or $-1$ if no edge matchings of the $i$ not in). Second array --- $\rm used$ --- the usual array of "passannante" of vertices in the depth-first-search (it's just to the depth did not go to one vertex twice).
+
+The function $\rm try\_kuhn$ --- is the depth. It returns $\rm true$ if she managed to find an increasing chain of vertices $v$, it is assumed that this function has already generated the alternating matchings are found along the chain.
+
+Inside the function looks up all edges emanating from a vertex $v$ of the first lobe, and then is checked: if this edge leads into a unsaturated vertex $to$ or if this vertex is $to$ full, but manages to find increasing recursive chain starting from $\rm mt[to]$, then we say that we found a magnifying circuit, and before returning from a function with result $\rm true$ produced by the alternating current in the edge: redirect an edge adjacent $to$, a vertex $v$.
+
+In the main program indicates that the current matching --- empty (list $\rm mt$ is filled with numbers $-1$). Then moved the vertex $v$ of the first lobe, and from it runs a depth - $\rm try\_kuhn$, pre-zeroing the array $\rm used$.
+
+It is worth noting that the size of the matchings are easy to obtain as the number of calls to $\rm try\_kuhn$ in the main program, returning the result $\rm true$. Itself is the desired maximum matching contained in the array $\rm mt$.
+
+\code
+int n, k;
+vector < vector<int> > g;
+vector<int> mt;
+vector<char> used;
+
+try_kuhn bool (int v) {
+if (used[v]) return false;
+used[v] = true;
+for (size_t i=0; i<g[v].size(); ++i) {
+int to = g[v][i];
+if (mt[to] == -1 || try_kuhn (mt[to])) {
+mt[to] = v;
+return true;
+}
+}
+return false;
+}
+
+int main() {
+... reading graph ...
+
+mt.assign (k, -1);
+for (int v=0; v<n; v++) {
+used.assign (n, false);
+try_kuhn (v);
+}
+
+for (int i=0; i<k; ++i)
+if (mt[i] != -1)
+printf ("%d %d\n", mt[i]+1, i+1);
+}
+\endcode
+
+Again, the Kuhn algorithm is easy to implement and to work on graphs, about which we know that they are bipartite, but a clear division of these components into two lobes is not found. In this case you have to abandon the easy splitting into two lobes, and all the information stored for all vertices of the graph. This array lists $g$ is now specified not only for the vertices of the first lobe, and for all vertices of the graph (of course, now the top two lobes are numbered in total numbers from $1$ to $n$). Arrays $\rm mt$ and $\rm used$ now also defined for the vertices of both lobes, and, accordingly, they must be maintained in this state.
+
+
+\h2{ Improved implementation }
+
+Modify the algorithm as follows. Before the main loop of the algorithm will find some simple algorithm \bf{arbitrary matching} (\bf{a heuristic algorithm}), and then we run a loop with function calls kuhn(), which will improve this matching. As a result, the algorithm will work much faster on random graphs --- because in most graphs you can easily dial in matching a large enough weight by using heuristics, and then was found to improve matching to the maximum common algorithm Kuna. Thus we will save on the starts of the depth of those vertices that we have already included using the heuristics in the current matching.
+
+\bf{Example}, we can iterate all the nodes of the first lobe, and for each of them to find an arbitrary edge that can be added to the matching, and add it. Even such a simple heuristic can speed up algorithm Kuna several times.
+
+You should pay attention to the fact that the main loop will have to modify a bit. Because when calling the function $\rm try\_kuhn$ in the main loop assumes that the current node is not included in the matching, we need to add the appropriate checks.
+
+In the implementation will change only code in the main () function:
+
+\code
+int main() {
+... reading graph ...
+
+mt.assign (k, -1);
+vector<char> used1 (n);
+for (int i=0; i<n; ++i)
+for (size_t j=0; j<g[i].size(); ++j)
+if (mt[g[i][j]] == -1) {
+mt[g[i][j]] = i;
+used1[i] = true;
+break;
+}
+for (int i=0; i<n; ++i) {
+if (used1[i]) continue;
+used.assign (n, false);
+try_kuhn (i);
+}
+
+for (int i=0; i<k; ++i)
+if (mt[i] != -1)
+printf ("%d %d\n", mt[i]+1, i+1);
+}
+\endcode
+
+\bf{Another good heuristic} is the following. Each step will be finding the top least (but not isolated), to choose any edge and add it to the matching, then deleting both of these vertices with all edges incident to them from graph. Such greed works very well for random graphs, even in most cases, constructs a maximum matching (though against it there is a test at which it will find a matching much smaller magnitude than the maximum).

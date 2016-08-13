@@ -1,0 +1,182 @@
+\h1{ Matrix thatta }
+
+The tutte matrix is an elegant approach to the solution of the problem of \bf{matching} in an arbitrary (not necessarily bipartite) graph. However, in simple form, the algorithm does not issue themselves edges included in the matching, while only the size of the maximum matchings in the graph.
+
+Below, we first discuss the result obtained by Tattam (Tutte) to test for the existence of perfect matchings (i.e. matchings containing $n/2$ edges, and so saturating all of $n$ vertices). Then we consider the result obtained later by Lovász (Lovasz), which already allows you to look for the size of the maximum matchings and not only restricted to perfect matchings. Then follows the result of Rabin (Rabin) and Vazirani (Vazirani), which indicated a recovery algorithm to the matchings (as the set of incoming edges).
+
+
+\h2{ Definition }
+
+Suppose we are given a graph $G$ with $n$ vertices ($n$ --- even).
+
+Then \bf{matrix thatta} (Tutte) is the following matrix $n \times n$:
+
+$$ \pmatrix{
+0 & x_{12} & x_{13} & \ldots & x_{1(n-1)} & x_{1n} \cr
+-x_{12} & 0 & x_{23} & \ldots & x_{2(n-1)} & x_{2n} \cr
+-x_{13} & -x_{23} & 0 & \ldots & x_{3(n-1)} & x_{3n} \cr
+\vdots & \vdots & \vdots & \ddots & \vdots & \vdots \cr
+-x_{1(n-1)} & -x_{2(n-1)} & -x_{3(n-1)} & \ldots & 0 & x_{(n-1)n} \cr
+-x_{1n} & -x_{2n} & -x_{3n} & \ldots & -x_{(n-1)n} & 0 \cr
+} $$
+
+where $x_{ij}$ ($1 \le i < j \le n$) is an independent variable corresponding to the edge between vertices $i$ and $j$, either identical zero, if the edges between these vertices is not.
+
+Thus, in the case of a complete graph with $n$ vertices, the tutte matrix contains $n (n-1) / 2$ independent variables, if in a graph some edges are missing, the corresponding elements of the matrix thatta turn into zeros. In General, the number of variables in the tutte matrix equals the number of edges of the graph.
+
+Matrix thatta antisymmetrize the (skew-symmetric).
+
+
+\h2{ Theorem:}
+
+Consider the determinant $\det(A)$ of the tutte matrix. It is, generally speaking, a polynomial in the variables $x_{ij}$.
+
+\bf{Theorem:} says: in a graph $G$ there exists a perfect matching if and only if the polynomial $\det(A)$ is not equal to zero identically (i.e. has at least one term with nonzero coefficient). Recall that a matching is called perfect if it saturates all vertices, i.e., its power is equal to $n/2$.
+
+Canadian mathematician William Thomas Tutt (William Thomas Tutte) first pointed out the close relationship between matchings in graphs and the determinant of the matrices (1947). A simpler form of this communication later found Edmonds (Edmonds) in the case of bipartite graphs (1967). Randomized algorithms for finding maximum matchings and the edges of the matchings have been proposed later, therefore, by Lovas (Lovasz) (1979) and Rabin (Rabin) and Vazirani (Vazirani) (1984).
+
+
+\h3{ Practical application: a randomized algorithm }
+
+Directly apply the theorem: even in the problem of testing the existence of perfect matchings is impractical. The reason for this is that when a symbolic calculation of the determinant (i.e., in the form of polynomials over the variables $x_{ij}$) intermediate results are polynomials containing $O(n^2)$ variables. Therefore, the calculation of the determinant of the tutte matrix in symbolic form would require an inordinate amount of time.
+
+Hungarian mathematician lászló Lovász (Laszlo Lovasz) was the first who reported the possibility of using \bf{randomized} algorithm to simplify the calculations.
+
+The idea is very simple: replace all variables $x_{ij}$ with random numbers:
+
+$$ x_{ij} = {\rm rand}(). $$
+
+Then, if the polynomial $\det(A)$ was the zero identically after this replacement and it will remain zero; but if it was nonzero, then this random number replacing the likelihood that it will go to zero, is sufficiently small.
+
+It is clear that such a test (substitution of random values and the calculation of the determinant $\det(A)$) and if wrong, then only in one direction: it may report the lack of perfect matchings, when in fact it exists.
+
+We can repeat this test multiple times, substituting in the values of variables with new random numbers, and with each re-launch we get more and more confidence that the test gave the correct answer. In practice, in most cases, one test is enough to determine whether a graph perfect matching or not; several such tests are already very high probability.
+
+To assess \bf{error} you can use the Lemma of Schwarz-Seppala (Schwartz–Zippel), which States that the probability of the zero of the nonzero polynomial $P$ of $k$-th degree using the substitution as values of variables random numbers, each of which can take $s$ of the options values --- this probability satisfies the inequality:
+
+$$ {\rm Pr}[P(r_1,\ldots,r_k)=0] \le \frac{k}{s}. $$
+
+For example, when using standard functions for random numbers the C++ $\rm rand()$ we obtain that this probability when $n=300$ is about one percent.
+
+\bf{Asymptotic} solutions is equal to $O(n^3)$ (using, for example, \algohref=determinant_gauss{Gauss}), multiplied by the number of test iterations. It is worth noting that the asymptotics of such a solution falls far short of the solution \algohref=matching_edmonds{algorithm compression Edmonds flowers}, but in some cases more preferably because of ease of implementation.
+
+\bf{to Restore} itself perfect matching as a set of ribs is more of a challenge. The simplest, albeit slow, option to be restored matchings on a single edge: iterate through the first edge of the answer, choose it so that in the remaining graph there existed a perfect matching, etc.
+
+
+\h3{ Proof of theorem thatta }
+
+In order to understand the proof of this theorem, consider first a simpler result, --- obtained by Edmonds for the case of bipartite graphs.
+
+
+\h4{ Theorem Edmonds }
+
+Consider a bipartite graph in which each share on $n$ vertices. Form the matrix $B$ of $n \times n$ in which, by analogy with the matrix thatta, $b_{ij}$ is the independent variable, if the edge $(i,j)$ is present in the graph, and is identical zero otherwise.
+
+This matrix similar to the matrix of thatta, however, the Edmonds matrix has half difference, and each edge here corresponds to only one cell of the matrix.
+
+Let us prove the following \bf{theorem}: the determinant $\det(B)$ is nonzero if and only if bipartite graph has perfect matching.
+
+\bf{the Proof}. We expand the determinant according to its definition, as the sum over all permutations:
+
+$$ \det(B) = \sum_{\pi \in S_n} {\rm sgn}(\pi) \cdot b_{1,\pi_1} \cdot b_{2,\pi_2} \cdot \ldots \cdot b_{n,\pi_n}. $$
+
+Note that since all nonzero elements of the matrix $B$ --- the various independent variables, the sum of all nonzero terms are different, and therefore no cuts in the process of summation does not occur. It remains to notice that any nonzero term in this sum means non-intersecting by vertices a set of edges, i.e. a perfect matching. Conversely, any perfect matching corresponds to a nonzero term in this sum. Coupled with the above this proves the theorem.
+
+
+\h4{ properties of antisymmetric matrices }
+
+For the proof of theorem a tattoo you must use several well-known facts in linear algebra about properties of antisymmetric matrices.
+
+\bf{first} if the antisymmetric matrix has odd size, then its determinant is always zero (theorem Jacobi (Jacobi)). It is enough to notice that an antisymmetric matrix satisfies $A^T = -A$, and now we get a chain of equalities:
+
+$$ \det(A) = \det(A^T) = \det(-A) = (-1)^n \det(A), $$
+
+which implies that when odd $n$ the determinant must be zero.
+
+\bf{second}, it turns out that in the case of anti-symmetric matrices of even size, the determinant can always be written as the square of some polynomial of the variables-the elements of this matrix (a polynomial is called Pfaffian (pfaffian), and the result belongs Muru (Muir)):
+
+$$ \det(A) = {\rm Pf}^2(A). $$
+
+\bf{thirdly}, Pfaffian is not an arbitrary polynomial, and the sum of:
+
+$$ {\rm Pf}(A) = \frac{ 1 }{ 2^n n! } \sum_{\pi \in S_n} {\rm sgn(\pi)} \cdot a_{\pi_1,\pi_2} \cdot a_{\pi_3,\pi_4} \cdot \ldots \cdot a_{\pi_{n-1},\pi_n}. $$
+
+Thus, each term in Pfaffian --- is the product of these $n/2$ entries of the matrix, their indices in the aggregate, represent a decomposition of the set of $n$ by $n/2$ pairs. Before each term has its own coefficient, but its appearance here we are not interested.
+
+
+\h4{ Proof of theorem thatta }
+
+Using the second and third property of the previous paragraph, we get that the determinant $\det(A)$ of the tutte matrix is a square from the sum of terms such that each term is the product of the elements of the matrix, indices of which are not repeated and covers all of the numbers from $1$ to $n$. Thus, again as in the proof of Edmonds theorem, each nonzero term of this sum corresponds to a perfect matching in the graph, and Vice versa.
+
+
+\h2{ a Theorem of Lovász: a generalization for finding maximum matchings }
+
+
+\h3{ Wording }
+
+\bf{Rank} of a matrix the tattoo coincides with the doubled value of the \bf{maximum matchings} in this graph.
+
+
+\h3{ Application }
+
+To apply this theorem in practice it is possible to use the same randomization technique as in the above algorithm for the matrix thatta, namely to substitute the variables random values, and find rank of the numerical matrix. The rank of a matrix, again, is searched for $O (n^3)$ using a modified algorithm of Gauss, see \algohref=matrix_rank{here}.
+
+However, it should be noted that the above Lemma of Schwarz-Seppala not applicable in an explicit form, and intuitively it seems that the probability of error is higher. However, it was alleged (see the work of Lovas (Lovasz)) that the probability of error (i.e., that the rank of the resulting matrix will be less than twice the size of the maximum matchings) does not exceed $\frac{n}{s}$ (where $s$ as above, denotes the size of set from which random numbers are selected).
+
+
+\h3{ Proof }
+
+The proof will follow from the theorem of linear algebra, known as the \bf{theorem Frobenius} (the Frobenius). Given an antisymmetric matrix $A$ of size $n \times n$, and let the set $S$ and $T$ --- any two subsets of $\{ 1, \ldots, n \}$, and the dimensions these sets coincide and are equal to the rank of a matrix $A$. Denote by $A_{XY}$ the matrix obtained from the matrix $A$ only rows with numbers from the set $X$ and columns with numbers from the set $Y$ (where $X$ and $Y$ are subsets of $\{ 1, \ldots, n \}$). Then:
+
+$$ \det(A_{SS}) \cdot \det(A_{TT}) = \det(A_{ST}) \cdot \det(A_{TS}). $$
+
+Show how this property allows you to set the \bf{conformity} between the rank of a matrix $A$ of the tattoo and the size of maximum matchings.
+
+On the one hand, consider the graph $G$ is a maximum matching, and we denote the set of saturated vertices in $U$. Then, according to theorem thatta, the determinant $\det(A_{UU})$ is nonzero. The investigator, rank of a matrix thatta --- at least $2|U|$, i.e. no less than twice the magnitude of maximum matchings.
+
+Now we prove the reverse inequality. Denote the rank of a matrix $A$ using $r$. This means that there was such a submatrix $A_{ST}$, where $|S| = |T| = r$, the determinant of which is nonzero. It is easy to see that $A_{TS}$ will also be zero. But by the above theorem of Frobenius, this means that both matrices $A_{SS}$ and $A_{TT}$ have nonzero determinant. It follows that $r$ is even (because, as noted above, an antisymmetric matrix of odd dimension always has a zero determinant). Thus, we can apply the sub-matrix $A_{SS}$ (or $A_{TT}$) theorem thatta. Therefore, in the subgraph induced by set of vertices $S$ (or the set of vertices $T$), there is a perfect matching (and its magnitude $r/2$). Thus, the rank of a matrix the tattoo cannot be larger than twice the magnitude of maximum matchings.
+
+Proven combining the two inequalities, we get the statement of the theorem: the rank of the tutte matrix coincides with the doubled value of the maximum matchings.
+
+
+\h2{ Algorithm Rabin-Vazirani finding maximum matchings }
+
+This algorithm is a further generalization of the two previous theorems, and allows, in contrast, issue not only the value of the maximum matchings, but the ribs are included in this set.
+
+
+\h3{ theorem statement }
+
+Let the graph has perfect matching. Then its matrix of thatta neirogenna, i.e. $\det(A) \ne 0$. Generate it, as described above, a random numeric matrix $B$. Then, with high probability, $(B^{-1})_{ji} \ne 0$ if and only if the edge $(i,j)$ is included in any perfect matching.
+
+(Here $B^{-1}$ denoted by the matrix which is inverse to $B$. It is assumed that the determinant of a matrix $B$ is nonzero, so the inverse matrix exists.)
+
+
+\h3{ Application }
+
+This theorem can be applied to the recovery of the edges in the maximum matchings. You will first need to select the subgraph, which contains the required maximum matching (this can be done in parallel with the algorithm for finding rank of a matrix).
+
+After this task is reduced to finding perfect matchings for a given numerical matrix obtained from the matrix a tattoo. Here we apply the theorem of Rabin-Vazirani, --- find the inverse matrix (which is a modified Gauss algorithm for $O (n^3)$), we find in it any non-zero element removed from the graph, and repeat the process. The asymptotic behavior of such solution will be not the fastest --- $O (n^4)$, but instead we get the simplicity of a solution (compared to, for example, with \algohref=matching_edmonds{algorithm compression Edmonds flowers}).
+
+
+\h3{ Proof of theorem }
+
+Remember the well-known formula for the elements of the inverse matrix $B^{-1}$:
+
+$$ (B^{-1})_{ji} = \frac{ {\rm adj}(B)_{i,j} }{ \det(B) }, $$
+
+where ${\rm adj}(B)_{i,j}$ denoted by algebraic addition, i.e. the number $(-1)^{i+j}$ times the determinant of the matrix obtained from $B$ by deleting the $i$-th row and the $j$-th column.
+
+This immediately leads to that the element of $(B^{-1})_{ji}$ is nonzero if and only if the matrix $B$ with an expunged $i$-th row and $j$-th column has a nonzero determinant, that, using theorem thatta, means with high probability that in a graph without vertices $i$ and $j$ there remains a perfect matching.
+
+
+\h2{ Literature }
+
+\ul{
+\li \book{William Thomas Tutte}{The Factorization of Linear Graphs}{1946}{tutte.pdf}
+\li \book{Laszlo Lovasz}{On Determinants, Matchings and Random Algorithms}{1979}
+\li \book{Laszlo Lovasz, M. D. Plummer}{Matching Theory}{1986}{lovasz_plummer.pdf}
+\li \book{Michael Oser Rabin, Vijay V. Vazirani}{Maximum matchings in general graphs through randomization}{1989}
+\li \book{Allen B. Tucker}{Computer Science Handbook}{2004}{tucker.pdf}
+\li \book{Rajeev Motwani, Prabhakar Raghavan}{Randomized Algorithms}{1995}{motwani.djvu}
+\li \book{A. C. Aitken}{Determinants and matrices}{1944}{aitken.pdf}
+}

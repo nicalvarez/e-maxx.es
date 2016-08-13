@@ -1,0 +1,201 @@
+the <h1>Cartesian tree (treap, ceramide)</h1>
+
+<p>a treap is a data structure that combines a binary search tree and binary heap (hence its second name: treap (tree+heap) and ceramide (wood+pyramid).</p>
+<p>More strictly, is a data structure that stores pairs (X,Y) in the form of a binary tree in such a way that it is a binary search tree in x and binary y pyramid. Assuming that all X and all Y are different, we get that if some element in the tree contains (X<sub>0</sub>,Y<sub>0</sub>), then all elements in the left subtree of X &lt; X<sub>0</sub>, all elements in the right subtree of X > X<sub>0</sub> and in the left and in the right subtree are: Y &Y lt<sub>0</sub>.</p>
+<p>Ceramide were proposed by Cetelem (Siedel) and Aragon (Aragon) in 1989</p>
+the <h2>the benefits of such data</h2>
+<p>In the application that we consider (we will consider deromedi, because the Cartesian tree is in fact a more General data structure), X s are the keys (and values stored in the data structure), and Y and are called <b>priorities</b>. If priorities were not, it would be the usual binary search tree on X, and a given set X s could fit a lot of trees, some of which are degenerate (for example, in the form of a chain), and therefore is extremely slow (basic operations would be carried out in O (N)).</p>
+<p>At the same time, <b>priorities</b> allow <b>definitely</b> to specify the search tree to be built (of course that does not depend on order of adding elements) (this is proved the corresponding theorem). Now obviously, if <b>select the priorities randomly</b>, we will build a <b>nondegenerate</b> of trees in the average case, which results in complexity O (log N) on average. Hence it is clear another name of this data structure - <b>a randomized binary search tree</b>.</p>
+the <h2>Operations</h2>
+<p>so, treap provides the following operations:</p>
+the <ul>
+the <li><b>Insert (X, Y)</b> is O (log N) average<br>Performs the addition in the tree the new item.<br>it is Possible that the preference value of Y is passed to the function, and is chosen randomly (however, be aware that it cannot match with any other Y in the tree).</li>
+the <li><b>Search (X)</b> is O (log N) average<br>Looking for an element with the specified key value X. is Implemented exactly the same as for a regular binary search tree.</li>
+the <li><b>Erase (X)</b> is O (log N) average<br>Looking for an element and removes it from the tree.</li>
+the <li><b>Build (X<sub>1</sub>, ..., X<sub>N</sub>)</b> is O (N)<br>Builds a tree from the list of values. This operation can be implemented in linear time (assuming that X<sub>1</sub>, ..., X<sub>N</sub> sorted), but here, this implementation will not be considered.<br>Here we will use only the simplest implementation is as a sequence of calls to Insert, i.e. O (N log N).</li>
+the <li><b>Union (T<sub>1</sub>, T<sub>2</sub>)</b> is O (M log (N/M)) average<br>Combines two trees, assuming that all the various elements (however, this operation can be implemented with the same asymptotic behavior, if the Association needs to delete duplicate items).</li>
+the <li><b>Intersect (T<sub>1</sub>, T<sub>2</sub>)</b> is O (M log (N/M)) average<br>Finds the intersection of two trees (i.e. their shared items). Here the implementation of this operation will not be considered.</li>
+</ul>
+<p>in addition, due to the fact that a Cartesian tree is a binary search tree according to their values, apply operations such as finding the kth largest element, and, on the contrary, the definition of the element number.</p>
+<h2>Description</h2>
+<p>From the point of view of implementation, each element contains X, Y, and pointers to the left L and right R son.</p>
+<p>To implement operations need to perform two additional operations: Split and Merge.</p>
+<p><b>Split (T, X)</b> - splits the tree T into two trees L and R (which are the return value) such that L contains all elements smaller than key X, and R contains all the elements, large X. This operation is performed in O (log N). Its implementation is quite simple - obvious recursion.</p>
+<p><b>Merge (T<sub>1</sub>, T<sub>2</sub>)</b> - merges two subtrees T<sub>1</sub> and T<sub>2</sub>, and returns the new tree. This operation is also implemented in O (log N). It works under the assumption that T<sub>1</sub> and T<sub>2</sub> have a corresponding order (all values less than X in the first X values in the second). Thus, we need to combine them so as not to disturb the order of priority Y. To do this, simply select as root of the tree, which has root more in Y, and recursively called itself from other tree and the son of the selected tree.</p>
+<p>Now the obvious implementation of the <b>Insert (X, Y)</b>. First descend the tree (as in ordinary binary search tree in X), but stop at the first element, wherein the priority value was less than Y. We found a position where we will insert our element. Now call Split (X) from the found element (from the element together with all its subtree), and it returned the L and R recordable as the left child and right child of the added element.</p>
+<p>Also clear and the implementation of the <b>Erase (X)</b>. Descend the tree (as in ordinary binary search tree in X), searching for the item being removed. Having found the element, we simply call Merge from the left and right sons, and its return value put in place of the removed item.</p>
+<p><b>Build</b> implement O (N log N) just by using successive calls to Insert.</p>
+<p>Finally, the <b>Union (T<sub>1</sub>, T<sub>2</sub>)</b>. Theoretically its complexity is O (M log (N/M)), but in practice it works very well, probably with a very small hidden constant. Let, without loss of generality, T<sub>1</sub>->Y > T<sub>2</sub>->Y, i.e. the root of T<sub>1</sub> will be the root of the result. To get the result, we need to merge trees T<sub>1</sub>>L, T<sub>1</sub>->R and T<sub>2</sub> in two of these tree, to make the sons of T<sub>1</sub>. To do this, call Split (T<sub>2</sub>, T<sub>1</sub>>X), thus we partition T<sub>2</sub> into two halves L and R, which are then recursively combine with the sons of T<sub>1</sub>: Union (T<sub>1</sub>->L, L) and Union (T<sub>1</sub>->R, R)thus, we construct left and right subtrees of the result.</p>
+the <h2>Implementation</h2>
+<p>Implement all of the above. Here, for convenience, introduced other designations - the priority is indicated prior, value - key.</p>
+<code>struct item {
+int key, prior;
+item * l, * r;
+item() { }
+item (int key, int prior) : key(key), prior(prior), l(NULL), r(NULL) { }
+};
+typedef item * pitem;
+
+void split (pitem t, int key, pitem & l, pitem & r) {
+if (!t)
+l = r = NULL;
+else if (key &lt; t->key)
+split (t->l, key, l, t->l), r = t;
+else
+split (t->r, key, t->r, r), l = t;
+}
+
+void insert (pitem & t, pitem it) {
+if (!t)
+t = it;
+else if (it->prior > t->prior)
+split (t, it->key, it->l, it->r), t = it;
+else
+insert (it->key &lt; t->key ? t->l : t->r, it);
+}
+
+void merge (pitem & t, l pitem, pitem r) {
+if (!l || !r)
+t = l ? l : r;
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l;
+else
+merge (r->l, l, r->l), t = r;
+}
+
+void erase (pitem & t, int key) {
+if (t->key == key)
+merge (t, t->l, t->r);
+else
+erase (key &lt; t->key ? t->l : t->r, key);
+}
+
+pitem unite (l pitem, pitem r) {
+if (!l || !r) return l ? l : r;
+if (l->prior &lt; r->prior) swap (l, r);
+pitem lt, rt;
+split (r, l->key, lt, rt);
+l->l = unite (l->l, lt);
+l->r = unite (l->r, rt);
+return l;
+}</code>
+the <h2>Support the size of the subtrees</h2>
+<p>to extend the functionality of a Cartesian tree, it is often necessary for each node to store the number of vertices in the subtree - int cnt a field in the structure item. For example, it will be easy to find in O (log N) K-th largest element of the tree, or, conversely, for the same asymptotics for the number of item in the sorted list (the implementation of these operations will not differ from their realization for ordinary binary search trees).</p>
+<p>If you change the tree (add or remove element, etc.) should vary accordingly and some cnt peaks. Define two functions - the function cnt() returns the current value of cnt, or 0 if the vertex does not exist, and the function upd_cnt() will update the value of cnt for a given vertex, provided that her sons l and r, these cnt already updated correctly. Then, of course, need to add function calls upd_cnt() at the end of each of the functions insert, erase, split, merge, to continuously maintain the correct cnt values.</p>
+<code>int cnt (pitem t) {
+return t ? t->cnt : 0;
+}
+
+void upd_cnt (pitem t) {
+if (t)
+t->cnt = 1 + cnt(t->l) + cnt (t->r);
+}</code>
+the <h2>Build Cartesian tree in O (N) in offline</h2>
+<p>TODO</p>
+the <h2>Implicit Cartesian trees</h2>
+<p>an Implicit Cartesian tree is a simple modification of the usual Cartesian tree, which, however, turns out to be a very powerful data structure. In fact, the implicit Cartesian tree can be thought of as an array over which you can implement the following operations (all O (log N) in the mode-line):</p>
+the <ul>
+the <li>element is inserted into the array in any position</li>
+the <li>Removing an arbitrary item</li>
+the <li>Sum, min/max random interval, etc.</li>
+the <li>Addition, painting on a segment</li>
+the <li>flip (permutation of items in reverse order) on the interval</li>
+</ul>
+<p>the Key idea is that as keys key you should use <b>indices</b> of elements in the array. However, to explicitly store the values key, we will not (otherwise, for example, when you insert would have to change key in O (N) vertices of the tree).</p>
+<p>note that actually in this case the key of a vertex is the number of vertices smaller than her. It should be noted that peaks smaller than this are not only in its left subtree, but possibly in the left subtrees of her ancestors. More strictly, <b>implicit key</b> for some vertex t is equal to the number of vertices cnt(t->l) in the left subtree of this vertex plus the similar value cnt(p->l)+1 for each parent p of this node, provided that t is in the right subtree for p.</p>
+<p>Okay, now quickly calculate for the current vertex its implicit key. As in all operations we arrive at any vertex, going down the tree, we can simply accumulate this amount, transferring its functions. If we go to the left subtree - accumulated amount does not change, and if you go to the right - increases by cnt(t->l)+1.</p>
+<p>Give new implementations of the functions split and merge:</p>
+<code>void merge (pitem & t, l pitem, pitem r) {
+if (!l || !r)
+t = l ? l : r;
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l;
+else
+merge (r->l, l, r->l), t = r;
+upd_cnt (t);
+}
+
+void split (t pitem, pitem & l, pitem & r, int key, int add = 0) {
+if (!t)
+return void( l = r = 0 );
+int cur_key = add + cnt(t->l); // computed implicit key
+if (key &lt;= cur_key)
+split (t->l, l, t->l, key, add), r = t;
+else
+split (t->r t->r, r, key, add + 1 + cnt(t->l)), l = t;
+upd_cnt (t);
+}</code>
+<p>we Now turn to the implementation of various additional operations on the implicit Cartesian tree:</p>
+the <ul>
+the <li><b>Insert</b> element.<br>Suppose we need to insert an element at position pos. We split a treap into two halves: the corresponding array [0..pos-1] and array [pos..sz]; it's enough to cause the split (t, t1, t2, pos). After that, we can combine the tree t1 with a new top; it's enough to cause merge (t1, t1, new_item) (it is easy to verify that all preconditions for a merge is made). Finally, combine two trees t1 and t2, returning a tree t merge (t, t1, t2).</li>
+the <li><b>Remove</b> element.<br>Here things are even simpler: it is enough to find the deleted element, and then perform a merge for his sons l and r, and put the result of combining the destination vertex t. In fact, the removal of implicit Cartesian tree is not different from the removal of the usual Cartesian tree.</li>
+the <li><b>Amount/minimum</b>, etc. on the segment.<br>first, for each vertex will create an additional field f in the structure of the item in which to store the value of the objective function for the subtree of that node. Such a field is easy to maintain, you'd need to do the same as the support size of cnt (to create a function that calculates the value of this field, using its values to the sons, and insert calls to this function at the end of all functions that modify the tree).<br>secondly, we must learn to respond to a request by an arbitrary interval [A;B]. Learn to distinguish a tree from its part corresponding to the segment [A;B]. It is easy to see that it is enough to first call split (t, t1, t2, A), and then split (t2, t2, t3, B-A+1). As a result, the tree t2 and will consist of all elements in the interval [A;B], and only them. Consequently, the answer to the query will be in the field f of the vertices of t2. After answering the query tree need to restore the call merge (t, t1, t2) and merge (t, t, t3).</li>
+the <li><b>Adding/painting</b> segment.<br>Here we proceed similar to the previous paragraph, but instead of the field f will be stored in the field add, which will contain the added value (or value to which all color the subtree of this node). Before performing any operations that value add should be "push" - i.e., change t-l->add and t->r->add, and add the value to remove. Thereby we will ensure that any changes in the tree, the data will not be lost.</li>
+the <li><b>the Coup</b> segment.<br>This item is almost similar to the previous one - you need to enter the field, bool rev, which is set to true when you want to make a revolution in subtree of current node. "Pushing through" field rev is that we trade places of the sons of the current node, and set this flag for them.</li>
+</ul>
+<p><b>Sales</b>. Give an example, a full implementation of an implicit Cartesian tree with the flip on the interval. Here each vertex is also stored field value - the actual value of the item standing in the array at the current position. See also implementation function output () which outputs an array that corresponds to the current state of implicit Cartesian tree.</p>
+<code>typedef struct item * pitem;
+struct item {
+int prior, value, cnt;
+bool rev;
+pitem l, r;
+};
+
+int cnt (pitem it) {
+return it ? it->cnt : 0;
+}
+
+void upd_cnt (pitem it) {
+if (it)
+it->cnt = cnt(it->l) + cnt(it->r) + 1;
+}
+
+void push (pitem it) {
+if (it && it->rev) {
+it->rev = false;
+swap (it->l, it->r);
+if (it->l) it->l->rev ^= true;
+if (it->r) it->r->rev ^= true;
+}
+}
+
+void merge (pitem & t, l pitem, pitem r) {
+push (l);
+push (r);
+if (!l || !r)
+t = l ? l : r;
+else if (l->prior > r->prior)
+merge (l->r, l->r, r), t = l;
+else
+merge (r->l, l, r->l), t = r;
+upd_cnt (t);
+}
+
+void split (t pitem, pitem & l, pitem & r, int key, int add = 0) {
+if (!t)
+return void( l = r = 0 );
+push (t);
+int cur_key = add + cnt(t->l);
+if (key &lt;= cur_key)
+split (t->l, l, t->l, key, add), r = t;
+else
+split (t->r t->r, r, key, add + 1 + cnt(t->l)), l = t;
+upd_cnt (t);
+}
+
+void reverse (pitem t, int l, int r) {
+pitem t1, t2, t3;
+split (t, t1, t2, l);
+split (t2, t2, t3, r-l+1);
+t2->rev ^= true;
+merge (t, t1, t2);
+merge (t, t, t3);
+}
+
+void output (pitem t) {
+if (!t) return;
+push (t);
+output (t->l);
+printf ("%d ", t->value);
+output (t->r);
+}</code>

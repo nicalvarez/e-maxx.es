@@ -1,0 +1,556 @@
+
+\h1{ DSU }
+
+
+This article discusses the data structure \bf{"DSU"} (in English "disjoint-set-union", or simply "DSU").
+
+This data structure provides the following capabilities. Initially, there are several elements, each of which is in a separate (your own) set. You \bf{to combine two of any of a multitude} and \bf{request what variety} is now specified element. Also, in the classic version, it introduces another surgery --- create a new element, which is placed in a separate lot.
+
+Thus, the basic interface of this data structure consists of only three operations:
+
+\ul{
+
+\li ${\rm make\_set}(x)$ --- \bf{adds} the new element $x$, putting him in a new set consisting of one.
+
+\li ${\rm union\_sets}(x,y)$ --- \bf{combines} the two specified sets (the set containing the element $x$, and the set contains the element $y$).
+
+\li ${\rm find\_set}(x)$ --- \bf{returns what variety} is specified the element $x$. Actually this returns one of the elements of the set (called \bf{representative} or \bf{leader} (in the English language "leader")). This representative is chosen for each set, the data structure (and can change over time, namely, after call of ${\rm union\_sets}()$).
+
+For example, if a call to ${\rm find\_set}()$ for any two elements returned the same value, it means that these elements are in the same set, otherwise --- in different sets.
+
+}
+
+As described below, the data structure allows you to do each of these operations is near $O(1)$ on average (for more details on the asymptotics, see below after the description of the algorithm).
+
+Also in one of the subsections of article describes an alternative implementation of the DSU, which allows to achieve the asymptotic $O(\log n)$ on average one request when $m \ge n$; but when $m >> n$ (i.e. $m$ is much greater than $n$) --- and at time $O(1)$ on average to the request (see "Storage DSU in the form of an explicit list of sets").
+
+
+
+
+\h2{ Building efficient data structures }
+
+Decide first, what form we will store all the information.
+
+Many items we will store in \bf{trees}: one tree corresponds to one set. The root of the tree is the representative (leader) of the set.
+
+In the implementation this means that we have an array of ${\rm parent}$, where for each element we store a reference to its ancestor in the tree. For the roots of trees we assume that their ancestor --- they (i.e., the reference loops in this place).
+
+
+
+\h3{ Naive implementation }
+
+We can write the first implementation of disjoint set Union. It will be quite inefficient, but then we improve it by using two techniques, gaining almost a constant time.
+
+So, all the information about the sets of elements is stored by us with the help of the ${\rm parent}$.
+
+To create a new item (operation ${\rm make\_set}(v)$), we simply create a tree rooted at a vertex $v$, noting that her ancestor is itself.
+
+To merge two sets (operation ${\rm union\_sets}(a,b)$), we first find the leaders of many, in which $a$, and set, which is $b$. If the leaders match, do nothing --- it means that many were already United. Otherwise, you can simply specify that the parent of vertex $b$ of $a$ (or Vice versa) --- thus attaching one tree to another.
+
+Finally, the implementation of search operations leader (${\rm find\_set}(v)$) is simple: we climb the ancestors from the vertex $v$, until we reach the root, i.e., until the reference to the ancestor does not lead in itself. This operation is easier to implement recursively (especially it will be convenient later, because of the added optimizations).
+
+\code
+void make_set (int v) {
+parent[v] = v;
+}
+
+int find_set (int v) {
+if (v == parent[v])
+return v;
+return find_set (parent[v]);
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b)
+parent[b] = a;
+}
+\endcode
+
+However, this implementation of disjoint set Union is very \bf{inefficient}. It is easy to construct an example when, after several associations set get a situation that many --- this tree, degenerated into a long chain. As a result, every call to ${\rm find\_set}()$ will work on this test in depth of tree, i.e. $O(n)$.
+
+This is far from the asymptotics, which we were going to get (constant time). Therefore, we consider two optimizations that will allow (even applied individually) to considerably speed up the work.
+
+
+
+\h3{ Heuristic path compression }
+
+This heuristic aims to speed up work ${\rm find\_set}()$.
+
+It lies in the fact that when after calling ${\rm find\_set}(v)$ we find the desired of the leader of the $p$ sets, remember that a vertex $v$ and all passed on the way tops --- that this leader of $p$. This is easily done by redirecting their ${\rm parent}[]$ to the vertex $p$.
+
+Thus, the array of ancestors ${\rm parent}[]$ the meaning is somewhat different: now it \bf{a compressed array of ancestors}, i.e. for every vertex there can be stored not a direct ancestor, and ancestor ancestor ancestor ancestor ancestor, etc.
+
+On the other hand, it is clear that it is impossible to make these signs for ${\rm parent}$ always points to the leader, otherwise when you perform an operation ${\rm union\_sets}()$ would have to update the leaderboard in $O(n)$ elements.
+
+Thus, the array ${\rm parent}[]$ should be understood as an array of ancestors, perhaps partially compressed.
+
+The new implementation of the operation ${\rm find\_set}()$ is as follows:
+
+\code
+int find_set (int v) {
+if (v == parent[v])
+return v;
+return parent[v] = find_set (parent[v]);
+}
+\endcode
+
+This simple implementation does what was intended: first, by recursive calls is the leader of many, and then, during stack unwinding, this leader is assigned to the links ${\rm parent}$ for all passed elements.
+
+To implement this operation and non-recursive, but then have to make two passes: first find the desired leader, the second --- will affix it to all vertices of the path. However, in practice non-recursive implementation does not provide any substantial gain.
+
+
+\h4{ evaluation of the asymptotic behavior when applying the heuristic of path compression }
+
+We will show that the use of heuristics one compression path \bf{allows to achieve logarithmic complexity}: $O(\log n)$ per query on average.
+
+Note that because the operation ${\rm union\_sets}()$ is two calls to ${\rm find\_set}()$ and $O(1)$ operations, we can focus only on the proof of assessment work time $O(m)$ operations, ${\rm find\_set}()$.
+
+Let's call \bf{weight} $w[v]$ of a vertex $v$ the number of descendants of this node (including it itself). The weight of the peaks, obviously, can only increase during the algorithm.
+
+Let's call \bf{scale edges} $(a,b)$ the difference between the weights of the ends of this edge: $|w[a] w[b]|$ (obviously, at the top of the ancestor weight is always more than at top-descendant). You will notice that the scope of any of the fixed edges $(a,b)$ can only increase during the algorithm.
+
+In addition, we divide the edges into \bf{classes}: we say that an edge is of class $k$, if its scope belongs to the segment $[2^k 2^{k+1}-1]$. Thus, the class of edges is a number from $0$ to $\lceil \log n \rceil$.
+
+Now let us fix an arbitrary vertex $x$ and we will see how the edge to its ancestor: first, it is not (yet vertex $x$ is the leader), then is an edge from $x$ to a vertex (a vertex $x$ attached to the other set), and then can be changed by path compression in the process calls ${\rm find\_path}$. It is clear that we are interested in the asymptotics of only the last case (with path compression): for all other cases require $O(1)$ time per query.
+
+Consider the work some call the operation ${\rm find\_set}$: it traverses the tree along a \bf{path} erasing all edges of this path and redirecting them to the leader.
+
+Consider this path and \bf{exclude} from the review of the last rib of each class (i.e. no more than one edge from class $0, 1, \ldots \lceil \log n \rceil$). Thus, we excluded $O(\log n)$ edges from each request.
+
+Let us now consider all the \bf{else} edges of this path. For each such edge, if it has a class $k$, it turns out that in this path there is another side of the class $k$ (otherwise, we would be obliged to exclude the current edge as the only representative of the class $k$). Thus, after compression the way this edge will be replaced with an edge of class at least $k+1$. Given that to decrease the weight of the rib can't, we get that for each vertex affected by the query $\rm find\_path$, an edge to its ancestor either was excluded or strictly increased his class.
+
+Hence we finally obtain the asymptotic behavior of $m$ queries: $O((n+m) \log n)$ (with $m \ge n$) means logarithmic time per query on average.
+
+
+
+\h3{ Heuristic Union-by-rank }
+
+Consider here another heuristic, which itself is able to speed up the algorithm, and in conjunction with a heuristic path compression and is able to achieve almost constant time per query on average.
+
+This heuristic is a slight change of work ${\rm union\_sets}$: if in a naive implementation, which tree is attached to, is determined by chance, now we will do this using the \bf{ranks}.
+
+There are two options of ranking heuristics: in one embodiment, the rank of a tree is called a \bf{number of vertices} in it, in the other --- \bf{tree depth} (more precisely, the upper bound on the tree depth, as in a joint application of the heuristic path compression real depth the wood can shrink).
+
+In both cases, the essence of heuristics one and the same: when you run $\rm union\_sets$ we attach a tree with lower rank to tree with high rank.
+
+Here is an implementation of \bf{rank heuristics based on tree size}:
+
+\code
+void make_set (int v) {
+parent[v] = v;
+size[v] = 1;
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (size[a] < size[b])
+swap (a, b);
+parent[b] = a;
+size[a] += size[b];
+}
+}
+\endcode
+
+Here is an implementation of \bf{rank heuristics based on the depth of the tree}:
+
+\code
+void make_set (int v) {
+parent[v] = v;
+rank[v] = 0;
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = a;
+if (rank[a] == rank[b])
+++rank[a];
+}
+}
+\endcode
+
+Both variants of the ranking heuristics are equivalent from the point of view of asymptotics, so in practice you can use any of them.
+
+
+\h4{ evaluation of the asymptotics in the application of rank heuristics }
+
+We show that the asymptotic behavior of the system into disjoint sets when ranked using only heuristics, no heuristic path compression, will be \bf{logarithmic} in one request average: $O (\log n)$.
+
+Here we show that for any two variants of ranking heuristics depth of each tree will be the size of $O (\log n)$, which automatically would mean the logarithmic asymptotics for query $\rm find\_set$, and therefore the query $\rm union\_sets$.
+
+Consider \bf{rank heuristics on the depth of the tree}. We show that if the rank of the tree is $k$, then the tree contains at least $2^k$ vertices (here will automatically follow that grade, and, hence, the depth of the tree, is the value $O(\log n)$). We will prove by induction: for $k=0$ this is obvious. By path compression depth can only decrease. The grade of wood increases with $k-1$ to $k$, when it is joined by a tree of rank $k-1$; using these two trees of size $k-1$, the induction hypothesis, we get that new tree of rank $k$ will have to have at least $2^k$ vertices, what we wanted to prove.
+
+Let us now consider \bf{rank heuristics on the size of the trees}. We show that if the size of the tree is $k$, then its height is not more than $\lfloor \log k \rfloor$. We will prove by induction: for $k=1$ the statement is true. By path compression depth can only decrease, so path compression is not violating anything. Now let's unite two trees of size $k_1$ and $k_2$; then by the induction hypothesis, their height less than or equal to, respectively, $\lfloor \log k_1 \rfloor$ and $\lfloor \log k_2 \rfloor$. Without losing generality, we consider that the first tree --- more ($k_1 \ge k_2$), so after the merge, the depth of the resulting tree from $k_1+k_2$ of vertices will be equal to:
+
+$$ h = \max ( \lfloor \log k_1 \rfloor, 1 + \lfloor \log k_2 \rfloor ). $$
+
+To complete the proof, we must show that:
+
+$$ h ~ \stackrel{?}{\le} ~ \lfloor \log (k_1+k_2) \rfloor, $$
+$$ 2^h = \max ( 2 ^ {\lfloor \log k_1 \rfloor}, 2 ^ {\lfloor \log k_2 2 \rfloor} ) ~ \stackrel{?}{\le} ~ 2 ^ {\lfloor \log (k_1+k_2) \rfloor}, $$
+
+that is almost obvious inequality, since $k_1 \le k_1+k_2$ and $2 k_2 \le k_1+k_2$.
+
+
+
+\h3{ Combining heuristics: path compression heuristics plus rank }
+
+As mentioned above, the combined use of these heuristics gives the best result especially, eventually reaching a practically constant time operation.
+
+We will not give here the proof of the asymptotics, because it is quite voluminous (see, e.g., Cormen, Leiserson, Rivest, Stein "Algorithms. The construction and analysis"). For the first time this proof was carried out by Tarjan (1975).
+
+The final result is that the joint application of heuristics path compression and Union-by-rank work time on a single query is obtained to $O (\alpha(n))$ on average, where $\alpha(n)$ --- \bf{inverse Ackerman function}, which grows very slowly, so slowly that for all reasonable restrictions to $n$ it \bf{not greater than 4} (about for $n \le 10^{600}$).
+
+It is therefore about the asymptotic behavior of the disjoint set Union, it is appropriate to say "almost constant time".
+
+We present here the \bf{final implementation of disjoint set Union} that implements both heuristics (heuristics used rank the relative depths of the trees):
+
+\code
+void make_set (int v) {
+parent[v] = v;
+rank[v] = 0;
+}
+
+int find_set (int v) {
+if (v == parent[v])
+return v;
+return parent[v] = find_set (parent[v]);
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = a;
+if (rank[a] == rank[b])
+++rank[a];
+}
+}
+\endcode
+
+
+
+
+\h2{ Application to problems and improvements }
+
+In this section, we review several applications of data structures "DSU" as trivial and uses some to improve the structure of the data.
+
+
+
+\h3{ Support of connected components of graph }
+
+This is one of the obvious applications of data structures "DSU", which, apparently, and stimulated the study of this structure.
+
+\bf{Formally} the problem can be formulated as follows: given a graph initially empty, gradually in this graph can be added vertices and undirected edges, as well as receive requests of $(a,b)$ --- "in the same connected components are vertices $a$ and $b$?".
+
+Directly here using the above data structure, we obtain a solution that handles a single request to add vertices/edges or the request for verification of the two nodes --- in nearly constant time on average.
+
+Given that almost exactly the same objective is pursued when using \algohref=mst_kruskal{\bf{Kruskal's algorithm for finding the minimum spanning tree}}, we immediately get \algohref=mst_kruskal_with_dsu{an improved version of this algorithm} that works almost in linear time.
+
+Sometimes in practice there is \bf{inverted version of this task}: initially there is a graph with some vertices and edges, and requests for the deletion of edges. If the task is given offline, i.e. we can read all the queries, it is possible to solve this problem as follows: turn the problem backwards: we assume that we have a blank graph that can be added to the fin (first fin add the last request, then the penultimate, etc.). Thus, as a result invert this task, we came to the regular task, which was described above.
+
+
+
+\h3{ Finding connected components in image }
+
+One of the more obvious applications DSU is to solve the following problem: there is an image of $n \times m$ pixels. Initially, all the image white, but then you draw on it a few black pixels. You want to determine the size of each white connected components in the final image.
+
+For solution we simply iterate over all the white squares of the image, for each cell iterated its four neighbors and if the neighbor is also white --- invoke ${\rm union\_sets}()$ from these two vertices. Thus, we will have a DSU with $nm$ vertices corresponding to the pixels of the image. The resulting trees DSU --- and have the search connected components.
+
+This problem is easy to solve using \algohref=dfs{depth} (or \algohref=bfs{BFS}); however, the method described here has a certain advantage: it can process the matrix row by row (only in current row, previous row, and a DSU built for the elements of one line), i.e., using $O(\min (n, m))$ memory.
+
+
+
+\h3{ Support for additional info for each set }
+
+"The DSU" makes it easy to store any additional information pertaining to the sets.
+
+A simple example is the \bf{sets the size}: how to do everything described in the description of the ranking heuristics (the information there was recorded for the current leader of the set).
+
+Thus, together with the leader of each set can store any additional required task specific information.
+
+
+
+\h3{ application of the DSU to compress the "hops" along the segment. The problem of calculating e painting offline }
+
+One of the common uses DSU is that if there is a set of elements, and each element leaves at least one edge, we can fast (almost constant time) find the end point to which we will get if we move along the edges from a specified starting point.
+
+A good example of this application is \bf{the problem of calculating e painting}: there is a segment of length $L$, each cell (i.e. each slice of length $1$) has zero color. Receive requests of the form $(l,r,c)$ --- repaint segment $[l;r]$ in color $c$. You want to find the final color of each cell. Requests are considered to be known in advance, i.e. is offline.
+
+To resolve we can make DSU-structure for each cell will store a link on near right unpainted cage. Thus, initially, each cell points to itself, and after painting the first podutiska --- cell before podutiska will point to the cell after the end podutiska.
+
+Now, to solve the problem, we consider queries colorization \bf{in reverse order}: from the last to the first. To execute the query we just each time with the help of our DSU find the leftmost cell in unpainted cut, repaint it, and we move the pointer from it to the next empty cell to the right.
+
+Thus, we here actually use DSU with compression paths heuristic, but heuristics without rank (because it is important for us, who will be the leader after the merger). Therefore, the complexity will be $O(\log n)$ on the query (though small compared to other data structures constant).
+
+Implementation:
+
+\code
+void init() {
+for (int i=0; i<L; ++i)
+make_set (i);
+}
+
+void process_query (int l, int r, int c) {
+for (int v=l; ; ) {
+v = find_set (v);
+if (v >= r) break;
+answer[v] = c;
+parent[v] = v+1;
+}
+}
+\endcode
+
+However, you can implement this solution \bf{with rank heuristics}: will be stored for each set in some array of ${\rm end}[]$, where this set ends (i.e., rightmost point). Then we can merge two sets into one by their rank the heuristics, then adding the resulting multiple new right border. Thus, we obtain the solution for $O(\alpha(n))$.
+
+
+
+\h3{ Support distances up to leader }
+
+Sometimes in specific applications of the disjoint set Union emerges the requirement to maintain the distance to the leader (i.e. the length of a path in the edges in the tree from the current node to the root of the tree).
+
+If it were not for the heuristic path compression, then any difficulties would not arise --- the distance to the root is just equal to the number of recursive calls made by the function $\rm find\_set$.
+
+However, in the result of path compression some ribs paths could be compressed into one edge. Thus, together with each vertex will need to store additional information such as \bf{length of the current edge from the vertices in ancestor}.
+
+In the implementation it is convenient to represent the array of ${\rm parent}[]$ and the function $\rm find\_set$ now returns a single number, and a pair of numbers: the top leader and the distance to it:
+
+\code
+void make_set (int v) {
+parent[v] = make_pair (v, 0);
+rank[v] = 0;
+}
+
+pair<int,int> find_set (int v) {
+if (v != parent[v].first) {
+int len = parent[v].second;
+parent[v] = find_set (parent[v].first);
+parent[v].second += len;
+}
+return parent[v];
+}
+
+void union_sets (int a, int b) {
+a = find_set (a) .first;
+b = find_set (b) .first;
+if (a != b) {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = make_pair (a, 1);
+if (rank[a] == rank[b])
+++rank[a];
+}
+}
+\endcode
+
+
+
+\h3{ Support parity of the path length and the problem of verification of graph dualnote online }
+
+By analogy with the path length to the leader, so it is possible to maintain the parity of the length of the path before him. Why is the application was allocated to a separate item?
+
+The fact is that usually the requirement for storing parity the way POPs up in connection with the following \bf{task}: initially given a blank graph, it can be added to the rib and to receive requests of the form "is the connected component containing the given vertex, \bf{bipartite}?".
+
+To solve this problem, we can make the DSU to store connected components, and store at each vertex the parity of the length of the path to its leader. Thus, we can quickly check whether adding the specified rib to the violation of dualnote count or not: namely, if the ends of the ribs lie in the same connected component, and thus have the same parity of the path length to the leader, the addition of this edge will lead to an odd-length cycle and the transformation of the current components in medvedology.
+
+Main \bf{complexity}, with which we are faced with, is that we should carefully, taking into account cenesta, to produce the Union of two trees in $\rm union\_sets$.
+
+If we add the edge $(a,b)$ that connects two connected components into one, then when you attach one tree to another, we need to tell him such a parity, to have vertices $a$ and $b$ it would have turned out different parity of the path length.
+
+Print \bf{formula}, which is supposed to be this parity, putting the leader of one of many when you attach it to the leader of the other set. Denote by $x$ the parity of the length of the path from vertex $a$ to a leader of many, through the $y$ --- the parity of the path length from the vertex $b$ to a leader of many, and using $t$ --- the desired parity, we have to put the join the leader. If the set of with vertex $a$ joins the many with vertex $b$, becoming a subtree, then after joining at the top $b$ the parity will not change and will remain equal to $y$, and vertices $a$, the parity will be equal to $x \oplus t$ (the symbol $\oplus$ represents the XOR operation (symmetric difference)). We require that these two differed in parity, i.e., their XOR is equal to the unit. I.e., we get the equation for $t$:
+
+$$ x \oplus t \oplus y = 1, $$
+
+solving which, we find:
+
+$$ t = x \oplus y \oplus 1. $$
+
+Thus, no matter how many subscribes to what, it is necessary to use the specified formula for specifying the parity of the edges, held from one leader to another.
+
+Let us cite \bf{implementation} DSU supports chetnosti. As in the previous paragraph, for the sake of convenience we use a pair to store the ancestors and the result of the operation $\rm find\_set$. In addition, for each set we stored in the array ${\rm bipartite}[]$, is it still a bipartite or not.
+
+\code
+void make_set (int v) {
+parent[v] = make_pair (v, 0);
+rank[v] = 0;
+bipartite[v] = true;
+}
+
+pair<int,int> find_set (int v) {
+if (v != parent[v].first) {
+int parity = parent[v].second;
+parent[v] = find_set (parent[v].first);
+parent[v].second ^= parity;
+}
+return parent[v];
+}
+
+void add_edge (int a, int b) {
+pair<int,int> pa = find_set (a);
+a = pa.first;
+int x = pa.second;
+
+pair<int,int> pb = find_set (b);
+b = pb.first;
+int y = pb.second;
+
+if (a == b) {
+if (x == y)
+bipartite[a] = false;
+}
+else {
+if (rank[a] < rank[b])
+swap (a, b);
+parent[b] = make_pair (a, x ^ y ^ 1);
+bipartite[a] &= bipartite[b];
+if (rank[a] == rank[b])
+++rank[a];
+}
+}
+
+bool is_bipartite (int v) {
+return bipartite[ find_set(v) .first ];
+}
+\endcode
+
+
+
+\h3{ an Algorithm for RMQ (minimum on the interval) for $O(\alpha(n))$ on average, offline }
+
+\bf{Formally} the problem is formulated as follows: we need to implement a data structure which supports two kinds of requests: adds the specified number ${\rm insert}(i)$ ($i = 1 \ldots n$) and search and retrieval of the current minimum number ${\rm extract\_min}()$. We assume that each number is added exactly once.
+
+In addition, we believe that the entire sequence of requests is known in advance, i.e. is offline.
+
+\bf{solution} this. Instead take turns to answer each query, iterate over the number $i = 1 \ldots n$, and determine the answer to a query, this number should be. To do this, we need to find the first unanswered request, after adding the ${\rm insert}(i)$ of this number --- is easy to understand that this is the query, the answer to which is the number of $i$.
+
+Thus, the idea here is similar to \bf{the problem of painting line segments}.
+
+You can get the solution for $O(\log n)$ on average for a query, if we abandon the ranking heuristics and will just store in each element the reference to the request nearest to the right of ${\rm extract\_min}()$, and use path compression to maintain these links after associations.
+
+You can also obtain a solution and $O(\alpha(n))$, if we use the rank heuristic and will store for each set, the room where it ends (that in the previous version of the solution is achieved automatically due to the fact that links have always been just right --- now it will be necessary to store explicitly).
+
+
+
+\h3{ an Algorithm for finding LCA (lowest common ancestor in the tree) for $O(\alpha(n))$ on average, offline }
+
+The Tarjan algorithm for finding the LCA for $O(1)$ on average online is described in \algohref=lca_linear_offline{related article}. This algorithm compares favorably with other algorithms for finding LCA in its simplicity (especially compared to \algohref=lca_linear{an optimal algorithm Farah-Colton-Bender}).
+
+
+
+\h3{ DSU Storage in the form of an explicit list of sets. The use of this idea when merging various data structures }
+
+One of the alternative ways of storing DSU is to keep every set in the form \bf{list of explicitly stored elements}. Thus, each element also stores a link to the representative (leader) of his set.
+
+At first glance it seems that this is an inefficient data structure: by combining the two sets we will have to add one list to the end of another, and update the leader elements of the two lists.
+
+However, as it turns out, the use of \bf{weight heuristics}, similar to that described above, can significantly reduce the time complexity: $O(m + n \log n)$ to perform $m$ requests over $n$ elements.
+
+Under the weight of the heuristics assumes that we always \bf{will be adding smaller of the two sets in more}. Adding ${\rm union\_sets}()$ one set to another easily implemented in the size of the added set, and the search leader's ${\rm find\_set} ()$ for a time $O(1)$ with this method of storage.
+
+Let us prove \bf{complexity} of $O(m + n \log n)$ to perform $m$ queries. Fix an arbitrary element $x$, and see how it affected the join operation ${\rm union\_sets}$. When $x$ was affected the first time, we can say that the size of the new set will be at least $2$. When $x$ was affected for the second time --- it can be argued that he gets into lots of not less than $4$ (because we add the smaller set to a larger). And so on --- we obtain that the element $x$ could be impacted by the maximum $\lceil \log n \rceil$ of join operations. Thus, in the sum of all vertices is $O (n \log n)$, plus $O(1)$ per query --- what we wanted to prove.
+
+Here is an example \bf{implementation}:
+
+\code
+vector<int> lst[MAXN];
+int parent[MAXN];
+
+void make_set (int v) {
+lst[v] = vector<int> (1, v);
+parent[v] = v;
+}
+
+int find_set (int v) {
+return parent[v];
+}
+
+void union_sets (int a, int b) {
+a = find_set (a);
+b = find_set (b);
+if (a != b) {
+if (lst[a].size() < lst[b].size())
+swap (a, b);
+while (!lst[b].empty()) {
+int v = lst[b].back();
+lst[b].pop_back();
+parent[v] = a;
+lst[a].push_back (v);
+}
+}
+}
+\endcode
+
+Also, this idea adding elements of the smaller sets in a larger can be used outside the framework of the DSU, when solving other problems.
+
+For example, consider the following \bf{problem}: given a tree, each leaf of which is assigned a number (the same number may appear multiple times with different leaves). Required for each tree node to know the number of different numbers in the subtree.
+
+Applying to this task the same idea, we can obtain the following solution: let \algohref=dfs{DFS} tree, which will return a pointer to ${\rm set}$ numbers --- list of all the numbers in the subtree of that node. Then, to get the answer for the current node (unless, of course, it is not a leaf) --- necessary to cause the depth of all children of this node, and merge all received ${\rm set}$ to one, the amount of which and will be the answer for the current node. To effectively combine multiple ${\rm set}$ one just applies the above-described reception: we merge two sets, by simply adding one of the elements of the smaller sets in more. In the end, we will get a solution for $O (n \log^2 n)$, since adding one element in ${\rm set}$ is $O (\log n)$.
+
+
+
+\h3{ DSU Storage with preservation of the explicit structure of the trees. Perepodpisanie. The algorithm for finding bridges in a graph $O(\alpha(n))$ on average online }
+
+One of the powerful applications of data structures "disjoint set Union" is that it allows you to store \bf{both compressed and uncompressed structure trees}. The compressed structure can be used to merge trees and test whether the two vertices of one tree, and uncompressed --- such as finding the path between two given vertices, or other traversals of the tree structure.
+
+In the implementation this means that in addition to the usual array of compressed DSU ancestors ${\rm parent} []$, we will create an array of conventional, uncompressed, ancestors ${\rm real\_parent}[]$. It is clear that maintaining this array does not worsen the asymptotic behavior: changes in it occur only when you merge two trees, and only in one element.
+
+On the other hand, when applying in practice often have to learn how to connect the two trees indicated by an edge, not necessarily coming from their roots. This means that we have no other choice but \bf{periodicity} one of the trees for a given vertex, then we can attach this tree to the next, making the root of the tree child node to the second end of the added edges.
+
+At first glance it seems that the operation of perepodpisanie --- is very costly and greatly impairs the asymptotics. Indeed, for perepodpisanie tree for a vertex $v$ we need to go from this vertex to the root of tree, updating all pointers to ${\rm parent} [a]$ and ${\rm real\_parent}[]$.
+
+But actually it's not so bad-just pereozvuchivat of two trees that is less to get simpatico one Union, equal to $O (\log n)$ on average.
+
+More details (including proofs of the asymptotics), see \algohref=bridge_searching_online{an algorithm for finding bridges in a graph $O(\log n)$ on average online}.
+
+
+
+
+\h2{ Historical background }
+
+The data structure "DSU" was known rather for a long time.
+
+Way of storing this structure in the form of \bf{a forest of trees} was, apparently, first described by Galler and Fisher in 1964 (Galler, Fisher, "An Improved Equivalence Algorithm"), however, a complete analysis of asymptotics was conducted much later.
+
+\bf{Heuristics} path compression and Union-by-rank, apparently, has developed McIlroy (McIlroy) and Morris (Morris), and, independently, Tritter (Tritter).
+
+Some time was known only to estimate $O(\log^* n)$ per operation on average, given by Hopcroft and Ullman in 1973 (Hopcroft, Ullman, "Set-merging algomthms") --- here $\log^* n$ --- \bf{iterated logarithm} (this is a slow-growing function, but not so slow as the inverse Ackermann function).
+
+First estimate $O (\alpha(n))$, where $\alpha(n)$ --- \bf{inverse Ackerman function} --- received Tarján in his article in 1975 (Tarjan "Efficiency of a Good But Not Linear Set Union Algorithm"). Later in 1985 he, along with Luvena received this interim assessment for several different ranking heuristics and compression path (Tarjan, Leeuwen "Worst-Case Analysis of Set Union Algorithms").
+
+Finally, Fredman and Saks in 1989 proved that the adopted computational model \bf{any} algorithm for disjoint set Union must work at least $O(\alpha(n))$ on average (Fredman, Saks, "The cell probe complexity of dynamic data structures").
+
+However, it should also be noted that there are a few articles \bf{challenging} this provisional valuation and claimed that disjoint sets with heuristics path compression and Union-by-rank work for $O(1)$ on average: Zhang "The Union-Find Problem Is Linear", Wu, Otoo "A Simpler Proof of the Average Case Complexity of Union-Find with Path Compression".
+
+
+
+\h2{ Problem in online judges }
+
+A list of tasks that can be solved by using disjoint set Union:
+
+\ul{
+\li \href=http://acm.timus.ru/problem.aspx?space=1&num=1671{TIMUS #1671 \bf{"passenger comfort"} ~~~~ [difficulty: easy]}
+\li \href=http://codeforces.EN/contest/25/problem/D{CODEFORCES 25D \bf{"Roads not only in Berland"} ~~~~ [difficulty: medium]}
+\li \href=http://acm.timus.ru/problem.aspx?space=1&num=1003{TIMUS #1003 \bf{"Parity"} ~~~~ [difficulty: medium]}
+\li \href=http://www.spoj.pl/problems/CHAIN/{SPOJ #1442 \bf{"Chain"} ~~~~ [difficulty: medium]}
+}
+
+
+
+
+\h2{ Literature }
+
+\ul{
+\li \book{Thomas Cormen, Charles Leiserson, Ronald Rivest, Clifford Stein}{Algorithms: Construction and analysis}{2005}{cormen.djvu}
+\li \book{Kurt Mehlhorn, Peter Sanders}{Algorithms and Data Structures: The Basic Toolbox}{2008}{algorithms_toolbox_mehlhorn.pdf}
+\li \book{Robert Endre Tarjan}{Efficiency of a Good But Not Linear Set Union Algorithm}{1975}{dsu/Efficiency of a Good But Not Linear Set Union Algorithm. Tarjan.pdf}
+\li \book{Robert Endre Tarjan, Jan van Leeuwen}{Worst-Case Analysis of Set Union Algorithms}{1985}{dsu/Worst-Case Analysis of Set Union Algorithms. Tarjan, Leeuwen.pdf}
+}

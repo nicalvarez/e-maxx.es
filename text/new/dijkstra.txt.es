@@ -1,0 +1,125 @@
+\h1{Finding shortest paths from a given vertex to all other vertices by Dijkstra's algorithm}
+
+\h2{problem Statement}
+
+Given a directed or an undirected weighted graph with $n$ vertices and $m$ edges. All edge weights are nonnegative. Indicated some starting vertex $s$. You want to find the length of shortest paths from vertex $s$ to all other vertices, as well as to provide the output themselves shortest paths.
+
+This task is called the "problem of shortest paths from a single source" (single source shortest paths problem).
+
+\h2{Algorithm}
+
+It describes an algorithm that suggested the Dutch Explorer \bf{Dijkstra} (Dijkstra) in 1959
+
+Will create an array $d []$ where each vertex $v$ we will store the current length of $d[v]$ of the shortest path from $s$ to $v$. Originally $d[s]=0$, and for all other vertices, this length is equal to infinity (when implemented on a computer usually as infinity just choose a sufficiently large number, obviously the greater the possible length of the path):
+$$ d[v] = \infty, v \ne s $$
+
+In addition, for each vertex $v$ will be stored, it is still marked or not, i.e. will create a Boolean array $u[]$. Initially all vertices are marked, i.e.
+$$ u[v] = {\rm false} $$
+
+The Dijkstra algorithm consists of $n$ \bf{iterations}. On the next iteration choose a vertex $v$ with the smallest value of $d[v]$ has not marked, i.e.:
+$$ d[v] = \min_{p: u[p]={\rm false}} d[p] $$
+
+(It is clear that the first iteration will be selected starting vertex $s$.)
+
+Thus the selected vertex $v$ is marked is marked. Further, in the current iteration, the vertices $v$ are \bf{relaxation}: all edges $(v,to)$ emanating from a vertex $v$, and for each such node $to$ the algorithm tries to improve the value $d[to]$. Let the length of the current edge is equal to $\rm len$, then in the form of a relaxation code looks like:
+$$ d[to] = \min (d[to], d[v] + {\rm len}) $$
+
+In this current iteration terminates, the algorithm proceeds to the next iteration (again choose a vertex with the least value of $d$, it produces relaxation, etc.). In the end, after $n$ iterations, all the vertices will be marked, and the algorithm completes its work. It is claimed that the found values of $d[v]$ is the desired length of shortest paths from $s$ to $v$.
+
+It is worth noting that, if not all the vertices reachable from the vertex $s$, the values $d[v]$ for them will remain endless. It is clear that the last few iterations of the algorithm will just select these vertices, but no useful work to perform these iterations will not (since an infinite distance cannot relax, even too infinite distance). Therefore, the algorithm can be stopped as soon as the selected vertex is taken as the vertex with infinite distance.
+
+\bf{repairing paths}. Normally, of course, need to know not only the lengths of shortest paths but also to get the paths. Show how to maintain information sufficient for restoration of the shortest path from $s$ to any node. It is enough the so-called \bf{parent array}: array $p[]$, where for each vertex $v \ne s$ stores the number of the vertex $p[v]$, which is the penultimate in the shortest path to vertex $v$. Here we use the fact that if we take the shortest path to some vertex $v$, and then remove from this path the last vertex, then the path ending in a vertex of $p[v]$, and this path will be the shortest for the vertex $p[v]$. So, if we have this array of ancestors, the shortest path can be recovered by him, just taking time each ancestor from the current vertex, until we come to the starting vertex $s$ --- so we will get the desired shortest path, but written in reverse order. So, the shortest path $P$ to the vertex $v$ is equal to:
+$$ P = (s, \ldots, p[p[p[v]]], p[p[v]], p[v], v) $$
+
+Now you have to understand how to build this array of ancestors. However, it is very simple: at each successful relaxation, i.e., when the selected vertex $v$ there is improvement in the distance to some point $to$, we record that the ancestor vertices $to$ vertex $v$:
+$$ p[to] = v $$
+
+\h2{Proof}
+
+\bf{Main statement}, which is based on the correctness of the Dijkstra algorithm, as follows. It is alleged that after any vertex $v$ becomes marked, the current distance $d[v]$ is the shortest, and, accordingly, will no longer change.
+
+\bf{Proof} we will produce by induction. For the first iteration of the justice of it is obvious --- to the vertices of $s$ are $d[s]=0$, which is the length of the shortest path to it. Now suppose this statement holds for all previous iterations, i.e. all labeled vertices; we prove that it is not violated after execution of the current iteration. Let $v$ --- the vertex that is selected on the current iteration, i.e. a vertex that the algorithm is going to mark. Prove that $d[v]$ is indeed equal to the length of the shortest path to it (we denote this length using $l[v]$).
+
+Consider a shortest path $P$ to the vertices $v$. Clearly, this path can be divided into two ways: $P_1$, consisting of only marked nodes (at least the starting vertex $s$ will be in this path), and the rest of the way to $P_2$ (it can be marked vertex, but starts always with untagged). Denote by $p$ the first vertex of a path $P_2$, and using $q$ --- the last vertices of the paths $P_1$.
+
+We shall first prove our assertion for the vertex $p$, i.e. we prove the equality $d[p] = l[p]$. However, this is almost obvious: indeed, on one of the previous iterations, we chose a vertex $q$ and performed the relaxation from it. Since (because of the choice of vertices of $p$) is the shortest path to $p$ equal to the shortest path up to $q$ plus an edge $(p,q)$, then when you execute the relaxation of the $q$ value of $d[p]$ is indeed set to the desired value.
+
+Due to the nonnegativity of costs of edges in the shortest path $l[p]$ (and it only proved that $d[p]$) does not exceed the length $l[v]$ of the shortest path to vertex $v$. Given that $l[v] \le d[v]$ (because Dijkstra's algorithm could not find a shorter way than that is even possible), in the result, we obtain the relation:
+$$ d[p] = l[p] \le l[v] \le d[v] $$
+
+On the other hand, since both $p$ and $v$ --- unlabeled vertices, since the current iteration was chosen vertex $v$, and vertex $p$, then we obtain another inequality:
+$$ d[p] \ge d[v] $$
+
+From these two inequalities we conclude the equality $d[p] = d[v]$, and then found up to this ratio and we get:
+$$ d[v] = l[v] $$
+
+what we wanted to prove.
+
+\h2{the Implementation}
+
+So, Dijkstra's algorithm is an $n$ iterations, each of which selects the unmarked vertex with smallest value of $d[v]$, this vertex is marked, and then viewed all the edges emanating from this vertex and along each edge there is an attempt to improve the value to $d[]$ at the other end of the edge.
+
+The algorithm consists of:
+\ul{
+\li $n$ times search the vertices with the smallest value of $d[v]$ among all unmarked vertices, i.e., among $O(n)$ vertices
+\li $m$ times is performed attempt relaxation
+}
+
+In the simplest implementation of these operations on search the top will take $O(n)$ operations, and a relaxation --- $O(1)$ operations, and the final \bf{asymptotics} of the algorithm is:
+$$ O(n^2+m) $$
+
+\bf{Implementation}:
+
+\code
+const int INF = 1000000000;
+
+int main() {
+int n;
+... read n ...
+vector < vector < pair<int,int> > > g (n);
+... reading graph ...
+int s = ...; // starting vertex
+
+vector<int> d (n, INF), p (n);
+d[s] = 0;
+vector<char> u (n);
+for (int i=0; i<n; ++i) {
+int v = -1;
+for (int j=0; j<n; j++)
+if (!u[j] && (v == -1 || d[j] < d[v]))
+v = j;
+if (d[v] == INF)
+break;
+u[v] = true;
+
+for (size_t j=0; j<g[v].size(); ++j) {
+int to = g[v][j].first,
+len = g[v][j].second;
+if (d[v] + len < d[to]) {
+d[to] = d[v] + len;
+p[to] = v;
+}
+}
+}
+}
+\endcode
+
+Here a graph $g$ is stored as an adjacency list: for each vertex $v$ the list $g[v]$ contains the list of edges emanating from this vertex, i.e. a list of pairs $\rm pair<int,int>$, where the first element of a pair --- the vertex to which the edge leads, and the second entry is the edge weight.
+
+After reading the acquired arrays of the distances $d[]$, labels $u[]$ ancestors and $p[]$. Then run $n$ iterations. At each iteration, first is the vertex $v$ with minimum distance $d[]$ between the unlabeled vertices. If the distance to the selected vertex $v$ is equal to infinity, the algorithm stops. Otherwise the vertex is marked as tagged, and viewed all the edges emanating from this vertex and along each edge relaxation is performed. If the relaxation is successful (i.e., the distance $d[to]$ change) then recalculated the distance $d[to]$ preserves the ancestor $p[]$.
+
+After performing all the iterations in the array $d[]$ are the lengths of the shortest paths to all vertices, and in the array $p[]$ --- the ancestors of all vertices (except the first one $s$). Restore path to any vertex $t$ as follows:
+\code
+vector<int> path;
+for (int v=t; v!=s; v=p[v])
+path.push_back (v);
+path.push_back (s);
+reverse (path.begin(), path.end());
+\endcode
+
+\h2{Literature}
+
+\ul{
+\li \book{Thomas Cormen, Charles Leiserson, Ronald Rivest, Clifford Stein}{Algorithms: Construction and analysis}{2005}{cormen.djvu}
+\li \book{Edsger Dijkstra}{A note on two problems in connexion with graphs}{1959}
+}

@@ -1,0 +1,71 @@
+
+\h1{ Shortest paths of a fixed length, the number of paths of fixed length }
+
+The following describes these two tasks, built on the same idea: the problem to the construction of matrix (with the usual multiplication operation, and retrofit).
+
+
+\h2{ the Number of paths of fixed length }
+
+Suppose you are given a directed unweighted graph $G$ with $n$ vertices and given an integer $k$. Required for each pair of vertices $i$ and $j$ to find the number of paths between these vertices, consisting of exactly $k$ edges. The way we consider arbitrary, not necessarily simple (i.e., vertices may be repeated any number of times).
+
+We assume that the graph is set to \bf{a connectivity matrix}, i.e. a matrix $g[][]$ of size $n \times n$ where each element $g[i][j]$ is equal to one if among these vertices there is an edge, and zero if no edges. The algorithm described below works in the case of multiple edges: if some vertices $i$ and $j$ has $m$ edges, then the adjacency matrix should record that the number of $m$. Also, the algorithm correctly takes into account loops in the graph, if any.
+
+It is obvious that in this form \bf{adjacency matrix} of a graph is \bf{the answer to the problem when $k=1$} --- it contains the number of paths of length $1$ between each pair of vertices.
+
+The solution will build \bf{iteratively} let the answer for some $k$ was found, we show how to build it for $k+1$. Let $d_k$ found the answer matrix for $k$, and using $d_{k+1}$ --- the matrix of answers that you want to build. Then the following formula is obvious:
+
+$$ d_{k+1}[i][j] = \sum_{p = 1}^{n} d_k[i][p] \cdot g[p][j]. $$
+
+It is easy to notice that the formula above written --- not that other, as the product of two matrices $d_k$ and $g$ in the usual sense:
+
+$$ d_{k+1} = d_k \cdot g. $$
+
+Thus, \bf{solution} this problem can be represented as follows:
+
+$$ d_k = \underbrace{ g \cdot \ldots \cdot g}_{k\ {\rm times}} = g^k. $$
+
+It remains to notice that the construction of the matrix can be produced efficiently using the algorithm \algohref=binary_pow{\bf{Binary exponentiation}}.
+
+So, the solution has complexity $O (n^3 \log k)$ and it consists in the construction of a binary in $k$-th degree of the adjacency matrix of the graph.
+
+
+\h2{ Shortest paths of fixed length }
+
+Suppose you are given a directed weighted graph $G$ with $n$ vertices and given an integer $k$. Required for each pair of vertices $i$ and $j$ to find the length of the shortest path between these vertices, consisting of exactly $k$ edges.
+
+We assume that the graph is set to \bf{a connectivity matrix}, i.e. a matrix $g[][]$ of size $n \times n$ where each element $g[i][j]$ contains the length of an edge from vertex $i$ to vertex $j$. If some vertices of the edge, then the corresponding element of the matrix we believe to infinity $\infty$.
+
+It is obvious that in this form \bf{adjacency matrix} of a graph is \bf{the answer to the problem when $k=1$} --- it contains the lengths of shortest paths between every pair of vertices, or $\infty$ if the paths are of length $1$ does not exist.
+
+The solution will build \bf{iteratively} let the answer for some $k$ was found, we show how to build it for $k+1$. Let $d_k$ found the answer matrix for $k$, and using $d_{k+1}$ --- the matrix of answers that you want to build. Then the following formula is obvious:
+
+$$ d_{k+1}[i][j] = \min_{p = 1 \ldots n} ( d_k[i][p] + g[p][j] ). $$
+
+Carefully looking at this formula, it is easy to draw an analogy with matrix multiplication: in fact, the matrix $d_k$ is multiplied by a matrix $g$, only the operation of multiplication instead of a sum over all $p$ takes the minimum over all $p$:
+
+$$ d_{k+1} = d_k \odot g $$
+
+where the operation $\odot$ of the multiplication of two matrices is defined as follows:
+
+$$ A \odot B = C \ \ \Longleftrightarrow\ \ C_{ij} = \min_{p=1 \ldots n} (A_{ip} + B_{pj}). $$
+
+Thus, \bf{solution} this problem can be represented by using the operation of multiplication as follows:
+
+$$ d_k = \underbrace{ g \odot \ldots \odot g}_{k\ {\rm times}} = g^{\odot k}. $$
+
+It remains to notice that the exponentiation with the operation of multiplication can be produced efficiently using the algorithm \algohref=binary_pow{\bf{Binary exponentiation}}, since the only required property for him --- the associative multiplication operation --- obviously, there is.
+
+So, the solution has complexity $O (n^3 \log k)$ and it consists in the construction of a binary in $k$-th degree of the adjacency matrix of the graph with the changed operation of matrix multiplication.
+
+
+\h2{ the Generalization to the case where the required path length, not more than a given length }
+
+The solutions above solve the problem, when you want to consider ways a certain, fixed length. However, these same solutions can be adapted to solve problems when required to consider paths that contain \bf{more} than the specified number of edges.
+
+You can do this by slightly modifying the input graph. For example, if we are only interested in paths ending in a given vertex of $t$, we can count in \bf{add loop} $(t,t)$ zero weight.
+
+If we continue to be interested in the answers for all pairs of vertices, it is easy to add loops to all vertices will spoil the answer. Instead, \bf{double} each vertex: for each vertex $v$ to vertex $v'$, to hold the edge $(v,v')$ and add a loop $(v',v')$.
+
+Deciding on a modified graph the problem of finding paths of fixed length, the answers to the original problem will be obtained as responses between vertices $i$ and $j'$ (i.e., additional vertices is the top-end in which we can "whirl" the desired number of times).
+
+
